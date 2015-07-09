@@ -1,0 +1,32 @@
+{
+    "appKeys": {
+        "KEY_GMT_OFFSET": 2,
+        "KEY_LOCATION_LAT": 0,
+        "KEY_LOCATION_LNG": 1
+    },
+    "capabilities": [
+        "location"
+    ],
+    "companyName": "Freakified",
+    "longName": "TimelineStyle",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu_icon_pixel_billboard.png",
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "TimelineStyle",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "0aeb60a0-056f-4cdd-810e-4d7aa4c0e7e3",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
