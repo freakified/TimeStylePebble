@@ -42,18 +42,27 @@ void update_clock() {
   time(&rawTime);
   timeInfo = localtime(&rawTime);
   
+//   timeInfo->tm_hour = 11;
+//   timeInfo->tm_min = 16;
+  
+  int hour = timeInfo->tm_hour;
+  
   if (!clock_is_24h_style()) {
-    timeInfo->tm_hour %= 12;
+    if(hour > 12) {
+      hour %= 12;
+    } else if(timeInfo->tm_hour == 0) {
+      hour = 12;
+    }
   }
   
   // use the blank image for the leading hour digit if needed
-  if(timeInfo->tm_hour / 10 != 0) {
-    ClockDigit_setNumber(&clockDigits[0], timeInfo->tm_hour / 10);
+  if(hour / 10 != 0) {
+    ClockDigit_setNumber(&clockDigits[0], hour / 10);
   } else {
     ClockDigit_setNumber(&clockDigits[0], 10);
   }
   
-  ClockDigit_setNumber(&clockDigits[1], timeInfo->tm_hour % 10);
+  ClockDigit_setNumber(&clockDigits[1], hour % 10);
   ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10);
   ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10);
   
@@ -170,6 +179,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static void init() {
+  setlocale(LC_TIME, "fr_FR");
+  
   mainAreaFG = GColorOrange;
 //   mainAreaFG = GColorGreen;
   mainAreaBG = GColorBlack;
