@@ -13,6 +13,11 @@
     "resources": {
         "media": [
             {
+                "file": "data/PARTLY_CLOUDY.pdc",
+                "name": "WEATHER_PARTLY_CLOUDY",
+                "type": "raw"
+            },
+            {
                 "file": "images/digit_9.png",
                 "name": "CLOCK_DIGIT_9",
                 "type": "png"

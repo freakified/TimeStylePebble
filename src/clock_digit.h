@@ -10,6 +10,8 @@ typedef struct {
   int currentNum;
   GColor bgColor;
   GColor fgColor;
+  GColor midColor1;
+  GColor midColor2;
   uint32_t currentImageId;
   GBitmap* currentImage;
   BitmapLayer* imageLayer;
@@ -24,3 +26,5 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg);
 
 void ClockDigit_construct(ClockDigit* this, GPoint pos);
 void ClockDigit_destruct(ClockDigit* this);
+
+void CDPrivate_adjustImagePalette(ClockDigit* this);

@@ -26,6 +26,9 @@ void ClockDigit_setNumber(ClockDigit* this, int number) {
     this->currentImage = gbitmap_create_with_resource(this->currentImageId);
     this->currentNum = number;
     
+    //set the palette properly
+    CDPrivate_adjustImagePalette(this);
+    
     //set the layer to the new image
     bitmap_layer_set_bitmap(this->imageLayer, this->currentImage);
     
@@ -44,31 +47,15 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
   int colorIncrementG = (fg.g * 85 - bg.g * 85) / 3;
   int colorIncrementB = (fg.b * 85 - bg.b * 85) / 3;
   
-//   printf("IncR: %d, IncG: %d, IncB: %d", colorIncrementR, colorIncrementG, colorIncrementB);
-  
-  GColor midColor1 = GColorFromRGB(fg.r * 85 - colorIncrementR,
+  this->midColor1 = GColorFromRGB(fg.r * 85 - colorIncrementR,
                                    fg.g * 85 - colorIncrementG,
                                    fg.b * 85 - colorIncrementB);
   
-//   printf("R: %d, G: %d, B: %d", fg.r * 85 - colorIncrementR, fg.g * 85 - colorIncrementG, fg.b * 85 - colorIncrementB);
- 
-  
-//   printf("Generated Midcolor1 R: %d, G: %d, B: %d", midColor1.r, midColor1.g, midColor1.b);
-  
-  GColor midColor2 = GColorFromRGB(bg.r * 85 + colorIncrementR,
+  this->midColor2 = GColorFromRGB(bg.r * 85 + colorIncrementR,
                                    bg.g * 85 + colorIncrementG,
                                    bg.b * 85 + colorIncrementB);
   
-//   printf("R: %d, G: %d, B: %d", bg.r * 85 + colorIncrementR, bg.g * 85 + colorIncrementG, bg.b * 85 + colorIncrementB);
-  
-//   printf("Generated Midcolor2 R: %d, G: %d, B: %d", midColor2.r, midColor2.g, midColor2.b);
-  
-  GColor* pal = gbitmap_get_palette(this->currentImage);
-
-  pal[0] = fg;
-  pal[1] = midColor1;
-  pal[2] = midColor2;
-  pal[3] = bg;
+  CDPrivate_adjustImagePalette(this);
 }
 
 void ClockDigit_construct(ClockDigit* this, GPoint pos) {
@@ -77,6 +64,9 @@ void ClockDigit_construct(ClockDigit* this, GPoint pos) {
   this->fgColor= GColorBlack;
   
   this->imageLayer = bitmap_layer_create(GRect(pos.x, pos.y, 48, 71));
+  
+  ClockDigit_setNumber(this, 0);
+  ClockDigit_setColor(this, GColorBlack, GColorWhite);
 }
 
 void ClockDigit_destruct(ClockDigit* this) {
@@ -85,4 +75,13 @@ void ClockDigit_destruct(ClockDigit* this) {
   
   // deallocate the background image
   gbitmap_destroy(this->currentImage);
+}
+
+void CDPrivate_adjustImagePalette(ClockDigit* this) {
+  GColor* pal = gbitmap_get_palette(this->currentImage);
+
+  pal[0] = this->fgColor;
+  pal[1] = this->midColor1;
+  pal[2] = this->midColor2;
+  pal[3] = this->bgColor;
 }
