@@ -18,8 +18,17 @@ static Layer* sidebarLayer;
 static GDrawCommandImage *weatherImage;
 static GDrawCommandImage *dateImage;
 
+// fonts
+static GFont sidebarFont;
+static GFont dateFont;
+
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
+
+// the date and weather strings
+// static char[3] currentDay;
+// static char[2] currentMDay;
+// static char[2] currentMonth;
 
 void update_clock() {
   time_t rawTime;
@@ -32,6 +41,7 @@ void update_clock() {
   ClockDigit_setNumber(&clockDigits[1], timeInfo->tm_hour % 10);
   ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10);
   ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10);
+  
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
@@ -43,8 +53,36 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   }
   
   if (dateImage) {
-    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 124));
+    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 121));
   }
+  
+  // TODO: make this configurable?
+  graphics_context_set_text_color(ctx, GColorBlack);
+  
+  // now draw in the text
+  graphics_draw_text(ctx,
+                     "SAT",
+                     sidebarFont,
+                     GRect(2, 103, 26, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+  
+  graphics_draw_text(ctx,
+                     "11",
+                     dateFont,
+                     GRect(4, 127, 22, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+  
+  graphics_draw_text(ctx,
+                     "JUN",
+                     sidebarFont,
+                     GRect(2, 146, 26, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
 }
 
 static void main_window_load(Window *window) {
@@ -62,6 +100,10 @@ static void main_window_load(Window *window) {
   }
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past color setting");
+  
+  // load font
+  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+  dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   
   // init the sidebar layer
   sidebarLayer = layer_create(GRect(114, 0, 30, 168));

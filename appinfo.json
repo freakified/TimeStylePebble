@@ -13,13 +13,13 @@
     "resources": {
         "media": [
             {
-                "file": "data/DATE_BG.pdc",
-                "name": "DATE_BG",
+                "file": "data/PARTLY_CLOUDY.pdc",
+                "name": "WEATHER_PARTLY_CLOUDY",
                 "type": "raw"
             },
             {
-                "file": "data/PARTLY_CLOUDY.pdc",
-                "name": "WEATHER_PARTLY_CLOUDY",
+                "file": "data/DATE_BG.pdc",
+                "name": "DATE_BG",
                 "type": "raw"
             },
             {
