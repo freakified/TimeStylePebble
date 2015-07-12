@@ -79,7 +79,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_draw_text(ctx,
                      "JUN",
                      sidebarFont,
-                     GRect(2, 146, 26, 20),
+                     GRect(2, 147, 26, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -102,7 +102,7 @@ static void main_window_load(Window *window) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past color setting");
   
   // load font
-  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   
   // init the sidebar layer
