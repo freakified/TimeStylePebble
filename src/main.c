@@ -16,6 +16,7 @@ static Layer* sidebarLayer;
 
 // temp PDC
 static GDrawCommandImage *weatherImage;
+static GDrawCommandImage *dateImage;
 
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
@@ -38,8 +39,11 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   
   if (weatherImage) {
-    // Draw it
-    gdraw_command_image_draw(ctx, weatherImage, GPoint(2,7));
+    gdraw_command_image_draw(ctx, weatherImage, GPoint(2, 7));
+  }
+  
+  if (dateImage) {
+    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 124));
   }
 }
 
@@ -66,8 +70,9 @@ static void main_window_load(Window *window) {
   
   // temp: load the weather PDC image
   weatherImage = gdraw_command_image_create_with_resource(RESOURCE_ID_WEATHER_PARTLY_CLOUDY);
-  if (!weatherImage) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load weather image.");
+  dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
+  if (!weatherImage && !dateImage) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load a PDC image.");
   }
   
   window_set_background_color(window, mainAreaBG);
@@ -84,6 +89,7 @@ static void main_window_unload(Window *window) {
   layer_destroy(sidebarLayer);
   
   gdraw_command_image_destroy(weatherImage);
+  gdraw_command_image_destroy(dateImage);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -118,7 +124,7 @@ static void init() {
   window_stack_push(mainWindow, true);
   
   // Register with TickTimerService
-  //tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 }
 
 static void deinit() {
