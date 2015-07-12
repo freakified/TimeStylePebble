@@ -71,6 +71,11 @@
                 "file": "images/digit_0.png",
                 "name": "CLOCK_DIGIT_0",
                 "type": "png"
+            },
+            {
+                "file": "images/digit_blank.png",
+                "name": "CLOCK_DIGIT_BLANK",
+                "type": "png"
             }
         ]
     },
