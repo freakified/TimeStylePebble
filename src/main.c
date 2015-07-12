@@ -17,6 +17,11 @@ static Layer* sidebarLayer;
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
 
+void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
+  graphics_context_set_fill_color(ctx, mainAreaFG);
+  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+}
+
 static void main_window_load(Window *window) {
   ClockDigit_construct(&clockDigits[0], GPoint(7, 7));
   ClockDigit_construct(&clockDigits[1], GPoint(60, 7));
@@ -29,7 +34,10 @@ static void main_window_load(Window *window) {
     layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(clockDigits[i].imageLayer));
   }
   
-//   sidebarLayer = layer_create(GRect(114, 0, 30, 168));
+  // init the sidebar layer
+  sidebarLayer = layer_create(GRect(114, 0, 30, 168));
+  layer_add_child(window_get_root_layer(window), sidebarLayer);
+  layer_set_update_proc(sidebarLayer, sidebarLayerUpdateProc);
 
   window_set_background_color(window, mainAreaBG);
   
@@ -41,6 +49,8 @@ static void main_window_unload(Window *window) {
   for(int i = 0; i < 4; i++) {
     ClockDigit_destruct(&clockDigits[i]);
   }
+  
+  layer_destroy(sidebarLayer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
