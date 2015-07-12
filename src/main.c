@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <ctype.h>
 #include "clock_digit.h"
 // #include "messaging.h"
 // #include "bgpicker.h"
@@ -26,25 +27,52 @@ static GFont dateFont;
 static ClockDigit clockDigits[4];
 
 // the date and weather strings
-// static char[3] currentDay;
-// static char[2] currentMDay;
-// static char[2] currentMonth;
+static char currentDayName[4];
+static char currentDayNum[3];
+static char currentMonth[4];
 
 void update_clock() {
+  // set the locale
+//   setlocale(LC_ALL, "en_US");
+  setlocale(LC_TIME, "es_ES");
+  
   time_t rawTime;
   struct tm* timeInfo;
 
   time(&rawTime);
   timeInfo = localtime(&rawTime);
   
-  timeInfo->tm_hour = 10;
-  timeInfo->tm_min = 10;
+  if (!clock_is_24h_style()) {
+    timeInfo->tm_hour %= 12;
+  }
   
-  ClockDigit_setNumber(&clockDigits[0], timeInfo->tm_hour / 10);
+  // use the blank image for the leading hour digit if needed
+  if(timeInfo->tm_hour / 10 != 0) {
+    ClockDigit_setNumber(&clockDigits[0], timeInfo->tm_hour / 10);
+  } else {
+    ClockDigit_setNumber(&clockDigits[0], 10);
+  }
+  
   ClockDigit_setNumber(&clockDigits[1], timeInfo->tm_hour % 10);
   ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10);
   ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10);
   
+  // set all the date strings
+  strftime(currentDayName, 4, "%a", timeInfo);
+  strftime(currentDayNum,  3, "%e", timeInfo);
+  strftime(currentMonth,   4, "%b", timeInfo);
+  
+  // convert day and month names to uppercase
+  for(int i = 0; i < 4; i++) {
+    currentDayName[i] = toupper((int)currentDayName[i]);
+    currentMonth[i]   = toupper((int)currentMonth[i]);
+  }
+  
+  // remove padding on date num, if needed
+  if(currentDayNum[0] == ' ') {
+    currentDayNum[0] = currentDayNum[1];
+    currentDayNum[1] = '\0';
+  }
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
@@ -56,7 +84,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   }
   
   if (dateImage) {
-    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 120));
+    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
   }
   
   // TODO: make this configurable?
@@ -64,49 +92,49 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   
   // now draw in the text
   graphics_draw_text(ctx,
-                     "SAT",
+                     currentDayName,
                      sidebarFont,
-                     GRect(2, 102, 26, 20),
+                     GRect(1, 95, 28, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
   
   graphics_draw_text(ctx,
-                     "11",
+                     currentDayNum,
                      dateFont,
-                     GRect(4, 126, 22, 20),
+                     GRect(4, 121, 22, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
   
   graphics_draw_text(ctx,
-                     "JUN",
+                     currentMonth,
                      sidebarFont,
-                     GRect(2, 146, 26, 20),
+                     GRect(1, 142, 28, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
 }
 
 static void main_window_load(Window *window) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "trying to construct");
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "trying to construct");
   ClockDigit_construct(&clockDigits[0], GPoint(7, 7));
   ClockDigit_construct(&clockDigits[1], GPoint(60, 7));
   ClockDigit_construct(&clockDigits[2], GPoint(7, 90));
   ClockDigit_construct(&clockDigits[3], GPoint(60, 90));
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past construction");
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past construction");
   
   for(int i = 0; i < 4; i++) {
     ClockDigit_setColor(&clockDigits[i], mainAreaFG, mainAreaBG);
     layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(clockDigits[i].imageLayer));
   }
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past color setting");
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past color setting");
   
   // load font
-  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-  dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   
   // init the sidebar layer
   sidebarLayer = layer_create(GRect(114, 0, 30, 168));

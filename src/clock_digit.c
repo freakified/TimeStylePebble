@@ -60,7 +60,7 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
 }
 
 void ClockDigit_construct(ClockDigit* this, GPoint pos) {
-  this->currentNum = 10;
+  this->currentNum = -1;
   this->bgColor = GColorWhite;
   this->fgColor= GColorBlack;
   
@@ -80,9 +80,13 @@ void ClockDigit_destruct(ClockDigit* this) {
 
 void CDPrivate_adjustImagePalette(ClockDigit* this) {
   GColor* pal = gbitmap_get_palette(this->currentImage);
+  
+  // the blank image doesn't need palette swapping
+  if(this->currentImageId != RESOURCE_ID_CLOCK_DIGIT_BLANK) {
+    pal[0] = this->fgColor;
+    pal[1] = this->midColor1;
+    pal[2] = this->midColor2;
+    pal[3] = this->bgColor;
+  } 
 
-  pal[0] = this->fgColor;
-  pal[1] = this->midColor1;
-  pal[2] = this->midColor2;
-  pal[3] = this->bgColor;
 }
