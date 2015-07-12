@@ -37,6 +37,9 @@ void update_clock() {
   time(&rawTime);
   timeInfo = localtime(&rawTime);
   
+  timeInfo->tm_hour = 10;
+  timeInfo->tm_min = 10;
+  
   ClockDigit_setNumber(&clockDigits[0], timeInfo->tm_hour / 10);
   ClockDigit_setNumber(&clockDigits[1], timeInfo->tm_hour % 10);
   ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10);
@@ -53,7 +56,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   }
   
   if (dateImage) {
-    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 121));
+    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 120));
   }
   
   // TODO: make this configurable?
@@ -63,7 +66,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_draw_text(ctx,
                      "SAT",
                      sidebarFont,
-                     GRect(2, 103, 26, 20),
+                     GRect(2, 102, 26, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -71,7 +74,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_draw_text(ctx,
                      "11",
                      dateFont,
-                     GRect(4, 127, 22, 20),
+                     GRect(4, 126, 22, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -79,7 +82,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_draw_text(ctx,
                      "JUN",
                      sidebarFont,
-                     GRect(2, 147, 26, 20),
+                     GRect(2, 146, 26, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);

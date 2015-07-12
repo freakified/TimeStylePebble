@@ -4,7 +4,7 @@
 /*
  * Array mapping numbers to resource ids
  */
-uint32_t ClockDigit_imageIds[10] = {RESOURCE_ID_CLOCK_DIGIT_0,
+uint32_t ClockDigit_imageIds[11] = {RESOURCE_ID_CLOCK_DIGIT_0,
                                     RESOURCE_ID_CLOCK_DIGIT_1,
                                     RESOURCE_ID_CLOCK_DIGIT_2,
                                     RESOURCE_ID_CLOCK_DIGIT_3,
@@ -13,7 +13,8 @@ uint32_t ClockDigit_imageIds[10] = {RESOURCE_ID_CLOCK_DIGIT_0,
                                     RESOURCE_ID_CLOCK_DIGIT_6,
                                     RESOURCE_ID_CLOCK_DIGIT_7,
                                     RESOURCE_ID_CLOCK_DIGIT_8,
-                                    RESOURCE_ID_CLOCK_DIGIT_9};
+                                    RESOURCE_ID_CLOCK_DIGIT_9,
+                                    RESOURCE_ID_CLOCK_DIGIT_BLANK};
 
 void ClockDigit_setNumber(ClockDigit* this, int number) {
   if(this->currentNum != number) {
@@ -59,13 +60,13 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
 }
 
 void ClockDigit_construct(ClockDigit* this, GPoint pos) {
-  this->currentNum = -1;
+  this->currentNum = 10;
   this->bgColor = GColorWhite;
   this->fgColor= GColorBlack;
   
   this->imageLayer = bitmap_layer_create(GRect(pos.x, pos.y, 48, 71));
   
-  ClockDigit_setNumber(this, 0);
+  ClockDigit_setNumber(this, 10);
   ClockDigit_setColor(this, GColorBlack, GColorWhite);
 }
 
