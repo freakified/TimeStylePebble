@@ -1,4 +1,5 @@
 #pragma once
+#include <pebble.h>
 
 #define KEY_LOCATION_LAT 0x0
 #define KEY_LOCATION_LNG 0x1

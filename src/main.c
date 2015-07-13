@@ -1,7 +1,8 @@
 #include <pebble.h>
 #include <ctype.h>
 #include "clock_digit.h"
-// #include "messaging.h"
+#include "weather.h"
+#include "messaging.h"
 // #include "bgpicker.h"
 
 // #define FORCE_BACKLIGHT true
@@ -16,7 +17,6 @@ static Window* mainWindow;
 static Layer* sidebarLayer;
 
 // PDC images
-static GDrawCommandImage *weatherImage;
 static GDrawCommandImage *dateImage;
 static GDrawCommandImage *disconnectImage;
 
@@ -92,8 +92,8 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   
   graphics_context_set_text_color(ctx, GColorBlack);
   
-  if (weatherImage) {
-    gdraw_command_image_draw(ctx, weatherImage, GPoint(2, 7));
+  if (currentWeatherIcon) {
+    gdraw_command_image_draw(ctx, currentWeatherIcon, GPoint(2, 7));
   }
   
   // draw weather data
@@ -164,11 +164,10 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), sidebarLayer);
   layer_set_update_proc(sidebarLayer, sidebarLayerUpdateProc);
   
-  // temp: load the weather PDC image
-  weatherImage = gdraw_command_image_create_with_resource(RESOURCE_ID_WEATHER_THUNDERSTORM);
+  // load the sidebar graphics
   dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
   disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
-  if (!weatherImage && !dateImage) {
+  if (!dateImage || !disconnectImage) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load a PDC image.");
   }
   
@@ -185,8 +184,8 @@ static void main_window_unload(Window *window) {
   
   layer_destroy(sidebarLayer);
  
-  gdraw_command_image_destroy(weatherImage);
   gdraw_command_image_destroy(dateImage);
+  gdraw_command_image_destroy(disconnectImage);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -213,7 +212,10 @@ static void init() {
   //bgpicker_init();
   
   // init the messaging thing
-  //messaging_init();
+  messaging_init();
+  
+  // init weather system
+  Weather_init();
   
   // Create main Window element and assign to pointer
   mainWindow = window_create();
@@ -238,6 +240,10 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(mainWindow);
+  
+  // unload weather stuff
+  Weather_deinit();
+  
   bluetooth_connection_service_unsubscribe();
 }
 

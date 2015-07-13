@@ -13,6 +13,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/digit_1.png",
+                "name": "CLOCK_DIGIT_1",
+                "type": "png"
+            },
+            {
                 "file": "data/THUNDERSTORM.pdc",
                 "name": "WEATHER_THUNDERSTORM",
                 "type": "raw"
@@ -66,11 +71,6 @@
                 "file": "data/CLOUDY_DAY.pdc",
                 "name": "WEATHER_CLOUDY",
                 "type": "raw"
-            },
-            {
-                "file": "images/digit_1.png",
-                "name": "CLOCK_DIGIT_1",
-                "type": "png"
             },
             {
                 "file": "images/digit_blank.png",

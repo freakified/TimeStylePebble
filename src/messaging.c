@@ -1,6 +1,6 @@
-#include <pebble.h>
 #include "location_info.h"
 #include "bgpicker.h"
+#include "weather.h"
 #include "messaging.h"
   
   
