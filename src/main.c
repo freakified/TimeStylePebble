@@ -15,9 +15,13 @@ static GColor mainAreaBG;
 static Window* mainWindow;
 static Layer* sidebarLayer;
 
-// temp PDC
+// PDC images
 static GDrawCommandImage *weatherImage;
 static GDrawCommandImage *dateImage;
+static GDrawCommandImage *disconnectImage;
+
+// current bluetooth state
+static bool isPhoneConnected;
 
 // fonts
 static GFont sidebarFont;
@@ -33,7 +37,6 @@ static char currentMonth[4];
 
 void update_clock() {
   // set the locale
-//   setlocale(LC_ALL, "en_US");
   setlocale(LC_TIME, "es_ES");
   
   time_t rawTime;
@@ -41,9 +44,6 @@ void update_clock() {
 
   time(&rawTime);
   timeInfo = localtime(&rawTime);
-  
-//   timeInfo->tm_hour = 11;
-//   timeInfo->tm_min = 16;
   
   int hour = timeInfo->tm_hour;
   
@@ -82,31 +82,45 @@ void update_clock() {
     currentDayNum[0] = currentDayNum[1];
     currentDayNum[1] = '\0';
   }
+  
+  layer_mark_dirty(sidebarLayer);
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_context_set_fill_color(ctx, mainAreaFG);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   
+  graphics_context_set_text_color(ctx, GColorBlack);
+  
   if (weatherImage) {
     gdraw_command_image_draw(ctx, weatherImage, GPoint(2, 7));
   }
   
-  if (dateImage) {
-    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
-  }
-  
-  // TODO: make this configurable?
-  graphics_context_set_text_color(ctx, GColorBlack);
+  // draw weather data
+  graphics_draw_text(ctx,
+                     " 74°",
+                     sidebarFont,
+                     GRect(-5, 30, 38, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
   
   // now draw in the text
   graphics_draw_text(ctx,
                      currentDayName,
                      sidebarFont,
-                     GRect(1, 95, 28, 20),
+                     GRect(0, 95, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+  
+  if (disconnectImage && !isPhoneConnected) {
+    gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
+  }
+  
+  if (dateImage) {
+    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
+  }
   
   graphics_draw_text(ctx,
                      currentDayNum,
@@ -119,7 +133,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_draw_text(ctx,
                      currentMonth,
                      sidebarFont,
-                     GRect(1, 142, 28, 20),
+                     GRect(0, 142, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -151,8 +165,9 @@ static void main_window_load(Window *window) {
   layer_set_update_proc(sidebarLayer, sidebarLayerUpdateProc);
   
   // temp: load the weather PDC image
-  weatherImage = gdraw_command_image_create_with_resource(RESOURCE_ID_WEATHER_PARTLY_CLOUDY);
+  weatherImage = gdraw_command_image_create_with_resource(RESOURCE_ID_WEATHER_THUNDERSTORM);
   dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
+  disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
   if (!weatherImage && !dateImage) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load a PDC image.");
   }
@@ -169,13 +184,18 @@ static void main_window_unload(Window *window) {
   }
   
   layer_destroy(sidebarLayer);
-  
+ 
   gdraw_command_image_destroy(weatherImage);
   gdraw_command_image_destroy(dateImage);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
+}
+
+void bluetooth_connection_callback(bool connection){
+   isPhoneConnected = connection;
+   layer_mark_dirty(sidebarLayer);
 }
 
 static void init() {
@@ -209,11 +229,16 @@ static void init() {
   
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  
+  bool connected = bluetooth_connection_service_peek();
+  bluetooth_connection_callback(connected);
+  bluetooth_connection_service_subscribe(bluetooth_connection_callback);
 }
 
 static void deinit() {
   // Destroy Window
   window_destroy(mainWindow);
+  bluetooth_connection_service_unsubscribe();
 }
 
 int main(void) {
