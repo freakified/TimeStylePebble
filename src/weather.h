@@ -1,9 +1,16 @@
 #pragma once
 #include <pebble.h>
 
-static GDrawCommandImage *currentWeatherIcon;
-static int currentTemp;
-static uint32_t currentWeatherIconResourceID;
+// persistent storage
+#define WEATHERINFO_PERSIST_KEY 2
+  
+typedef struct {
+  int currentTemp;
+  uint32_t currentIconResourceID;
+} WeatherInfo;
+  
+WeatherInfo Weather_weatherInfo;
+GDrawCommandImage *Weather_currentWeatherIcon;
 
 void Weather_setCondition(int conditionCode, bool isNight);
 void Weather_init();

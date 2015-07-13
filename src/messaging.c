@@ -4,7 +4,10 @@
 #include "messaging.h"
   
   
-void messaging_init() {
+void messaging_init(void (*processed_callback)(void)) {
+  // register my custom callback
+  message_processed_callback = processed_callback;
+  
   // Register callbacks
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
@@ -22,6 +25,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *lat_tuple = dict_find(iterator, KEY_LOCATION_LAT);
   Tuple *lng_tuple = dict_find(iterator, KEY_LOCATION_LNG);
   Tuple *tzOffset_tuple = dict_find(iterator, KEY_GMT_OFFSET);
+  Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
+  Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
+  Tuple *weatherIsNight_tuple = dict_find(iterator, KEY_USE_NIGHT_ICON);
   
   if (lat_tuple != NULL && lng_tuple != NULL && tzOffset_tuple != NULL) {
     LocationInfo loc; 
@@ -42,6 +48,18 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     
     bgpicker_updateLocation(loc);
     
+  }
+  
+  if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL && weatherIsNight_tuple != NULL) {
+    bool isNight = (bool)weatherIsNight_tuple->value->int32;
+    printf("The night value is: %d", (int)weatherIsNight_tuple->value->int32);
+    
+    // now set the weather conditions properly
+    Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
+    Weather_setCondition((int)weatherConditions_tuple->value->int32, isNight);
+    
+    // essentially, this forces the sidebar in main to redraw
+    message_processed_callback();
   }
 }
 

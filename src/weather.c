@@ -37,35 +37,45 @@ void Weather_setCondition(int conditionCode, bool isNight) {
       break;
     case 8: // clouds
       if(conditionCode == 800) {
-        iconToLoad = (isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
+        iconToLoad = (!isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
       } else if(conditionCode < 803) {
-        iconToLoad = (isNight) ? RESOURCE_ID_WEATHER_PARTLY_CLOUDY : RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT;
+        iconToLoad = (!isNight) ? RESOURCE_ID_WEATHER_PARTLY_CLOUDY : RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT;
       } else {
         iconToLoad = RESOURCE_ID_WEATHER_CLOUDY;
       }
       break;
     default: // hack: let's just treat the rest as clear
-      iconToLoad = (isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
+      iconToLoad = (!isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
       break;
   }
-  
+  printf("loading icon now");
   // ok, now load the new icon:
-  GDrawCommandImage* oldImage = currentWeatherIcon;
-  currentWeatherIcon = gdraw_command_image_create_with_resource(iconToLoad);
+  GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
+  Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(iconToLoad);
   gdraw_command_image_destroy(oldImage);
-  currentWeatherIconResourceID = iconToLoad;
+  Weather_weatherInfo.currentIconResourceID = iconToLoad;
 }
 
 void Weather_init() {
   // if possible, load weather data from persistent storage
+  if (persist_exists(WEATHERINFO_PERSIST_KEY)) {
+    WeatherInfo w;
+    persist_read_data(WEATHERINFO_PERSIST_KEY, &w, sizeof(WeatherInfo));
     
-  // load the icon
-  currentWeatherIcon = NULL;
+    Weather_weatherInfo = w;
+    
+    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
+  } else {
+    // otherwise, use null data
+    Weather_currentWeatherIcon = NULL;
+    Weather_weatherInfo.currentTemp = INT32_MIN;
+  }
 }
 
 void Weather_deinit() {
   // save weather data to persistent storage
+  persist_write_data(WEATHERINFO_PERSIST_KEY, &Weather_weatherInfo, sizeof(WeatherInfo));
   
   // free memory
-  gdraw_command_image_destroy(currentWeatherIcon);
+  gdraw_command_image_destroy(Weather_currentWeatherIcon);
 }

@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include <ctype.h>
+#include <math.h>
 #include "clock_digit.h"
 #include "weather.h"
 #include "messaging.h"
@@ -36,9 +37,6 @@ static char currentDayNum[3];
 static char currentMonth[4];
 
 void update_clock() {
-  // set the locale
-  setlocale(LC_TIME, "es_ES");
-  
   time_t rawTime;
   struct tm* timeInfo;
 
@@ -92,18 +90,26 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   
   graphics_context_set_text_color(ctx, GColorBlack);
   
-  if (currentWeatherIcon) {
-    gdraw_command_image_draw(ctx, currentWeatherIcon, GPoint(2, 7));
+  if (Weather_currentWeatherIcon) {
+    gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(2, 7));
   }
   
-  // draw weather data
-  graphics_draw_text(ctx,
-                     " 74°",
-                     sidebarFont,
-                     GRect(-5, 30, 38, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
+  // draw weather data only if it has been set
+  if(Weather_weatherInfo.currentTemp != INT32_MIN) {
+    //todo: add C or F conversion based on settings
+    int currentTemp = roundf((Weather_weatherInfo.currentTemp * 9.0f) / 5.0f + 32);
+    
+    char tempString[6];
+    snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+
+    graphics_draw_text(ctx,
+                       tempString,
+                       sidebarFont,
+                       GRect(-5, 31, 38, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  }
   
   // now draw in the text
   graphics_draw_text(ctx,
@@ -192,10 +198,15 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
 }
 
-void bluetooth_connection_callback(bool connection){
-   isPhoneConnected = connection;
-   layer_mark_dirty(sidebarLayer);
+void redrawSidebar() {
+  layer_mark_dirty(sidebarLayer);
 }
+
+void bluetooth_connection_callback(bool connection){
+  isPhoneConnected = connection;
+  redrawSidebar();
+}
+
 
 static void init() {
   setlocale(LC_TIME, "fr_FR");
@@ -212,7 +223,7 @@ static void init() {
   //bgpicker_init();
   
   // init the messaging thing
-  messaging_init();
+  messaging_init(redrawSidebar);
   
   // init weather system
   Weather_init();
