@@ -72,9 +72,20 @@ function getLocation() {
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready', 
   function(e) {
-    console.log('i guess the JS component starterd');
+    console.log('JS component is now READY');
 
-    // first thing to do: send the watchface our location
+    // first thing to do: get our location
     getLocation();
   }
+);
+
+// Listen for incoming messages
+// When we get one, just assume that the watch wants new weather
+// data because OF COURSE it wants some weather data!
+Pebble.addEventListener('appmessage',
+  function(msg) {
+    console.log('Recieved message: ' + JSON.stringify(msg.payload));
+    
+    getLocation();
+  }                     
 );

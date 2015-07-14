@@ -8,6 +8,8 @@
 #define KEY_CONDITION_CODE 0x4
 #define KEY_USE_NIGHT_ICON 0x5
 
+void messaging_requestNewWeatherData();
+  
 void (*message_processed_callback)(void);
   
 extern void messaging_init(void (*message_processed_callback)(void));

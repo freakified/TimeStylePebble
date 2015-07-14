@@ -4,7 +4,7 @@
 #include "clock_digit.h"
 #include "weather.h"
 #include "messaging.h"
-// #include "bgpicker.h"
+#include "bgpicker.h"
 
 // #define FORCE_BACKLIGHT true
 #define FORCE_BACKLIGHT false
@@ -194,7 +194,12 @@ static void main_window_unload(Window *window) {
   gdraw_command_image_destroy(disconnectImage);
 }
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  // every 30 minutes, request new weather data 
+  if(tick_time->tm_min % 30 == 0) {
+    messaging_requestNewWeatherData();
+  }
+  
   update_clock();
 }
 
@@ -220,13 +225,13 @@ static void init() {
   }
   
   // load background images
-  //bgpicker_init();
-  
-  // init the messaging thing
-  messaging_init(redrawSidebar);
+  bgpicker_init();
   
   // init weather system
   Weather_init();
+  
+  // init the messaging thing
+  messaging_init(redrawSidebar);
   
   // Create main Window element and assign to pointer
   mainWindow = window_create();

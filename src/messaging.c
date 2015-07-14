@@ -3,6 +3,17 @@
 #include "weather.h"
 #include "messaging.h"
   
+void messaging_requestNewWeatherData() {
+  // attempt to send the stored location
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  
+  // TODO: make stored location actually work
+  dict_write_uint32(iter, KEY_LOCATION_LAT, (int)(bgpicker_location.lat * 1000000));
+  dict_write_uint32(iter, KEY_LOCATION_LNG, (int)(bgpicker_location.lng * 1000000));
+  app_message_outbox_send();
+}
+
   
 void messaging_init(void (*processed_callback)(void)) {
   // register my custom callback
@@ -68,7 +79,8 @@ void inbox_dropped_callback(AppMessageResult reason, void *context) {
 }
 
 void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed! %d %d %d", reason, APP_MSG_SEND_TIMEOUT, APP_MSG_SEND_REJECTED);
+  
 }
 
 void outbox_sent_callback(DictionaryIterator *iterator, void *context) {

@@ -8,10 +8,11 @@
         "KEY_USE_NIGHT_ICON": 5
     },
     "capabilities": [
-        "location"
+        "location",
+        "configurable"
     ],
     "companyName": "Freakified",
-    "longName": "TimelineStyle",
+    "longName": "TimeStyle",
     "projectType": "native",
     "resources": {
         "media": [
@@ -138,11 +139,11 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "TimelineStyle",
+    "shortName": "TimeStyle",
     "targetPlatforms": [
         "basalt"
     ],
-    "uuid": "0aeb60a0-056f-4cdd-810e-4d7aa4c0e7e3",
+    "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
     "versionLabel": "1.0",
     "watchapp": {
         "watchface": true
