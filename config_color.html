@@ -266,6 +266,7 @@
       updateCustomPreview();
     }
 
+    $('#close_button').on('click', cancelAndClose);
     $('#reset_button').on('click', resetSettings);
     $('#save_button').on('click', sendSettingsToWatch);
 
@@ -312,7 +313,12 @@
 
       // Set the return URL depending on the runtime environment
       var return_to = getQueryParam('return_to', 'pebblejs://close#');
-      document.location = return_to + encodeURIComponent(JSON.stringify(some_settings));
+      document.location = return_to + encodeURIComponent(JSON.stringify(config));
+    }
+
+    function cancelAndClose() {
+      var return_to = getQueryParam('return_to', 'pebblejs://close');
+      document.location = return_to;
     }
 
 
