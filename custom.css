@@ -1,0 +1,68 @@
+.example_face {
+  width: 56px;
+  height: 66px;
+  box-shadow: 0 0 0 1px black;
+  background: black;
+  border-right: 10px solid #FF5500;
+  margin: 0 auto 4px;
+  font-size: 33px;
+  line-height: 30px;
+  padding-top: 2px;
+  padding-right: 2px;
+  color: #FF5500;
+  text-align: right;
+}
+
+.example_face.light_bg {
+  background: white;
+  color: black;
+}
+
+.example_face.sidebar_left {
+  border-right: 0 none;
+  border-left: 10px solid #FF5500;
+}
+
+#preset_selector > .btn {
+  width: 49%;
+  margin-bottom: 3px;
+}
+
+.sp-preview {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+}
+
+ .sp-preview-inner {
+  border-radius: 3px;
+}
+
+.sp-palette {
+    max-width: 350px;
+}
+
+.sp-palette .sp-thumb-el {
+  width: 30px;
+  height: 30px;
+}
+
+.nav-tabs {
+  margin-bottom: 15px;
+}
+
+.navbar-inverse {
+  box-shadow: 0 -8px 11px 7px black;
+  border: none;
+}
+
+.navbar-inverse .navbar-text {
+  color: white;
+  font-size: 16px;
+  line-height: 19px;
+}
+
+#close_button, #reset_button {
+  background-color: #444;
+  color: white;
+}

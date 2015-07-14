@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TimeStyle Settings</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="spectrum/spectrum.css">
+    <link rel="stylesheet" href="custom.css">
+  </head>
+  <body style="padding-top: 70px;">
+    <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+        <div id="toolbar_nochanges" class="container">
+          <a href="pebblejs://close" type="button" id="close_button" class="btn navbar-btn pull-right">Cancel</a>
+          <p class="navbar-text">TimeStyle Settings</p>
+        </div>
+        <div id="toolbar_haschanges" class="container hidden">
+          <button type="button" id="save_button" class="btn btn-primary navbar-btn pull-right" style="margin-left: 5px">Send to watch</button>
+          <button type="button" id="reset_button" class="btn navbar-btn pull-right">Clear</button>
+          <p id="number_of_changes" class="navbar-text"></p>
+        </div>
+    </nav>
+
+    <div class="container">
+    <form>
+      <label>Color Selection</label>
+
+      <ul id="ColorSelectorTabs" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Preset Themes</a></li>
+        <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">Manual</a></li>
+      </ul>
+      <div id="ColorSelectorTabContent" class="tab-content">
+        <div role="tabpanel" class="tab-pane fade in active" id="tab_presetcolors" aria-labelledBy="home-tab">
+          <div class="form-group">
+            <div id="preset_selector" data-toggle="buttons">
+              <label class="btn btn-default" data-time-color="#FF5500" data-time-bg-color="#000000" data-sidebar-color="#FF5500">
+                <input type="radio" name="options" id="option1" autocomplete="off" checked>
+                <div class="example_face">6<br>34</div>
+                Orange Dreams
+              </label>
+              <label class="btn btn-default" data-time-color="#00AAFF" data-time-bg-color="#000000" data-sidebar-color="#00AAFF">
+                <input type="radio" name="options" id="option3" autocomplete="off">
+                <div class="example_face" style="border-color: #00AAFF; color: #00AAFF;">6<br>34</div>
+                Blue Screen
+              </label>
+              <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#FFAA00">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face light_bg" style="border-color: #FFAA00">6<br>34</div>
+                Timeline-Past
+              </label>
+
+              <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#00AAFF">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face light_bg" style="border-color: #00AAFF">6<br>34</div>
+                Timeline-Future
+              </label>
+
+              <label class="btn btn-default" data-time-color="#00FF00" data-time-bg-color="#000000" data-sidebar-color="#00FF00">
+                <input type="radio" name="options" id="option3" autocomplete="off">
+                <div class="example_face" style="border-color: #00FF00; color: #00FF00;">6<br>34</div>
+                Terminal Green
+              </label>
+
+              <label class="btn btn-default" data-time-color="#AA00FF" data-time-bg-color="#000000" data-sidebar-color="#AA00FF">
+                <input type="radio" name="options" id="option1" autocomplete="off" checked>
+                <div class="example_face" style="border-color: #AA00FF; color: #AA00FF;">6<br>34</div>
+                Ultra Violet
+              </label>
+
+              <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#AAAAAA">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face light_bg" style="border-color: #AAAAAA;">6<br>34</div>
+                Shades of Grey
+              </label>
+
+              <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#FF55AA">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face light_bg" style="border-color: #FF55AA;">6<br>34</div>
+                Rosé
+              </label>
+
+              <label class="btn btn-default" data-time-color="#FF0000" data-time-bg-color="#000000" data-sidebar-color="#FF0000">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face" style="border-color: #FF0000; color: #FF0000;">6<br>34</div>
+                Red Velvet
+              </label>
+
+              <label class="btn btn-default" data-time-color="#FF55AA" data-time-bg-color="#000000" data-sidebar-color="#FF55AA">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face" style="border-color: #FF55AA; color: #FF55AA;">6<br>34</div>
+                Pretty in Pink
+              </label>
+
+
+
+              <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#555555" data-sidebar-color="#AAAAAA">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face" style="background: #555555; color: white; border-color: #AAAAAA;">6<br>34</div>
+                Shades Darker
+              </label>
+
+              <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#AA0000" data-sidebar-color="#FFAA00">
+                <input type="radio" name="options" id="option2" autocomplete="off">
+                <div class="example_face " style="background: #AA0000; color: #FFFFFF; border-color: #FFAA00;">6<br>34</div>
+                Autumn
+              </label>
+
+
+            </div>
+          </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="tab_customcolors" aria-labelledBy="profile-tab">
+          <div id="custom_preview_help" class="alert alert-info" role="alert">
+            Select all three colors to see a preview
+          </div>
+          <div id="custom_preview" class="example_face hidden" style="margin: 13px">6<br>34</div>
+
+          <label>Time Text Color</label>
+          <div class="form-group">
+            <input type='text' id="time-color" class="colorpicker"/>
+          </div>
+          <label>Time Background Color</label>
+          <div class="form-group">
+            <input type='text' id="time-bg-color" class="colorpicker"/>
+          </div>
+          <label>Sidebar Background Color</label>
+          <div class="form-group">
+            <input type='text' id="sidebar-color" class="colorpicker"/>
+          </div>
+        </div>
+      </div>
+
+      <label>Sidebar Position</label>
+      <div id="sidebar_position_setting" class="form-group">
+        <div class="btn-group btn-group-justified"  data-toggle="buttons">
+          <label class="btn btn-default" data-setting="left">
+            <input type="radio" name="options" id="option1" autocomplete="off" checked>
+            <div class="example_face sidebar_left"></div>
+            Left
+          </label>
+          <label class="btn btn-default" data-setting="right">
+            <input type="radio" name="options" id="option2" autocomplete="off">
+            <div class="example_face"></div>
+            Right
+          </label>
+        </div>
+      </div>
+      <label>Temperature Unit</label>
+      <div id="units_setting" class="form-group" >
+        <div class="btn-group btn-group-justified"  data-toggle="buttons">
+          <label class="btn btn-default" data-setting="c" >
+            <input type="radio" name="options" id="option1" autocomplete="off" checked> Celsius
+          </label>
+          <label class="btn btn-default" data-setting="f" >
+            <input type="radio" name="options" id="option2" autocomplete="off"> Fahrenheit
+          </label>
+        </div>
+      </div>
+    </form>
+    </container>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="spectrum/spectrum.js"></script>
+    <script>
+    $(".colorpicker").spectrum({
+        allowEmpty: true,
+        showPaletteOnly: true,
+        preferredFormat: "hex",
+        change: function(color) {
+            // if we change a custom color, deselect any preset_selector
+            $('#preset_selector > .active').removeClass('active');
+        },
+        palette: [
+            ["#000000", "#555555", "#AAAAAA", "#FFFFFF", "#FF0000", "#FF5555", "#550000",
+            "#AA0000", "#FFAAAA", "#AA5555", "#FF5500", "#AA5500", "#FFAA55", "#FFAA00",
+            "#FFFF00", "#AAAA55", "#FFFF55", "#555500", "#FFFFAA", "#AAAA00", "#AAFF00", "#AAFF55", "#55AA00", "#55FF00",
+            "#005500", "#00FF00", "#AAFFAA", "#55FF55", "#55AA55", "#00AA00", "#005500",
+            "#00FF55", "#00AA55", "#55FFAA", "#00FFAA", "#55AAAA", "#00AAAA", "#005555",
+            "#AAFFFF", "#00FFFF", "#55FFFF", "#00AAFF", "#55AAFF", "#0055AA", "#0055FF",
+            "#0000AA", "#AAAAFF", "#000055", "#5555FF", "#5555AA", "#5500FF", "#5500AA",
+            "#AA55FF", "#AA00FF", "#FF55FF", "#FFAAFF", "#AA55AA", "#AA00AA", "#550055",
+            "#FF00FF", "#FF00AA", "#FF55AA", "#AA0055", "#FF0055",
+            ]
+        ]
+    });
+
+
+    $('#time-color').on('change', customColorChanged);
+    $('#time-bg-color').on('change', customColorChanged);
+    $('#sidebar-color').on('change', customColorChanged);
+
+    function customColorChanged() {
+      updateToolbar();
+      updateCustomPreview();
+    }
+
+
+    $('#preset_selector .btn').on('click', function() {
+      $("#time-color").spectrum("set", $(this).data('time-color'));
+      $("#time-bg-color").spectrum("set", $(this).data('time-bg-color'));
+      $("#sidebar-color").spectrum("set", $(this).data('sidebar-color'));
+
+      updateCustomPreview();
+    });
+
+
+    function updateToolbar() {
+      var counter = $('label.btn.active').size();
+
+      if($('#preset_selector .btn.active').size() == 0) {
+        if($('#time-color').val()) {
+          counter++;
+        }
+
+        if($('#time-bg-color').val()) {
+          counter++;
+        }
+
+        if($('#sidebar-color').val()) {
+          counter++;
+        }
+      }
+
+      if(counter > 0) {
+        $('#toolbar_nochanges').addClass('hidden');
+        $('#toolbar_haschanges').removeClass('hidden');
+
+        var countText = counter + ' item';
+        countText += (counter != 1) ? 's' : '';
+        countText += ' set';
+
+        $('#number_of_changes').text(countText);
+      } else {
+        $('#toolbar_nochanges').removeClass('hidden');
+        $('#toolbar_haschanges').addClass('hidden');
+      }
+    }
+
+    $('label.btn').on('change', updateToolbar);
+
+    function updateCustomPreview() {
+      if($('#time-color').val() && $('#time-bg-color').val() && $('#sidebar-color').val()) {
+        $('#custom_preview_help').addClass('hidden');
+        $('#custom_preview').removeClass('hidden');
+      } else {
+        $('#custom_preview_help').removeClass('hidden');
+        $('#custom_preview').addClass('hidden');
+      }
+
+      $('#custom_preview').css('color', $('#time-color').val());
+      $('#custom_preview').css('background', $('#time-bg-color').val());
+      $('#custom_preview').css('border-color', $('#sidebar-color').val());
+    }
+
+    function resetSettings() {
+      $("#time-color").spectrum("set", null);
+      $("#time-bg-color").spectrum("set", null);
+      $("#sidebar-color").spectrum("set", null);
+
+      $('label.btn').removeClass('active');
+      $(':radio').prop('checked', false);
+
+      updateToolbar();
+      updateCustomPreview();
+    }
+
+    $('#reset_button').on('click', resetSettings);
+    $('#save_button').on('click', sendSettingsToWatch);
+
+    // And finally, the actual pebble configuration stuff
+    function getQueryParam(variable, defaultValue) {
+      // Find all URL parameters
+      var query = location.search.substring(1);
+      var vars = query.split('&');
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+
+        // If the query variable parameter is found, decode it to use and return it for use
+        if (pair[0] === variable) {
+          return decodeURIComponent(pair[1]);
+        }
+      }
+      return defaultValue || false;
+    }
+
+    function sendSettingsToWatch() {
+      // stick all the settings into a JSON object
+      var config = Object();
+
+      // for each setting, check if we need to send it
+      if($('#time-color').val()) {
+        config.color_time = $('#time-color').val();
+      }
+
+      if($('#time-bg-color').val()) {
+        config.color_bg = $('#time-bg-color').val();
+      }
+
+      if($('#sidebar-color').val()) {
+        config.color_sidebar = $('#sidebar-color').val();
+      }
+
+      if($('#sidebar_position_setting .btn.active')) {
+        config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
+      }
+
+      if($('#units_setting .btn.active')) {
+        config.units = $('#units_setting .btn.active').data('setting');
+      }
+
+      // Set the return URL depending on the runtime environment
+      var return_to = getQueryParam('return_to', 'pebblejs://close#');
+      document.location = return_to + encodeURIComponent(JSON.stringify(some_settings));
+    }
+
+
+
+    </script>
+  </body>
+</html>
