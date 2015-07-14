@@ -313,12 +313,12 @@
 
       // Set the return URL depending on the runtime environment
       var return_to = getQueryParam('return_to', 'pebblejs://close#');
-      document.location = return_to + encodeURIComponent(JSON.stringify(config));
+      document.location.href = return_to + encodeURIComponent(JSON.stringify(config));
     }
 
     function cancelAndClose() {
       var return_to = getQueryParam('return_to', 'pebblejs://close');
-      document.location = return_to;
+      document.location.href = return_to;
     }
 
 
