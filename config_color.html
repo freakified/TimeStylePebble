@@ -135,7 +135,7 @@
       <div id="sidebar_position_setting" class="form-group">
         <div class="btn-group btn-group-justified"  data-toggle="buttons">
           <label class="btn btn-default" data-setting="left">
-            <input type="radio" name="options" id="option1" autocomplete="off" checked>
+            <input type="radio" name="options" id="option1" autocomplete="off">
             <div class="example_face sidebar_left"></div>
             Left
           </label>
@@ -150,7 +150,7 @@
       <div id="units_setting" class="form-group" >
         <div class="btn-group btn-group-justified"  data-toggle="buttons">
           <label class="btn btn-default" data-setting="c" >
-            <input type="radio" name="options" id="option1" autocomplete="off" checked> Celsius
+            <input type="radio" name="options" id="option1" autocomplete="off"> Celsius
           </label>
           <label class="btn btn-default" data-setting="f" >
             <input type="radio" name="options" id="option2" autocomplete="off"> Fahrenheit
@@ -288,19 +288,19 @@
 
     function sendSettingsToWatch() {
       // stick all the settings into a JSON object
-      var config = Object();
+      var config = {};
 
       // for each setting, check if we need to send it
       if($('#time-color').val()) {
-        config.color_time = $('#time-color').val();
+        config.color_time = $('#time-color').val().substr(1);
       }
 
       if($('#time-bg-color').val()) {
-        config.color_bg = $('#time-bg-color').val();
+        config.color_bg = $('#time-bg-color').val().substr(1);
       }
 
       if($('#sidebar-color').val()) {
-        config.color_sidebar = $('#sidebar-color').val();
+        config.color_sidebar = $('#sidebar-color').val().substr(1);
       }
 
       if($('#sidebar_position_setting .btn.active')) {
