@@ -1,7 +1,7 @@
 # TimeStyle
 A stylish, modern watchface for your Pebble Time.
 
-![Banner image](banner_img.png)
+<img src="project_banner.png" width="400" height="300">
 
 Inspired by the visual language of the Timeline, TimeStyle shows you what's happening now: the time, the date, and the current weather conditions!
 
