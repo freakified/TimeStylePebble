@@ -10,3 +10,7 @@ Inspired by the visual language of the Timeline, TimeStyle shows you what's happ
 * Sidebar can be displayed on the right or left side
 * Selectable temperature units
 * Bluetooth disconnection icon on disconnect
+
+## Want to try it?
+Download on the Pebble store at the link below:
+https://apps.getpebble.com/applications/55a5c024f4510f794c000071
