@@ -5,9 +5,7 @@
 #include "weather.h"
 #include "messaging.h"
 #include "settings.h"
-#include "bgpicker.h"
 
-// #define FORCE_BACKLIGHT true
 #define FORCE_BACKLIGHT false
 #define FORCE_12H true
   
@@ -40,6 +38,12 @@ void update_clock() {
 
   time(&rawTime);
   timeInfo = localtime(&rawTime);
+  
+  // DEBUG: use fake time for screenshots
+//   if(SCREENSHOT_MODE) {
+//     timeInfo->tm_hour = 3;
+//     timeInfo->tm_min = 25;
+//   }
   
   int hour = timeInfo->tm_hour;
   
@@ -94,13 +98,13 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   
   // draw weather data only if it has been set
   if(Weather_weatherInfo.currentTemp != INT32_MIN) {
-    //todo: add C or F conversion based on settings
     
     int currentTemp = Weather_weatherInfo.currentTemp;
     
     if(!globalSettings.useMetric) {
       currentTemp = roundf((Weather_weatherInfo.currentTemp * 9.0f) / 5.0f + 32);
     }
+//     currentTemp = 22;
     
     char tempString[6];
     snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
@@ -256,9 +260,6 @@ static void init() {
   if(FORCE_BACKLIGHT) {
     light_enable(true);
   }
-  
-  // load background images
-  bgpicker_init();
   
   // init weather system
   Weather_init();

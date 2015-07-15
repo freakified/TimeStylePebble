@@ -48,7 +48,7 @@ void Weather_setCondition(int conditionCode, bool isNight) {
       iconToLoad = (!isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
       break;
   }
-  printf("loading icon now");
+   
   // ok, now load the new icon:
   GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
   Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(iconToLoad);
@@ -58,6 +58,7 @@ void Weather_setCondition(int conditionCode, bool isNight) {
 
 void Weather_init() {
   // if possible, load weather data from persistent storage
+  
   if (persist_exists(WEATHERINFO_PERSIST_KEY)) {
     WeatherInfo w;
     persist_read_data(WEATHERINFO_PERSIST_KEY, &w, sizeof(WeatherInfo));

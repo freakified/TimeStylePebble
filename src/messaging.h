@@ -1,9 +1,9 @@
 #pragma once
 #include <pebble.h>
 
-#define KEY_LOCATION_LAT           0
-#define KEY_LOCATION_LNG           1
-#define KEY_GMT_OFFSET             2
+// #define KEY_LOCATION_LAT           0
+// #define KEY_LOCATION_LNG           1
+// #define KEY_GMT_OFFSET             2
 #define KEY_TEMPERATURE            3
 #define KEY_CONDITION_CODE         4
 #define KEY_USE_NIGHT_ICON         5

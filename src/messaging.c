@@ -1,17 +1,12 @@
-#include "location_info.h"
-#include "bgpicker.h"
 #include "weather.h"
 #include "messaging.h"
 #include "settings.h"
   
 void messaging_requestNewWeatherData() {
-  // attempt to send the stored location
+  // just send an empty message for now
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
-  
-  // TODO: make stored location actually work
-  dict_write_uint32(iter, KEY_LOCATION_LAT, (int)(bgpicker_location.lat * 1000000));
-  dict_write_uint32(iter, KEY_LOCATION_LNG, (int)(bgpicker_location.lng * 1000000));
+  dict_write_uint32(iter, 0, 0);
   app_message_outbox_send();
 }
 
@@ -34,32 +29,6 @@ void messaging_init(void (*processed_callback)(void)) {
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  // does this message contain location information?
-  Tuple *lat_tuple = dict_find(iterator, KEY_LOCATION_LAT);
-  Tuple *lng_tuple = dict_find(iterator, KEY_LOCATION_LNG);
-  Tuple *tzOffset_tuple = dict_find(iterator, KEY_GMT_OFFSET);
-  
-  if (lat_tuple != NULL && lng_tuple != NULL && tzOffset_tuple != NULL) {
-    LocationInfo loc; 
-    
-    // set our location thing
-    float lat = (int)lat_tuple->value->int32;
-    lat /= 1000000;
-    
-    float lng = (int)lng_tuple->value->int32;
-    lng /= 1000000;
-    
-    float tzOffset = (int)tzOffset_tuple->value->int32;
-    tzOffset /= 60;
-    
-    loc.lat = lat;
-    loc.lng = lng;
-    loc.tzOffset = tzOffset;
-    
-    bgpicker_updateLocation(loc);
-    
-  }
-  
   // does this message contain weather information?
   Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
   Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
@@ -67,7 +36,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   
   if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL && weatherIsNight_tuple != NULL) {
     bool isNight = (bool)weatherIsNight_tuple->value->int32;
-    printf("The night value is: %d", (int)weatherIsNight_tuple->value->int32);
     
     // now set the weather conditions properly
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
