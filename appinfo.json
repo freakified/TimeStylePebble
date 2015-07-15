@@ -4,6 +4,11 @@
         "KEY_GMT_OFFSET": 2,
         "KEY_LOCATION_LAT": 0,
         "KEY_LOCATION_LNG": 1,
+        "KEY_SETTING_COLOR_BG": 7,
+        "KEY_SETTING_COLOR_SIDEBAR": 8,
+        "KEY_SETTING_COLOR_TIME": 6,
+        "KEY_SETTING_SIDEBAR_RIGHT": 9,
+        "KEY_SETTING_USE_METRIC": 10,
         "KEY_TEMPERATURE": 3,
         "KEY_USE_NIGHT_ICON": 5
     },
@@ -70,11 +75,6 @@
                 "file": "data/PARTLY_CLOUDY.pdc",
                 "name": "WEATHER_PARTLY_CLOUDY",
                 "type": "raw"
-            },
-            {
-                "file": "images/digit_blank.png",
-                "name": "CLOCK_DIGIT_BLANK",
-                "type": "png"
             },
             {
                 "file": "data/CLOUDY_DAY.pdc",

@@ -2,6 +2,7 @@
 #include "bgpicker.h"
 #include "weather.h"
 #include "messaging.h"
+#include "settings.h"
   
 void messaging_requestNewWeatherData() {
   // attempt to send the stored location
@@ -33,12 +34,10 @@ void messaging_init(void (*processed_callback)(void)) {
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  // does this message contain location information?
   Tuple *lat_tuple = dict_find(iterator, KEY_LOCATION_LAT);
   Tuple *lng_tuple = dict_find(iterator, KEY_LOCATION_LNG);
   Tuple *tzOffset_tuple = dict_find(iterator, KEY_GMT_OFFSET);
-  Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
-  Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
-  Tuple *weatherIsNight_tuple = dict_find(iterator, KEY_USE_NIGHT_ICON);
   
   if (lat_tuple != NULL && lng_tuple != NULL && tzOffset_tuple != NULL) {
     LocationInfo loc; 
@@ -61,6 +60,11 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     
   }
   
+  // does this message contain weather information?
+  Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
+  Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
+  Tuple *weatherIsNight_tuple = dict_find(iterator, KEY_USE_NIGHT_ICON);
+  
   if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL && weatherIsNight_tuple != NULL) {
     bool isNight = (bool)weatherIsNight_tuple->value->int32;
     printf("The night value is: %d", (int)weatherIsNight_tuple->value->int32);
@@ -68,10 +72,37 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     // now set the weather conditions properly
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
     Weather_setCondition((int)weatherConditions_tuple->value->int32, isNight);
-    
-    // essentially, this forces the sidebar in main to redraw
-    message_processed_callback();
   }
+  
+  // does this message contain new config information?
+  Tuple *timeColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_TIME);
+  Tuple *bgColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_BG);
+  Tuple *sidebarColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_SIDEBAR);
+  Tuple *sidebarPos_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_RIGHT);
+  Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
+  
+  if(timeColor_tuple != NULL) {
+    globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
+  }
+  
+  if(bgColor_tuple != NULL) {
+    globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
+  }
+  
+  if(sidebarColor_tuple != NULL) {
+    globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
+  }
+  
+  if(sidebarPos_tuple != NULL) {
+    globalSettings.sidebarOnRight = (bool)sidebarPos_tuple->value->int8;
+  }
+  
+  if(useMetric_tuple != NULL) {
+    globalSettings.useMetric = (bool)useMetric_tuple->value->int8;
+  }
+  
+  // notify the main screen, in case something changed
+  message_processed_callback();
 }
 
 void inbox_dropped_callback(AppMessageResult reason, void *context) {

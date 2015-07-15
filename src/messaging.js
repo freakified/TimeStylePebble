@@ -89,3 +89,57 @@ Pebble.addEventListener('appmessage',
     getLocation();
   }                     
 );
+
+Pebble.addEventListener('showConfiguration', function(e) {
+  // Show config page
+  Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
+});
+
+Pebble.addEventListener('webviewclosed', function(e) {  
+  var configData = decodeURIComponent(e.response);
+  if(configData) {
+    configData = JSON.parse(decodeURIComponent(e.response));
+    
+    var dict = {};
+    
+    if(configData.color_time) {
+      dict.KEY_SETTING_COLOR_TIME = parseInt(configData.color_time, 16);
+    }
+    
+    if(configData.color_bg) {
+      dict.KEY_SETTING_COLOR_BG = parseInt(configData.color_bg, 16);
+    }
+    
+    if(configData.color_sidebar) {
+      dict.KEY_SETTING_COLOR_SIDEBAR = parseInt(configData.color_sidebar, 16);
+    }
+    
+    if(configData.sidebar_position) {
+      if(configData.sidebar_position == 'right') {
+        dict.KEY_SETTING_SIDEBAR_RIGHT = 1;
+      } else {
+        dict.KEY_SETTING_SIDEBAR_RIGHT = 0;
+      }
+    }
+    
+    if(configData.units) {
+      if(configData.units == 'c') {
+        dict.KEY_SETTING_USE_METRIC = 1;
+      } else {
+        dict.KEY_SETTING_USE_METRIC = 0;
+      }
+    }
+    
+    console.log('Preparing message: ', JSON.stringify(dict));
+    
+    // Send settings to Pebble watchapp
+    Pebble.sendAppMessage(dict, function(){
+      console.log('Sent config data to Pebble');  
+    }, function() {
+        console.log('Failed to send config data!');
+    });
+  } else {
+    console.log("No settings changed!");
+  }
+
+});

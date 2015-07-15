@@ -4,7 +4,7 @@
 /*
  * Array mapping numbers to resource ids
  */
-uint32_t ClockDigit_imageIds[11] = {RESOURCE_ID_CLOCK_DIGIT_0,
+uint32_t ClockDigit_imageIds[10] = {RESOURCE_ID_CLOCK_DIGIT_0,
                                     RESOURCE_ID_CLOCK_DIGIT_1,
                                     RESOURCE_ID_CLOCK_DIGIT_2,
                                     RESOURCE_ID_CLOCK_DIGIT_3,
@@ -13,10 +13,10 @@ uint32_t ClockDigit_imageIds[11] = {RESOURCE_ID_CLOCK_DIGIT_0,
                                     RESOURCE_ID_CLOCK_DIGIT_6,
                                     RESOURCE_ID_CLOCK_DIGIT_7,
                                     RESOURCE_ID_CLOCK_DIGIT_8,
-                                    RESOURCE_ID_CLOCK_DIGIT_9,
-                                    RESOURCE_ID_CLOCK_DIGIT_BLANK};
+                                    RESOURCE_ID_CLOCK_DIGIT_9};
 
 void ClockDigit_setNumber(ClockDigit* this, int number) {
+  
   if(this->currentNum != number) {
     
     //save the old digit image so we can dellocate it
@@ -36,6 +36,18 @@ void ClockDigit_setNumber(ClockDigit* this, int number) {
     //deallocate the old bg image
     gbitmap_destroy(oldImage);
   }
+  
+  // in case the layer was set to hidden, unhide
+  layer_set_hidden((Layer *)this->imageLayer, false);
+}
+
+void ClockDigit_setBlank(ClockDigit* this) {
+  layer_set_hidden((Layer *)this->imageLayer, true);
+}
+
+void ClockDigit_offsetPosition(ClockDigit* this, int posOffset) {
+  layer_set_frame((Layer*)this->imageLayer, 
+                  GRect(this->position.x + posOffset, this->position.y, 48, 71));
 }
 
 void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
@@ -63,10 +75,12 @@ void ClockDigit_construct(ClockDigit* this, GPoint pos) {
   this->currentNum = -1;
   this->bgColor = GColorWhite;
   this->fgColor= GColorBlack;
+  this->position = pos;
   
   this->imageLayer = bitmap_layer_create(GRect(pos.x, pos.y, 48, 71));
   
-  ClockDigit_setNumber(this, 10);
+  ClockDigit_setBlank(this);
+  ClockDigit_setNumber(this, 1);
   ClockDigit_setColor(this, GColorBlack, GColorWhite);
 }
 
@@ -81,12 +95,9 @@ void ClockDigit_destruct(ClockDigit* this) {
 void CDPrivate_adjustImagePalette(ClockDigit* this) {
   GColor* pal = gbitmap_get_palette(this->currentImage);
   
-  // the blank image doesn't need palette swapping
-  if(this->currentImageId != RESOURCE_ID_CLOCK_DIGIT_BLANK) {
-    pal[0] = this->fgColor;
-    pal[1] = this->midColor1;
-    pal[2] = this->midColor2;
-    pal[3] = this->bgColor;
-  } 
+  pal[0] = this->fgColor;
+  pal[1] = this->midColor1;
+  pal[2] = this->midColor2;
+  pal[3] = this->bgColor;
 
 }

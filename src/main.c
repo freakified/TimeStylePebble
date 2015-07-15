@@ -4,15 +4,13 @@
 #include "clock_digit.h"
 #include "weather.h"
 #include "messaging.h"
+#include "settings.h"
 #include "bgpicker.h"
 
 // #define FORCE_BACKLIGHT true
 #define FORCE_BACKLIGHT false
 #define FORCE_12H true
   
-static GColor mainAreaFG;
-static GColor mainAreaBG;
-
 // windows and layers
 static Window* mainWindow;
 static Layer* sidebarLayer;
@@ -57,7 +55,7 @@ void update_clock() {
   if(hour / 10 != 0) {
     ClockDigit_setNumber(&clockDigits[0], hour / 10);
   } else {
-    ClockDigit_setNumber(&clockDigits[0], 10);
+    ClockDigit_setBlank(&clockDigits[0]);
   }
   
   ClockDigit_setNumber(&clockDigits[1], hour % 10);
@@ -85,7 +83,7 @@ void update_clock() {
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
-  graphics_context_set_fill_color(ctx, mainAreaFG);
+  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   
   graphics_context_set_text_color(ctx, GColorBlack);
@@ -97,7 +95,12 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   // draw weather data only if it has been set
   if(Weather_weatherInfo.currentTemp != INT32_MIN) {
     //todo: add C or F conversion based on settings
-    int currentTemp = roundf((Weather_weatherInfo.currentTemp * 9.0f) / 5.0f + 32);
+    
+    int currentTemp = Weather_weatherInfo.currentTemp;
+    
+    if(!globalSettings.useMetric) {
+      currentTemp = roundf((Weather_weatherInfo.currentTemp * 9.0f) / 5.0f + 32);
+    }
     
     char tempString[6];
     snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
@@ -145,6 +148,36 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                      NULL);
 }
 
+void redrawSidebar() {
+  layer_mark_dirty(sidebarLayer);
+}
+
+/* forces everything on screen to be redrawn -- perfect for keeping track of settings! */
+void forceScreenRedraw() {
+  // maybe the colors changed!
+  for(int i = 0; i < 4; i++) {
+    ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
+  }
+  
+  window_set_background_color(mainWindow, globalSettings.timeBgColor);
+  
+  // or maybe the sidebar position changed!
+  if(globalSettings.sidebarOnRight) {
+    layer_set_frame(sidebarLayer, GRect(114, 0, 30, 168));
+    
+    for(int i = 0; i < 4; i++) {
+      ClockDigit_offsetPosition(&clockDigits[i], 0);
+    }
+  } else {
+    layer_set_frame(sidebarLayer, GRect(0, 0, 30, 168));
+    
+    for(int i = 0; i < 4; i++) {
+      ClockDigit_offsetPosition(&clockDigits[i], 30);
+    }
+  }
+  
+  redrawSidebar();
+}
 static void main_window_load(Window *window) {
 //   APP_LOG(APP_LOG_LEVEL_DEBUG, "trying to construct");
   ClockDigit_construct(&clockDigits[0], GPoint(7, 7));
@@ -155,7 +188,7 @@ static void main_window_load(Window *window) {
 //   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past construction");
   
   for(int i = 0; i < 4; i++) {
-    ClockDigit_setColor(&clockDigits[i], mainAreaFG, mainAreaBG);
+    ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
     layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(clockDigits[i].imageLayer));
   }
   
@@ -166,7 +199,12 @@ static void main_window_load(Window *window) {
   dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   
   // init the sidebar layer
-  sidebarLayer = layer_create(GRect(114, 0, 30, 168));
+  
+  if(globalSettings.sidebarOnRight) {
+    sidebarLayer = layer_create(GRect(114, 0, 30, 168));
+  } else {
+    sidebarLayer = layer_create(GRect(0, 0, 30, 168));
+  }
   layer_add_child(window_get_root_layer(window), sidebarLayer);
   layer_set_update_proc(sidebarLayer, sidebarLayerUpdateProc);
   
@@ -177,9 +215,10 @@ static void main_window_load(Window *window) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load a PDC image.");
   }
   
-  window_set_background_color(window, mainAreaBG);
+  window_set_background_color(window, globalSettings.timeBgColor);
   
   // Make sure the time is displayed from the start
+  forceScreenRedraw();
   update_clock();
 }
 
@@ -203,9 +242,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
 }
 
-void redrawSidebar() {
-  layer_mark_dirty(sidebarLayer);
-}
+
 
 void bluetooth_connection_callback(bool connection){
   isPhoneConnected = connection;
@@ -215,10 +252,6 @@ void bluetooth_connection_callback(bool connection){
 
 static void init() {
   setlocale(LC_TIME, "fr_FR");
-  
-  mainAreaFG = GColorOrange;
-//   mainAreaFG = GColorGreen;
-  mainAreaBG = GColorBlack;
   
   if(FORCE_BACKLIGHT) {
     light_enable(true);
@@ -230,8 +263,11 @@ static void init() {
   // init weather system
   Weather_init();
   
+  // init settings
+  Settings_init();
+    
   // init the messaging thing
-  messaging_init(redrawSidebar);
+  messaging_init(forceScreenRedraw);
   
   // Create main Window element and assign to pointer
   mainWindow = window_create();
@@ -259,6 +295,7 @@ static void deinit() {
   
   // unload weather stuff
   Weather_deinit();
+  Settings_deinit();
   
   bluetooth_connection_service_unsubscribe();
 }
