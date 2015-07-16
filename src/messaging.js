@@ -92,7 +92,8 @@ Pebble.addEventListener('appmessage',
 
 Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
-  Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
+//   Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
+  Pebble.openURL('http://localhost/~Dan/p2/TimeStylePebble/config_color.html');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {  

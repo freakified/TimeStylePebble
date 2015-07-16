@@ -88,9 +88,11 @@ void update_clock() {
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+//   graphics_context_set_fill_color(ctx, GColorBl);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   
   graphics_context_set_text_color(ctx, GColorBlack);
+//   graphics_context_set_text_color(ctx, GColorWhite);
   
   if (Weather_currentWeatherIcon) {
     gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(2, 7));
