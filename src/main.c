@@ -102,11 +102,10 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     int currentTemp = Weather_weatherInfo.currentTemp;
     
     if(!globalSettings.useMetric) {
-      currentTemp = roundf((Weather_weatherInfo.currentTemp * 9.0f) / 5.0f + 32);
+      currentTemp = roundf((currentTemp * 9.0f) / 5.0f + 32);
     }
-//     currentTemp = 22;
     
-    char tempString[6];
+    char tempString[8];
     snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
 
     graphics_draw_text(ctx,
