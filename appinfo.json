@@ -103,80 +103,80 @@
                 ]
             },
             {
-                "file": "images/digit_0.png",
-                "name": "CLOCK_DIGIT_0",
+                "file": "images/bw_digit_0.png",
+                "name": "BW_CLOCK_DIGIT_0",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_1.png",
-                "name": "CLOCK_DIGIT_1",
+                "file": "images/bw_digit_1.png",
+                "name": "BW_CLOCK_DIGIT_1",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_2.png",
-                "name": "CLOCK_DIGIT_2",
+                "file": "images/bw_digit_2.png",
+                "name": "BW_CLOCK_DIGIT_2",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_3.png",
-                "name": "CLOCK_DIGIT_3",
+                "file": "images/bw_digit_3.png",
+                "name": "BW_CLOCK_DIGIT_3",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_4.png",
-                "name": "CLOCK_DIGIT_4",
+                "file": "images/bw_digit_4.png",
+                "name": "BW_CLOCK_DIGIT_4",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_5.png",
-                "name": "CLOCK_DIGIT_5",
+                "file": "images/bw_digit_5.png",
+                "name": "BW_CLOCK_DIGIT_5",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_6.png",
-                "name": "CLOCK_DIGIT_6",
+                "file": "images/bw_digit_6.png",
+                "name": "BW_CLOCK_DIGIT_6",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_7.png",
-                "name": "CLOCK_DIGIT_7",
+                "file": "images/bw_digit_7.png",
+                "name": "BW_CLOCK_DIGIT_7",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_8.png",
-                "name": "CLOCK_DIGIT_8",
+                "file": "images/bw_digit_8.png",
+                "name": "BW_CLOCK_DIGIT_8",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
                 ]
             },
             {
-                "file": "images/digit_9.png",
-                "name": "CLOCK_DIGIT_9",
+                "file": "images/bw_digit_9.png",
+                "name": "BW_CLOCK_DIGIT_9",
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
