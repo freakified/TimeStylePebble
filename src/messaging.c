@@ -51,15 +51,27 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
   
   if(timeColor_tuple != NULL) {
-    globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
+    #ifdef PBL_COLOR
+      globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
+    #else 
+      globalSettings.timeColor = (timeColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
+    #endif
   }
   
   if(bgColor_tuple != NULL) {
-    globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
+    #ifdef PBL_COLOR
+      globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
+    #else 
+      globalSettings.timeBgColor = (bgColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
+    #endif
   }
   
   if(sidebarColor_tuple != NULL) {
-    globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
+    #ifdef PBL_COLOR
+      globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
+    #else 
+      globalSettings.sidebarColor = (sidebarColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
+    #endif
   }
   
   if(sidebarPos_tuple != NULL) {

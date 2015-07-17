@@ -50,9 +50,16 @@ void Weather_setCondition(int conditionCode, bool isNight) {
   }
    
   // ok, now load the new icon:
-  GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
-  Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(iconToLoad);
-  gdraw_command_image_destroy(oldImage);
+  #ifdef PBL_COLOR
+    GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
+    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(iconToLoad);
+    gdraw_command_image_destroy(oldImage);
+  #else
+    GBitmap* oldImage = Weather_currentWeatherIcon;
+    Weather_currentWeatherIcon = gbitmap_create_with_resource(iconToLoad);
+    gbitmap_destroy(oldImage);
+  #endif
+    
   Weather_weatherInfo.currentIconResourceID = iconToLoad;
 }
 
@@ -65,7 +72,12 @@ void Weather_init() {
     
     Weather_weatherInfo = w;
     
-    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
+    #ifdef PBL_COLOR
+      Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
+    #else
+      Weather_currentWeatherIcon = gbitmap_create_with_resource(w.currentIconResourceID);
+    #endif
+      
   } else {
     // otherwise, use null data
     Weather_currentWeatherIcon = NULL;
@@ -78,5 +90,9 @@ void Weather_deinit() {
   persist_write_data(WEATHERINFO_PERSIST_KEY, &Weather_weatherInfo, sizeof(WeatherInfo));
   
   // free memory
-  gdraw_command_image_destroy(Weather_currentWeatherIcon);
+  #ifdef PBL_COLOR
+    gdraw_command_image_destroy(Weather_currentWeatherIcon);
+  #else
+    gbitmap_destroy(Weather_currentWeatherIcon);
+  #endif
 }

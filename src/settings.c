@@ -35,9 +35,14 @@ void Settings_loadAllDefaults() {
   // if no persistent data is available, use the defaults
   
   // v1 settings
-  globalSettings.timeColor      = GColorOrange;
+  #ifdef PBL_COLOR
+    globalSettings.timeColor      = GColorOrange;
+    globalSettings.sidebarColor   = GColorOrange;
+  #else
+    globalSettings.timeColor      = GColorWhite;
+    globalSettings.sidebarColor   = GColorBlack;
+  #endif
   globalSettings.timeBgColor    = GColorBlack;
-  globalSettings.sidebarColor   = GColorOrange;
   globalSettings.sidebarOnRight = true;
   globalSettings.useMetric      = false;
   

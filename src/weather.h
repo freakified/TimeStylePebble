@@ -10,7 +10,13 @@ typedef struct {
 } WeatherInfo;
   
 WeatherInfo Weather_weatherInfo;
-GDrawCommandImage *Weather_currentWeatherIcon;
+
+#ifdef PBL_COLOR
+GDrawCommandImage* Weather_currentWeatherIcon;
+#else
+GBitmap* Weather_currentWeatherIcon;
+#endif
+
 
 void Weather_setCondition(int conditionCode, bool isNight);
 void Weather_init();

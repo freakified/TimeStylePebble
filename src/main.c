@@ -14,8 +14,13 @@ static Window* mainWindow;
 static Layer* sidebarLayer;
 
 // PDC images
-static GDrawCommandImage *dateImage;
-static GDrawCommandImage *disconnectImage;
+#ifdef PBL_COLOR
+static GDrawCommandImage* dateImage;
+static GDrawCommandImage* disconnectImage;
+#else
+static GBitmap* dateImage;
+static GBitmap* disconnectImage;
+#endif
 
 // current bluetooth state
 static bool isPhoneConnected;
@@ -88,14 +93,16 @@ void update_clock() {
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
-//   graphics_context_set_fill_color(ctx, GColorBl);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   
   graphics_context_set_text_color(ctx, GColorBlack);
-//   graphics_context_set_text_color(ctx, GColorWhite);
   
   if (Weather_currentWeatherIcon) {
-    gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(2, 7));
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(2, 7));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(2, 7, 25, 25));
+    #endif
   }
   
   // draw weather data only if it has been set
@@ -129,11 +136,19 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                      NULL);
   
   if (disconnectImage && !isPhoneConnected) {
-    gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(2, 60, 25, 25));
+    #endif
   }
   
   if (dateImage) {
-    gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(2, 118, 25, 25));
+    #endif
   }
   
   graphics_draw_text(ctx,
@@ -214,8 +229,14 @@ static void main_window_load(Window *window) {
   layer_set_update_proc(sidebarLayer, sidebarLayerUpdateProc);
   
   // load the sidebar graphics
-  dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
-  disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
+  #ifdef PBL_COLOR
+    dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
+    disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
+  #else
+    dateImage = gbitmap_create_with_resource(RESOURCE_ID_BW_DATE_BG);
+    disconnectImage = gbitmap_create_with_resource(RESOURCE_ID_BW_DISCONNECTED);
+  #endif
+    
   if (!dateImage || !disconnectImage) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load a PDC image.");
   }
@@ -234,8 +255,13 @@ static void main_window_unload(Window *window) {
   
   layer_destroy(sidebarLayer);
  
-  gdraw_command_image_destroy(dateImage);
-  gdraw_command_image_destroy(disconnectImage);
+  #ifdef PBL_COLOR
+    gdraw_command_image_destroy(dateImage);
+    gdraw_command_image_destroy(disconnectImage);
+  #else
+    gbitmap_destroy(dateImage);
+    gbitmap_destroy(disconnectImage);
+  #endif
 }
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {

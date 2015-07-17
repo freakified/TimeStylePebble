@@ -56,17 +56,20 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
   this->bgColor = bg;
   
   // now, determine what the intermediate colors will be (for AA)
-  int colorIncrementR = (fg.r * 85 - bg.r * 85) / 3;
-  int colorIncrementG = (fg.g * 85 - bg.g * 85) / 3;
-  int colorIncrementB = (fg.b * 85 - bg.b * 85) / 3;
+  #ifdef PBL_COLOR
+    int colorIncrementR = (fg.r * 85 - bg.r * 85) / 3;
+    int colorIncrementG = (fg.g * 85 - bg.g * 85) / 3;
+    int colorIncrementB = (fg.b * 85 - bg.b * 85) / 3;
+
+    this->midColor1 = GColorFromRGB(fg.r * 85 - colorIncrementR,
+                                     fg.g * 85 - colorIncrementG,
+                                     fg.b * 85 - colorIncrementB);
+
+    this->midColor2 = GColorFromRGB(bg.r * 85 + colorIncrementR,
+                                     bg.g * 85 + colorIncrementG,
+                                     bg.b * 85 + colorIncrementB);
   
-  this->midColor1 = GColorFromRGB(fg.r * 85 - colorIncrementR,
-                                   fg.g * 85 - colorIncrementG,
-                                   fg.b * 85 - colorIncrementB);
-  
-  this->midColor2 = GColorFromRGB(bg.r * 85 + colorIncrementR,
-                                   bg.g * 85 + colorIncrementG,
-                                   bg.b * 85 + colorIncrementB);
+  #endif
   
   CDPrivate_adjustImagePalette(this);
 }
@@ -74,7 +77,7 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
 void ClockDigit_construct(ClockDigit* this, GPoint pos) {
   this->currentNum = -1;
   this->bgColor = GColorWhite;
-  this->fgColor= GColorBlack;
+  this->fgColor = GColorBlack;
   this->position = pos;
   
   this->imageLayer = bitmap_layer_create(GRect(pos.x, pos.y, 48, 71));
@@ -93,11 +96,18 @@ void ClockDigit_destruct(ClockDigit* this) {
 }
 
 void CDPrivate_adjustImagePalette(ClockDigit* this) {
-  GColor* pal = gbitmap_get_palette(this->currentImage);
-  
-  pal[0] = this->fgColor;
-  pal[1] = this->midColor1;
-  pal[2] = this->midColor2;
-  pal[3] = this->bgColor;
+  #ifdef PBL_COLOR
+    GColor* pal = gbitmap_get_palette(this->currentImage);
 
+    pal[0] = this->fgColor;
+    pal[1] = this->midColor1;
+    pal[2] = this->midColor2;
+    pal[3] = this->bgColor;
+  #else
+    if(this->bgColor == GColorBlack) {
+      bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssignInverted);
+    } else {
+      bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssign);
+    }
+  #endif
 }
