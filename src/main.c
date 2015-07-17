@@ -247,16 +247,21 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
 }
 
-
-
-void bluetooth_connection_callback(bool connection){
-  isPhoneConnected = connection;
+void bluetooth_connection_changed(bool newConnectionState){
+  // if the phone was connected but isn't anymore and the user has opted in,
+  // trigger a vibration
+  if(isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
+    vibes_short_pulse();
+  }
+  
+  isPhoneConnected = newConnectionState;
+  
   redrawSidebar();
 }
 
 
 static void init() {
-  setlocale(LC_TIME, "fr_FR");
+  setlocale(LC_ALL, "");
   
   if(FORCE_BACKLIGHT) {
     light_enable(true);
@@ -287,8 +292,8 @@ static void init() {
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   
   bool connected = bluetooth_connection_service_peek();
-  bluetooth_connection_callback(connected);
-  bluetooth_connection_service_subscribe(bluetooth_connection_callback);
+  bluetooth_connection_changed(connected);
+  bluetooth_connection_service_subscribe(bluetooth_connection_changed);
 }
 
 static void deinit() {
