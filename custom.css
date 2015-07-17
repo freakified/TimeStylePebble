@@ -11,6 +11,7 @@
   padding-right: 2px;
   color: #FF5500;
   text-align: right;
+  position: relative;
 }
 
 .example_face.light_bg {
