@@ -12,6 +12,7 @@
 #define KEY_SETTING_COLOR_SIDEBAR  8
 #define KEY_SETTING_SIDEBAR_RIGHT  9
 #define KEY_SETTING_USE_METRIC     10
+#define KEY_SETTING_BT_VIBE        11
 
 void messaging_requestNewWeatherData();
   

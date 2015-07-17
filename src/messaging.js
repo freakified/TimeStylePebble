@@ -10,7 +10,7 @@ var xhrRequest = function (url, type, callback) {
 function locationError(err) {
   console.log('location error on the JS side :-(' + err.message);
   //if we fail, try again!
-  getLocation();
+  getWeather();
 }
 
 function locationSuccess(pos) {
@@ -18,7 +18,34 @@ function locationSuccess(pos) {
   var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
       pos.coords.latitude + '&lon=' + pos.coords.longitude;
   
-  // Send request to OpenWeatherMap
+  getAndSendWeatherData(url);
+}
+
+function getLocation() {
+  navigator.geolocation.getCurrentPosition(
+    locationSuccess,
+    locationError,
+    {timeout: 15000, maximumAge: 60000}
+  );
+}
+
+function getWeather() {
+  var weatherLoc = localStorage.getItem('weather_loc');
+  
+  console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
+  
+  if(weatherLoc) {
+    var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
+        encodeURIComponent(weatherLoc);
+    
+    getAndSendWeatherData(url);
+  } else {
+    getLocation();
+  }
+}
+
+// accepts an openweathermap url, gets weather data from it, and sends it to the watch
+function getAndSendWeatherData(url) {
   xhrRequest(url, 'GET', 
     function(responseText) {
       // responseText contains a JSON object with weather info
@@ -35,14 +62,8 @@ function locationSuccess(pos) {
       // night state
       var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
       
-      // General Location Data
-      var tzOffset = new Date().getTimezoneOffset() * -1;
-      
       // Assemble dictionary using our keys
       var dictionary = {
-        'KEY_LOCATION_LAT': Math.round(pos.coords.latitude * 1000000),
-        'KEY_LOCATION_LNG': Math.round(pos.coords.longitude * 1000000),
-        'KEY_GMT_OFFSET': tzOffset,
         'KEY_TEMPERATURE': temperature,
         'KEY_CONDITION_CODE': conditions,
         'KEY_USE_NIGHT_ICON': isNight
@@ -54,18 +75,12 @@ function locationSuccess(pos) {
           console.log('Weather info sent to Pebble successfully!');
         },
         function(e) {
+          // if we fail, wait a couple seconds, then try again
+          setTimeout(getWeather(), 2000);
           console.log('Error sending weather info to Pebble!');
         }
       );
     }      
-  );
-}
-
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    {timeout: 15000, maximumAge: 60000}
   );
 }
 
@@ -75,7 +90,7 @@ Pebble.addEventListener('ready',
     console.log('JS component is now READY');
 
     // first thing to do: get our location
-    getLocation();
+    getWeather();
   }
 );
 
@@ -86,21 +101,30 @@ Pebble.addEventListener('appmessage',
   function(msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
     
-    getLocation();
+    getWeather();
   }                     
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
-//   Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
-  Pebble.openURL('http://localhost/~Dan/p2/TimeStylePebble/config_color.html');
+  Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
+//   Pebble.openURL('http://192.168.1.123/~Dan/p2/TimeStylePebble/config_color.html');
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {  
   var configData = decodeURIComponent(e.response);
+  
   if(configData) {
     configData = JSON.parse(decodeURIComponent(e.response));
     
+    console.log("Config data recieved!" + JSON.stringify(configData));
+    
+    // weather location can be placed into localstorage
+    if(configData.weather_loc !== undefined) {
+      localStorage.setItem('weather_loc', configData.weather_loc);
+    }
+    
+    // prepare a structure to hold everything we'll send to the watch
     var dict = {};
     
     if(configData.color_time) {
@@ -131,11 +155,22 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
     
+    if(configData.bluetooth_vibe_setting) {
+      if(configData.bluetooth_vibe_setting == 'yes') {
+        dict.KEY_SETTING_BT_VIBE = 1;
+      } else {
+        dict.KEY_SETTING_BT_VIBE = 0;
+      }
+    }
+    
     console.log('Preparing message: ', JSON.stringify(dict));
     
     // Send settings to Pebble watchapp
     Pebble.sendAppMessage(dict, function(){
       console.log('Sent config data to Pebble');  
+      
+      // after sending config data, force a weather refresh in case that changed
+      getWeather();
     }, function() {
         console.log('Failed to send config data!');
     });

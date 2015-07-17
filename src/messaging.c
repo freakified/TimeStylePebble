@@ -48,6 +48,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *sidebarColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_SIDEBAR);
   Tuple *sidebarPos_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_RIGHT);
   Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
+  Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
   
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -67,6 +68,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   
   if(useMetric_tuple != NULL) {
     globalSettings.useMetric = (bool)useMetric_tuple->value->int8;
+  }
+  
+  if(btVibe_tuple != NULL) {
+    globalSettings.btVibe = (bool)btVibe_tuple->value->int8;
   }
   
   // notify the main screen, in case something changed
