@@ -1,0 +1,36 @@
+---
+layout: default
+title: "TimeStyle Settings"
+---
+
+<body style="padding-top: 70px;">
+{% include config_navbar.html %}
+
+<div class="container">
+<form>
+  {% include config_theme_bw.html %}
+
+  {% include config_misc_options.html %}
+</form>
+</container>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="spectrum/spectrum.js"></script>
+<script>
+$(".colorpicker").spectrum({
+    allowEmpty: true,
+    showPaletteOnly: true,
+    preferredFormat: "hex",
+    change: function(color) {
+        // if we change a custom color, deselect any preset_selector
+        $('#preset_selector > .active').removeClass('active');
+    },
+    palette: [
+        ["#000000", "#FFFFFF"]
+    ]
+});
+</script>
+<script src="js/config.js"></script>
+</body>
+</html>

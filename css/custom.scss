@@ -1,9 +1,13 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
 .example_face {
   width: 56px;
   height: 66px;
   box-shadow: 0 0 0 1px black;
   background: black;
-  border-right: 10px solid #FF5500;
+  border-right: 10px solid #FFFFFF;
   margin: 0 auto 4px;
   font-size: 33px;
   line-height: 30px;
@@ -12,17 +16,18 @@
   color: #FF5500;
   text-align: right;
   position: relative;
+
+  &.light_bg {
+    background: white;
+    color: black;
+  }
+
+  &.sidebar_left {
+    border-right: 0 none;
+    border-left: 10px solid #FFFFFF;
+  }
 }
 
-.example_face.light_bg {
-  background: white;
-  color: black;
-}
-
-.example_face.sidebar_left {
-  border-right: 0 none;
-  border-left: 10px solid #FF5500;
-}
 
 #preset_selector > .btn {
   width: 49%;
@@ -40,13 +45,14 @@
 }
 
 .sp-palette {
-    max-width: 350px;
+  max-width: 350px;
+
+  .sp-thumb-el {
+    width: 30px;
+    height: 30px;
+  }
 }
 
-.sp-palette .sp-thumb-el {
-  width: 30px;
-  height: 30px;
-}
 
 .nav-tabs {
   margin-bottom: 15px;
@@ -55,13 +61,14 @@
 .navbar-inverse {
   box-shadow: 0 -8px 11px 7px black;
   border: none;
+
+  .navbar-text {
+    color: white;
+    font-size: 16px;
+    line-height: 19px;
+  }
 }
 
-.navbar-inverse .navbar-text {
-  color: white;
-  font-size: 16px;
-  line-height: 19px;
-}
 
 #close_button, #reset_button {
   background-color: #444;

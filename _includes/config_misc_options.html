@@ -1,0 +1,55 @@
+<hr>
+<label>Sidebar Position</label>
+<div id="sidebar_position_setting" class="form-group">
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="left">
+      <input type="radio" name="options" id="option1" autocomplete="off">
+      <div class="example_face sidebar_left"></div>
+      Left
+    </label>
+    <label class="btn btn-default" data-setting="right">
+      <input type="radio" name="options" id="option2" autocomplete="off">
+      <div class="example_face"></div>
+      Right
+    </label>
+  </div>
+</div>
+<hr>
+<label>Temperature Unit</label>
+<div id="units_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="c" >
+      <input type="radio" name="options" autocomplete="off"> Celsius
+    </label>
+    <label class="btn btn-default" data-setting="f" >
+      <input type="radio" name="options" autocomplete="off"> Fahrenheit
+    </label>
+  </div>
+</div>
+<hr>
+<label>Weather Location</label>
+<div id="weather_loc_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="false" >
+      <input type="radio" name="options" autocomplete="off"> Automatic (GPS)
+    </label>
+    <label class="btn btn-default" data-setting="true" >
+      <input type="radio" name="options" autocomplete="off" id="weather_setting_manual"> Manual
+    </label>
+  </div>
+  <div class="form_group collapse" id="manual_weather_loc_setting_area">
+    <input type="text" class="form-control" style="margin-top: 15px" id="weather_loc" placeholder='e.g. "San Francisco CA US", or "94101 US"'>
+  </div>
+</div>
+<hr>
+<label>Bluetooth Disconnection Notification</label>
+<div id="bluetooth_vibe_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="no" >
+      <input type="radio" name="options" autocomplete="off"> Icon only
+    </label>
+    <label class="btn btn-default" data-setting="yes" >
+      <input type="radio" name="options" autocomplete="off"> Icon and vibrate
+    </label>
+  </div>
+</div>
