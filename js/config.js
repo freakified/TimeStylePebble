@@ -136,15 +136,15 @@ function sendSettingsToWatch() {
     config.sidebar_text_color = $('#sidebar-text-color').val().substr(1);
   }
 
-  if($('#sidebar_position_setting .btn.active')) {
+  if($('#sidebar_position_setting .btn.active').size() > 0) {
     config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
   }
 
-  if($('#units_setting .btn.active')) {
+  if($('#units_setting .btn.active').size() > 0) {
     config.units = $('#units_setting .btn.active').data('setting');
   }
 
-  if($('#weather_loc_setting .btn.active')) {
+  if($('#weather_loc_setting .btn.active').size() > 0) {
     if($('#weather_setting_manual').is(':checked')) {
       config.weather_loc = $('#weather_loc').val();
     } else {
