@@ -13,11 +13,12 @@
 #define KEY_SETTING_SIDEBAR_RIGHT  9
 #define KEY_SETTING_USE_METRIC     10
 #define KEY_SETTING_BT_VIBE        11
+#define KEY_SETTING_SIDEBAR_TEXT_COLOR 12
 
 void messaging_requestNewWeatherData();
-  
+
 void (*message_processed_callback)(void);
-  
+
 extern void messaging_init(void (*message_processed_callback)(void));
 extern void inbox_received_callback(DictionaryIterator *iterator, void *context);
 extern void inbox_dropped_callback(AppMessageResult reason, void *context);

@@ -15,11 +15,11 @@ static Layer* sidebarLayer;
 
 // PDC images
 #ifdef PBL_COLOR
-static GDrawCommandImage* dateImage;
-static GDrawCommandImage* disconnectImage;
+  static GDrawCommandImage* dateImage;
+  static GDrawCommandImage* disconnectImage;
 #else
-static GBitmap* dateImage;
-static GBitmap* disconnectImage;
+  static GBitmap* dateImage;
+  static GBitmap* disconnectImage;
 #endif
 
 // current bluetooth state
@@ -94,8 +94,16 @@ void update_clock() {
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-  graphics_context_set_text_color(ctx, GColorBlack);
+  // on black and white pebbles, invert the icons if we're using the dark bar
+  #ifndef PBL_COLOR
+    if(globalSettings.sidebarTextColor == GColorWhite) {
+      graphics_context_set_compositing_mode(ctx, GCompOpAssignInverted);
+    } else {
+      graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+    }
+  #endif
 
   if (Weather_currentWeatherIcon) {
     #ifdef PBL_COLOR
@@ -151,6 +159,11 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     #endif
   }
 
+  // color pebble should always use black for the date number...
+  #ifdef PBL_COLOR
+    graphics_context_set_text_color(ctx, GColorBlack);
+  #endif
+
   graphics_draw_text(ctx,
                      currentDayNum,
                      dateFont,
@@ -158,6 +171,11 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+
+ // ...but only for the date number
+  #ifdef PBL_COLOR
+    graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  #endif
 
   graphics_draw_text(ctx,
                      currentMonth,
@@ -219,7 +237,6 @@ static void main_window_load(Window *window) {
   dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
 
   // init the sidebar layer
-
   if(globalSettings.sidebarOnRight) {
     sidebarLayer = layer_create(GRect(114, 0, 30, 168));
   } else {
