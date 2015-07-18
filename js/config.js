@@ -1,17 +1,27 @@
 $('#time-color').on('change', customColorChanged);
 $('#time-bg-color').on('change', customColorChanged);
 $('#sidebar-color').on('change', customColorChanged);
+$('#sidebar-text-color').on('change', customColorChanged);
 
 function customColorChanged() {
   updateToolbar();
   updateCustomPreview();
 }
 
-
 $('#preset_selector .btn').on('click', function() {
   $("#time-color").spectrum("set", $(this).data('time-color'));
   $("#time-bg-color").spectrum("set", $(this).data('time-bg-color'));
   $("#sidebar-color").spectrum("set", $(this).data('sidebar-color'));
+
+  var sidebarColor = $(this).data('sidebar-text-color');
+
+  // since the sidebar text color is almost always black, just assume that this
+  // is the case
+  if(sidebarColor) {
+    $("#sidebar-text-color").spectrum("set", sidebarColor);
+  } else {
+    $("#sidebar-text-color").spectrum("set", "#000000");
+  }
 
   updateCustomPreview();
 });
@@ -30,6 +40,10 @@ function updateToolbar() {
     }
 
     if($('#sidebar-color').val()) {
+      counter++;
+    }
+
+    if($('#sidebar-text-color').val()) {
       counter++;
     }
   }
@@ -69,6 +83,7 @@ function resetSettings() {
   $("#time-color").spectrum("set", null);
   $("#time-bg-color").spectrum("set", null);
   $("#sidebar-color").spectrum("set", null);
+  $("#sidebar-text-color").spectrum("set", null);
 
   $('label.btn').removeClass('active');
   $(':radio').prop('checked', false);
@@ -115,6 +130,10 @@ function sendSettingsToWatch() {
 
   if($('#sidebar-color').val()) {
     config.color_sidebar = $('#sidebar-color').val().substr(1);
+  }
+
+  if($('#sidebar-text-color').val()) {
+    config.sidebar_text_color = $('#sidebar-text-color').val().substr(1);
   }
 
   if($('#sidebar_position_setting .btn.active')) {
