@@ -40,7 +40,7 @@ void Settings_loadAllDefaults() {
     globalSettings.sidebarColor   = GColorOrange;
   #else
     globalSettings.timeColor      = GColorWhite;
-    globalSettings.sidebarColor   = GColorBlack;
+    globalSettings.sidebarColor   = GColorWhite;
   #endif
   globalSettings.timeBgColor    = GColorBlack;
   globalSettings.sidebarOnRight = true;

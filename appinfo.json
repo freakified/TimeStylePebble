@@ -1,17 +1,17 @@
 {
     "appKeys": {
-        "KEY_CONDITION_CODE": 4,
-        "KEY_GMT_OFFSET": 2,
         "KEY_LOCATION_LAT": 0,
         "KEY_LOCATION_LNG": 1,
-        "KEY_SETTING_BT_VIBE": 11,
+        "KEY_GMT_OFFSET": 2,
+        "KEY_TEMPERATURE": 3,
+        "KEY_CONDITION_CODE": 4,
+        "KEY_USE_NIGHT_ICON": 5,
+        "KEY_SETTING_COLOR_TIME": 6,
         "KEY_SETTING_COLOR_BG": 7,
         "KEY_SETTING_COLOR_SIDEBAR": 8,
-        "KEY_SETTING_COLOR_TIME": 6,
         "KEY_SETTING_SIDEBAR_RIGHT": 9,
         "KEY_SETTING_USE_METRIC": 10,
-        "KEY_TEMPERATURE": 3,
-        "KEY_USE_NIGHT_ICON": 5
+        "KEY_SETTING_BT_VIBE": 11
     },
     "capabilities": [
         "location",
@@ -24,183 +24,211 @@
         "media": [
             {
                 "file": "images/BW_THUNDERSTORM.png",
-                "name": "BW_WEATHER_THUNDERSTORM",
-                "type": "png"
+                "name": "WEATHER_THUNDERSTORM",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_HEAVY_RAIN.png",
-                "name": "BW_WEATHER_HEAVY_RAIN",
-                "type": "png"
+                "name": "WEATHER_HEAVY_RAIN",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_CLEAR_NIGHT.png",
-                "name": "BW_WEATHER_CLEAR_NIGHT",
-                "type": "png"
+                "name": "WEATHER_CLEAR_NIGHT",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_CLEAR_DAY.png",
-                "name": "BW_WEATHER_CLEAR_DAY",
-                "type": "png"
+                "name": "WEATHER_CLEAR_DAY",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_PARTLY_CLOUDY_NIGHT.png",
-                "name": "BW_WEATHER_PARTLY_CLOUDY_NIGHT",
-                "type": "png"
+                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_RAINING_AND_SNOWING.png",
-                "name": "BW_WEATHER_RAINING_AND_SNOWING",
-                "type": "png"
+                "name": "WEATHER_RAINING_AND_SNOWING",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_LIGHT_SNOW.png",
-                "name": "BW_WEATHER_LIGHT_SNOW",
-                "type": "png"
+                "name": "WEATHER_LIGHT_SNOW",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_LIGHT_RAIN.png",
-                "name": "BW_WEATHER_LIGHT_RAIN",
-                "type": "png"
+                "name": "WEATHER_LIGHT_RAIN",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_HEAVY_SNOW.png",
-                "name": "BW_WEATHER_HEAVY_SNOW",
-                "type": "png"
+                "name": "WEATHER_HEAVY_SNOW",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_CLOUDY_DAY.png",
-                "name": "BW_WEATHER_CLOUDY",
-                "type": "png"
+                "name": "WEATHER_CLOUDY",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_PARTLY_CLOUDY.png",
-                "name": "BW_WEATHER_PARTLY_CLOUDY",
-                "type": "png"
+                "name": "WEATHER_PARTLY_CLOUDY",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_DISCONNECTED.png",
-                "name": "BW_DISCONNECTED",
-                "type": "png"
+                "name": "DISCONNECTED",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "images/BW_DATE_BG.png",
-                "name": "BW_DATE_BG",
-                "type": "png"
+                "name": "DATE_BG",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
             },
             {
                 "file": "data/THUNDERSTORM.pdc",
                 "name": "WEATHER_THUNDERSTORM",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/HEAVY_RAIN.pdc",
                 "name": "WEATHER_HEAVY_RAIN",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/CLEAR_NIGHT.pdc",
                 "name": "WEATHER_CLEAR_NIGHT",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/CLEAR_DAY.pdc",
                 "name": "WEATHER_CLEAR_DAY",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
                 "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/RAINING_AND_SNOWING.pdc",
                 "name": "WEATHER_RAINING_AND_SNOWING",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/LIGHT_SNOW.pdc",
                 "name": "WEATHER_LIGHT_SNOW",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/LIGHT_RAIN.pdc",
                 "name": "WEATHER_LIGHT_RAIN",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/HEAVY_SNOW.pdc",
                 "name": "WEATHER_HEAVY_SNOW",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/CLOUDY_DAY.pdc",
                 "name": "WEATHER_CLOUDY",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/PARTLY_CLOUDY.pdc",
                 "name": "WEATHER_PARTLY_CLOUDY",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/DISCONNECTED.pdc",
                 "name": "DISCONNECTED",
-                "type": "raw"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "data/DATE_BG.pdc",
                 "name": "DATE_BG",
-                "type": "raw"
-            },
-            {
-                "file": "images/bw_digit_9.png",
-                "name": "BW_CLOCK_DIGIT_9",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_8.png",
-                "name": "BW_CLOCK_DIGIT_8",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_7.png",
-                "name": "BW_CLOCK_DIGIT_7",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_6.png",
-                "name": "BW_CLOCK_DIGIT_6",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_5.png",
-                "name": "BW_CLOCK_DIGIT_5",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_4.png",
-                "name": "BW_CLOCK_DIGIT_4",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_3.png",
-                "name": "BW_CLOCK_DIGIT_3",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_2.png",
-                "name": "BW_CLOCK_DIGIT_2",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_1.png",
-                "name": "BW_CLOCK_DIGIT_1",
-                "type": "png"
-            },
-            {
-                "file": "images/bw_digit_0.png",
-                "name": "BW_CLOCK_DIGIT_0",
-                "type": "png"
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
             },
             {
                 "file": "images/digit_9.png",
