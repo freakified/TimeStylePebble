@@ -172,6 +172,10 @@ function sendSettingsToWatch() {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
   }
 
+  if($('#time_leading_zero_setting .btn.active')) {
+    config.leading_zero_setting = $('#time_leading_zero_setting .btn.active').data('setting');
+  }
+
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
   document.location.href = return_to + encodeURIComponent(JSON.stringify(config));
