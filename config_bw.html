@@ -22,6 +22,7 @@ $(".colorpicker").spectrum({
     allowEmpty: true,
     showPaletteOnly: true,
     preferredFormat: "hex",
+    hideAfterPaletteSelect: true,
     change: function(color) {
         // if we change a custom color, deselect any preset_selector
         $('#preset_selector > .active').removeClass('active');
