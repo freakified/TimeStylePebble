@@ -3,6 +3,9 @@ $('#time-bg-color').on('change', customColorChanged);
 $('#sidebar-color').on('change', customColorChanged);
 $('#sidebar-text-color').on('change', customColorChanged);
 
+$('label.btn').on('change', updateToolbar);
+$('select').on('change', updateToolbar);
+
 function customColorChanged() {
   updateToolbar();
   updateCustomPreview();
@@ -48,6 +51,10 @@ function updateToolbar() {
     }
   }
 
+  if($('#language_selection option:selected').data('setting') != -1) {
+    counter++;
+  }
+
   if(counter > 0) {
     $('#toolbar_nochanges').addClass('hidden');
     $('#toolbar_haschanges').removeClass('hidden');
@@ -63,7 +70,6 @@ function updateToolbar() {
   }
 }
 
-$('label.btn').on('change', updateToolbar);
 
 function updateCustomPreview() {
   if($('#time-color').val() && $('#time-bg-color').val() && $('#sidebar-color').val()) {
@@ -90,6 +96,8 @@ function resetSettings() {
 
   $('#manual_weather_loc_setting_area').collapse('hide');
   $('input').val(null);
+
+  $('#language_selection').val('(No change)');
 
   updateToolbar();
   updateCustomPreview();
@@ -154,6 +162,10 @@ function sendSettingsToWatch() {
 
   if($('#bluetooth_vibe_setting .btn.active')) {
     config.bluetooth_vibe_setting = $('#bluetooth_vibe_setting .btn.active').data('setting');
+  }
+
+  if($('#language_selection option:selected').data('setting') != -1) {
+    config.language_id = $('#language_selection option:selected').data('setting');
   }
 
   // Set the return URL depending on the runtime environment
