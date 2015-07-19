@@ -18,9 +18,11 @@ static Layer* sidebarLayer;
 #ifdef PBL_COLOR
   static GDrawCommandImage* dateImage;
   static GDrawCommandImage* disconnectImage;
+  static GDrawCommandImage* batteryImage;
 #else
   static GBitmap* dateImage;
   static GBitmap* disconnectImage;
+  static GBitmap* batteryImage;
 #endif
 
 // current bluetooth state
@@ -94,6 +96,50 @@ void update_clock() {
   layer_mark_dirty(sidebarLayer);
 }
 
+void drawBatteryStatus(GContext* ctx) {
+  BatteryChargeState chargeState = battery_state_service_peek();
+  char batteryString[6];
+
+  #ifdef PBL_COLOR
+    int width = roundf(17 * chargeState.charge_percent / 100.0f);
+  #else
+    int width = roundf(18 * chargeState.charge_percent / 100.0f);
+  #endif
+
+  snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+
+  if (batteryImage) {
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, batteryImage, GPoint(2, 68));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(2, 68, 25, 25));
+    #endif
+  }
+
+  graphics_context_set_fill_color(ctx, GColorBlack);
+
+  #ifdef PBL_COLOR
+    if(chargeState.charge_percent <= 20) {
+      graphics_context_set_fill_color(ctx, GColorRed);
+    }
+
+    graphics_fill_rect(ctx, GRect(6, 72, width, 7), 0, GCornerNone);
+  #else
+    graphics_fill_rect(ctx, GRect(5, 71, width, 8), 0, GCornerNone);
+  #endif
+
+
+
+
+  // graphics_draw_text(ctx,
+  //                    batteryString,
+  //                    sidebarFont,
+  //                    GRect(-5, 72, 38, 20),
+  //                    GTextOverflowModeFill,
+  //                    GTextAlignmentCenter,
+  //                    NULL);
+}
+
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
@@ -137,7 +183,21 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                        NULL);
   }
 
-  // now draw in the text
+  // if the pebble is disconnected, display the disconnection image
+  if (disconnectImage && !isPhoneConnected) {
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(2, 60, 25, 25));
+    #endif
+  } else {
+    // otherwise, display the battery life
+    if(true || globalSettings.showBatteryLevel) {
+      drawBatteryStatus(ctx);
+    }
+  }
+
+  // now draw in the date info
   graphics_draw_text(ctx,
                      currentDayName,
                      sidebarFont,
@@ -145,14 +205,6 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
-
-  if (disconnectImage && !isPhoneConnected) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(2, 60, 25, 25));
-    #endif
-  }
 
   if (dateImage) {
     #ifdef PBL_COLOR
@@ -253,9 +305,11 @@ static void main_window_load(Window *window) {
   #ifdef PBL_COLOR
     dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
     disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
+    batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
   #else
     dateImage = gbitmap_create_with_resource(RESOURCE_ID_DATE_BG);
     disconnectImage = gbitmap_create_with_resource(RESOURCE_ID_DISCONNECTED);
+    batteryImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_BG);
   #endif
 
   if (!dateImage || !disconnectImage) {
@@ -279,9 +333,11 @@ static void main_window_unload(Window *window) {
   #ifdef PBL_COLOR
     gdraw_command_image_destroy(dateImage);
     gdraw_command_image_destroy(disconnectImage);
+    gdraw_command_image_destroy(batteryImage);
   #else
     gbitmap_destroy(dateImage);
     gbitmap_destroy(disconnectImage);
+    gbitmap_destroy(batteryImage);
   #endif
 }
 

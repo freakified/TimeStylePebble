@@ -25,6 +25,14 @@
     "resources": {
         "media": [
             {
+                "file": "images/BW_BATTERY_BG.png",
+                "name": "BATTERY_BG",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
+            },
+            {
                 "file": "images/BW_THUNDERSTORM.png",
                 "name": "WEATHER_THUNDERSTORM",
                 "type": "png",
@@ -126,6 +134,14 @@
                 "type": "png",
                 "targetPlatforms": [
                   "aplite"
+                ]
+            },
+            {
+                "file": "data/BATTERY_BG.pdc",
+                "name": "BATTERY_BG",
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
                 ]
             },
             {
