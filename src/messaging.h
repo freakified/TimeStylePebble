@@ -15,6 +15,8 @@
 #define KEY_SETTING_BT_VIBE             11
 #define KEY_SETTING_SIDEBAR_TEXT_COLOR  12
 #define KEY_SETTING_LANGUAGE_ID         13
+#define KEY_SETTING_SHOW_BATTERY_METER  14
+#define KEY_SETTING_SHOW_LEADING_ZERO   15
 
 void messaging_requestNewWeatherData();
 

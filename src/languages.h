@@ -1,5 +1,4 @@
 #pragma once
-#include <pebble.h>
 
 #define LANGUAGE_EN 0
 #define LANGUAGE_FR 1

@@ -193,6 +193,22 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    if(configData.battery_meter_setting) {
+      if(configData.battery_meter_setting == 'yes') {
+        dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
+      } else {
+        dict.KEY_SETTING_SHOW_BATTERY_METER = 0;
+      }
+    }
+
+    if(configData.leading_zero_setting) {
+      if(configData.leading_zero_setting == 'yes') {
+        dict.KEY_SETTING_SHOW_LEADING_ZERO = 1;
+      } else {
+        dict.KEY_SETTING_SHOW_LEADING_ZERO = 0;
+      }
+    }
+
     if(configData.language_id) {
       dict.KEY_SETTING_LANGUAGE_ID = configData.language_id;
     }
