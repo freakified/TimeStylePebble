@@ -109,10 +109,10 @@ Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
   // Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
 
-  // var colorConfigURL = 'http://192.168.1.123:4000/config_color.html';
-  // var bwConfigURL = 'http://192.168.1.123:4000/config_bw.html';
-  var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
-  var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
+  var colorConfigURL = 'http://192.168.1.123:4000/config_color.html';
+  var bwConfigURL = 'http://192.168.1.123:4000/config_bw.html';
+  // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
+  // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
   var watch;
 
@@ -190,6 +190,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_BT_VIBE = 1;
       } else {
         dict.KEY_SETTING_BT_VIBE = 0;
+      }
+    }
+
+    if(configData.battery_meter_setting) {
+      if(configData.battery_meter_setting == 'yes') {
+        dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
+      } else {
+        dict.KEY_SETTING_SHOW_BATTERY_METER = 0;
       }
     }
 

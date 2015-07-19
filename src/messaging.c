@@ -51,6 +51,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
   Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
   Tuple *language_tuple = dict_find(iterator, KEY_SETTING_LANGUAGE_ID);
+  Tuple *batteryMeter_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_METER);
 
   if(timeColor_tuple != NULL) {
     #ifdef PBL_COLOR
@@ -94,6 +95,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(btVibe_tuple != NULL) {
     globalSettings.btVibe = (bool)btVibe_tuple->value->int8;
+  }
+
+  if(batteryMeter_tuple != NULL) {
+    globalSettings.showBatteryLevel = (bool)batteryMeter_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {

@@ -128,9 +128,6 @@ void drawBatteryStatus(GContext* ctx) {
     graphics_fill_rect(ctx, GRect(5, 71, width, 8), 0, GCornerNone);
   #endif
 
-
-
-
   // graphics_draw_text(ctx,
   //                    batteryString,
   //                    sidebarFont,
@@ -191,8 +188,8 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
       graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(2, 60, 25, 25));
     #endif
   } else {
-    // otherwise, display the battery life
-    if(true || globalSettings.showBatteryLevel) {
+    // otherwise, display the battery life, if enabled
+    if(globalSettings.showBatteryLevel) {
       drawBatteryStatus(ctx);
     }
   }
