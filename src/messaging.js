@@ -109,8 +109,10 @@ Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
   // Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
 
-  var colorConfigURL = 'http://localhost:4000/config_color.html';
-  var bwConfigURL = 'http://localhost:4000/config_bw.html';
+  // var colorConfigURL = 'http://192.168.1.123:4000/config_color.html';
+  // var bwConfigURL = 'http://192.168.1.123:4000/config_bw.html';
+  var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
+  var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
   var watch;
 
