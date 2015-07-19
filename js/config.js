@@ -168,6 +168,10 @@ function sendSettingsToWatch() {
     config.language_id = $('#language_selection option:selected').data('setting');
   }
 
+  if($('#battery_meter_setting .btn.active')) {
+    config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
+  }
+
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
   document.location.href = return_to + encodeURIComponent(JSON.stringify(config));

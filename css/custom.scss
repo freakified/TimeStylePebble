@@ -26,6 +26,17 @@
     border-right: 0 none;
     border-left: 10px solid #FFFFFF;
   }
+
+  &.with_battery_meter:after {
+    content: '';
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    top: 25px;
+    right: -10px;
+    background: url('../images/battery_meter.png');
+    background-size: 10px 10px;
+  }
 }
 
 
