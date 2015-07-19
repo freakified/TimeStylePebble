@@ -12,7 +12,8 @@
         "KEY_SETTING_SIDEBAR_RIGHT": 9,
         "KEY_SETTING_USE_METRIC": 10,
         "KEY_SETTING_BT_VIBE": 11,
-        "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12
+        "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12,
+        "KEY_SETTING_LANGUAGE_ID": 13
     },
     "capabilities": [
         "location",

@@ -5,6 +5,7 @@
 #include "weather.h"
 #include "messaging.h"
 #include "settings.h"
+#include "languages.h"
 
 #define FORCE_BACKLIGHT false
 #define FORCE_12H true
@@ -33,9 +34,9 @@ static GFont dateFont;
 static ClockDigit clockDigits[4];
 
 // the date and weather strings
-static char currentDayName[4];
-static char currentDayNum[3];
-static char currentMonth[4];
+static char currentDayName[8];
+static char currentDayNum[8];
+static char currentMonth[8];
 
 void update_clock() {
   time_t rawTime;
@@ -72,9 +73,11 @@ void update_clock() {
   ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10);
 
   // set all the date strings
-  strftime(currentDayName, 4, "%a", timeInfo);
   strftime(currentDayNum,  3, "%e", timeInfo);
-  strftime(currentMonth,   4, "%b", timeInfo);
+  // strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
+  // strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentDayName));
+  strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
+  strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentDayName));
 
   // convert day and month names to uppercase
   for(int i = 0; i < 4; i++) {
@@ -214,7 +217,8 @@ void forceScreenRedraw() {
     }
   }
 
-  redrawSidebar();
+  // maybe the language changed!
+  update_clock();
 }
 static void main_window_load(Window *window) {
 //   APP_LOG(APP_LOG_LEVEL_DEBUG, "trying to construct");

@@ -4,16 +4,17 @@
 // #define KEY_LOCATION_LAT           0
 // #define KEY_LOCATION_LNG           1
 // #define KEY_GMT_OFFSET             2
-#define KEY_TEMPERATURE            3
-#define KEY_CONDITION_CODE         4
-#define KEY_USE_NIGHT_ICON         5
-#define KEY_SETTING_COLOR_TIME     6
-#define KEY_SETTING_COLOR_BG       7
-#define KEY_SETTING_COLOR_SIDEBAR  8
-#define KEY_SETTING_SIDEBAR_RIGHT  9
-#define KEY_SETTING_USE_METRIC     10
-#define KEY_SETTING_BT_VIBE        11
-#define KEY_SETTING_SIDEBAR_TEXT_COLOR 12
+#define KEY_TEMPERATURE                 3
+#define KEY_CONDITION_CODE              4
+#define KEY_USE_NIGHT_ICON              5
+#define KEY_SETTING_COLOR_TIME          6
+#define KEY_SETTING_COLOR_BG            7
+#define KEY_SETTING_COLOR_SIDEBAR       8
+#define KEY_SETTING_SIDEBAR_RIGHT       9
+#define KEY_SETTING_USE_METRIC          10
+#define KEY_SETTING_BT_VIBE             11
+#define KEY_SETTING_SIDEBAR_TEXT_COLOR  12
+#define KEY_SETTING_LANGUAGE_ID         13
 
 void messaging_requestNewWeatherData();
 

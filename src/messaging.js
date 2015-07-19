@@ -191,6 +191,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    if(configData.language_id) {
+      dict.KEY_SETTING_LANGUAGE_ID = configData.language_id;
+    }
+
     console.log('Preparing message: ', JSON.stringify(dict));
 
     // Send settings to Pebble watchapp
