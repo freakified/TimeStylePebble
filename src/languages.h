@@ -12,8 +12,8 @@ char dayNames[5][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO", "MO", "DI", "MI", "DO", "FR", "SA"},
-	{ "DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"},
-	{"LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"}
+	{"DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"},
+	{"DOM", "LUN", "MAR", "MER", "GIO", "VEN", "SAB"}
 };
 
 /* month names in 5 different languages! */
