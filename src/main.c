@@ -64,7 +64,7 @@ void update_clock() {
   }
 
   // use the blank image for the leading hour digit if needed
-  if(hour / 10 != 0) {
+  if(Settings_showLeadingZero || hour / 10 != 0) {
     ClockDigit_setNumber(&clockDigits[0], hour / 10);
   } else {
     ClockDigit_setBlank(&clockDigits[0]);

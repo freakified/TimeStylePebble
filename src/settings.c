@@ -28,6 +28,9 @@ void Settings_init() {
     // if there weren't any saved settings, load the defaults
     Settings_loadAllDefaults();
   }
+
+  // if it doesn't exist, we get "0", which is the default anyway
+  Settings_showLeadingZero = persist_read_int(SETTING_LEADING_ZERO_KEY);
 }
 
 void Settings_loadAllDefaults() {
@@ -61,5 +64,6 @@ void Settings_loadV2Defaults() {
 void Settings_deinit() {
   // save settings to persistent storage
   persist_write_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
+  persist_write_int(SETTING_LEADING_ZERO_KEY, Settings_showLeadingZero);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }

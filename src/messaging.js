@@ -201,6 +201,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    if(configData.leading_zero_setting) {
+      if(configData.leading_zero_setting == 'yes') {
+        dict.KEY_SETTING_SHOW_LEADING_ZERO = 1;
+      } else {
+        dict.KEY_SETTING_SHOW_LEADING_ZERO = 0;
+      }
+    }
+
     if(configData.language_id) {
       dict.KEY_SETTING_LANGUAGE_ID = configData.language_id;
     }
