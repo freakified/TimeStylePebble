@@ -8,7 +8,6 @@
 #include "languages.h"
 
 #define FORCE_BACKLIGHT false
-#define FORCE_12H true
 
 // windows and layers
 static Window* mainWindow;
