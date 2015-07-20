@@ -124,6 +124,10 @@ void drawBatteryStatus(GContext* ctx) {
 
     graphics_fill_rect(ctx, GRect(6, 72, width, 7), 0, GCornerNone);
   #else
+    if(globalSettings.sidebarTextColor == GColorWhite) {
+      graphics_context_set_fill_color(ctx, GColorWhite);
+    }
+
     graphics_fill_rect(ctx, GRect(5, 71, width, 8), 0, GCornerNone);
   #endif
 
