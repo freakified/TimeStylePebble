@@ -36,7 +36,7 @@ function getWeather() {
 
   if(weatherLoc) {
     var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-        encodeURIComponent(weatherLoc);
+        encodeURIComponent(weatherLoc) + '&APPID=4bab067e4ab922f0c5dc8a963bcc9d1a';
 
     getAndSendWeatherData(url);
   } else {
