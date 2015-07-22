@@ -1,3 +1,6 @@
+var failureRetryAmount = 3;
+var currentFailures = 0;
+
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.onload = function () {
@@ -8,9 +11,15 @@ var xhrRequest = function (url, type, callback) {
 };
 
 function locationError(err) {
-  console.log('location error on the JS side :-(' + err.message);
+  console.log('location error on the JS side! Failure #' + currentFailures);
   //if we fail, try again!
-  getWeather();
+  if(currentFailures <= failureRetryAmount) {
+    getWeather();
+    currentFailures++;
+  } else {
+    // until we get too many failures, at which point give up
+    currentFailures = 0;
+  }
 }
 
 function locationSuccess(pos) {
@@ -51,35 +60,44 @@ function getAndSendWeatherData(url) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
 
-      // Temperature in Kelvin requires adjustment
-      var temperature = Math.round(json.main.temp - 273.15);
-      console.log('Temperature is ' + temperature);
+      if(json.cod == "200") {
+        // Temperature in Kelvin requires adjustment
+        var temperature = Math.round(json.main.temp - 273.15);
+        console.log('Temperature is ' + temperature);
 
-      // Conditions
-      var conditions = json.weather[0].id;
-      console.log('Condition code is ' + conditions);
+        // Conditions
+        var conditions = json.weather[0].id;
+        console.log('Condition code is ' + conditions);
 
-      // night state
-      var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
+        // night state
+        var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
 
-      // Assemble dictionary using our keys
-      var dictionary = {
-        'KEY_TEMPERATURE': temperature,
-        'KEY_CONDITION_CODE': conditions,
-        'KEY_USE_NIGHT_ICON': isNight
-      };
+        // Assemble dictionary using our keys
+        var dictionary = {
+          'KEY_TEMPERATURE': temperature,
+          'KEY_CONDITION_CODE': conditions,
+          'KEY_USE_NIGHT_ICON': isNight
+        };
 
-      // Send to Pebble
-      Pebble.sendAppMessage(dictionary,
-        function(e) {
-          console.log('Weather info sent to Pebble successfully!');
-        },
-        function(e) {
-          // if we fail, wait a couple seconds, then try again
-          setTimeout(getWeather(), 2000);
-          console.log('Error sending weather info to Pebble!');
+        // Send to Pebble
+        Pebble.sendAppMessage(dictionary,
+          function(e) {
+            console.log('Weather info sent to Pebble successfully!');
+          },
+          function(e) {
+            // if we fail, wait a couple seconds, then try again
+            if(currentFailures < failureRetryAmount) {
+              getWeather();
+              currentFailures++;
+            } else {
+              currentFailures = 0;
+            }
+
+            console.log('Error sending weather info to Pebble! Count: #' + currentFailures);
+          }
+        );
         }
-      );
+
     }
   );
 }
