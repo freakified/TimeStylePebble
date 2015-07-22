@@ -18,10 +18,12 @@ static Layer* sidebarLayer;
   static GDrawCommandImage* dateImage;
   static GDrawCommandImage* disconnectImage;
   static GDrawCommandImage* batteryImage;
+  static GDrawCommandImage* batteryChargeImage;
 #else
   static GBitmap* dateImage;
   static GBitmap* disconnectImage;
   static GBitmap* batteryImage;
+  static GBitmap* batteryChargeImage;
 #endif
 
 // current bluetooth state
@@ -75,16 +77,10 @@ void update_clock() {
 
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
-  // strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
-  // strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentDayName));
-  strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
-  strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentDayName));
 
-  // convert day and month names to uppercase
-  for(int i = 0; i < 4; i++) {
-    currentDayName[i] = toupper((int)currentDayName[i]);
-    currentMonth[i]   = toupper((int)currentMonth[i]);
-  }
+  strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
+  strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
+  printf("language id: %i current month: %s current day: %s", globalSettings.languageId, currentMonth, currentDayName);
 
   // remove padding on date num, if needed
   if(currentDayNum[0] == ' ') {
@@ -99,37 +95,41 @@ void drawBatteryStatus(GContext* ctx) {
   BatteryChargeState chargeState = battery_state_service_peek();
   char batteryString[6];
 
-  #ifdef PBL_COLOR
-    int width = roundf(17 * chargeState.charge_percent / 100.0f);
-  #else
+  if(chargeState.is_charging) {
+    if(batteryChargeImage) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3, 63));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3, 63, 25, 25));
+      #endif
+    }
+  } else {
+    if (batteryImage) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, batteryImage, GPoint(3, 63));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3, 63, 25, 25));
+      #endif
+    }
+
     int width = roundf(18 * chargeState.charge_percent / 100.0f);
-  #endif
 
-  snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+    graphics_context_set_fill_color(ctx, GColorBlack);
 
-  if (batteryImage) {
     #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, batteryImage, GPoint(2, 68));
+      if(chargeState.charge_percent <= 20) {
+        graphics_context_set_fill_color(ctx, GColorRed);
+      }
     #else
-      graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(2, 68, 25, 25));
+      if(globalSettings.sidebarTextColor == GColorWhite) {
+        graphics_context_set_fill_color(ctx, GColorWhite);
+      }
     #endif
+
+    graphics_fill_rect(ctx, GRect(6, 71, width, 8), 0, GCornerNone);
   }
 
-  graphics_context_set_fill_color(ctx, GColorBlack);
-
-  #ifdef PBL_COLOR
-    if(chargeState.charge_percent <= 20) {
-      graphics_context_set_fill_color(ctx, GColorRed);
-    }
-
-    graphics_fill_rect(ctx, GRect(6, 72, width, 7), 0, GCornerNone);
-  #else
-    if(globalSettings.sidebarTextColor == GColorWhite) {
-      graphics_context_set_fill_color(ctx, GColorWhite);
-    }
-
-    graphics_fill_rect(ctx, GRect(5, 71, width, 8), 0, GCornerNone);
-  #endif
+  snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
   // graphics_draw_text(ctx,
   //                    batteryString,
@@ -156,9 +156,9 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
   if (Weather_currentWeatherIcon) {
     #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(2, 7));
+      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
     #else
-      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(2, 7, 25, 25));
+      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
     #endif
   }
 
@@ -186,9 +186,9 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   // if the pebble is disconnected, display the disconnection image
   if (disconnectImage && !isPhoneConnected) {
     #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, disconnectImage, GPoint(2, 60));
+      gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
     #else
-      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(2, 60, 25, 25));
+      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
     #endif
   } else {
     // otherwise, display the battery life, if enabled
@@ -208,9 +208,9 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
   if (dateImage) {
     #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, dateImage, GPoint(2, 118));
+      gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
     #else
-      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(2, 118, 26, 25));
+      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 26, 25));
     #endif
   }
 
@@ -227,7 +227,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
                      GTextAlignmentCenter,
                      NULL);
 
- // ...but only for the date number
+  // switch back to normal color for the month
   #ifdef PBL_COLOR
     graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   #endif
@@ -306,10 +306,12 @@ static void main_window_load(Window *window) {
     dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
     disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
     batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
+    batteryChargeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
   #else
     dateImage = gbitmap_create_with_resource(RESOURCE_ID_DATE_BG);
     disconnectImage = gbitmap_create_with_resource(RESOURCE_ID_DISCONNECTED);
     batteryImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_BG);
+    batteryChargeImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
   #endif
 
   if (!dateImage || !disconnectImage) {
@@ -334,10 +336,12 @@ static void main_window_unload(Window *window) {
     gdraw_command_image_destroy(dateImage);
     gdraw_command_image_destroy(disconnectImage);
     gdraw_command_image_destroy(batteryImage);
+    gdraw_command_image_destroy(batteryChargeImage);
   #else
     gbitmap_destroy(dateImage);
     gbitmap_destroy(disconnectImage);
     gbitmap_destroy(batteryImage);
+    gbitmap_destroy(batteryChargeImage);
   #endif
 }
 
@@ -350,7 +354,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
 }
 
-void bluetooth_connection_changed(bool newConnectionState){
+void bluetoothStateChanged(bool newConnectionState){
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
   if(isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
@@ -359,6 +363,10 @@ void bluetooth_connection_changed(bool newConnectionState){
 
   isPhoneConnected = newConnectionState;
 
+  redrawSidebar();
+}
+
+void batteryStateChanged(BatteryChargeState charge_state) {
   redrawSidebar();
 }
 
@@ -395,8 +403,11 @@ static void init() {
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   bool connected = bluetooth_connection_service_peek();
-  bluetooth_connection_changed(connected);
-  bluetooth_connection_service_subscribe(bluetooth_connection_changed);
+  bluetoothStateChanged(connected);
+  bluetooth_connection_service_subscribe(bluetoothStateChanged);
+
+  // register with battery service
+  battery_state_service_subscribe(batteryStateChanged);
 }
 
 static void deinit() {

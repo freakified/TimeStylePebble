@@ -35,6 +35,14 @@
                 ]
             },
             {
+                "file": "images/BW_BATTERY_CHARGE.png",
+                "name": "BATTERY_CHARGE",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
+            },
+            {
                 "file": "images/BW_THUNDERSTORM.png",
                 "name": "WEATHER_THUNDERSTORM",
                 "type": "png",
@@ -141,6 +149,14 @@
             {
                 "file": "data/BATTERY_BG.pdc",
                 "name": "BATTERY_BG",
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
+            },
+            {
+                "file": "data/BATTERY_CHARGE.pdc",
+                "name": "BATTERY_CHARGE",
                 "type": "raw",
                 "targetPlatforms": [
                   "basalt"
