@@ -210,7 +210,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     #ifdef PBL_COLOR
       gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
     #else
-      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 26, 25));
+      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 25, 25));
     #endif
   }
 
