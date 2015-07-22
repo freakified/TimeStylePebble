@@ -27,14 +27,17 @@
   </div>
 </div>
 <hr>
-<label>Weather Location</label>
-<div id="weather_loc_setting" class="form-group" >
+<label>Weather</label>
+<div id="weather_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="false" >
-      <input type="radio" name="options" autocomplete="off"> Automatic (GPS)
+    <label class="btn btn-default" data-setting="auto" >
+      <input type="radio" name="options" autocomplete="off"> Automatic location (GPS)
     </label>
-    <label class="btn btn-default" data-setting="true" >
-      <input type="radio" name="options" autocomplete="off" id="weather_setting_manual"> Manual
+    <label class="btn btn-default" data-setting="manual" >
+      <input type="radio" name="options" autocomplete="off" id="weather_setting_manual"> Manual location
+    </label>
+    <label class="btn btn-default" data-setting="disable" >
+      <input type="radio" name="options" autocomplete="off"> Disabled
     </label>
   </div>
   <div class="form_group collapse" id="manual_weather_loc_setting_area">
@@ -42,14 +45,14 @@
   </div>
 </div>
 <hr>
-<label>Bluetooth Disconnection Notification</label>
+<label>If the connection to the phone is lost...</label>
 <div id="bluetooth_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off"> Icon only
+      <input type="radio" name="options" autocomplete="off"> Show icon only
     </label>
     <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off"> Icon and vibrate
+      <input type="radio" name="options" autocomplete="off"> Show icon and vibrate
     </label>
   </div>
 </div>

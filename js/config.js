@@ -152,11 +152,17 @@ function sendSettingsToWatch() {
     config.units = $('#units_setting .btn.active').data('setting');
   }
 
-  if($('#weather_loc_setting .btn.active').size() > 0) {
-    if($('#weather_setting_manual').is(':checked')) {
-      config.weather_loc = $('#weather_loc').val();
-    } else {
+  if($('#weather_setting .btn.active').size() > 0) {
+    var weather_setting = $('#weather_setting .btn.active').data('setting');
+
+    if(weather_setting == 'auto') {
+      config.disable_weather = 'no';
       config.weather_loc = '';
+    } else if(weather_setting == 'manual') {
+      config.disable_weather = 'no';
+      config.weather_loc = $('#weather_loc').val();
+    } else if(weather_setting == 'disable') {
+      config.disable_weather = 'yes';
     }
   }
 
