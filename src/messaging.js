@@ -31,7 +31,7 @@ function locationSuccess(pos) {
 }
 
 function getLocation() {
-  navigator.geolocation.getCurrentPosition(
+  navigator.geolocation.watchPosition(
     locationSuccess,
     locationError,
     {timeout: 15000, maximumAge: 60000}
