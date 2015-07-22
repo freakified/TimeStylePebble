@@ -53,6 +53,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *language_tuple = dict_find(iterator, KEY_SETTING_LANGUAGE_ID);
   Tuple *batteryMeter_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_METER);
   Tuple *leadingZero_tuple = dict_find(iterator, KEY_SETTING_SHOW_LEADING_ZERO);
+  Tuple *batteryPct_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_PCT);
 
   if(timeColor_tuple != NULL) {
     #ifdef PBL_COLOR
@@ -104,6 +105,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(leadingZero_tuple != NULL) {
     Settings_showLeadingZero = (bool)leadingZero_tuple->value->int8;
+  }
+
+  if(batteryPct_tuple != NULL) {
+    Settings_showBatteryPct = (bool)batteryPct_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {

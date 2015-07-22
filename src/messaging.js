@@ -212,8 +212,12 @@ Pebble.addEventListener('webviewclosed', function(e) {
     }
 
     if(configData.battery_meter_setting) {
-      if(configData.battery_meter_setting == 'yes') {
+      if(configData.battery_meter_setting == 'yes-with-pct') {
         dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
+        dict.KEY_SETTING_SHOW_BATTERY_PCT = 1;
+      } else if(configData.battery_meter_setting == 'yes') {
+        dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
+        dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
       } else {
         dict.KEY_SETTING_SHOW_BATTERY_METER = 0;
       }

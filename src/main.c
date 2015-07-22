@@ -31,6 +31,7 @@ static bool isPhoneConnected;
 
 // fonts
 static GFont sidebarFont;
+static GFont batteryFont;
 static GFont dateFont;
 
 // the four digits on the clock, ordered h1 h2, m1 m2
@@ -95,20 +96,26 @@ void drawBatteryStatus(GContext* ctx) {
   BatteryChargeState chargeState = battery_state_service_peek();
   char batteryString[6];
 
+  int batteryPositionY = 63;
+
+  if(Settings_showBatteryPct) {
+    batteryPositionY = 58;
+  }
+
   if(chargeState.is_charging) {
     if(batteryChargeImage) {
       #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3, 63));
+        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3, batteryPositionY));
       #else
-        graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3, 63, 25, 25));
+        graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3, batteryPositionY, 25, 25));
       #endif
     }
   } else {
     if (batteryImage) {
       #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, batteryImage, GPoint(3, 63));
+        gdraw_command_image_draw(ctx, batteryImage, GPoint(3, batteryPositionY));
       #else
-        graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3, 63, 25, 25));
+        graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3, batteryPositionY, 25, 25));
       #endif
     }
 
@@ -126,18 +133,20 @@ void drawBatteryStatus(GContext* ctx) {
       }
     #endif
 
-    graphics_fill_rect(ctx, GRect(6, 71, width, 8), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(6, 8 + batteryPositionY, width, 8), 0, GCornerNone);
   }
 
-  snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+  if(Settings_showBatteryPct) {
+    snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
-  // graphics_draw_text(ctx,
-  //                    batteryString,
-  //                    sidebarFont,
-  //                    GRect(-5, 72, 38, 20),
-  //                    GTextOverflowModeFill,
-  //                    GTextAlignmentCenter,
-  //                    NULL);
+    graphics_draw_text(ctx,
+                       batteryString,
+                       batteryFont,
+                       GRect(-4, 18 + batteryPositionY, 38, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  }
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
@@ -290,6 +299,7 @@ static void main_window_load(Window *window) {
 
   // load font
   sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  batteryFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
 
   // init the sidebar layer

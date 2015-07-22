@@ -15,7 +15,8 @@
         "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12,
         "KEY_SETTING_LANGUAGE_ID": 13,
         "KEY_SETTING_SHOW_BATTERY_METER": 14,
-        "KEY_SETTING_SHOW_LEADING_ZERO": 15
+        "KEY_SETTING_SHOW_LEADING_ZERO": 15,
+        "KEY_SETTING_SHOW_BATTERY_PCT": 16
     },
     "capabilities": [
         "location",

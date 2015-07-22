@@ -17,6 +17,7 @@
 #define KEY_SETTING_LANGUAGE_ID         13
 #define KEY_SETTING_SHOW_BATTERY_METER  14
 #define KEY_SETTING_SHOW_LEADING_ZERO   15
+#define KEY_SETTING_SHOW_BATTERY_PCT    16
 
 void messaging_requestNewWeatherData();
 

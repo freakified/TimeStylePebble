@@ -7,12 +7,8 @@
 // settings for app version 1.2
 #define CURRENT_SETTINGS_VERSION 2
 
-// language ids
+// language id
 #define LANGUAGE_EN 0
-#define LANGUAGE_FR 1
-#define LANGUAGE_DE 2
-#define LANGUAGE_ES 3
-#define LANGUAGE_IT 4
 
 typedef struct {
   GColor timeColor;
@@ -40,6 +36,9 @@ Settings globalSettings;
 // their own keys
 #define SETTING_LEADING_ZERO_KEY 10
 bool Settings_showLeadingZero;
+
+#define SETTING_SHOW_BATTERY_PCT_KEY 11
+bool Settings_showBatteryPct;
 
 void Settings_init();
 void Settings_loadAllDefaults();
