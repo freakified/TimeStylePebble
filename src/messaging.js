@@ -39,17 +39,21 @@ function getLocation() {
 }
 
 function getWeather() {
-  var weatherLoc = localStorage.getItem('weather_loc');
+  var weatherDisabled = localStorage.getItem('disable_weather');
 
-  console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
+  if(!weatherDisabled) {
+    var weatherLoc = localStorage.getItem('weather_loc');
 
-  if(weatherLoc) {
-    var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-        encodeURIComponent(weatherLoc) + '&APPID=4bab067e4ab922f0c5dc8a963bcc9d1a';
+    console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
 
-    getAndSendWeatherData(url);
-  } else {
-    getLocation();
+    if(weatherLoc) {
+      var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
+          encodeURIComponent(weatherLoc) + '&APPID=4bab067e4ab922f0c5dc8a963bcc9d1a';
+
+      getAndSendWeatherData(url);
+    } else {
+      getLocation();
+    }
   }
 }
 
@@ -228,6 +232,16 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_SHOW_LEADING_ZERO = 1;
       } else {
         dict.KEY_SETTING_SHOW_LEADING_ZERO = 0;
+      }
+    }
+
+    if(configData.disable_weather) {
+      if(configData.disable_weather == 'yes') {
+        dict.KEY_SETTING_DISABLE_WEATHER = 1;
+        localStorage.setItem('disable_weather', true);
+      } else {
+        dict.KEY_SETTING_DISABLE_WEATHER = 0;
+        localStorage.setItem('disable_weather', false);
       }
     }
 

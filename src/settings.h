@@ -40,6 +40,9 @@ bool Settings_showLeadingZero;
 #define SETTING_SHOW_BATTERY_PCT_KEY 11
 bool Settings_showBatteryPct;
 
+#define SETTING_DISABLE_WEATHER_KEY 12
+bool Settings_disableWeather;
+
 void Settings_init();
 void Settings_loadAllDefaults();
 void Settings_loadV2Defaults();

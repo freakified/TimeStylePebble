@@ -81,7 +81,7 @@ void update_clock() {
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
-  printf("language id: %i current month: %s current day: %s", globalSettings.languageId, currentMonth, currentDayName);
+  // printf("language id: %i current month: %s current day: %s", globalSettings.languageId, currentMonth, currentDayName);
 
   // remove padding on date num, if needed
   if(currentDayNum[0] == ' ') {
@@ -98,8 +98,14 @@ void drawBatteryStatus(GContext* ctx) {
 
   int batteryPositionY = 63;
 
+  // if the percentage indicator is enabled, ensure that the battery is still vertically centered
   if(Settings_showBatteryPct) {
-    batteryPositionY = 58;
+    batteryPositionY -= 5;
+  }
+
+  // however, if the weather is disabled, put the battery where the weather was, at the top
+  if(Settings_disableWeather) {
+    batteryPositionY = 3;
   }
 
   if(chargeState.is_charging) {
@@ -163,44 +169,52 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     }
   #endif
 
-  if (Weather_currentWeatherIcon) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
-    #endif
-  }
-
-  // draw weather data only if it has been set
-  if(Weather_weatherInfo.currentTemp != INT32_MIN) {
-
-    int currentTemp = Weather_weatherInfo.currentTemp;
-
-    if(!globalSettings.useMetric) {
-      currentTemp = roundf((currentTemp * 9.0f) / 5.0f + 32);
+  if(!Settings_disableWeather) {
+    if (Weather_currentWeatherIcon) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
+      #endif
     }
 
-    char tempString[8];
-    snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+    // draw weather data only if it has been set
+    if(Weather_weatherInfo.currentTemp != INT32_MIN) {
 
-    graphics_draw_text(ctx,
-                       tempString,
-                       sidebarFont,
-                       GRect(-5, 31, 38, 20),
-                       GTextOverflowModeFill,
-                       GTextAlignmentCenter,
-                       NULL);
+      int currentTemp = Weather_weatherInfo.currentTemp;
+
+      if(!globalSettings.useMetric) {
+        currentTemp = roundf((currentTemp * 9.0f) / 5.0f + 32);
+      }
+
+      char tempString[8];
+      snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+
+      graphics_draw_text(ctx,
+                         tempString,
+                         sidebarFont,
+                         GRect(-5, 31, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    }
   }
 
+
   // if the pebble is disconnected, display the disconnection image
-  if (disconnectImage && !isPhoneConnected) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
-    #endif
-  } else {
-    // otherwise, display the battery life, if enabled
+  if (!isPhoneConnected) {
+    if(disconnectImage) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
+      #endif
+    }
+  }
+
+  // only show the battery meter if the phone is connected (need room for the disconnection icon)
+  // OR if the weather is disabled, in which case we have room
+  if(isPhoneConnected || (!isPhoneConnected && Settings_disableWeather)) {
     if(globalSettings.showBatteryLevel) {
       drawBatteryStatus(ctx);
     }
@@ -357,8 +371,10 @@ static void main_window_unload(Window *window) {
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // every 30 minutes, request new weather data
-  if(tick_time->tm_min % 30 == 0) {
-    messaging_requestNewWeatherData();
+  if(!Settings_disableWeather) {
+    if(tick_time->tm_min % 30 == 0) {
+      messaging_requestNewWeatherData();
+    }
   }
 
   update_clock();

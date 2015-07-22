@@ -33,6 +33,7 @@ void Settings_init() {
   // if they don't exist, we get "0", which is the default anyway
   Settings_showLeadingZero = persist_read_int(SETTING_LEADING_ZERO_KEY);
   Settings_showBatteryPct = persist_read_int(SETTING_SHOW_BATTERY_PCT_KEY);
+  Settings_disableWeather = persist_read_int(SETTING_DISABLE_WEATHER_KEY);
 }
 
 void Settings_loadAllDefaults() {
@@ -68,5 +69,6 @@ void Settings_deinit() {
   persist_write_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
   persist_write_int(SETTING_LEADING_ZERO_KEY, Settings_showLeadingZero);
   persist_write_int(SETTING_SHOW_BATTERY_PCT_KEY, Settings_showBatteryPct);
+  persist_write_int(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }
