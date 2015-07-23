@@ -40,8 +40,9 @@ function getLocation() {
 
 function getWeather() {
   var weatherDisabled = localStorage.getItem('disable_weather');
+  
 
-  if(!weatherDisabled) {
+  if(!weatherDisabled || weatherDisabled == 'no') {
     var weatherLoc = localStorage.getItem('weather_loc');
 
     console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
@@ -131,10 +132,10 @@ Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
   // Pebble.openURL('http://freakified.github.io/TimeStylePebble/config_color.html');
 
-  // var colorConfigURL = 'http://192.168.1.123:4000/config_color.html';
-  // var bwConfigURL = 'http://192.168.1.123:4000/config_bw.html';
-  var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
-  var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
+  var colorConfigURL = 'http://192.168.1.123:4000/config_color.html';
+  var bwConfigURL = 'http://192.168.1.123:4000/config_bw.html';
+  // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
+  // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
   var watch;
 
@@ -235,13 +236,21 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    if(configData.clock_font_setting) {
+      if(configData.clock_font_setting == 'default') {
+        dict.KEY_SETTING_CLOCK_FONT_ID = 0;
+      } else {
+        dict.KEY_SETTING_CLOCK_FONT_ID = 1;
+      }
+    }
+
     if(configData.disable_weather) {
       if(configData.disable_weather == 'yes') {
         dict.KEY_SETTING_DISABLE_WEATHER = 1;
-        localStorage.setItem('disable_weather', true);
+        localStorage.setItem('disable_weather', 'yes');
       } else {
         dict.KEY_SETTING_DISABLE_WEATHER = 0;
-        localStorage.setItem('disable_weather', false);
+        localStorage.setItem('disable_weather', 'no');
       }
     }
 
@@ -253,7 +262,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     // Send settings to Pebble watchapp
     Pebble.sendAppMessage(dict, function(){
-      console.log('Sent config data to Pebble');
+      console.log('Sent config data to Pebble, now trying to get weather');
 
       // after sending config data, force a weather refresh in case that changed
       getWeather();

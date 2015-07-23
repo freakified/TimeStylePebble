@@ -19,6 +19,7 @@
 #define KEY_SETTING_SHOW_LEADING_ZERO   15
 #define KEY_SETTING_SHOW_BATTERY_PCT    16
 #define KEY_SETTING_DISABLE_WEATHER     17
+#define KEY_SETTING_CLOCK_FONT_ID       18
 
 void messaging_requestNewWeatherData();
 

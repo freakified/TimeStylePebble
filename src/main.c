@@ -67,14 +67,14 @@ void update_clock() {
 
   // use the blank image for the leading hour digit if needed
   if(Settings_showLeadingZero || hour / 10 != 0) {
-    ClockDigit_setNumber(&clockDigits[0], hour / 10);
+    ClockDigit_setNumber(&clockDigits[0], hour / 10, Settings_clockFontId);
   } else {
     ClockDigit_setBlank(&clockDigits[0]);
   }
 
-  ClockDigit_setNumber(&clockDigits[1], hour % 10);
-  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10);
-  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10);
+  ClockDigit_setNumber(&clockDigits[1], hour % 10, Settings_clockFontId);
+  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, Settings_clockFontId);
+  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, Settings_clockFontId);
 
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);

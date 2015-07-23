@@ -43,6 +43,9 @@ bool Settings_showBatteryPct;
 #define SETTING_DISABLE_WEATHER_KEY 12
 bool Settings_disableWeather;
 
+#define SETTING_CLOCK_FONT_ID_KEY 13
+bool Settings_clockFontId;
+
 void Settings_init();
 void Settings_loadAllDefaults();
 void Settings_loadV2Defaults();

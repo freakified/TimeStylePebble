@@ -8,11 +8,13 @@ void Settings_init() {
 
     if(savedVersion == 2) { // in this case, we can direclty load the current version
       persist_read_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
+      persist_delete(SETTINGS_PERSIST_KEY);
     } else { // in this case, we're upgrading from the old version
 
         // first, read in the settings using the original format
         Settings_v0 oldSettings;
         persist_read_data(SETTINGS_PERSIST_KEY, &oldSettings, sizeof(Settings_v0));
+        persist_delete(SETTINGS_PERSIST_KEY);
 
         // now upgrade to the new format
         globalSettings.timeColor = oldSettings.timeColor;
@@ -32,8 +34,9 @@ void Settings_init() {
   // load the individual settings added in newer versions
   // if they don't exist, we get "0", which is the default anyway
   Settings_showLeadingZero = persist_read_int(SETTING_LEADING_ZERO_KEY);
-  Settings_showBatteryPct = persist_read_int(SETTING_SHOW_BATTERY_PCT_KEY);
-  Settings_disableWeather = persist_read_int(SETTING_DISABLE_WEATHER_KEY);
+  Settings_showBatteryPct = persist_read_bool(SETTING_SHOW_BATTERY_PCT_KEY);
+  Settings_disableWeather = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
+  Settings_clockFontId = persist_read_bool(SETTING_CLOCK_FONT_ID_KEY);
 }
 
 void Settings_loadAllDefaults() {
@@ -68,7 +71,8 @@ void Settings_deinit() {
   // save settings to persistent storage
   persist_write_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
   persist_write_int(SETTING_LEADING_ZERO_KEY, Settings_showLeadingZero);
-  persist_write_int(SETTING_SHOW_BATTERY_PCT_KEY, Settings_showBatteryPct);
-  persist_write_int(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
+  persist_write_bool(SETTING_SHOW_BATTERY_PCT_KEY, Settings_showBatteryPct);
+  persist_write_bool(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
+  persist_write_bool(SETTING_CLOCK_FONT_ID_KEY, Settings_clockFontId);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }
