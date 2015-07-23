@@ -100,7 +100,7 @@ void drawBatteryStatus(GContext* ctx) {
 
   // if the percentage indicator is enabled, ensure that the battery is still vertically centered
   if(Settings_showBatteryPct) {
-    batteryPositionY -= 5;
+    batteryPositionY -= 6;
   }
 
   // however, if the weather is disabled, put the battery where the weather was, at the top
