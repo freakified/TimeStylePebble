@@ -42,7 +42,6 @@
     background-size: 10px 10px;
   }
 
-
   &.with_battery_pct:before {
     content: '80%';
     position: absolute;
@@ -56,6 +55,11 @@
   }
 }
 
+.example_img {
+  border: 1px solid black;
+  display: block;
+  margin: 0 auto 4px;
+}
 
 #preset_selector > .btn {
   width: 49%;

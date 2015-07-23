@@ -182,6 +182,10 @@ function sendSettingsToWatch() {
     config.leading_zero_setting = $('#time_leading_zero_setting .btn.active').data('setting');
   }
 
+  if($('#clock_font_setting .btn.active')) {
+    config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
+  }
+
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
   document.location.href = return_to + encodeURIComponent(JSON.stringify(config));
@@ -192,7 +196,7 @@ function cancelAndClose() {
   document.location.href = return_to;
 }
 
-$('#weather_loc_setting input').on('change', function(){
+$('#weather_setting input').on('change', function(){
   $target = $('#manual_weather_loc_setting_area');
 
   if ($('#weather_setting_manual').is(':checked')) {

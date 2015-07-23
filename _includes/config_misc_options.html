@@ -30,14 +30,14 @@
 <label>Weather</label>
 <div id="weather_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="disable" >
+      <input type="radio" name="options" autocomplete="off"> Disabled
+    </label>
     <label class="btn btn-default" data-setting="auto" >
       <input type="radio" name="options" autocomplete="off"> Automatic location (GPS)
     </label>
     <label class="btn btn-default" data-setting="manual" >
       <input type="radio" name="options" autocomplete="off" id="weather_setting_manual"> Manual location
-    </label>
-    <label class="btn btn-default" data-setting="disable" >
-      <input type="radio" name="options" autocomplete="off"> Disabled
     </label>
   </div>
   <div class="form_group collapse" id="manual_weather_loc_setting_area">
@@ -49,10 +49,10 @@
 <div id="bluetooth_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off"> Show icon only
+      <input type="radio" name="options" autocomplete="off">Default (show an icon)
     </label>
     <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off"> Show icon and vibrate
+      <input type="radio" name="options" autocomplete="off">Show icon and vibrate
     </label>
   </div>
 </div>
@@ -96,6 +96,22 @@
   </div>
 </div>
 <hr>
+<label>Time Font</label>
+<div id="clock_font_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="default" >
+      <input type="radio" name="options" autocomplete="off">
+      <img class="example_img" src="images/font-preview-default.png" width="56" height="66">
+      Default (Avenir)
+      </label>
+    <label class="btn btn-default" data-setting="leco" >
+      <input type="radio" name="options" autocomplete="off">
+      <img class="example_img" src="images/font-preview-leco.png" width="56" height="66">
+      LECO 1976
+    </label>
+  </div>
+</div>
+<hr>
 <label>Language for Day/Month Names</label>
 <select id="language_selection" class="form-control">
   <option data-setting="-1" selected>(No change)</option>
@@ -108,4 +124,5 @@
   <option data-setting="6">Türkçe</option>
   <option data-setting="7">Čeština</option>
   <option data-setting="8">Português</option>
+  <option data-setting="9">Ελληνικά (Language pack required)</option>
 </select>
