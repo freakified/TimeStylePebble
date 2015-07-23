@@ -2,9 +2,9 @@
 
 void Weather_setCondition(int conditionCode, bool isNight) {
   int generalCondition = conditionCode / 100;
-  
+
   uint32_t iconToLoad;
-  
+
   switch(generalCondition) {
     case 2: //thunderstorm
       iconToLoad = RESOURCE_ID_WEATHER_THUNDERSTORM;
@@ -48,7 +48,7 @@ void Weather_setCondition(int conditionCode, bool isNight) {
       iconToLoad = (!isNight) ? RESOURCE_ID_WEATHER_CLEAR_DAY : RESOURCE_ID_WEATHER_CLEAR_NIGHT;
       break;
   }
-   
+
   // ok, now load the new icon:
   #ifdef PBL_COLOR
     GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
@@ -59,25 +59,25 @@ void Weather_setCondition(int conditionCode, bool isNight) {
     Weather_currentWeatherIcon = gbitmap_create_with_resource(iconToLoad);
     gbitmap_destroy(oldImage);
   #endif
-    
+
   Weather_weatherInfo.currentIconResourceID = iconToLoad;
 }
 
 void Weather_init() {
   // if possible, load weather data from persistent storage
-  
+
   if (persist_exists(WEATHERINFO_PERSIST_KEY)) {
     WeatherInfo w;
     persist_read_data(WEATHERINFO_PERSIST_KEY, &w, sizeof(WeatherInfo));
-    
+
     Weather_weatherInfo = w;
-    
+
     #ifdef PBL_COLOR
       Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
     #else
       Weather_currentWeatherIcon = gbitmap_create_with_resource(w.currentIconResourceID);
     #endif
-      
+
   } else {
     // otherwise, use null data
     Weather_currentWeatherIcon = NULL;
@@ -88,7 +88,7 @@ void Weather_init() {
 void Weather_deinit() {
   // save weather data to persistent storage
   persist_write_data(WEATHERINFO_PERSIST_KEY, &Weather_weatherInfo, sizeof(WeatherInfo));
-  
+
   // free memory
   #ifdef PBL_COLOR
     gdraw_command_image_destroy(Weather_currentWeatherIcon);

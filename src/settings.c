@@ -72,6 +72,58 @@ void Settings_deinit() {
   persist_write_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
   persist_write_int(SETTING_LEADING_ZERO_KEY, Settings_showLeadingZero);
   persist_write_bool(SETTING_SHOW_BATTERY_PCT_KEY, Settings_showBatteryPct);
+    
+    // switch(status) {
+    //   case S_SUCCESS:
+    //     printf("S_SUCCESS");
+    //     break;
+    //   case E_ERROR:
+    //     printf("E_ERROR");
+    //     break;
+    //   case E_UNKNOWN:
+    //     printf("E_UNKNOWN");
+    //     break;
+    //   case E_INTERNAL:
+    //     printf("E_INTERNAL");
+    //     break;
+    //   case E_INVALID_ARGUMENT:
+    //     printf("E_INVALID_ARGUMENT");
+    //     break;
+    //   case E_OUT_OF_MEMORY:
+    //     printf("E_OUT_OF_MEMORY");
+    //     break;
+    //   case E_OUT_OF_STORAGE:
+    //     printf("E_OUT_OF_STORAGE");
+    //     break;
+    //   case E_OUT_OF_RESOURCES:
+    //     printf("E_OUT_OF_RESOURCES");
+    //     break;
+    //   case E_RANGE:
+    //     printf("E_RANGE");
+    //     break;
+    //   case E_DOES_NOT_EXIST:
+    //     printf("E_DOES_NOT_EXIST");
+    //     break;
+    //   case E_INVALID_OPERATION:
+    //     printf("E_INVALID_OPERATION");
+    //     break;
+    //   case E_BUSY:
+    //     printf("E_BUSY");
+    //     break;
+    //   case S_TRUE:
+    //     printf("S_TRUE");
+    //     break;
+    //   case S_NO_MORE_ITEMS:
+    //     printf("S_NO_MORE_ITEMS");
+    //     break;
+    //   case S_NO_ACTION_REQUIRED:
+    //     printf("S_NO_ACTION_REQUIRED");
+    //     break;
+    //   default:
+    //     printf("Something else...");
+    //     break;
+    // }
+
   persist_write_bool(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
   persist_write_bool(SETTING_CLOCK_FONT_ID_KEY, Settings_clockFontId);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);

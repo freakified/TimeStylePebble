@@ -31,7 +31,7 @@ function locationSuccess(pos) {
 }
 
 function getLocation() {
-  navigator.geolocation.watchPosition(
+  navigator.geolocation.getCurrentPosition(
     locationSuccess,
     locationError,
     {timeout: 15000, maximumAge: 60000}
@@ -40,7 +40,7 @@ function getLocation() {
 
 function getWeather() {
   var weatherDisabled = localStorage.getItem('disable_weather');
-  
+
 
   if(!weatherDisabled || weatherDisabled == 'no') {
     var weatherLoc = localStorage.getItem('weather_loc');
