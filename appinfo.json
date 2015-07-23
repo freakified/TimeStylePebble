@@ -30,6 +30,12 @@
     "resources": {
         "media": [
             {
+              "file": "images/menuicon.png",
+              "name": "MENU_ICON",
+              "menuIcon": true,
+              "type": "png"
+            },
+            {
                 "file": "images/BW_BATTERY_BG.png",
                 "name": "BATTERY_BG",
                 "type": "png",
