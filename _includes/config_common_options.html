@@ -1,5 +1,5 @@
 <hr>
-<label>Sidebar Position</label>
+<label>Sidebar </label>
 <div id="sidebar_position_setting" class="form-group">
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="left">
@@ -14,15 +14,23 @@
     </label>
   </div>
 </div>
-<hr>
-<label>Temperature Unit</label>
-<div id="units_setting" class="form-group" >
+<label>Battery Meter</label>
+<div id="battery_meter_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="c" >
-      <input type="radio" name="options" autocomplete="off"> Celsius
+    <label class="btn btn-default" data-setting="no" >
+      <input type="radio" name="options" autocomplete="off">
+      <div class="example_face"></div>
+      None
     </label>
-    <label class="btn btn-default" data-setting="f" >
-      <input type="radio" name="options" autocomplete="off"> Fahrenheit
+    <label class="btn btn-default" data-setting="yes" >
+      <input type="radio" name="options" autocomplete="off">
+      <div class="example_face with_battery_meter"></div>
+      Icon
+    </label>
+    <label class="btn btn-default" data-setting="yes-with-pct" >
+      <input type="radio" name="options" autocomplete="off">
+      <div class="example_face with_battery_meter with_battery_pct"></div>
+      Icon &amp; percent
     </label>
   </div>
 </div>
@@ -44,41 +52,17 @@
     <input type="text" class="form-control" style="margin-top: 15px" id="weather_loc" placeholder='e.g. "San Francisco CA US", or "94101 US"'>
   </div>
 </div>
-<hr>
-<label>If the connection to the phone is lost...</label>
-<div id="bluetooth_vibe_setting" class="form-group" >
+<label>Temperature Unit</label>
+<div id="units_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off">Default (show an icon)
+    <label class="btn btn-default" data-setting="c" >
+      <input type="radio" name="options" autocomplete="off"> Celsius
     </label>
-    <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off">Show icon and vibrate
+    <label class="btn btn-default" data-setting="f" >
+      <input type="radio" name="options" autocomplete="off"> Fahrenheit
     </label>
   </div>
 </div>
-<hr>
-
-<label>Battery Meter</label>
-<div id="battery_meter_setting" class="form-group" >
-  <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off">
-      <div class="example_face"></div>
-      None
-    </label>
-    <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off">
-      <div class="example_face with_battery_meter"></div>
-      Icon
-    </label>
-    <label class="btn btn-default" data-setting="yes-with-pct" >
-      <input type="radio" name="options" autocomplete="off">
-      <div class="example_face with_battery_meter with_battery_pct"></div>
-      Icon &amp; percent
-    </label>
-  </div>
-</div>
-
 <hr>
 <label>Time Display</label>
 <div id="time_leading_zero_setting" class="form-group" >
@@ -95,8 +79,7 @@
     </label>
   </div>
 </div>
-<hr>
-<label>Time Font</label>
+<label>Font</label>
 <div id="clock_font_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="default" >
@@ -108,6 +91,18 @@
       <input type="radio" name="options" autocomplete="off">
       <img class="example_img" src="images/font-preview-leco.png" width="56" height="66">
       LECO 1976
+    </label>
+  </div>
+</div>
+<hr>
+<label>If the connection to the phone is lost...</label>
+<div id="bluetooth_vibe_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="no" >
+      <input type="radio" name="options" autocomplete="off">Default (show an icon)
+    </label>
+    <label class="btn btn-default" data-setting="yes" >
+      <input type="radio" name="options" autocomplete="off">Show icon and vibrate
     </label>
   </div>
 </div>
