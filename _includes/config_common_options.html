@@ -2,15 +2,15 @@
 <label>Sidebar </label>
 <div id="sidebar_position_setting" class="form-group">
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="left">
-      <input type="radio" name="options" id="option1" autocomplete="off">
-      <div class="example_face sidebar_left"></div>
-      Left
-    </label>
     <label class="btn btn-default" data-setting="right">
       <input type="radio" name="options" id="option2" autocomplete="off">
       <div class="example_face"></div>
       Right
+    </label>
+    <label class="btn btn-default" data-setting="left">
+      <input type="radio" name="options" id="option1" autocomplete="off">
+      <div class="example_face sidebar_left"></div>
+      Left
     </label>
   </div>
 </div>
@@ -38,14 +38,14 @@
 <label>Weather</label>
 <div id="weather_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="disable" >
-      <input type="radio" name="options" autocomplete="off"> Disabled
-    </label>
     <label class="btn btn-default" data-setting="auto" >
       <input type="radio" name="options" autocomplete="off"> Automatic location (GPS)
     </label>
     <label class="btn btn-default" data-setting="manual" >
       <input type="radio" name="options" autocomplete="off" id="weather_setting_manual"> Manual location
+    </label>
+    <label class="btn btn-default" data-setting="disable" >
+      <input type="radio" name="options" autocomplete="off"> Disabled
     </label>
   </div>
   <div class="form_group collapse" id="manual_weather_loc_setting_area">
@@ -55,11 +55,11 @@
 <label>Temperature Unit</label>
 <div id="units_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="c" >
-      <input type="radio" name="options" autocomplete="off"> Celsius
-    </label>
     <label class="btn btn-default" data-setting="f" >
       <input type="radio" name="options" autocomplete="off"> Fahrenheit
+    </label>
+    <label class="btn btn-default" data-setting="c" >
+      <input type="radio" name="options" autocomplete="off"> Celsius
     </label>
   </div>
 </div>
@@ -90,24 +90,36 @@
     <label class="btn btn-default" data-setting="leco" >
       <input type="radio" name="options" autocomplete="off">
       <img class="example_img" src="images/font-preview-leco.png" width="56" height="66">
-      LECO 1976
+      LECO
     </label>
   </div>
 </div>
 <hr>
-<label>If the connection to the phone is lost...</label>
+<label>Vibration</label><br>
+<label>If the connection to the phone is lost</label>
 <div id="bluetooth_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off">Default (show an icon)
+      <input type="radio" name="options" autocomplete="off">No vibration
     </label>
     <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off">Show icon and vibrate
+      <input type="radio" name="options" autocomplete="off">Vibrate on bluetooth disconnect
+    </label>
+  </div>
+</div>
+<label>On interval</label>
+<div id="hourly_vibe_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="no" >
+      <input type="radio" name="options" autocomplete="off">No vibration
+    </label>
+    <label class="btn btn-default" data-setting="yes" >
+      <input type="radio" name="options" autocomplete="off">Vibrate every hour
     </label>
   </div>
 </div>
 <hr>
-<label>Language for Day/Month Names</label>
+<label>Language</label>
 <select id="language_selection" class="form-control">
   <option data-setting="-1" selected>(No change)</option>
   <option data-setting="0">English</option>
@@ -119,5 +131,5 @@
   <option data-setting="6">Türkçe</option>
   <option data-setting="7">Čeština</option>
   <option data-setting="8">Português</option>
-  <option data-setting="9">Ελληνικά (Language pack required)</option>
+  <option data-setting="9">Ελληνικά (requires language pack)</option>
 </select>

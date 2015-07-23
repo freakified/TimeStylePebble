@@ -186,6 +186,10 @@ function sendSettingsToWatch() {
     config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
   }
 
+  if($('#hourly_vibe_setting .btn.active')) {
+    config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
+  }
+
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
   document.location.href = return_to + encodeURIComponent(JSON.stringify(config));
