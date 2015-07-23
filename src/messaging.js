@@ -24,8 +24,13 @@ function locationError(err) {
 
 function locationSuccess(pos) {
   // Construct URL
-  var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude;
+
+
+  var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
+      encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
+      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R")') + '&format=json';
+
+  // console.log(url);
 
   getAndSendWeatherData(url);
 }
@@ -48,8 +53,9 @@ function getWeather() {
     console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
 
     if(weatherLoc) {
-      var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-          encodeURIComponent(weatherLoc) + '&APPID=4bab067e4ab922f0c5dc8a963bcc9d1a';
+      var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
+          'select item.condition from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
+          encodeURIComponent(weatherLoc) +  '")&format=json';
 
       getAndSendWeatherData(url);
     } else {
@@ -64,18 +70,19 @@ function getAndSendWeatherData(url) {
     function(responseText) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
+      var condition = json.query.results.channel.item.condition;
 
-      if(json.cod == "200") {
+      if(json.query.count == "1") {
         // Temperature in Kelvin requires adjustment
-        var temperature = Math.round(json.main.temp - 273.15);
+        var temperature = Math.round(condition.temp);
         console.log('Temperature is ' + temperature);
 
         // Conditions
-        var conditions = json.weather[0].id;
+        var conditions = condition.code;
         console.log('Condition code is ' + conditions);
 
-        // night state
-        var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
+        // night state is not used with yahoo weather
+        var isNight = false;
 
         // Assemble dictionary using our keys
         var dictionary = {
