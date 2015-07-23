@@ -216,6 +216,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    if(configData.hourly_vibe_setting) {
+      if(configData.hourly_vibe_setting == 'yes') {
+        dict.KEY_SETTING_HOURLY_VIBE = 1;
+      } else {
+        dict.KEY_SETTING_HOURLY_VIBE = 0;
+      }
+    }
+
     if(configData.battery_meter_setting) {
       if(configData.battery_meter_setting == 'yes-with-pct') {
         dict.KEY_SETTING_SHOW_BATTERY_METER = 1;

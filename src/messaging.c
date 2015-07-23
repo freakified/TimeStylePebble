@@ -56,6 +56,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *batteryPct_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_PCT);
   Tuple *disableWeather_tuple = dict_find(iterator, KEY_SETTING_DISABLE_WEATHER);
   Tuple *clockFont_tuple = dict_find(iterator, KEY_SETTING_CLOCK_FONT_ID);
+  Tuple *hourlyVibe_tuple = dict_find(iterator, KEY_SETTING_HOURLY_VIBE);
 
   if(timeColor_tuple != NULL) {
     #ifdef PBL_COLOR
@@ -118,7 +119,11 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(clockFont_tuple != NULL) {
-    Settings_clockFontId = clockFont_tuple->value->int8;
+    Settings_clockFontId = (bool)clockFont_tuple->value->int8;
+  }
+
+  if(hourlyVibe_tuple != NULL) {
+    Settings_hourlyVibe = (bool)hourlyVibe_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {

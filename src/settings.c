@@ -37,6 +37,7 @@ void Settings_init() {
   Settings_showBatteryPct = persist_read_bool(SETTING_SHOW_BATTERY_PCT_KEY);
   Settings_disableWeather = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
   Settings_clockFontId = persist_read_bool(SETTING_CLOCK_FONT_ID_KEY);
+  Settings_hourlyVibe = persist_read_bool(SETTING_HOURLY_VIBE_KEY);
 }
 
 void Settings_loadAllDefaults() {
@@ -72,7 +73,7 @@ void Settings_deinit() {
   persist_write_data(SETTINGS_PERSIST_KEY, &globalSettings, sizeof(Settings));
   persist_write_int(SETTING_LEADING_ZERO_KEY, Settings_showLeadingZero);
   persist_write_bool(SETTING_SHOW_BATTERY_PCT_KEY, Settings_showBatteryPct);
-    
+
     // switch(status) {
     //   case S_SUCCESS:
     //     printf("S_SUCCESS");
@@ -126,5 +127,6 @@ void Settings_deinit() {
 
   persist_write_bool(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
   persist_write_bool(SETTING_CLOCK_FONT_ID_KEY, Settings_clockFontId);
+  persist_write_bool(SETTING_HOURLY_VIBE_KEY, Settings_hourlyVibe);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }
