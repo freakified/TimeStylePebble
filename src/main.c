@@ -99,7 +99,7 @@ void drawBatteryStatus(GContext* ctx) {
   int batteryPositionY = 63;
 
   // if the percentage indicator is enabled, ensure that the battery is still vertically centered
-  if(Settings_showBatteryPct) {
+  if(Settings_showBatteryPct && !chargeState.is_charging) {
     batteryPositionY -= 6;
   }
 
@@ -142,7 +142,9 @@ void drawBatteryStatus(GContext* ctx) {
     graphics_fill_rect(ctx, GRect(6, 8 + batteryPositionY, width, 8), 0, GCornerNone);
   }
 
-  if(Settings_showBatteryPct) {
+  // never show battery % while charging, because of this issue:
+  // https://github.com/freakified/TimeStylePebble/issues/11
+  if(Settings_showBatteryPct && !chargeState.is_charging) {
     snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
     graphics_draw_text(ctx,
