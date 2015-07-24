@@ -46,8 +46,8 @@ function getLocation() {
 function getWeather() {
   var weatherDisabled = localStorage.getItem('disable_weather');
 
-
-  if(!weatherDisabled || weatherDisabled == 'no') {
+  if(weatherDisabled !== "yes") {
+    localStorage.setItem('disable_weather', 'no');
     var weatherLoc = localStorage.getItem('weather_loc');
 
     console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
