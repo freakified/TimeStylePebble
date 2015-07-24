@@ -380,8 +380,15 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   }
 
   // every hour, if requested, vibrate
-  if(Settings_hourlyVibe) {
+  if(Settings_hourlyVibe == 1) {
     if(tick_time->tm_min % 60 == 0) {
+      vibes_short_pulse();
+    }
+  } else if(Settings_hourlyVibe == 2) {
+    // if half hour vibes are also enabled, do that
+    if(tick_time->tm_min % 60 == 0) {
+      vibes_double_pulse();
+    } else if(tick_time->tm_min % 30 == 0) {
       vibes_short_pulse();
     }
   }

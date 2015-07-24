@@ -47,7 +47,7 @@ bool Settings_disableWeather;
 bool Settings_clockFontId;
 
 #define SETTING_HOURLY_VIBE_KEY 14
-bool Settings_hourlyVibe;
+int Settings_hourlyVibe;
 
 void Settings_init();
 void Settings_loadAllDefaults();

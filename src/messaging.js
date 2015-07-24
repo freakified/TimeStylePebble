@@ -226,6 +226,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     if(configData.hourly_vibe_setting) {
       if(configData.hourly_vibe_setting == 'yes') {
         dict.KEY_SETTING_HOURLY_VIBE = 1;
+      } else if (configData.hourly_vibe_setting == 'half') {
+        dict.KEY_SETTING_HOURLY_VIBE = 2;
       } else {
         dict.KEY_SETTING_HOURLY_VIBE = 0;
       }

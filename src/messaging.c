@@ -123,7 +123,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(hourlyVibe_tuple != NULL) {
-    Settings_hourlyVibe = (bool)hourlyVibe_tuple->value->int8;
+    Settings_hourlyVibe = hourlyVibe_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {
