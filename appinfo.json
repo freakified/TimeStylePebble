@@ -53,6 +53,14 @@
                 ]
             },
             {
+                "file": "images/BW_WEATHER_GENERIC.png",
+                "name": "WEATHER_GENERIC",
+                "type": "png",
+                "targetPlatforms": [
+                  "aplite"
+                ]
+            },
+            {
                 "file": "images/BW_THUNDERSTORM.png",
                 "name": "WEATHER_THUNDERSTORM",
                 "type": "png",
@@ -167,6 +175,14 @@
             {
                 "file": "data/BATTERY_CHARGE.pdc",
                 "name": "BATTERY_CHARGE",
+                "type": "raw",
+                "targetPlatforms": [
+                  "basalt"
+                ]
+            },
+            {
+                "file": "data/WEATHER_GENERIC.pdc",
+                "name": "WEATHER_GENERIC",
                 "type": "raw",
                 "targetPlatforms": [
                   "basalt"

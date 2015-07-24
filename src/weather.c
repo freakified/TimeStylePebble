@@ -72,8 +72,10 @@ void Weather_setCondition(int conditionCode, bool isNight) {
     case 28: //mostly cloudy (day)
     case 30: //partly cloudy (day)
     case 44: //partly cloudy
-    default:
       iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY;
+      break;
+    default:
+      iconToLoad = RESOURCE_ID_WEATHER_GENERIC;
       break;
   }
 
