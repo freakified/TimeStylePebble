@@ -39,7 +39,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
     // now set the weather conditions properly
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
-    Weather_setCondition((int)weatherConditions_tuple->value->int32, isNight);
+    Weather_setCondition(weatherConditions_tuple->value->int32, isNight);
   }
 
   // does this message contain new config information?
