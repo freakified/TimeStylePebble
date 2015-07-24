@@ -28,7 +28,7 @@ function locationSuccess(pos) {
 
   var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
       encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
-      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R")') + '&format=json';
+      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R") and u="c" ') + '&format=json';
 
   // console.log(url);
 
@@ -55,7 +55,7 @@ function getWeather() {
     if(weatherLoc) {
       var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
           'select item.condition from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-          encodeURIComponent(weatherLoc) +  '")&format=json';
+          encodeURIComponent(weatherLoc) +  '") and u="c" &format=json';
 
       getAndSendWeatherData(url);
     } else {

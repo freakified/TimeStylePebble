@@ -183,8 +183,8 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
       int currentTemp = Weather_weatherInfo.currentTemp;
 
-      if(globalSettings.useMetric) {
-        currentTemp = roundf((currentTemp - 32) *  0.555f);
+      if(!globalSettings.useMetric) {
+        currentTemp = roundf(currentTemp * 1.8f + 32);
       }
 
       char tempString[8];
