@@ -78,8 +78,8 @@ function getAndSendWeatherData(url) {
         console.log('Temperature is ' + temperature);
 
         // Conditions
-        var conditions = condition.code;
-        console.log('Condition code is ' + conditions);
+        var conditionCode = parseInt(condition.code, 10);
+        console.log('Condition code is ' + conditionCode);
 
         // night state is not used with yahoo weather
         var isNight = false;
@@ -87,7 +87,7 @@ function getAndSendWeatherData(url) {
         // Assemble dictionary using our keys
         var dictionary = {
           'KEY_TEMPERATURE': temperature,
-          'KEY_CONDITION_CODE': conditions,
+          'KEY_CONDITION_CODE': conditionCode,
           'KEY_USE_NIGHT_ICON': isNight
         };
 

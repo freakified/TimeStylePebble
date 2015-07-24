@@ -3,12 +3,12 @@
 
 // persistent storage
 #define WEATHERINFO_PERSIST_KEY 2
-  
+
 typedef struct {
   int currentTemp;
   uint32_t currentIconResourceID;
 } WeatherInfo;
-  
+
 WeatherInfo Weather_weatherInfo;
 
 #ifdef PBL_COLOR
