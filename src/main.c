@@ -379,7 +379,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // every hour, if requested, vibrate
   if(Settings_hourlyVibe) {
-    if(tick_time->tm_min % 30 == 0) {
+    if(tick_time->tm_min % 60 == 0) {
       vibes_short_pulse();
     }
   }
