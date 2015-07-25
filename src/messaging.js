@@ -44,11 +44,11 @@ function getLocation() {
 }
 
 function getWeather() {
-  var weatherDisabled = localStorage.getItem('disable_weather');
+  var weatherDisabled = window.localStorage.getItem('disable_weather');
 
   if(weatherDisabled !== "yes") {
-    localStorage.setItem('disable_weather', 'no');
-    var weatherLoc = localStorage.getItem('weather_loc');
+    window.localStorage.setItem('disable_weather', 'no');
+    var weatherLoc = window.localStorage.getItem('weather_loc');
 
     console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
 
@@ -175,9 +175,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     console.log("Config data recieved!" + JSON.stringify(configData));
 
-    // weather location can be placed into localstorage
+    // weather location can be placed into window.localStorage
     if(configData.weather_loc !== undefined) {
-      localStorage.setItem('weather_loc', configData.weather_loc);
+      window.localStorage.setItem('weather_loc', configData.weather_loc);
     }
 
     // prepare a structure to hold everything we'll send to the watch
@@ -264,10 +264,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
     if(configData.disable_weather) {
       if(configData.disable_weather == 'yes') {
         dict.KEY_SETTING_DISABLE_WEATHER = 1;
-        localStorage.setItem('disable_weather', 'yes');
+        window.localStorage.setItem('disable_weather', 'yes');
       } else {
         dict.KEY_SETTING_DISABLE_WEATHER = 0;
-        localStorage.setItem('disable_weather', 'no');
+        window.localStorage.setItem('disable_weather', 'no');
       }
     }
 
