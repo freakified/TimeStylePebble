@@ -54,8 +54,9 @@ function getWeather() {
 
     if(weatherLoc) {
       var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-          'select item.condition from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-          encodeURIComponent(weatherLoc) +  '") and u="c" &format=json';
+          encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
+          weatherLoc + '") and u="c" ') + '&format=json';
+      // console.log(url);
 
       getAndSendWeatherData(url);
     } else {
