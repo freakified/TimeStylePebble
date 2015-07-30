@@ -51,8 +51,8 @@ void update_clock() {
 
   // DEBUG: use fake time for screenshots
 //   if(SCREENSHOT_MODE) {
-//     timeInfo->tm_hour = 3;
-//     timeInfo->tm_min = 25;
+//     timeInfo->tm_hour = 6;
+//     timeInfo->tm_min = 23;
 //   }
 
   int hour = timeInfo->tm_hour;
