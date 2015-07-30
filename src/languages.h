@@ -10,6 +10,7 @@
 #define LANGUAGE_CZ 7
 #define LANGUAGE_PT 8
 #define LANGUAGE_GK 9
+#define LANGUAGE_SE 10
 
 /* day names in many different languages! */
 char dayNames[10][7][8] = {
@@ -23,6 +24,7 @@ char dayNames[10][7][8] = {
 	{"NE", "PO", "ÚT", "ST", "ČT", "PÁ", "SO"},
 	{"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"},
 	{"ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"}
+	{"SÖN", "MÅN", "TI", "ONS", "TO", "FRE", "LÖR"}
 };
 
 /* month names in many different languages! */
@@ -37,4 +39,5 @@ char monthNames[10][12][8] = {
 	{"LED", "ÚNO", "BŘE", "DUB", "KVĚ", "ČRV", "ČVC", "SRP", "ZÁŘ", "ŘÍJ", "LIS", "PRO"},
 	{"JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"},
 	{"ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΪ", "ΙΟΝ", "ΙΟΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"}
+	{"JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"}
 };
