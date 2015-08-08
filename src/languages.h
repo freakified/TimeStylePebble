@@ -13,9 +13,10 @@
 #define LANGUAGE_SE 10
 #define LANGUAGE_PL 11
 #define LANGUAGE_SK 12
+#define LANGUAGE_VN 13
 
 /* day names in many different languages! */
-char dayNames[13][7][8] = {
+char dayNames[14][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -28,11 +29,12 @@ char dayNames[13][7][8] = {
 	{"ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"},
 	{"SÖN", "MÅN", "TIS", "ONS", "TOR", "FRE", "LÖR"},
 	{"NDZ", "PON", "WTO", "ŚRO", "CZW", "PTK", "SOB"},
-	{"NE", "PO", "UT", "ST", "ŠT", "PI", "SO"}
+	{"NE", "PO", "UT", "ST", "ŠT", "PI", "SO"},
+	{"CN", "T2", "T3", "T4", "T5", "T6", "T7"}
 };
 
 /* month names in many different languages! */
-char monthNames[13][12][8] = {
+char monthNames[14][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -45,5 +47,6 @@ char monthNames[13][12][8] = {
 	{"ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΪ", "ΙΟΝ", "ΙΟΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"},
 	{"JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"},
 	{"STY", "LUT", "MAR", "KWI", "MAJ", "CZE", "LIP", "SIE", "WRZ", "PAŹ", "LIS", "GRU"},
-	{"JAN", "FEB", "MAR", "APR", "MÁJ", "JÚN", "JÚL", "AUG", "SEP", "OKT", "NOV", "DEC"}
+	{"JAN", "FEB", "MAR", "APR", "MÁJ", "JÚN", "JÚL", "AUG", "SEP", "OKT", "NOV", "DEC"},
+	{"Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "T10", "T11", "T12"}
 };
