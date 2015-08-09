@@ -1,13 +1,25 @@
-<label>Color Selection</label>
+<label>Color Theme</label>
 
 <ul id="ColorSelectorTabs" class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true">Preset Themes</a></li>
-  <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile">Manual</a></li>
+  <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true"><span class="glyphicon glyphicon-star"></span> Presets</a></li>
+  <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile"><span class="glyphicon glyphicon-pencil"></span> Customize</a></li>
 </ul>
 <div id="ColorSelectorTabContent" class="tab-content">
   <div role="tabpanel" class="tab-pane fade in active" id="tab_presetcolors" aria-labelledBy="home-tab">
     <div class="form-group">
       <div id="preset_selector" data-toggle="buttons">
+        <p>Your saved themes</p>
+        <div id="custom_theme_empty" class="alert alert-info" role="alert">
+          No custom themes saved; why not make one?
+        </div>
+        <div id="saved_themes_area">
+
+        </div>
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#loadThemeModal">
+          Load shared theme
+        </button>
+
+        <p>Neon</p>
         <label class="btn btn-default" data-time-color="#FF5500" data-time-bg-color="#000000" data-sidebar-color="#FF5500">
           <input type="radio" name="options" id="option1" autocomplete="off">
           <div class="example_face" style="color: #FF5500; background-color: #000000; border-color: #FF5500;">6<br>32</div>
@@ -42,6 +54,7 @@
           <div class="example_face" style="border-color: #FF0000; color: #FF0000;">6<br>32</div>
           Red Velvet
         </label>
+        <p>Pastel</p>
 
         <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#55AAFF" data-sidebar-color="#0055AA">
           <input type="radio" name="options" id="option2" autocomplete="off">
@@ -78,7 +91,7 @@
           <div class="example_face" style="background: #AAAAFF; color: #000000; border-color: #5555FF;">6<br>32</div>
           Twilight
         </label>
-
+        <p>Timeline</p>
         <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#FFAA00">
           <input type="radio" name="options" id="option2" autocomplete="off">
           <div class="example_face light_bg" style="border-color: #FFAA00">6<br>32</div>
@@ -102,7 +115,7 @@
           <div class="example_face" style="color: #FFFFFF; border-color: #00AAFF">6<br>32</div>
           Dark Future
         </label>
-
+       <p>Dark</p>
         <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#555555" data-sidebar-color="#AAAAAA">
           <input type="radio" name="options" id="option2" autocomplete="off">
           <div class="example_face" style="background: #555555; color: white; border-color: #AAAAAA;">6<br>32</div>
@@ -142,11 +155,24 @@
       </div>
     </div>
   </div>
+
   <div role="tabpanel" class="tab-pane fade" id="tab_customcolors" aria-labelledBy="profile-tab">
     <div id="custom_preview_help" class="alert alert-info" role="alert">
-      Select the three required colors to see a preview
+      Select the three required colors to create a theme
     </div>
-    <div id="custom_preview" class="example_face hidden" style="margin: 13px">6<br>32</div>
+    <div id="custom_preview_container">
+      <div id="custom_preview" class="example_face" style="margin: 13px">6<br>32</div>
+      <div id="custom_preview_actions">
+        <button class="btn btn-primary" type="button" onclick="saveNewPreset()"><span class="glyphicon glyphicon-star"></span> Save theme</button>
+        <button class="btn btn-link" type="button" data-toggle="modal" data-target="#shareThemeModal">
+          <span class="glyphicon glyphicon-share-alt"></span> Share
+        </button>
+      </div>
+
+    </div>
+
+    <div>
+  </div>
 
     <label>Time Text Color</label>
     <div class="form-group">
@@ -163,6 +189,43 @@
     <label>Sidebar Text Color (not shown in preview)</label>
     <div class="form-group">
       <input type='text' id="sidebar-text-color" class="colorpicker"/>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="loadThemeModal" tabindex="-1" role="dialog" aria-labelledby="loadThemeModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Load a shared theme</h4>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="weather_loc" placeholder='Paste theme text here'>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Load theme</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="shareThemeModal" tabindex="-1" role="dialog" aria-labelledby="shareThemeModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Share this theme</h4>
+      </div>
+      <div class="modal-body">
+        Copy and paste the text to share this theme:
+
+        or mail it to me
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+      </div>
     </div>
   </div>
 </div>

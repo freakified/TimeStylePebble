@@ -1,3 +1,29 @@
+
+// if we have any persistent data saved, load it in
+$(document).ready(function() {
+  loadLastUsedColors();
+  showCustomPresets();
+});
+
+function loadLastUsedColors() {
+  // try to load each of the four colors
+  var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
+
+  colorNames.forEach(function(colorName, index, array) {
+    var storedColor = window.localStorage.getItem(colorName);
+
+    if(storedColor) {
+      $('#' + colorName).spectrum("set", storedColor);
+      $('#' + colorName).data('storedColor', storedColor);
+    } else {
+      $('#' + colorName).spectrum("set", null);
+    }
+  });
+
+  // in case anything changed
+  updateCustomPreview();
+}
+
 $('#time-color').on('change', customColorChanged);
 $('#time-bg-color').on('change', customColorChanged);
 $('#sidebar-color').on('change', customColorChanged);
@@ -34,21 +60,18 @@ function updateToolbar() {
   var counter = $('label.btn.active').size();
 
   if($('#preset_selector .btn.active').size() == 0) {
-    if($('#time-color').val()) {
-      counter++;
-    }
 
-    if($('#time-bg-color').val()) {
-      counter++;
-    }
+    var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
 
-    if($('#sidebar-color').val()) {
-      counter++;
-    }
+    colorNames.forEach(function(colorName, index, array) {
+      var storedColor = window.localStorage.getItem(colorName);
 
-    if($('#sidebar-text-color').val()) {
-      counter++;
-    }
+      if(storedColor) {
+        if($('#' + colorName).val() != ("#" + storedColor)) {
+          counter++;
+        }
+      }
+    });
   }
 
   if($('#language_selection option:selected').data('setting') != -1) {
@@ -74,10 +97,10 @@ function updateToolbar() {
 function updateCustomPreview() {
   if($('#time-color').val() && $('#time-bg-color').val() && $('#sidebar-color').val()) {
     $('#custom_preview_help').addClass('hidden');
-    $('#custom_preview').removeClass('hidden');
+    $('#custom_preview_container').removeClass('hidden');
   } else {
     $('#custom_preview_help').removeClass('hidden');
-    $('#custom_preview').addClass('hidden');
+    $('#custom_preview_container').addClass('hidden');
   }
 
   $('#custom_preview').css('color', $('#time-color').val());
@@ -86,16 +109,12 @@ function updateCustomPreview() {
 }
 
 function resetSettings() {
-  $("#time-color").spectrum("set", null);
-  $("#time-bg-color").spectrum("set", null);
-  $("#sidebar-color").spectrum("set", null);
-  $("#sidebar-text-color").spectrum("set", null);
+  loadLastUsedColors();
 
   $('label.btn').removeClass('active');
   $(':radio').prop('checked', false);
 
   $('#manual_weather_loc_setting_area').collapse('hide');
-  $('input').val(null);
 
   $('#language_selection').val('(No change)');
 
@@ -130,19 +149,25 @@ function sendSettingsToWatch() {
   // for each setting, check if we need to send it
   if($('#time-color').val()) {
     config.color_time = $('#time-color').val().substr(1);
+    window.localStorage.setItem('time-color', config.color_time);
   }
 
   if($('#time-bg-color').val()) {
     config.color_bg = $('#time-bg-color').val().substr(1);
+    window.localStorage.setItem('time-bg-color', config.color_bg);
   }
 
   if($('#sidebar-color').val()) {
     config.color_sidebar = $('#sidebar-color').val().substr(1);
+    window.localStorage.setItem('sidebar-color', config.color_sidebar);
   }
 
   if($('#sidebar-text-color').val()) {
     config.sidebar_text_color = $('#sidebar-text-color').val().substr(1);
+    window.localStorage.setItem('sidebar-text-color', config.sidebar_text_color);
   }
+
+
 
   if($('#sidebar_position_setting .btn.active').size() > 0) {
     config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
@@ -209,3 +234,96 @@ $('#weather_setting input').on('change', function(){
     $target.collapse('hide');
   }
 });
+
+/* stuff for the preset saving/loading */
+
+
+/* saves the preset and adds it to the "your presets" section */
+function saveNewPreset() {
+  var savedPresets = window.localStorage.getItem('savedPresets');
+
+  if(savedPresets) {
+    savedPresets = JSON.parse(savedPresets);
+  } else {
+    savedPresets = [];
+  }
+
+  // loop through the colors and save them
+  var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
+
+  var newPreset = {};
+
+  for(i = 0; i < colorNames.length; i++) {
+    colorName = colorNames[i];
+
+    if($('#' + colorName).val() ) {
+      newPreset[colorName] = $('#' + colorName).val();
+    } else {
+      newPreset[colorName] = '#000000';
+    }
+  }
+
+  savedPresets.push(newPreset);
+
+  window.localStorage.setItem('savedPresets', JSON.stringify(savedPresets));
+
+  // finally, update the preset area
+  showCustomPresets();
+}
+
+// TODO: update to make the share/delete buttons actually do something
+var template = '\
+<label class="btn btn-default" data-time-color="{{time-color}}" data-time-bg-color="{{time-bg-color}}" data-sidebar-color="{{sidebar-color}}" data-sidebar-text-color="{{sidebar-text-color}}">\
+  <input type="radio" name="options" id="option1" autocomplete="off">\
+  <div class="example_face" style="color: {{time-color}}; background-color: {{time-bg-color}}; border-color: {{sidebar-color}};">6<br>32</div>\
+</label>\
+<button class="btn btn-danger btn-sm" onclick="deletePreset({{preset-id}})" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</button>\
+<button class="btn btn-link btn-sm" type="button"><span class="glyphicon glyphicon-share-alt"></span> Share</span></button>\
+<br>';
+
+function showCustomPresets() {
+  var savedPresets = window.localStorage.getItem('savedPresets');
+  var htmlToInsert = '';
+
+  if(savedPresets) {
+    savedPresets = JSON.parse(savedPresets);
+
+    for(i = 0; i < savedPresets.length; i++) {
+      var preset = savedPresets[i];
+      var htmlString = template;
+
+      htmlString = htmlString.replace(/\{\{time-color\}\}/g, preset['time-color']);
+      htmlString = htmlString.replace(/\{\{time-bg-color\}\}/g, preset['time-bg-color']);
+      htmlString = htmlString.replace(/\{\{sidebar-color\}\}/g, preset['sidebar-color']);
+      htmlString = htmlString.replace(/\{\{sidebar-text-color\}\}/g, preset['sidebar-text-color']);
+      htmlString = htmlString.replace(/\{\{preset-id\}\}/g, i)
+
+      htmlToInsert += htmlString;
+    }
+
+    $('#saved_themes_area').html(htmlToInsert);
+
+    if( savedPresets.length > 0) {
+      $('#custom_theme_empty').hide();
+    } else {
+      $('#custom_theme_empty').show();
+    }
+  } else {
+    $('#custom_theme_empty').show();
+  }
+}
+
+function deletePreset(presetId) {
+  var savedPresets = window.localStorage.getItem('savedPresets');
+
+  if(savedPresets) {
+    savedPresets = JSON.parse(savedPresets);
+
+    savedPresets.splice(presetId, 1);
+  }
+
+  window.localStorage.setItem('savedPresets', JSON.stringify(savedPresets));
+
+  //redraw the custom presets
+  showCustomPresets();
+}

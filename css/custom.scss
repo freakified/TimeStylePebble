@@ -61,9 +61,29 @@
   margin: 0 auto 4px;
 }
 
-#preset_selector > .btn {
-  width: 49%;
-  margin-bottom: 3px;
+#preset_selector {
+  p {
+    margin: 10px 0 5px;
+    color: #666;
+  }
+
+  label.btn {
+    width: 49%;
+    margin-bottom: 3px;
+  }
+
+  input[type=radio] {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+  }
+
+
+  // .btn-danger {
+  //   position: absolute;
+  //   top:0;
+  //   right: 0;
+  // }
 }
 
 .sp-preview {
@@ -77,11 +97,11 @@
 }
 
 .sp-palette {
-  max-width: 350px;
+  max-width: 275px;
 
   .sp-thumb-el {
-    width: 39px;
-    height: 39px;
+    width: 30px;
+    height: 30px;
   }
 }
 
@@ -105,4 +125,25 @@
 #close_button, #reset_button {
   background-color: #444;
   color: white;
+}
+
+#custom_preview_container > div {
+  display: inline-block;
+  vertical-align: middle;
+
+  button {
+    display: block;
+    margin: 5px 0;
+  }
+}
+
+.modal.in .modal-dialog {
+    -webkit-transform: translate(0,150px);
+    transform: translate(0,150px);
+}
+
+.alert-info {
+    color: #666;
+    background-color: #eee;
+    border-color: #DCDCDC;
 }
