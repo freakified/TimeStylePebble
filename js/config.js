@@ -35,9 +35,11 @@ $('select').on('change', updateToolbar);
 function customColorChanged() {
   updateToolbar();
   updateCustomPreview();
+
+  $('#preset_selector label.btn').removeClass('active');
 }
 
-$('#preset_selector .btn').on('click', function() {
+function presetSelected() {
   $("#time-color").spectrum("set", $(this).data('time-color'));
   $("#time-bg-color").spectrum("set", $(this).data('time-bg-color'));
   $("#sidebar-color").spectrum("set", $(this).data('sidebar-color'));
@@ -52,26 +54,32 @@ $('#preset_selector .btn').on('click', function() {
     $("#sidebar-text-color").spectrum("set", "#000000");
   }
 
+  updateToolbar();
   updateCustomPreview();
-});
+}
 
+$('#preset_selector label.btn').on('click', presetSelected);
 
 function updateToolbar() {
-  var counter = $('label.btn.active').size();
+  var counter = 0;
 
-  if($('#preset_selector .btn.active').size() == 0) {
+  var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
 
-    var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
+  // count all color changes as a single change
+  for(i = 0; i < colorNames.length; i++) {
+    colorName = colorNames[i];
 
-    colorNames.forEach(function(colorName, index, array) {
-      var storedColor = window.localStorage.getItem(colorName);
+    var storedColor = window.localStorage.getItem(colorName);
 
-      if(storedColor) {
-        if($('#' + colorName).val() != ("#" + storedColor)) {
-          counter++;
-        }
+    if(storedColor) {
+      if($('#' + colorName).val() != ("#" + storedColor)) {
+        counter = 1;
       }
-    });
+    } else  {
+      if($('#' + colorName).val()) {
+        counter = 1;
+      }
+    }
   }
 
   if($('#language_selection option:selected').data('setting') != -1) {
@@ -271,7 +279,6 @@ function saveNewPreset() {
   showCustomPresets();
 }
 
-// TODO: update to make the share/delete buttons actually do something
 var template = '\
 <label class="btn btn-default" data-time-color="{{time-color}}" data-time-bg-color="{{time-bg-color}}" data-sidebar-color="{{sidebar-color}}" data-sidebar-text-color="{{sidebar-text-color}}">\
   <input type="radio" name="options" id="option1" autocomplete="off">\
@@ -311,6 +318,9 @@ function showCustomPresets() {
   } else {
     $('#custom_theme_empty').show();
   }
+
+  // finally, re-register event handlers if needed
+  $('#saved_themes_area label.btn').on('click', presetSelected);
 }
 
 function deletePreset(presetId) {
