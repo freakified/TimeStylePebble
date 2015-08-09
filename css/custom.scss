@@ -79,9 +79,6 @@
   }
 
 
-  .btn-danger {
-    margin-left: 5px;
-  }
 }
 
 .sp-preview {
@@ -135,13 +132,27 @@
   }
 }
 
-.modal.in .modal-dialog {
-    -webkit-transform: translate(0,150px);
-    transform: translate(0,150px);
-}
-
 .alert-info {
     color: #666;
     background-color: #eee;
     border-color: #DCDCDC;
+}
+
+#sharable_theme {
+  font-weight: bold;
+  word-wrap: break-word;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.theme_actions {
+  display: inline-block;
+  vertical-align: middle;
+
+  .btn {
+    margin-left: 5px;
+    display: block;
+    margin: 2px 5px;
+    width: 86px;
+  }
 }

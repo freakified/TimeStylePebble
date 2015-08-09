@@ -162,12 +162,7 @@
     </div>
     <div id="custom_preview_container">
       <div id="custom_preview" class="example_face" style="margin: 13px">6<br>32</div>
-      <div id="custom_preview_actions">
-        <button class="btn btn-primary" type="button" onclick="saveNewPreset()"><span class="glyphicon glyphicon-star"></span> Save theme</button>
-        <button class="btn btn-link" type="button" data-toggle="modal" data-target="#shareThemeModal">
-          <span class="glyphicon glyphicon-share-alt"></span> Share
-        </button>
-      </div>
+      <button class="btn btn-primary" type="button" onclick="saveNewPreset()"><span class="glyphicon glyphicon-star"></span> Save theme</button>
 
     </div>
 
@@ -201,11 +196,11 @@
         <h4 class="modal-title" id="myModalLabel">Load a shared theme</h4>
       </div>
       <div class="modal-body">
-        <input type="text" class="form-control" id="weather_loc" placeholder='Paste theme text here'>
+        <input type="text" class="form-control" id="pasted_theme" placeholder='Paste theme text here'>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Load theme</button>
+        <button type="button" class="btn btn-primary" onclick="loadPastedTheme()" data-dismiss="modal">Load theme</button>
       </div>
     </div>
   </div>
@@ -219,9 +214,14 @@
         <h4 class="modal-title" id="myModalLabel">Share this theme</h4>
       </div>
       <div class="modal-body">
-        Copy and paste the text to share this theme:
+        <p>Copy and paste the text below to share this theme:</p>
 
-        or mail it to me
+        <p id="sharable_theme"></p>
+
+        <p>
+          <small>Want this theme to be considered for inclusion as a preset in the next version
+          of TimeStyle? E-mail me your theme from the "contact developer" link!</small>
+        </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>

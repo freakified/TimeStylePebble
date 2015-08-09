@@ -284,8 +284,12 @@ var template = '\
   <input type="radio" name="options" id="option1" autocomplete="off">\
   <div class="example_face" style="color: {{time-color}}; background-color: {{time-bg-color}}; border-color: {{sidebar-color}};">6<br>32</div>\
 </label>\
+<div class="theme_actions">\
 <button class="btn btn-danger btn-sm" onclick="deletePreset({{preset-id}})" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</button>\
-<button class="btn btn-link btn-sm" type="button"><span class="glyphicon glyphicon-share-alt"></span> Share</span></button>\
+<button class="btn btn-primary btn-sm" type="button" data-toggle="modal" data-target="#shareThemeModal" data-themestring="TimeStyleTheme,{{time-color}},{{time-bg-color}},{{sidebar-color}},{{sidebar-text-color}}">\
+  <span class="glyphicon glyphicon-share-alt"></span> Share</span>\
+</button>\
+</div>\
 <br>';
 
 function showCustomPresets() {
@@ -337,3 +341,33 @@ function deletePreset(presetId) {
   //redraw the custom presets
   showCustomPresets();
 }
+
+function loadPastedTheme() {
+  var pastedTheme = $('#pasted_theme').val();
+
+  if(pastedTheme) {
+    var themeComponents = pastedTheme.split(',');
+
+    if(themeComponents.length == 5) {
+      // use the colors from the theme
+      $("#time-color").spectrum("set", themeComponents[1]);
+      $("#time-bg-color").spectrum("set", themeComponents[2]);
+      $("#sidebar-color").spectrum("set", themeComponents[3]);
+      $("#sidebar-text-color").spectrum("set", themeComponents[4]);
+
+      // now shove it into local storage
+      saveNewPreset();
+
+      updateCustomPreview();
+      updateToolbar();
+    }
+  }
+}
+
+// support the individual "share" entry point from the preset selector
+$('#shareThemeModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var themeString = button.data('themestring')
+
+  $('#sharable_theme').html(themeString);
+})
