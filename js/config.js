@@ -103,6 +103,9 @@ function updateToolbar() {
 
 
 function updateCustomPreview() {
+  $('#saveNewPresetButton').show();
+  $('#savedIndication').hide();
+
   if($('#time-color').val() && $('#time-bg-color').val() && $('#sidebar-color').val()) {
     $('#custom_preview_help').addClass('hidden');
     $('#custom_preview_container').removeClass('hidden');
@@ -248,6 +251,9 @@ $('#weather_setting input').on('change', function(){
 
 /* saves the preset and adds it to the "your presets" section */
 function saveNewPreset() {
+  $('#saveNewPresetButton').hide();
+  $('#savedIndication').show();
+
   var savedPresets = window.localStorage.getItem('savedPresets');
 
   if(savedPresets) {
@@ -334,6 +340,10 @@ function deletePreset(presetId) {
     savedPresets = JSON.parse(savedPresets);
 
     savedPresets.splice(presetId, 1);
+
+    // if the current preset was deleted, it may no longer be saved
+    $('#saveNewPresetButton').show();
+    $('#savedIndication').hide();
   }
 
   window.localStorage.setItem('savedPresets', JSON.stringify(savedPresets));

@@ -162,7 +162,12 @@
     </div>
     <div id="custom_preview_container">
       <div id="custom_preview" class="example_face" style="margin: 13px">6<br>32</div>
-      <button class="btn btn-primary" type="button" onclick="saveNewPreset()"><span class="glyphicon glyphicon-star"></span> Save theme</button>
+      <button class="btn btn-primary" id="saveNewPresetButton" type="button" onclick="saveNewPreset()">
+        <span class="glyphicon glyphicon-star"></span> Save theme
+      </button>
+      <button class="btn btn-success" style="display:none" id="savedIndication" type="button">
+        <span class="glyphicon glyphicon-star"></span> Saved!
+      </button>
 
     </div>
 
