@@ -128,5 +128,6 @@ void Settings_deinit() {
   persist_write_bool(SETTING_DISABLE_WEATHER_KEY, Settings_disableWeather);
   persist_write_bool(SETTING_CLOCK_FONT_ID_KEY, Settings_clockFontId);
   persist_write_int(SETTING_HOURLY_VIBE_KEY, Settings_hourlyVibe);
+  persist_write_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY, Settings_onlyShowBatteryWhenLow);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }

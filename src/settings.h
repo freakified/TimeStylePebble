@@ -49,6 +49,9 @@ bool Settings_clockFontId;
 #define SETTING_HOURLY_VIBE_KEY 14
 int Settings_hourlyVibe;
 
+#define SETTING_BATTERY_ONLY_WHEN_LOW_KEY 15
+bool Settings_onlyShowBatteryWhenLow;
+
 void Settings_init();
 void Settings_loadAllDefaults();
 void Settings_loadV2Defaults();

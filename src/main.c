@@ -218,7 +218,9 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
   // OR if the weather is disabled, in which case we have room
   if(isPhoneConnected || (!isPhoneConnected && Settings_disableWeather)) {
     if(globalSettings.showBatteryLevel) {
-      drawBatteryStatus(ctx);
+      if(!Settings_onlyShowBatteryWhenLow || (Settings_onlyShowBatteryWhenLow && battery_state_service_peek().charge_percent <= 20)) {
+        drawBatteryStatus(ctx);
+      }
     }
   }
 

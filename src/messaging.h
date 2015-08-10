@@ -21,6 +21,7 @@
 #define KEY_SETTING_DISABLE_WEATHER     17
 #define KEY_SETTING_CLOCK_FONT_ID       18
 #define KEY_SETTING_HOURLY_VIBE         19
+#define KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW 20
 
 void messaging_requestNewWeatherData();
 
