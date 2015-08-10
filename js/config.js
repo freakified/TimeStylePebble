@@ -61,7 +61,7 @@ function presetSelected() {
 $('#preset_selector label.btn').on('click', presetSelected);
 
 function updateToolbar() {
-  var counter = 0;
+  var counter = $('label.btn.active').size();
 
   var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
 
@@ -212,6 +212,10 @@ function sendSettingsToWatch() {
 
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
+  }
+
+  if($('#only_show_battery_when_low_setting .btn.active')) {
+    config.only_show_battery_when_low_setting = $('#only_show_battery_when_low_setting .btn.active').data('setting');
   }
 
   if($('#time_leading_zero_setting .btn.active')) {
