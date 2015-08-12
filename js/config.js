@@ -226,6 +226,10 @@ function sendSettingsToWatch() {
     config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
   }
 
+  if($('#use_large_sidebar_font_setting .btn.active')) {
+    config.use_large_sidebar_font_setting = $('#use_large_sidebar_font_setting .btn.active').data('setting');
+  }
+
   if($('#hourly_vibe_setting .btn.active')) {
     config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
   }
