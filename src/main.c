@@ -30,9 +30,11 @@ static Layer* sidebarLayer;
 static bool isPhoneConnected;
 
 // fonts
+static GFont smSidebarFont;
+static GFont mdSidebarFont;
+static GFont lgSidebarFont;
 static GFont sidebarFont;
 static GFont batteryFont;
-static GFont dateFont;
 
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
@@ -50,10 +52,8 @@ void update_clock() {
   timeInfo = localtime(&rawTime);
 
   // DEBUG: use fake time for screenshots
-//   if(SCREENSHOT_MODE) {
-//     timeInfo->tm_hour = 6;
-//     timeInfo->tm_min = 23;
-//   }
+  // timeInfo->tm_hour = 6;
+  // timeInfo->tm_min = 23;
 
   int hour = timeInfo->tm_hour;
 
@@ -100,8 +100,10 @@ void drawBatteryStatus(GContext* ctx) {
 
   // if the percentage indicator is enabled, ensure that the battery is still vertically centered
   if(Settings_showBatteryPct && !chargeState.is_charging) {
-    batteryPositionY -= 6;
+    batteryPositionY -= Settings_useLargeFonts ? 10 : 6;
   }
+
+
 
   // however, if the weather is disabled, put the battery where the weather was, at the top
   if(Settings_disableWeather) {
@@ -145,19 +147,43 @@ void drawBatteryStatus(GContext* ctx) {
   // never show battery % while charging, because of this issue:
   // https://github.com/freakified/TimeStylePebble/issues/11
   if(Settings_showBatteryPct && !chargeState.is_charging) {
-    snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
-    graphics_draw_text(ctx,
-                       batteryString,
-                       batteryFont,
-                       GRect(-4, 18 + batteryPositionY, 38, 20),
-                       GTextOverflowModeFill,
-                       GTextAlignmentCenter,
-                       NULL);
+    if(!Settings_useLargeFonts) {
+      snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+
+      graphics_draw_text(ctx,
+                         batteryString,
+                         batteryFont,
+                         GRect(-4, 18 + batteryPositionY, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    } else {
+      snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+
+      graphics_draw_text(ctx,
+                         batteryString,
+                         batteryFont,
+                         GRect(-4, 14 + batteryPositionY, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    }
+
+
   }
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
+  if(Settings_useLargeFonts) {
+    sidebarFont = lgSidebarFont;
+    batteryFont = lgSidebarFont;
+  } else {
+    sidebarFont = mdSidebarFont;
+    batteryFont = smSidebarFont;
+  }
+
+
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
@@ -190,15 +216,31 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
       }
 
       char tempString[8];
-      snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
 
-      graphics_draw_text(ctx,
-                         tempString,
-                         sidebarFont,
-                         GRect(-5, 31, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
+      // in large font mode, omit the degree symbol and move the text
+      if(!Settings_useLargeFonts) {
+        snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+
+        graphics_draw_text(ctx,
+                           tempString,
+                           sidebarFont,
+                           GRect(-5, 31, 38, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      } else {
+        snprintf(tempString, sizeof(tempString), " %d", currentTemp);
+
+        graphics_draw_text(ctx,
+                           tempString,
+                           sidebarFont,
+                           GRect(-5, 27, 35, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      }
+
+
     }
   }
 
@@ -224,21 +266,18 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     }
   }
 
-  // now draw in the date info
-  graphics_draw_text(ctx,
-                     currentDayName,
-                     sidebarFont,
-                     GRect(0, 95, 30, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-  if (dateImage) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 25, 25));
-    #endif
+  // in large font mode, draw a different date image
+  if(!Settings_useLargeFonts) {
+    if (dateImage) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 25, 25));
+      #endif
+    }
+  } else {
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_rect(ctx, GRect(2, 119, 26, 22), 2, GCornersAll);
   }
 
   // color pebble should always use black for the date number...
@@ -246,23 +285,46 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     graphics_context_set_text_color(ctx, GColorBlack);
   #endif
 
+  int yPos = 0;
+
+  yPos = Settings_useLargeFonts ? 113 : 121;
+
+                    //  currentDayNum,
   graphics_draw_text(ctx,
-                     currentDayNum,
-                     dateFont,
-                     GRect(4, 121, 22, 20),
+                     "20",
+                     sidebarFont,
+                     GRect(0, yPos, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
 
-  // switch back to normal color for the month
+
+   // switch back to normal color for the rest
   #ifdef PBL_COLOR
     graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   #endif
 
+  yPos = Settings_useLargeFonts ? 89 : 95;
+
+  // now draw in the date info
+  graphics_draw_text(ctx,
+                     currentDayName,
+                     sidebarFont,
+                     GRect(-5, yPos, 40, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+
+
+
+  // y position for month text
+  yPos = Settings_useLargeFonts ? 137 : 142;
+
   graphics_draw_text(ctx,
                      currentMonth,
                      sidebarFont,
-                     GRect(0, 142, 30, 20),
+                     GRect(0, yPos, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -315,10 +377,10 @@ static void main_window_load(Window *window) {
 
 //   APP_LOG(APP_LOG_LEVEL_DEBUG, "Made it past color setting");
 
-  // load font
-  sidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-  batteryFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-  dateFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  // load fonts
+  smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  mdSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  lgSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
 
   // init the sidebar layer
   if(globalSettings.sidebarOnRight) {

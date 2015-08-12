@@ -52,6 +52,9 @@ int Settings_hourlyVibe;
 #define SETTING_BATTERY_ONLY_WHEN_LOW_KEY 15
 bool Settings_onlyShowBatteryWhenLow;
 
+#define SETTING_USE_LARGE_FONTS 16
+bool Settings_useLargeFonts;
+
 void Settings_init();
 void Settings_loadAllDefaults();
 void Settings_loadV2Defaults();

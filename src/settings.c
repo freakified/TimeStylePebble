@@ -38,6 +38,8 @@ void Settings_init() {
   Settings_disableWeather = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
   Settings_clockFontId = persist_read_bool(SETTING_CLOCK_FONT_ID_KEY);
   Settings_hourlyVibe = persist_read_int(SETTING_HOURLY_VIBE_KEY);
+  Settings_onlyShowBatteryWhenLow = persist_read_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY);
+  Settings_useLargeFonts = persist_read_bool(SETTING_USE_LARGE_FONTS);
 }
 
 void Settings_loadAllDefaults() {
@@ -129,5 +131,6 @@ void Settings_deinit() {
   persist_write_bool(SETTING_CLOCK_FONT_ID_KEY, Settings_clockFontId);
   persist_write_int(SETTING_HOURLY_VIBE_KEY, Settings_hourlyVibe);
   persist_write_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY, Settings_onlyShowBatteryWhenLow);
+  persist_write_bool(SETTING_USE_LARGE_FONTS, Settings_useLargeFonts);
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }

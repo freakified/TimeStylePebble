@@ -137,8 +137,8 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  var colorConfigURL = 'http://192.168.0.103:4000/config_color.html';
-  var bwConfigURL = 'http://192.168.0.103:4000/config_bw.html';
+  var colorConfigURL = 'http://192.168.0.105:4000/config_color.html';
+  var bwConfigURL = 'http://192.168.0.105:4000/config_bw.html';
   // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
   // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
@@ -264,6 +264,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_CLOCK_FONT_ID = 0;
       } else {
         dict.KEY_SETTING_CLOCK_FONT_ID = 1;
+      }
+    }
+
+    if(configData.use_large_sidebar_font_setting) {
+      if(configData.use_large_sidebar_font_setting == 'yes') {
+        dict.KEY_SETTING_USE_LARGE_FONTS = 1;
+      } else {
+        dict.KEY_SETTING_USE_LARGE_FONTS = 0;
       }
     }
 
