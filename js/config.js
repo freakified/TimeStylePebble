@@ -393,12 +393,13 @@ $('#shareThemeModal').on('show.bs.modal', function (event) {
 
   mailToParams.address = "";
   mailToParams.subject = "TimeStyle Theme";
-  mailToParams.body    = themeString;
+  mailToParams.body    = "To try this theme, copy and paste the following text into TimeStyle's settings:\n\n" + themeString;
 
   $('#share_via_email').attr('href', generateMailString(mailToParams));
 
   mailToParams.address = "freakified+themesuggestion@gmail.com";
   mailToParams.subject = "TimeStyle Theme Suggestion";
+  mailToParams.body    = themeString;
 
   $('#suggest_as_preset').attr('href', generateMailString(mailToParams));
 
