@@ -276,8 +276,29 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
       #endif
     }
   } else {
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_rect(ctx, GRect(2, 119, 26, 22), 2, GCornersAll);
+    #ifdef PBL_COLOR
+      graphics_context_set_fill_color(ctx, GColorWhite);
+      graphics_fill_rect(ctx, GRect(2, 119, 26, 22), 2, GCornersAll);
+    #else
+      if(globalSettings.sidebarTextColor == GColorWhite) {
+        graphics_context_set_fill_color(ctx, GColorWhite);
+      } else {
+        graphics_context_set_fill_color(ctx, GColorBlack);
+      }
+
+      graphics_fill_rect(ctx, GRect(1, 119, 28, 22), 2, GCornersAll);
+
+      if(globalSettings.sidebarTextColor == GColorWhite) {
+        graphics_context_set_fill_color(ctx, GColorBlack);
+      } else {
+        graphics_context_set_fill_color(ctx, GColorWhite);
+      }
+
+      graphics_fill_rect(ctx, GRect(3, 121, 24, 18), 0, GCornersAll);
+
+
+    #endif
+
   }
 
   // color pebble should always use black for the date number...
@@ -289,9 +310,8 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
   yPos = Settings_useLargeFonts ? 113 : 121;
 
-                    //  currentDayNum,
   graphics_draw_text(ctx,
-                     "20",
+                     currentDayNum,
                      sidebarFont,
                      GRect(0, yPos, 30, 20),
                      GTextOverflowModeFill,
