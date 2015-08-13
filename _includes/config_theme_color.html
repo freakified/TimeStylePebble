@@ -10,7 +10,7 @@
       <div id="preset_selector" data-toggle="buttons">
         <p>Your saved themes</p>
         <div id="custom_theme_empty" class="alert alert-info" role="alert">
-          No custom themes saved; why not make one?
+          No custom themes saved yet
         </div>
         <div id="saved_themes_area">
 
@@ -219,14 +219,17 @@
         <h4 class="modal-title" id="myModalLabel">Share this theme</h4>
       </div>
       <div class="modal-body">
-        <p>Copy and paste the text below to share this theme:</p>
-
-        <p id="sharable_theme"></p>
-
         <p>
-          <small>Want this theme to be considered for inclusion as a preset in the next version
-          of TimeStyle? E-mail me your theme from the "contact developer" link!</small>
+          <a id="share_via_email" class="btn btn-info" style="display: block; width: 100%; margin-bottom: 5px"><span class="glyphicon glyphicon-send"></span> Send as email</a>
+          <a id="suggest_as_preset" class="btn btn-default" style="display: block; width: 100%;"><span class="glyphicon glyphicon-gift"></span> Suggest as a preset</a>
         </p>
+
+        <p><small>Or, copy and paste the text below:</small><br>
+          <small id="sharable_theme">
+
+          </small></p>
+        <p></p>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
