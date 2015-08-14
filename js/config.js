@@ -3,7 +3,47 @@
 $(document).ready(function() {
   loadLastUsedColors();
   showCustomPresets();
+
+  loadPreviousSettings();
 });
+
+function loadSettingCheckbox(elementID, setting) {
+  if(setting) {
+    $('#' + elementID + ' label[data-setting="' + setting + '"] input').attr('checked', true);
+    $('#' + elementID + ' label[data-setting="' + setting + '"]').addClass('active');
+  }
+}
+
+function loadPreviousSettings() {
+  // load the previous settings
+  var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
+
+  console.log(savedSettings);
+
+  loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
+  loadSettingCheckbox('units_setting', savedSettings.units);
+  loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
+  loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
+  loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
+  loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
+  loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
+  loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
+  loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
+  loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
+  loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
+
+  $('#weather_loc').val(savedSettings.weather_loc);
+
+  if(savedSettings.weather_setting == 'manual') {
+    $('#manual_weather_loc_setting_area').collapse('show');
+  }
+
+  if(savedSettings.language_id !== undefined) {
+    $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
+  }
+
+
+}
 
 function loadLastUsedColors() {
   // try to load each of the four colors
@@ -63,7 +103,7 @@ function presetSelected() {
 $('#preset_selector label.btn').on('click', presetSelected);
 
 function updateToolbar() {
-  var counter = $('label.btn.active').size();
+  var counter = 0;
 
   var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
 
@@ -82,10 +122,6 @@ function updateToolbar() {
         counter = 1;
       }
     }
-  }
-
-  if($('#language_selection option:selected').data('setting') != -1) {
-    counter++;
   }
 
   if(counter > 0) {
@@ -180,8 +216,6 @@ function sendSettingsToWatch() {
     window.localStorage.setItem('sidebar-text-color', config.sidebar_text_color);
   }
 
-
-
   if($('#sidebar_position_setting .btn.active').size() > 0) {
     config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
   }
@@ -192,6 +226,8 @@ function sendSettingsToWatch() {
 
   if($('#weather_setting .btn.active').size() > 0) {
     var weather_setting = $('#weather_setting .btn.active').data('setting');
+
+    config.weather_setting = weather_setting;
 
     if(weather_setting == 'auto') {
       config.disable_weather = 'no';
@@ -235,6 +271,9 @@ function sendSettingsToWatch() {
   if($('#hourly_vibe_setting .btn.active')) {
     config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
   }
+
+  // Save the configuration data to localStorage
+  window.localStorage.setItem('savedSettings', JSON.stringify(config));
 
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
