@@ -2,9 +2,8 @@
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
   loadLastUsedColors();
-  showCustomPresets();
-
   loadPreviousSettings();
+  showCustomPresets();
 });
 
 function loadSettingCheckbox(elementID, setting) {
@@ -71,11 +70,12 @@ $('#time-bg-color').on('change', customColorChanged);
 $('#sidebar-color').on('change', customColorChanged);
 $('#sidebar-text-color').on('change', customColorChanged);
 
-$('label.btn').on('change', updateToolbar);
-$('select').on('change', updateToolbar);
+$('label.btn').on('change', setFormHasChanges);
+$('select').on('change', setFormHasChanges);
+$('#weather_loc').on('input', setFormHasChanges);
 
 function customColorChanged() {
-  updateToolbar();
+  setFormHasChanges();
   updateCustomPreview();
 
   $('#preset_selector label.btn').removeClass('active');
@@ -96,47 +96,22 @@ function presetSelected() {
     $("#sidebar-text-color").spectrum("set", "#000000");
   }
 
-  updateToolbar();
+  setFormHasChanges();
   updateCustomPreview();
 }
 
 $('#preset_selector label.btn').on('click', presetSelected);
 
-function updateToolbar() {
-  var counter = 0;
+function setFormHasChanges() {
+  $('#toolbar_nochanges').addClass('hidden');
+  $('#toolbar_haschanges').removeClass('hidden');
 
-  var colorNames = ['time-color', 'time-bg-color', 'sidebar-color', 'sidebar-text-color'];
+  $('#number_of_changes').text("Changes made");
+}
 
-  // count all color changes as a single change
-  for(i = 0; i < colorNames.length; i++) {
-    colorName = colorNames[i];
-
-    var storedColor = window.localStorage.getItem(colorName);
-
-    if(storedColor) {
-      if($('#' + colorName).val() != ("#" + storedColor)) {
-        counter = 1;
-      }
-    } else  {
-      if($('#' + colorName).val()) {
-        counter = 1;
-      }
-    }
-  }
-
-  if(counter > 0) {
-    $('#toolbar_nochanges').addClass('hidden');
-    $('#toolbar_haschanges').removeClass('hidden');
-
-    var countText = counter + ' item';
-    countText += (counter != 1) ? 's' : '';
-    countText += ' set';
-
-    $('#number_of_changes').text(countText);
-  } else {
-    $('#toolbar_nochanges').removeClass('hidden');
-    $('#toolbar_haschanges').addClass('hidden');
-  }
+function setFormIsUnchanged() {
+  $('#toolbar_nochanges').removeClass('hidden');
+  $('#toolbar_haschanges').addClass('hidden');
 }
 
 
@@ -158,8 +133,6 @@ function updateCustomPreview() {
 }
 
 function resetSettings() {
-  loadLastUsedColors();
-
   $('label.btn').removeClass('active');
   $(':radio').prop('checked', false);
 
@@ -167,8 +140,9 @@ function resetSettings() {
 
   $('#language_selection').val('(No change)');
 
-  updateToolbar();
-  updateCustomPreview();
+  loadLastUsedColors();
+  loadPreviousSettings();
+  setFormIsUnchanged();
 }
 
 $('#close_button').on('click', cancelAndClose);
@@ -418,7 +392,10 @@ function loadPastedTheme() {
       saveNewPreset();
 
       updateCustomPreview();
-      updateToolbar();
+      setFormHasChanges();
+
+      // now wipe the field
+      $('#pasted_theme').val('');
     }
   }
 }
