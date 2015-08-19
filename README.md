@@ -21,4 +21,4 @@ Download on the Pebble store at the link below:
 https://apps.getpebble.com/applications/55a5c024f4510f794c000071
 
 ## Contributing
-Want to contribute to TimeStyle? I've created issues for the various feature requests that are still outstanding -- feel free to take one and work on it!
+Want to contribute to TimeStyle? Have a look at [the various feature requests that are still outstanding](https://github.com/freakified/TimeStylePebble/issues?q=is%3Aopen+is%3Aissue) -- just comment on one if you're interested in working on it!
