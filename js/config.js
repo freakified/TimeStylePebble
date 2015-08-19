@@ -17,28 +17,32 @@ function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
 
-  console.log(savedSettings);
+  if(savedSettings) {
 
-  loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
-  loadSettingCheckbox('units_setting', savedSettings.units);
-  loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
-  loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
-  loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
-  loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
-  loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
-  loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
-  loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
-  loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
-  loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
+    console.log(savedSettings);
 
-  $('#weather_loc').val(savedSettings.weather_loc);
+    loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
+    loadSettingCheckbox('units_setting', savedSettings.units);
+    loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
+    loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
+    loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
+    loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
+    loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
+    loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
+    loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
+    loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
+    loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
 
-  if(savedSettings.weather_setting == 'manual') {
-    $('#manual_weather_loc_setting_area').collapse('show');
-  }
+    $('#weather_loc').val(savedSettings.weather_loc);
 
-  if(savedSettings.language_id !== undefined) {
-    $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
+    if(savedSettings.weather_setting == 'manual') {
+      $('#manual_weather_loc_setting_area').collapse('show');
+    }
+
+    if(savedSettings.language_id !== undefined) {
+      $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
+    }
+
   }
 
 
