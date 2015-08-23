@@ -4,6 +4,7 @@ $(document).ready(function() {
   loadLastUsedColors();
   loadPreviousSettings();
   showCustomPresets();
+  showCorrectedColors();
 });
 
 function loadSettingCheckbox(elementID, setting) {
@@ -134,6 +135,8 @@ function updateCustomPreview() {
   $('#custom_preview').css('color', $('#time-color').val());
   $('#custom_preview').css('background', $('#time-bg-color').val());
   $('#custom_preview').css('border-color', $('#sidebar-color').val());
+
+  showCorrectedColors();
 }
 
 function resetSettings() {
@@ -358,6 +361,8 @@ function showCustomPresets() {
 
   // finally, re-register event handlers if needed
   $('#saved_themes_area label.btn').on('click', presetSelected);
+
+  showCorrectedColors();
 }
 
 function deletePreset(presetId) {
@@ -508,11 +513,29 @@ var colorMappingSunlight = {
 };
 
 function showCorrectedColors() {
-  $('#preset_selector label').each(function() {
+  $('.example_face').each(function() {
     var me = $(this);
 
-    $('.example_face', me).css('color', colorMappingSunlight[me.data('time-color').toLowerCase()]);
-    $('.example_face', me).css('background-color', colorMappingSunlight[me.data('time-bg-color').toLowerCase()]);
-    $('.example_face', me).css('border-color', colorMappingSunlight[me.data('sidebar-color').toLowerCase()]);
+    me.css('color', colorMappingSunlight[rgb2hex(me.css('color'))]);
+    me.css('background-color', colorMappingSunlight[rgb2hex(me.css('background-color'))]);
+    me.css('border-color', colorMappingSunlight[rgb2hex(me.css('border-color'))]);
   });
+}
+
+// rgb to hex conversions from
+// http://stackoverflow.com/questions/1740700/how-to-get-hex-color-value-rather-than-rgb-value
+var hexDigits = new Array
+        ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
+
+function rgb2hex(rgb) {
+
+
+  if(rgb) {
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+  }
+}
+
+function hex(x) {
+  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
 }
