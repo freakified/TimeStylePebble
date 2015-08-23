@@ -6,7 +6,6 @@ build
 # Ignore linked files/directories
 waf
 wscript
-tools
 include
 lib
 pebble_app.ld
