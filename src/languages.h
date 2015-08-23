@@ -29,7 +29,7 @@ char dayNames[15][7][8] = {
 	{"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"},
 	{"ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"},
 	{"SÖN", "MÅN", "TIS", "ONS", "TOR", "FRE", "LÖR"},
-	{"NDZ", "PON", "WTO", "ŚRO", "CZW", "PTK", "SOB"},
+	{"NDZ", "PON", "WTO", "ŚRO", "CZW", "PIĄ", "SOB"},
 	{"NE", "PO", "UT", "ST", "ŠT", "PI", "SO"},
 	{"CN", "T2", "T3", "T4", "T5", "T6", "T7"},
 	{"DUM", "LUN", "MAR", "MIE", "JOI", "VIN", "SÂM"}
