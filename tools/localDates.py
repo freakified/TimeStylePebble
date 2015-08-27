@@ -1,7 +1,7 @@
 import locale
 import time
 
-locales = ['en_US', 'fr_FR', 'de_DE', 'es_ES', 'it_IT', 'nl_NL', 'pt_BR', 'tr_TR', 'cs_CZ', 'el_GR', 'sv_SE','pl_PL','sk_SK', 'ro_RO'];
+locales = ['en_US', 'fr_FR', 'de_DE', 'es_ES', 'it_IT', 'nl_NL', 'pt_BR', 'tr_TR', 'cs_CZ', 'el_GR', 'sv_SE','pl_PL','sk_SK', 'ro_RO', 'ca_ES'];
 
 timeData = list(time.localtime());
 
