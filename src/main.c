@@ -484,8 +484,13 @@ void bluetoothStateChanged(bool newConnectionState){
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
   if(isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
-    vibes_short_pulse();
-  }
+    static uint32_t const segments[] = { 200, 100, 100, 100, 500 };
+    VibePattern pat = {
+      .durations = segments,
+      .num_segments = ARRAY_LENGTH(segments),
+      };
+    vibes_enqueue_custom_pattern(pat);
+    }
 
   isPhoneConnected = newConnectionState;
 
