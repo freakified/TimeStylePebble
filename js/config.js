@@ -1,8 +1,8 @@
 
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
-  loadLastUsedColors();
   loadPreviousSettings();
+  loadLastUsedColors();
   showCustomPresets();
   showCorrectedColors();
 });
@@ -18,33 +18,59 @@ function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
 
-  if(savedSettings) {
+  if(!savedSettings) {
+    // if there are no settings set, load the default settings
+    savedSettings = {
+      battery_meter_setting: 'no',
+      bluetooth_vibe_setting: 'no',
+      clock_font_setting: 'default',
+      color_bg: '000000',
+      color_sidebar: 'ff5500',
+      color_time: 'ff5500',
+      disable_weather: 'no',
+      hourly_vibe_setting: 'no',
+      language_id: 0,
+      leading_zero_setting: 'no',
+      only_show_battery_when_low_setting: 'no',
+      sidebar_position: 'right',
+      sidebar_text_color: '000000',
+      units: 'f',
+      use_large_sidebar_font_setting: 'no',
+      weather_loc: '',
+      weather_setting: 'auto'
+    };
 
-    console.log(savedSettings);
-
-    loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
-    loadSettingCheckbox('units_setting', savedSettings.units);
-    loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
-    loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
-    loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
-    loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
-    loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
-    loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
-    loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
-    loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
-    loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
-
-    $('#weather_loc').val(savedSettings.weather_loc);
-
-    if(savedSettings.weather_setting == 'manual') {
-      $('#manual_weather_loc_setting_area').collapse('show');
-    }
-
-    if(savedSettings.language_id !== undefined) {
-      $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
-    }
-
+    // also load the default color settings:
+    window.localStorage.setItem('time-color', savedSettings.color_time);
+    window.localStorage.setItem('time-bg-color', savedSettings.color_bg);
+    window.localStorage.setItem('sidebar-color', savedSettings.color_sidebar);
+    window.localStorage.setItem('sidebar-text-color', savedSettings.sidebar_text_color);
   }
+
+  console.log(savedSettings);
+
+  loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
+  loadSettingCheckbox('units_setting', savedSettings.units);
+  loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
+  loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
+  loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
+  loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
+  loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
+  loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
+  loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
+  loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
+  loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
+
+  $('#weather_loc').val(savedSettings.weather_loc);
+
+  if(savedSettings.weather_setting == 'manual') {
+    $('#manual_weather_loc_setting_area').collapse('show');
+  }
+
+  if(savedSettings.language_id !== undefined) {
+    $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
+  }
+
 
 
 }
