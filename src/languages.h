@@ -19,9 +19,10 @@
 #define LANGUAGE_NO 16
 #define LANGUAGE_RU 17
 #define LANGUAGE_EE 18
+#define LANGUAGE_EU 19
 
 /* day names in many different languages! */
-char dayNames[19][7][8] = {
+char dayNames[20][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -40,7 +41,8 @@ char dayNames[19][7][8] = {
 	{"DG", "DL", "DT", "DC", "DJ", "DV", "DS"},
 	{"SØN", "MAN", "TIR", "ONS", "TOR", "FRE", "LØR"},
 	{"ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"},
-	{"P", "E", "T", "K", "N", "R", "L"}
+	{"P", "E", "T", "K", "N", "R", "L"},
+	{"IG", "AL", "AR", "AZ", "OG", "OL", "LR"}
 };
 
 /* month names in many different languages! */
@@ -63,5 +65,6 @@ char monthNames[19][12][8] = {
 	{"GEN", "FEB", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OCT", "NOV", "DES"},
 	{"JAN", "FEB", "MAR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DES"},
 	{"ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"},
-	{"JAN", "VEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DET"}
+	{"JAN", "VEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DET"},
+	{"URT", "OTS", "MAR", "API", "MAI", "EKA", "UZT", "ABU", "IRA", "URR", "AZA", "ABE"}
 };
