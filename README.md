@@ -7,12 +7,12 @@ Inspired by the visual language of the Timeline found on the Pebble Time, TimeSt
 
 * Unlike most Pebble faces, the time text is displayed using antialiasing, achieved using automatic palette swapping.
 * Configurable: includes over 20 preset color schemes, and also supports custom colors using any color the Pebble Time can display.
-* Supports saving, loading, and sharing custom presets 
+* Supports saving, loading, and sharing custom presets
 * Optional battery life indicator, with optional percentage
 * Sidebar can be displayed on the right or left side
 * Selectable temperature units
 * Bluetooth disconnection icon on disconnect, with optional vibration
-* Displays dates in 15 different languages: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, and Vietnamese
+* Displays dates in 20 different languages: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, Vietnamese, Catalan, Norwegian, Russian, Estonian, and Basque.
 * Weather can be disabled entirely
 * Optional alternate font, LECO
 
