@@ -46,7 +46,7 @@ char dayNames[20][7][8] = {
 };
 
 /* month names in many different languages! */
-char monthNames[19][12][8] = {
+char monthNames[20][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
