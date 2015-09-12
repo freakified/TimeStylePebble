@@ -490,7 +490,12 @@ void bluetoothStateChanged(bool newConnectionState){
       .num_segments = ARRAY_LENGTH(segments),
       };
     vibes_enqueue_custom_pattern(pat);
-    }
+  }
+
+  // if the phone was disconnected and isn't anymore, update the data
+  if(!isPhoneConnected && newConnectionState) {
+    messaging_requestNewWeatherData();
+  }
 
   isPhoneConnected = newConnectionState;
 
