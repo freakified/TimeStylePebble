@@ -9,7 +9,7 @@
         "KEY_SETTING_COLOR_TIME": 6,
         "KEY_SETTING_COLOR_BG": 7,
         "KEY_SETTING_COLOR_SIDEBAR": 8,
-        "KEY_SETTING_SIDEBAR_RIGHT": 9,
+        "KEY_SETTING_SIDEBAR_LEFT": 9,
         "KEY_SETTING_USE_METRIC": 10,
         "KEY_SETTING_BT_VIBE": 11,
         "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12,
@@ -403,7 +403,7 @@
         "basalt"
     ],
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
-    "versionLabel": "3.5",
+    "versionLabel": "3.6",
     "watchapp": {
         "watchface": true
     }

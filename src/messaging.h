@@ -10,7 +10,7 @@
 #define KEY_SETTING_COLOR_TIME          6
 #define KEY_SETTING_COLOR_BG            7
 #define KEY_SETTING_COLOR_SIDEBAR       8
-#define KEY_SETTING_SIDEBAR_RIGHT       9
+#define KEY_SETTING_SIDEBAR_LEFT        9
 #define KEY_SETTING_USE_METRIC          10
 #define KEY_SETTING_BT_VIBE             11
 #define KEY_SETTING_SIDEBAR_TEXT_COLOR  12

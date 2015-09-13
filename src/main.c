@@ -66,15 +66,15 @@ void update_clock() {
   }
 
   // use the blank image for the leading hour digit if needed
-  if(Settings_showLeadingZero || hour / 10 != 0) {
-    ClockDigit_setNumber(&clockDigits[0], hour / 10, Settings_clockFontId);
+  if(globalSettings.showLeadingZero || hour / 10 != 0) {
+    ClockDigit_setNumber(&clockDigits[0], hour / 10, globalSettings.clockFontId);
   } else {
     ClockDigit_setBlank(&clockDigits[0]);
   }
 
-  ClockDigit_setNumber(&clockDigits[1], hour % 10, Settings_clockFontId);
-  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, Settings_clockFontId);
-  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, Settings_clockFontId);
+  ClockDigit_setNumber(&clockDigits[1], hour % 10, globalSettings.clockFontId);
+  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, globalSettings.clockFontId);
+  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, globalSettings.clockFontId);
 
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
@@ -99,14 +99,14 @@ void drawBatteryStatus(GContext* ctx) {
   int batteryPositionY = 63;
 
   // if the percentage indicator is enabled, ensure that the battery is still vertically centered
-  if(Settings_showBatteryPct && !chargeState.is_charging) {
-    batteryPositionY -= Settings_useLargeFonts ? 10 : 6;
+  if(globalSettings.showBatteryPct && !chargeState.is_charging) {
+    batteryPositionY -= globalSettings.useLargeFonts ? 10 : 6;
   }
 
 
 
   // however, if the weather is disabled, put the battery where the weather was, at the top
-  if(Settings_disableWeather) {
+  if(globalSettings.disableWeather) {
     batteryPositionY = 3;
   }
 
@@ -146,9 +146,9 @@ void drawBatteryStatus(GContext* ctx) {
 
   // never show battery % while charging, because of this issue:
   // https://github.com/freakified/TimeStylePebble/issues/11
-  if(Settings_showBatteryPct && !chargeState.is_charging) {
+  if(globalSettings.showBatteryPct && !chargeState.is_charging) {
 
-    if(!Settings_useLargeFonts) {
+    if(!globalSettings.useLargeFonts) {
       snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
       graphics_draw_text(ctx,
@@ -175,7 +175,7 @@ void drawBatteryStatus(GContext* ctx) {
 }
 
 void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
-  if(Settings_useLargeFonts) {
+  if(globalSettings.useLargeFonts) {
     sidebarFont = lgSidebarFont;
     batteryFont = lgSidebarFont;
   } else {
@@ -197,7 +197,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     }
   #endif
 
-  if(!Settings_disableWeather) {
+  if(!globalSettings.disableWeather) {
     if (Weather_currentWeatherIcon) {
       #ifdef PBL_COLOR
         gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
@@ -218,7 +218,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
       char tempString[8];
 
       // in large font mode, omit the degree symbol and move the text
-      if(!Settings_useLargeFonts) {
+      if(!globalSettings.useLargeFonts) {
         snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
 
         graphics_draw_text(ctx,
@@ -258,16 +258,16 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
   // only show the battery meter if the phone is connected (need room for the disconnection icon)
   // OR if the weather is disabled, in which case we have room
-  if(isPhoneConnected || (!isPhoneConnected && Settings_disableWeather)) {
+  if(isPhoneConnected || (!isPhoneConnected && globalSettings.disableWeather)) {
     if(globalSettings.showBatteryLevel) {
-      if(!Settings_onlyShowBatteryWhenLow || (Settings_onlyShowBatteryWhenLow && battery_state_service_peek().charge_percent <= 20)) {
+      if(!globalSettings.onlyShowBatteryWhenLow || (globalSettings.onlyShowBatteryWhenLow && battery_state_service_peek().charge_percent <= 20)) {
         drawBatteryStatus(ctx);
       }
     }
   }
 
   // in large font mode, draw a different date image
-  if(!Settings_useLargeFonts) {
+  if(!globalSettings.useLargeFonts) {
     if (dateImage) {
       #ifdef PBL_COLOR
         gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
@@ -308,7 +308,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
   int yPos = 0;
 
-  yPos = Settings_useLargeFonts ? 113 : 121;
+  yPos = globalSettings.useLargeFonts ? 113 : 121;
 
   graphics_draw_text(ctx,
                      currentDayNum,
@@ -324,7 +324,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
     graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   #endif
 
-  yPos = Settings_useLargeFonts ? 89 : 95;
+  yPos = globalSettings.useLargeFonts ? 89 : 95;
 
   // now draw in the date info
   graphics_draw_text(ctx,
@@ -339,7 +339,7 @@ void sidebarLayerUpdateProc(Layer *l, GContext* ctx) {
 
 
   // y position for month text
-  yPos = Settings_useLargeFonts ? 137 : 142;
+  yPos = globalSettings.useLargeFonts ? 137 : 142;
 
   graphics_draw_text(ctx,
                      currentMonth,
@@ -364,7 +364,7 @@ void forceScreenRedraw() {
   window_set_background_color(mainWindow, globalSettings.timeBgColor);
 
   // or maybe the sidebar position changed!
-  if(globalSettings.sidebarOnRight) {
+  if(!globalSettings.sidebarOnLeft) {
     layer_set_frame(sidebarLayer, GRect(114, 0, 30, 168));
 
     for(int i = 0; i < 4; i++) {
@@ -403,7 +403,7 @@ static void main_window_load(Window *window) {
   lgSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
 
   // init the sidebar layer
-  if(globalSettings.sidebarOnRight) {
+  if(!globalSettings.sidebarOnLeft) {
     sidebarLayer = layer_create(GRect(114, 0, 30, 168));
   } else {
     sidebarLayer = layer_create(GRect(0, 0, 30, 168));
@@ -457,18 +457,18 @@ static void main_window_unload(Window *window) {
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // every 30 minutes, request new weather data
-  if(!Settings_disableWeather) {
+  if(!globalSettings.disableWeather) {
     if(tick_time->tm_min % 30 == 0) {
       messaging_requestNewWeatherData();
     }
   }
 
   // every hour, if requested, vibrate
-  if(Settings_hourlyVibe == 1) {
+  if(globalSettings.hourlyVibe == 1) {
     if(tick_time->tm_min % 60 == 0) {
       vibes_short_pulse();
     }
-  } else if(Settings_hourlyVibe == 2) {
+  } else if(globalSettings.hourlyVibe == 2) {
     // if half hour vibes are also enabled, do that
     if(tick_time->tm_min % 60 == 0) {
       vibes_double_pulse();

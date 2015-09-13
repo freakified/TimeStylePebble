@@ -46,7 +46,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *timeColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_TIME);
   Tuple *bgColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_BG);
   Tuple *sidebarColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_SIDEBAR);
-  Tuple *sidebarPos_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_RIGHT);
+  Tuple *sidebarPos_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_LEFT);
   Tuple *sidebarTextColor_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_TEXT_COLOR);
   Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
   Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
@@ -93,7 +93,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(sidebarPos_tuple != NULL) {
-    globalSettings.sidebarOnRight = (bool)sidebarPos_tuple->value->int8;
+    globalSettings.sidebarOnLeft = (bool)sidebarPos_tuple->value->int8;
   }
 
   if(useMetric_tuple != NULL) {
@@ -109,31 +109,31 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(leadingZero_tuple != NULL) {
-    Settings_showLeadingZero = (bool)leadingZero_tuple->value->int8;
+    globalSettings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
   }
 
   if(batteryPct_tuple != NULL) {
-    Settings_showBatteryPct = (bool)batteryPct_tuple->value->int8;
+    globalSettings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
   }
 
   if(onlyShowBatteryWhenLow_tuple != NULL) {
-    Settings_onlyShowBatteryWhenLow = (bool)onlyShowBatteryWhenLow_tuple->value->int8;
+    globalSettings.onlyShowBatteryWhenLow = (bool)onlyShowBatteryWhenLow_tuple->value->int8;
   }
 
   if(disableWeather_tuple != NULL) {
-    Settings_disableWeather = (bool)disableWeather_tuple->value->int8;
+    globalSettings.disableWeather = (bool)disableWeather_tuple->value->int8;
   }
 
   if(clockFont_tuple != NULL) {
-    Settings_clockFontId = (bool)clockFont_tuple->value->int8;
+    globalSettings.clockFontId = (bool)clockFont_tuple->value->int8;
   }
 
   if(useLargeFonts_tuple != NULL) {
-    Settings_useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
+    globalSettings.useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
   }
 
   if(hourlyVibe_tuple != NULL) {
-    Settings_hourlyVibe = hourlyVibe_tuple->value->int8;
+    globalSettings.hourlyVibe = hourlyVibe_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {
@@ -142,6 +142,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   // notify the main screen, in case something changed
   message_processed_callback();
+
+  // save the new settings to persistent storage
+  Settings_saveToStorage();
 }
 
 void inbox_dropped_callback(AppMessageResult reason, void *context) {

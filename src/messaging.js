@@ -199,9 +199,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     if(configData.sidebar_position) {
       if(configData.sidebar_position == 'right') {
-        dict.KEY_SETTING_SIDEBAR_RIGHT = 1;
+        dict.KEY_SETTING_SIDEBAR_LEFT = 0;
       } else {
-        dict.KEY_SETTING_SIDEBAR_RIGHT = 0;
+        dict.KEY_SETTING_SIDEBAR_LEFT = 1;
       }
     }
 
