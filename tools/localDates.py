@@ -19,7 +19,8 @@ locales =  ['en_US',
             'no_NO',
             'ru_RU',
             'et_EE',
-            'eu_ES'];
+            'eu_ES',
+            'fi_FI'];
 
 timeData = list(time.localtime());
 

@@ -12,7 +12,7 @@ Inspired by the visual language of the Timeline found on the Pebble Time, TimeSt
 * Sidebar can be displayed on the right or left side
 * Selectable temperature units
 * Bluetooth disconnection icon on disconnect, with optional vibration
-* Displays dates in 20 different languages: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, Vietnamese, Catalan, Norwegian, Russian, Estonian, and Basque.
+* Displays dates in 21 different languages: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, Vietnamese, Catalan, Norwegian, Russian, Estonian, Basque and Finnish.
 * Weather can be disabled entirely
 * Optional alternate font, LECO
 
