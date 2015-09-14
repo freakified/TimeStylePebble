@@ -20,9 +20,10 @@
 #define LANGUAGE_RU 17
 #define LANGUAGE_EE 18
 #define LANGUAGE_EU 19
+#define LANGUAGE_FI 19
 
 /* day names in many different languages! */
-char dayNames[20][7][8] = {
+char dayNames[21][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -42,11 +43,12 @@ char dayNames[20][7][8] = {
 	{"SØN", "MAN", "TIR", "ONS", "TOR", "FRE", "LØR"},
 	{"ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"},
 	{"P", "E", "T", "K", "N", "R", "L"},
-	{"IG", "AL", "AR", "AZ", "OG", "OL", "LR"}
+	{"IG", "AL", "AR", "AZ", "OG", "OL", "LR"},
+	{"SU", "MA", "TI", "KE", "TO", "PE", "LA"}
 };
 
 /* month names in many different languages! */
-char monthNames[20][12][8] = {
+char monthNames[21][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -66,5 +68,6 @@ char monthNames[20][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DES"},
 	{"ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"},
 	{"JAN", "VEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DET"},
-	{"URT", "OTS", "MAR", "API", "MAI", "EKA", "UZT", "ABU", "IRA", "URR", "AZA", "ABE"}
+	{"URT", "OTS", "MAR", "API", "MAI", "EKA", "UZT", "ABU", "IRA", "URR", "AZA", "ABE"},
+	{"TAM", "HEL", "MAA", "HUH", "TOU", "KES", "HEI", "ELO", "SYY", "LOK", "MAR", "JOU"}
 };
