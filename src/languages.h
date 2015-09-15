@@ -20,7 +20,7 @@
 #define LANGUAGE_RU 17
 #define LANGUAGE_EE 18
 #define LANGUAGE_EU 19
-#define LANGUAGE_FI 19
+#define LANGUAGE_FI 20 
 
 /* day names in many different languages! */
 char dayNames[21][7][8] = {
