@@ -1,3 +1,4 @@
+#include <pebble.h>
 #include "clock_digit.h"
 
 

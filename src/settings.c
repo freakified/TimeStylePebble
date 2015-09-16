@@ -1,3 +1,4 @@
+#include <pebble.h>
 #include "settings.h"
 
 void Settings_init() {

@@ -1,6 +1,7 @@
+#include <pebble.h>
 #include "weather.h"
-#include "messaging.h"
 #include "settings.h"
+#include "messaging.h"
 
 void messaging_requestNewWeatherData() {
   // just send an empty message for now

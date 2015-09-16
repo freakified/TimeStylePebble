@@ -1,3 +1,4 @@
+#include <pebble.h>
 #include "weather.h"
 
 void Weather_setCondition(int conditionCode, bool isNight) {
