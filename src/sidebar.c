@@ -6,6 +6,33 @@
 #include "languages.h"
 #include "sidebar.h"
 
+Layer* sidebarLayer;
+
+// sidebar icons
+#ifdef PBL_COLOR
+  GDrawCommandImage* dateImage;
+  GDrawCommandImage* disconnectImage;
+  GDrawCommandImage* batteryImage;
+  GDrawCommandImage* batteryChargeImage;
+#else
+  GBitmap* dateImage;
+  GBitmap* disconnectImage;
+  GBitmap* batteryImage;
+  GBitmap* batteryChargeImage;
+#endif
+
+// fonts
+GFont smSidebarFont;
+GFont mdSidebarFont;
+GFont lgSidebarFont;
+GFont currentSidebarFont;
+GFont batteryFont;
+
+// the date and weather strings
+char currentDayName[8];
+char currentDayNum[8];
+char currentMonth[8];
+
 void Sidebar_init(Window* window) {
   // load fonts
   smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
@@ -89,7 +116,6 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
     currentSidebarFont = mdSidebarFont;
     batteryFont = smSidebarFont;
   }
-
 
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);

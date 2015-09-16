@@ -1,6 +1,12 @@
 #include <pebble.h>
 #include "weather.h"
 
+#ifdef PBL_COLOR
+  GDrawCommandImage* Weather_currentWeatherIcon;
+#else
+  GBitmap* Weather_currentWeatherIcon;
+#endif
+
 void Weather_setCondition(int conditionCode, bool isNight) {
   uint32_t iconToLoad;
 

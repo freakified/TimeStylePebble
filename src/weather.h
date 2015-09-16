@@ -9,12 +9,12 @@ typedef struct {
   uint32_t currentIconResourceID;
 } WeatherInfo;
 
-WeatherInfo Weather_weatherInfo;
+static WeatherInfo Weather_weatherInfo;
 
 #ifdef PBL_COLOR
-GDrawCommandImage* Weather_currentWeatherIcon;
+  extern GDrawCommandImage* Weather_currentWeatherIcon;
 #else
-GBitmap* Weather_currentWeatherIcon;
+  extern GBitmap* Weather_currentWeatherIcon;
 #endif
 
 

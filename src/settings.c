@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "settings.h"
 
+Settings globalSettings;
+
 void Settings_init() {
   // first, check if we have any saved settings
   int settingsVersion = persist_read_int(SETTINGS_VERSION_KEY);

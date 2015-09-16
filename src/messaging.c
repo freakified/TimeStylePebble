@@ -3,6 +3,8 @@
 #include "settings.h"
 #include "messaging.h"
 
+void (*message_processed_callback)(void);
+
 void messaging_requestNewWeatherData() {
   // just send an empty message for now
   DictionaryIterator *iter;

@@ -40,7 +40,7 @@ typedef struct {
   bool useLargeFonts;
 } Settings;
 
-Settings globalSettings;
+extern Settings globalSettings;
 
 // as of version 3.6, instead of doing more crazy migrations,
 // all settings get their own keys

@@ -26,8 +26,6 @@
 
 void messaging_requestNewWeatherData();
 
-void (*message_processed_callback)(void);
-
 void messaging_init(void (*message_processed_callback)(void));
 void inbox_received_callback(DictionaryIterator *iterator, void *context);
 void inbox_dropped_callback(AppMessageResult reason, void *context);
