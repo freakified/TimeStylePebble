@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "weather.h"
 
+WeatherInfo Weather_weatherInfo;
+
 #ifdef PBL_COLOR
   GDrawCommandImage* Weather_currentWeatherIcon;
 #else

@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "clock_digit.h"
 
+void adjustImagePalette(ClockDigit* this);
 
 /*
  * Array mapping numbers to resource ids
@@ -45,7 +46,7 @@ void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
     this->currentFontId = fontId;
 
     //set the palette properly
-    CDPrivate_adjustImagePalette(this);
+    adjustImagePalette(this);
 
     //set the layer to the new image
     bitmap_layer_set_bitmap(this->imageLayer, this->currentImage);
@@ -88,7 +89,7 @@ void ClockDigit_setColor(ClockDigit* this, GColor fg, GColor bg) {
 
   #endif
 
-  CDPrivate_adjustImagePalette(this);
+  adjustImagePalette(this);
 }
 
 void ClockDigit_construct(ClockDigit* this, GPoint pos) {
@@ -112,7 +113,7 @@ void ClockDigit_destruct(ClockDigit* this) {
   gbitmap_destroy(this->currentImage);
 }
 
-void CDPrivate_adjustImagePalette(ClockDigit* this) {
+void adjustImagePalette(ClockDigit* this) {
   #ifdef PBL_COLOR
     GColor* pal = gbitmap_get_palette(this->currentImage);
 

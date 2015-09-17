@@ -6,7 +6,3 @@ void Sidebar_init(Window* window);
 void Sidebar_deinit();
 void Sidebar_redraw();
 void Sidebar_updateTime(struct tm* timeInfo);
-
-// "private" functions
-void drawBatteryStatus(GContext* ctx);
-void updateSidebarLayer(Layer *l, GContext* ctx);

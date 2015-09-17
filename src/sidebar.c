@@ -6,6 +6,10 @@
 #include "languages.h"
 #include "sidebar.h"
 
+// "private" functions
+void drawBatteryStatus(GContext* ctx);
+void updateSidebarLayer(Layer *l, GContext* ctx);
+
 Layer* sidebarLayer;
 
 // sidebar icons
