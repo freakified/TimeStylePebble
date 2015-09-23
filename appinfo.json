@@ -171,7 +171,7 @@
                 "name": "BATTERY_BG",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -179,7 +179,7 @@
                 "name": "BATTERY_CHARGE",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -187,7 +187,7 @@
                 "name": "WEATHER_GENERIC",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -195,7 +195,7 @@
                 "name": "WEATHER_THUNDERSTORM",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -203,7 +203,7 @@
                 "name": "WEATHER_HEAVY_RAIN",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -211,7 +211,7 @@
                 "name": "WEATHER_CLEAR_NIGHT",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -219,7 +219,7 @@
                 "name": "WEATHER_CLEAR_DAY",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -227,7 +227,7 @@
                 "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -235,7 +235,7 @@
                 "name": "WEATHER_RAINING_AND_SNOWING",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -243,7 +243,7 @@
                 "name": "WEATHER_LIGHT_SNOW",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -251,7 +251,7 @@
                 "name": "WEATHER_LIGHT_RAIN",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -259,7 +259,7 @@
                 "name": "WEATHER_HEAVY_SNOW",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -267,7 +267,7 @@
                 "name": "WEATHER_CLOUDY",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -275,7 +275,7 @@
                 "name": "WEATHER_PARTLY_CLOUDY",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -283,7 +283,7 @@
                 "name": "DISCONNECTED",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -291,7 +291,7 @@
                 "name": "DATE_BG",
                 "type": "raw",
                 "targetPlatforms": [
-                  "basalt"
+                  "basalt", "chalk"
                 ]
             },
             {
@@ -400,7 +400,8 @@
     "shortName": "TimeStyle",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
     "versionLabel": "3.7",
