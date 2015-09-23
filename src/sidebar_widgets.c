@@ -44,6 +44,10 @@ SidebarWidget dateWidget;
 void DateWidget_draw(GContext* ctx, int yPosition);
 int DateWidget_getHeight();
 
+SidebarWidget currentWeatherWidget;
+void CurrentWeather_draw(GContext* ctx, int yPosition);
+int CurrentWeather_getHeight();
+
 void SidebarWidgets_init() {
   // load fonts
   smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
@@ -72,6 +76,9 @@ void SidebarWidgets_init() {
 
   dateWidget.getHeight = DateWidget_getHeight;
   dateWidget.draw      = DateWidget_draw;
+
+  currentWeatherWidget.getHeight = CurrentWeather_getHeight;
+  currentWeatherWidget.draw      = CurrentWeather_draw;
 }
 
 void SidebarWidgets_deinit() {
@@ -306,4 +313,79 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
                      GTextAlignmentCenter,
                      NULL);
 
+}
+
+/********** current weather widget **********/
+
+int CurrentWeather_getHeight() {
+  if(globalSettings.useLargeFonts) {
+    return 44;
+  } else {
+    return 42;
+  }
+}
+
+void CurrentWeather_draw(GContext* ctx, int yPosition) {
+  //
+  // if(!globalSettings.disableWeather) {
+  //   if (Weather_currentWeatherIcon) {
+  //     #ifdef PBL_COLOR
+  //       gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
+  //     #else
+  //       graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
+  //     #endif
+  //   }
+  //
+  //   // draw weather data only if it has been set
+  //   if(Weather_weatherInfo.currentTemp != INT32_MIN) {
+  //
+  //     int currentTemp = Weather_weatherInfo.currentTemp;
+  //
+  //     if(!globalSettings.useMetric) {
+  //       currentTemp = roundf(currentTemp * 1.8f + 32);
+  //     }
+  //
+  //     char tempString[8];
+  //
+  //     // in large font mode, omit the degree symbol and move the text
+  //     if(!globalSettings.useLargeFonts) {
+  //       snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+  //
+  //       graphics_draw_text(ctx,
+  //                          tempString,
+  //                          currentSidebarFont,
+  //                          GRect(-5, 31, 38, 20),
+  //                          GTextOverflowModeFill,
+  //                          GTextAlignmentCenter,
+  //                          NULL);
+  //     } else {
+  //       snprintf(tempString, sizeof(tempString), " %d", currentTemp);
+  //
+  //       graphics_draw_text(ctx,
+  //                          tempString,
+  //                          currentSidebarFont,
+  //                          GRect(-5, 27, 35, 20),
+  //                          GTextOverflowModeFill,
+  //                          GTextAlignmentCenter,
+  //                          NULL);
+  //     }
+  //
+  //
+  //   }
+  // }
+  //
+  // // if the pebble is disconnected, display the disconnection image
+  // bool isPhoneConnected = bluetooth_connection_service_peek();
+  //
+  // if (!isPhoneConnected) {
+  //   if(disconnectImage) {
+  //     #ifdef PBL_COLOR
+  //       gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
+  //     #else
+  //       graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
+  //     #endif
+  //   }
+  // }
+  //
+  //
 }
