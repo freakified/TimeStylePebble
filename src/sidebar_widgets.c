@@ -63,8 +63,6 @@ void SidebarWidgets_init() {
     batteryChargeImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
   #endif
 
-  SidebarWidgets_updateFonts();
-
   // set up widgets' function pointers correctly
   batteryMeterWidget.getHeight = BatteryMeter_getHeight;
   batteryMeterWidget.draw      = BatteryMeter_draw;
@@ -141,7 +139,11 @@ void EmptyWidget_draw(GContext* ctx, int yPosition) {
 /********** functions for the battery meter widget **********/
 
 int BatteryMeter_getHeight() {
-  return 20; // TODO: Make this more real
+  if(globalSettings.showBatteryPct) {
+    return (globalSettings.useLargeFonts) ? 33 : 27;
+  } else {
+    return 14; // graphic-only height
+  }
 }
 
 void BatteryMeter_draw(GContext* ctx, int yPosition) {
@@ -212,28 +214,43 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
   }
 }
 
-/********** date widget **********/
+/********** current date widget **********/
 
 int DateWidget_getHeight() {
-  return 50; // TODO: Make this more real
+  if(globalSettings.useLargeFonts) {
+    return 62;
+  } else  {
+    return 58;
+  }
 }
 
 void DateWidget_draw(GContext* ctx, int yPosition) {
   // TODO: made this use the appropriate y Positions
+  // whatever the topmost thing is should be at yPosition
 
-  // in large font mode, draw a different date image
+  // first draw the day name
+  graphics_draw_text(ctx,
+                     currentDayName,
+                     currentSidebarFont,
+                     GRect(-5, yPosition, 40, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  // next, draw the date background
+  // (an image in normal mode, a rectangle in large font mode)
   if(!globalSettings.useLargeFonts) {
     if (dateImage) {
       #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, dateImage, GPoint(3, 118));
+        gdraw_command_image_draw(ctx, dateImage, GPoint(3, yPosition + 23));
       #else
-        graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, 118, 25, 25));
+        graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3, yPosition + 23, 25, 25));
       #endif
     }
   } else {
     #ifdef PBL_COLOR
       graphics_context_set_fill_color(ctx, GColorWhite);
-      graphics_fill_rect(ctx, GRect(2, 119, 26, 22), 2, GCornersAll);
+      graphics_fill_rect(ctx, GRect(2, yPosition + 30, 26, 22), 2, GCornersAll);
     #else
       if(globalSettings.sidebarTextColor == GColorWhite) {
         graphics_context_set_fill_color(ctx, GColorWhite);
@@ -241,7 +258,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
         graphics_context_set_fill_color(ctx, GColorBlack);
       }
 
-      graphics_fill_rect(ctx, GRect(1, 119, 28, 22), 2, GCornersAll);
+      graphics_fill_rect(ctx, GRect(1, yPosition + 23, 28, 22), 2, GCornersAll);
 
       if(globalSettings.sidebarTextColor == GColorWhite) {
         graphics_context_set_fill_color(ctx, GColorBlack);
@@ -249,26 +266,26 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
         graphics_context_set_fill_color(ctx, GColorWhite);
       }
 
-      graphics_fill_rect(ctx, GRect(3, 121, 24, 18), 0, GCornersAll);
-
+      graphics_fill_rect(ctx, GRect(3, yPosition + 6, 24, 18), 0, GCornersAll);
 
     #endif
 
   }
 
-  // color pebble should always use black for the date number...
+  // next, draw the date number
+
+  // color pebble should always use black for the date number
   #ifdef PBL_COLOR
     graphics_context_set_text_color(ctx, GColorBlack);
   #endif
 
-  int yPos = 0;
-
-  yPos = globalSettings.useLargeFonts ? 113 : 121;
+  int yOffset = 0;
+  yOffset = globalSettings.useLargeFonts ? 24 : 26;
 
   graphics_draw_text(ctx,
                      currentDayNum,
                      currentSidebarFont,
-                     GRect(0, yPos, 30, 20),
+                     GRect(0, yPosition + yOffset, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -279,25 +296,14 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
     graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   #endif
 
-  yPos = globalSettings.useLargeFonts ? 89 : 95;
-
-  // now draw in the date info
-  graphics_draw_text(ctx,
-                     currentDayName,
-                     currentSidebarFont,
-                     GRect(-5, yPos, 40, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-  // y position for month text
-  yPos = globalSettings.useLargeFonts ? 137 : 142;
+  yOffset = globalSettings.useLargeFonts ? 48 : 47;
 
   graphics_draw_text(ctx,
                      currentMonth,
                      currentSidebarFont,
-                     GRect(0, yPos, 30, 20),
+                     GRect(0, yPosition + yOffset, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+
 }

@@ -70,7 +70,7 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
 
   getSidebarWidgetByType(BATTERY_METER).draw(ctx, 5);
 
-  getSidebarWidgetByType(DATE).draw(ctx, 50);
+  getSidebarWidgetByType(DATE).draw(ctx, 95);
 
   getSidebarWidgetByType(EMPTY).draw(ctx, 50);
 
