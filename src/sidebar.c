@@ -7,6 +7,9 @@
 #include "sidebar.h"
 #include "sidebar_widgets.h"
 
+#define V_PADDING 8
+#define SCREEN_HEIGHT 168
+
 // "private" functions
 void updateSidebarLayer(Layer *l, GContext* ctx);
 
@@ -15,9 +18,9 @@ Layer* sidebarLayer;
 void Sidebar_init(Window* window) {
   // init the sidebar layer
   if(!globalSettings.sidebarOnLeft) {
-    sidebarLayer = layer_create(GRect(114, 0, 30, 168));
+    sidebarLayer = layer_create(GRect(114, 0, 30, SCREEN_HEIGHT));
   } else {
-    sidebarLayer = layer_create(GRect(0, 0, 30, 168));
+    sidebarLayer = layer_create(GRect(0, 0, 30, SCREEN_HEIGHT));
   }
 
   // init the widgets
@@ -36,9 +39,9 @@ void Sidebar_deinit() {
 void Sidebar_redraw() {
   // reposition the sidebar if needed
   if(globalSettings.sidebarOnLeft) {
-    layer_set_frame(sidebarLayer, GRect(0, 0, 30, 168));
+    layer_set_frame(sidebarLayer, GRect(0, 0, 30, SCREEN_HEIGHT));
   } else {
-    layer_set_frame(sidebarLayer, GRect(114, 0, 30, 168));
+    layer_set_frame(sidebarLayer, GRect(114, 0, 30, SCREEN_HEIGHT));
   }
 
   // redraw the layer
@@ -68,72 +71,32 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
     }
   #endif
 
-  getSidebarWidgetByType(BATTERY_METER).draw(ctx, 5);
+  // if the pebble is connected, show the middle widget
+  // otherwise, show the disconnection widget
+  bool isPhoneConnected = bluetooth_connection_service_peek();
+  // isPhoneConnected = false;
 
-  getSidebarWidgetByType(DATE).draw(ctx, 95);
+  SidebarWidget topWidget = getSidebarWidgetByType(WEATHER_CURRENT);
+  SidebarWidget middleWidget = getSidebarWidgetByType(BATTERY_METER);
+  SidebarWidget lowerWidget = getSidebarWidgetByType(DATE);
 
-  getSidebarWidgetByType(EMPTY).draw(ctx, 50);
+  int topWidgetPos = V_PADDING;
+  int lowerWidgetPos = SCREEN_HEIGHT - V_PADDING - lowerWidget.getHeight();
 
-  //
-  // if(!globalSettings.disableWeather) {
-  //   if (Weather_currentWeatherIcon) {
-  //     #ifdef PBL_COLOR
-  //       gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
-  //     #else
-  //       graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
-  //     #endif
-  //   }
-  //
-  //   // draw weather data only if it has been set
-  //   if(Weather_weatherInfo.currentTemp != INT32_MIN) {
-  //
-  //     int currentTemp = Weather_weatherInfo.currentTemp;
-  //
-  //     if(!globalSettings.useMetric) {
-  //       currentTemp = roundf(currentTemp * 1.8f + 32);
-  //     }
-  //
-  //     char tempString[8];
-  //
-  //     // in large font mode, omit the degree symbol and move the text
-  //     if(!globalSettings.useLargeFonts) {
-  //       snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
-  //
-  //       graphics_draw_text(ctx,
-  //                          tempString,
-  //                          currentSidebarFont,
-  //                          GRect(-5, 31, 38, 20),
-  //                          GTextOverflowModeFill,
-  //                          GTextAlignmentCenter,
-  //                          NULL);
-  //     } else {
-  //       snprintf(tempString, sizeof(tempString), " %d", currentTemp);
-  //
-  //       graphics_draw_text(ctx,
-  //                          tempString,
-  //                          currentSidebarFont,
-  //                          GRect(-5, 27, 35, 20),
-  //                          GTextOverflowModeFill,
-  //                          GTextAlignmentCenter,
-  //                          NULL);
-  //     }
-  //
-  //
-  //   }
-  // }
-  //
-  // // if the pebble is disconnected, display the disconnection image
-  // bool isPhoneConnected = bluetooth_connection_service_peek();
-  //
-  // if (!isPhoneConnected) {
-  //   if(disconnectImage) {
-  //     #ifdef PBL_COLOR
-  //       gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
-  //     #else
-  //       graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
-  //     #endif
-  //   }
-  // }
-  //
-  //
+  // vertically center the middle widget using MATH
+  int middleWidgetPos = ((lowerWidgetPos - middleWidget.getHeight()) + (topWidgetPos + topWidget.getHeight())) / 2;
+
+  // top widget
+  topWidget.draw(ctx, topWidgetPos);
+
+  // middle widget
+  if (isPhoneConnected) {
+    middleWidget.draw(ctx, middleWidgetPos);
+  } else {
+    getSidebarWidgetByType(BLUETOOTH_DISCONNECT).draw(ctx, 57);
+  }
+
+  // bottom widget
+  lowerWidget.draw(ctx, lowerWidgetPos);
+
 }

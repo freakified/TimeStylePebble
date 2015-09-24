@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include <math.h>
 #include "settings.h"
+#include "weather.h"
 #include "languages.h"
 #include "sidebar_widgets.h"
 
@@ -33,20 +34,24 @@ char currentMonth[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
-void BatteryMeter_draw(GContext* ctx, int yPosition);
 int BatteryMeter_getHeight();
+void BatteryMeter_draw(GContext* ctx, int yPosition);
 
 SidebarWidget emptyWidget;
-void EmptyWidget_draw(GContext* ctx, int yPosition);
 int EmptyWidget_getHeight();
+void EmptyWidget_draw(GContext* ctx, int yPosition);
 
 SidebarWidget dateWidget;
-void DateWidget_draw(GContext* ctx, int yPosition);
 int DateWidget_getHeight();
+void DateWidget_draw(GContext* ctx, int yPosition);
 
 SidebarWidget currentWeatherWidget;
-void CurrentWeather_draw(GContext* ctx, int yPosition);
 int CurrentWeather_getHeight();
+void CurrentWeather_draw(GContext* ctx, int yPosition);
+
+SidebarWidget btDisconnectWidget;
+int BTDisconnect_getHeight();
+void BTDisconnect_draw(GContext* ctx, int yPosition);
 
 void SidebarWidgets_init() {
   // load fonts
@@ -79,6 +84,10 @@ void SidebarWidgets_init() {
 
   currentWeatherWidget.getHeight = CurrentWeather_getHeight;
   currentWeatherWidget.draw      = CurrentWeather_draw;
+
+  btDisconnectWidget.getHeight = BTDisconnect_getHeight;
+  btDisconnectWidget.draw      = BTDisconnect_draw;
+
 }
 
 void SidebarWidgets_deinit() {
@@ -125,8 +134,14 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     case BATTERY_METER:
       return batteryMeterWidget;
       break;
+    case BLUETOOTH_DISCONNECT:
+      return btDisconnectWidget;
+      break;
     case DATE:
       return dateWidget;
+      break;
+    case WEATHER_CURRENT:
+      return currentWeatherWidget;
       break;
     default:
       return emptyWidget;
@@ -158,7 +173,7 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
   char batteryString[6];
 
-  int batteryPositionY = yPosition;
+  int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
 
   if(chargeState.is_charging) {
     if(batteryChargeImage) {
@@ -232,8 +247,8 @@ int DateWidget_getHeight() {
 }
 
 void DateWidget_draw(GContext* ctx, int yPosition) {
-  // TODO: made this use the appropriate y Positions
-  // whatever the topmost thing is should be at yPosition
+  // hack to compensate for extra space that appears on the top of the date widget
+  yPosition -= (globalSettings.useLargeFonts) ? 10 : 7;
 
   // first draw the day name
   graphics_draw_text(ctx,
@@ -326,66 +341,66 @@ int CurrentWeather_getHeight() {
 }
 
 void CurrentWeather_draw(GContext* ctx, int yPosition) {
-  //
-  // if(!globalSettings.disableWeather) {
-  //   if (Weather_currentWeatherIcon) {
-  //     #ifdef PBL_COLOR
-  //       gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, 7));
-  //     #else
-  //       graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, 7, 25, 25));
-  //     #endif
-  //   }
-  //
-  //   // draw weather data only if it has been set
-  //   if(Weather_weatherInfo.currentTemp != INT32_MIN) {
-  //
-  //     int currentTemp = Weather_weatherInfo.currentTemp;
-  //
-  //     if(!globalSettings.useMetric) {
-  //       currentTemp = roundf(currentTemp * 1.8f + 32);
-  //     }
-  //
-  //     char tempString[8];
-  //
-  //     // in large font mode, omit the degree symbol and move the text
-  //     if(!globalSettings.useLargeFonts) {
-  //       snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
-  //
-  //       graphics_draw_text(ctx,
-  //                          tempString,
-  //                          currentSidebarFont,
-  //                          GRect(-5, 31, 38, 20),
-  //                          GTextOverflowModeFill,
-  //                          GTextAlignmentCenter,
-  //                          NULL);
-  //     } else {
-  //       snprintf(tempString, sizeof(tempString), " %d", currentTemp);
-  //
-  //       graphics_draw_text(ctx,
-  //                          tempString,
-  //                          currentSidebarFont,
-  //                          GRect(-5, 27, 35, 20),
-  //                          GTextOverflowModeFill,
-  //                          GTextAlignmentCenter,
-  //                          NULL);
-  //     }
-  //
-  //
-  //   }
-  // }
-  //
-  // // if the pebble is disconnected, display the disconnection image
-  // bool isPhoneConnected = bluetooth_connection_service_peek();
-  //
-  // if (!isPhoneConnected) {
-  //   if(disconnectImage) {
-  //     #ifdef PBL_COLOR
-  //       gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, 60));
-  //     #else
-  //       graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, 60, 25, 25));
-  //     #endif
-  //   }
-  // }
-  //
-  //
+
+  //TODO: maybe get rid of this eventually?
+  if(!globalSettings.disableWeather) {
+    if (Weather_currentWeatherIcon) {
+      #ifdef PBL_COLOR
+        gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, yPosition));
+      #else
+        graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, yPosition, 25, 25));
+      #endif
+    }
+
+    // draw weather data only if it has been set
+    if(Weather_weatherInfo.currentTemp != INT32_MIN) {
+
+      int currentTemp = Weather_weatherInfo.currentTemp;
+
+      if(!globalSettings.useMetric) {
+        currentTemp = roundf(currentTemp * 1.8f + 32);
+      }
+
+      char tempString[8];
+
+      // in large font mode, omit the degree symbol and move the text
+      if(!globalSettings.useLargeFonts) {
+        snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
+
+        graphics_draw_text(ctx,
+                           tempString,
+                           currentSidebarFont,
+                           GRect(-5, yPosition + 24, 38, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      } else {
+        snprintf(tempString, sizeof(tempString), " %d", currentTemp);
+
+        graphics_draw_text(ctx,
+                           tempString,
+                           currentSidebarFont,
+                           GRect(-5, yPosition + 20, 35, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      }
+
+
+    }
+  }
+}
+
+int BTDisconnect_getHeight() {
+  return 22;
+}
+
+void BTDisconnect_draw(GContext* ctx, int yPosition) {
+  if(disconnectImage) {
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, disconnectImage, GPoint(3, yPosition));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, yPosition, 25, 25));
+    #endif
+  }
 }

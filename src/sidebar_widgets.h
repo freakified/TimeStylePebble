@@ -14,8 +14,9 @@ extern bool SidebarWidgets_useCompactMode;
 typedef enum {
   EMPTY,
   ALT_TIME_ZONE,
-  DATE,
   BATTERY_METER,
+  BLUETOOTH_DISCONNECT,
+  DATE,
   SECONDS,
   WEATHER_CURRENT,
   WEATHER_FORECAST_TODAY,
