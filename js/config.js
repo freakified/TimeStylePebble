@@ -1,3 +1,4 @@
+var CURRENT_SETTINGS_VERSION = 4;
 
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
@@ -18,37 +19,54 @@ function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
 
+  // TODO: migrate the settings if the settings_version key isn't found
+
   if(!savedSettings) {
     // if there are no settings set, load the default settings
     savedSettings = {
-      battery_meter_setting: 'no',
-      bluetooth_vibe_setting: 'no',
-      clock_font_setting: 'default',
+      // color settings
       color_bg: '000000',
       color_sidebar: 'ff5500',
       color_time: 'ff5500',
-      disable_weather: 'no',
-      hourly_vibe_setting: 'no',
-      language_id: 0,
-      leading_zero_setting: 'no',
-      only_show_battery_when_low_setting: 'no',
-      sidebar_position: 'right',
       sidebar_text_color: '000000',
-      units: 'f',
+
+      // general settings
+      language_id: 0, // english
+      leading_zero_setting: 'no',
+      clock_font_setting: 'default',
+
+      // vibration settings
+      bluetooth_vibe_setting: 'no',
+      hourly_vibe_setting: 'no',
+
+      // sidebar settings
+      widget_0_id: '7', // current weather
+      widget_1_id: '0', // empty
+      widget_2_id: '4', // today's date
+      sidebar_position: 'right',
       use_large_sidebar_font_setting: 'no',
+
+      // weather widget settings
+      units: 'f',
       weather_loc: '',
-      weather_setting: 'auto'
+      weather_setting: 'auto',
+
+      // battery widget settings
+      only_show_battery_when_low_setting: 'no',
+      battery_meter_setting: 'icon-only',
+
+      // version key used for migrations
+      settings_version: CURRENT_SETTINGS_VERSION
     };
 
-    // also load the default color settings:
+    // load the color settings
     window.localStorage.setItem('time-color', savedSettings.color_time);
     window.localStorage.setItem('time-bg-color', savedSettings.color_bg);
     window.localStorage.setItem('sidebar-color', savedSettings.color_sidebar);
     window.localStorage.setItem('sidebar-text-color', savedSettings.sidebar_text_color);
   }
 
-  console.log(savedSettings);
-
+  // load checkbox settings
   loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
   loadSettingCheckbox('units_setting', savedSettings.units);
   loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
@@ -58,21 +76,27 @@ function loadPreviousSettings() {
   loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
   loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
   loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
-  loadSettingCheckbox('disable_weather', savedSettings.disable_weather);
   loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
 
+  // load weather location
   $('#weather_loc').val(savedSettings.weather_loc);
 
   if(savedSettings.weather_setting == 'manual') {
     $('#manual_weather_loc_setting_area').collapse('show');
   }
 
+  // load language selector
   if(savedSettings.language_id !== undefined) {
     $('#language_selection option[data-setting="' + savedSettings.language_id + '"]').prop('selected', true);
   }
 
+  // load sidebar widget settings
+  $('#widget_0_selector').val(savedSettings.widget_0_id);
+  $('#widget_1_selector').val(savedSettings.widget_1_id);
+  $('#widget_2_selector').val(savedSettings.widget_2_id);
 
-
+  // update the widget settings sections to only show ones that are relevant
+  showOnlySelectedWidgetSettings();
 }
 
 function loadLastUsedColors() {
@@ -132,6 +156,55 @@ function presetSelected() {
 }
 
 $('#preset_selector label.btn').on('click', presetSelected);
+
+// handle changes to the sidebar layout dropdowns
+function sidebarWidgetSelectionChanged() {
+  var newSelection = $(this).val();
+
+  // find out what the other selections were
+  var otherSelections;
+  var changedID = $(this).attr('id');
+
+  var otherSelections = $('#sidebar_layout_section select:not(#' + changedID + ')');
+
+  // when a widget is selected, make sure that no other dropdowns also contain
+  // that widget. if one does, set it to "none"
+  if(newSelection != 0) {
+    for (var i = 0; i < otherSelections.length; i++) {
+      if($(otherSelections[i]).val() == newSelection) {
+        $(otherSelections[i]).val(0);
+      }
+    }
+  }
+
+  showOnlySelectedWidgetSettings();
+}
+
+function showOnlySelectedWidgetSettings() {
+  // show only the settings that pertain to the selected widget set
+
+  var selections = Array();
+
+  $('#sidebar_layout_section select').each(function() {
+    selections.push($(this).val());
+  });
+
+  // if the battery widget is there, show its settings
+  if(selections.indexOf('2') != -1) {
+    $('#widget_battery_settings').show();
+  } else {
+    $('#widget_battery_settings').hide();
+  }
+
+  // if any of the weather widgets are there, show the weather-related settings
+  if(selections.indexOf('7') != -1 || selections.indexOf('8') != -1 || selections.indexOf('9') != -1) {
+    $('#widget_weather_settings').show();
+  } else {
+    $('#widget_weather_settings').hide();
+  }
+}
+
+$('#sidebar_layout_section select').on('change', sidebarWidgetSelectionChanged);
 
 function setFormHasChanges() {
   $('#toolbar_nochanges').addClass('hidden');
@@ -203,11 +276,6 @@ function sendSettingsToWatch() {
   var config = {};
 
   // for each setting, check if we need to send it
-  if($('#time-color').val()) {
-    config.color_time = $('#time-color').val().substr(1);
-    window.localStorage.setItem('time-color', config.color_time);
-  }
-
   if($('#time-bg-color').val()) {
     config.color_bg = $('#time-bg-color').val().substr(1);
     window.localStorage.setItem('time-bg-color', config.color_bg);
@@ -218,13 +286,46 @@ function sendSettingsToWatch() {
     window.localStorage.setItem('sidebar-color', config.color_sidebar);
   }
 
+  if($('#time-color').val()) {
+    config.color_time = $('#time-color').val().substr(1);
+    window.localStorage.setItem('time-color', config.color_time);
+  }
+
   if($('#sidebar-text-color').val()) {
     config.sidebar_text_color = $('#sidebar-text-color').val().substr(1);
     window.localStorage.setItem('sidebar-text-color', config.sidebar_text_color);
   }
 
+  if($('#language_selection option:selected').data('setting') != -1) {
+    config.language_id = $('#language_selection option:selected').data('setting');
+  }
+
+  if($('#time_leading_zero_setting .btn.active')) {
+    config.leading_zero_setting = $('#time_leading_zero_setting .btn.active').data('setting');
+  }
+
+  if($('#clock_font_setting .btn.active')) {
+    config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
+  }
+
+  if($('#bluetooth_vibe_setting .btn.active')) {
+    config.bluetooth_vibe_setting = $('#bluetooth_vibe_setting .btn.active').data('setting');
+  }
+
+  if($('#hourly_vibe_setting .btn.active')) {
+    config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
+  }
+
+  config.widget_0_id = $('#widget_0_selector').val();
+  config.widget_1_id = $('#widget_1_selector').val();
+  config.widget_2_id = $('#widget_2_selector').val();
+
   if($('#sidebar_position_setting .btn.active').size() > 0) {
     config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
+  }
+
+  if($('#use_large_sidebar_font_setting .btn.active')) {
+    config.use_large_sidebar_font_setting = $('#use_large_sidebar_font_setting .btn.active').data('setting');
   }
 
   if($('#units_setting .btn.active').size() > 0) {
@@ -237,47 +338,22 @@ function sendSettingsToWatch() {
     config.weather_setting = weather_setting;
 
     if(weather_setting == 'auto') {
-      config.disable_weather = 'no';
       config.weather_loc = '';
     } else if(weather_setting == 'manual') {
-      config.disable_weather = 'no';
       config.weather_loc = $('#weather_loc').val();
-    } else if(weather_setting == 'disable') {
-      config.disable_weather = 'yes';
     }
-  }
-
-  if($('#bluetooth_vibe_setting .btn.active')) {
-    config.bluetooth_vibe_setting = $('#bluetooth_vibe_setting .btn.active').data('setting');
-  }
-
-  if($('#language_selection option:selected').data('setting') != -1) {
-    config.language_id = $('#language_selection option:selected').data('setting');
-  }
-
-  if($('#battery_meter_setting .btn.active')) {
-    config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
   }
 
   if($('#only_show_battery_when_low_setting .btn.active')) {
     config.only_show_battery_when_low_setting = $('#only_show_battery_when_low_setting .btn.active').data('setting');
   }
 
-  if($('#time_leading_zero_setting .btn.active')) {
-    config.leading_zero_setting = $('#time_leading_zero_setting .btn.active').data('setting');
+  if($('#battery_meter_setting .btn.active')) {
+    config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
   }
 
-  if($('#clock_font_setting .btn.active')) {
-    config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
-  }
-
-  if($('#use_large_sidebar_font_setting .btn.active')) {
-    config.use_large_sidebar_font_setting = $('#use_large_sidebar_font_setting .btn.active').data('setting');
-  }
-
-  if($('#hourly_vibe_setting .btn.active')) {
-    config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
-  }
+  // add the version, in case we need to do more migrations
+  config.settings_version = CURRENT_SETTINGS_VERSION;
 
   // Save the configuration data to localStorage
   window.localStorage.setItem('savedSettings', JSON.stringify(config));

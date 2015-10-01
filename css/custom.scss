@@ -6,6 +6,11 @@
   white-space: normal;
 }
 
+.subtle {
+  font-weight: normal;
+  color: #666;
+}
+
 .example_face {
   width: 56px;
   height: 66px;
@@ -29,29 +34,6 @@
   &.sidebar_left {
     border-right: 0 none;
     border-left: 10px solid #FFFFFF;
-  }
-
-  &.with_battery_meter:after {
-    content: '';
-    position: absolute;
-    height: 10px;
-    width: 10px;
-    top: 25px;
-    right: -10px;
-    background: url('../images/battery_meter.png');
-    background-size: 10px 10px;
-  }
-
-  &.with_battery_pct:before {
-    content: '80%';
-    position: absolute;
-    height: 10px;
-    width: 10px;
-    top: 23px;
-    right: -10px;
-    font-size: 4px;
-    color: black;
-    font-weight: bold;
   }
 }
 
@@ -155,4 +137,60 @@
     margin: 2px 5px;
     width: 86px;
   }
+}
+
+#sidebar_layout_section {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+
+  .col:first-child {
+    width: 40px;
+  }
+
+  .col:nth-child(2) {
+    flex-grow: 1;
+    background: url('../images/lines.svg');
+    background-size: 100% 100%;
+    height: 155px;
+  }
+
+  .col:nth-child(3) {
+    flex-grow: 10;
+    margin-left: 10px;
+
+    select:nth-child(2) {
+      margin: 41px 0;
+    }
+  }
+
+  .col:nth-child(4) {
+    width: 40px;
+    margin-left: 10px;
+
+    button:nth-child(2) {
+      margin: 41px 0;
+    }
+  }
+}
+
+#sidebar_layout_preview {
+  height: 168px;
+  border: 2px solid black;
+  color: rgba(255,255,255,0.9);
+  font-size: 16px;
+  background-color: #FF5500;
+  width: 30px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget_preview {
+  flex-grow: 1;
+  text-align: center;
+  border: 1px dashed rgba(255,255,255,0.7);
+  background-color: rgba(255,255,255,0.2);
+  padding-top: 13px;
+  margin: 2px;
 }
