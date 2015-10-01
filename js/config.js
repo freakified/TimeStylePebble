@@ -49,8 +49,8 @@ function loadPreviousSettings() {
     savedSettings = {
       // color settings
       color_bg: '000000',
-      color_sidebar: 'ff5500',
-      color_time: 'ff5500',
+      color_sidebar: 'FF5500',
+      color_time: 'FF5500',
       sidebar_text_color: '000000',
 
       // general settings
@@ -87,7 +87,17 @@ function loadPreviousSettings() {
     window.localStorage.setItem('time-bg-color', savedSettings.color_bg);
     window.localStorage.setItem('sidebar-color', savedSettings.color_sidebar);
     window.localStorage.setItem('sidebar-text-color', savedSettings.sidebar_text_color);
+
   }
+
+  // try to highlight the selected preset, if possible
+  $("#preset_selector label[data-time-color='#" + savedSettings.color_time.toLowerCase() + "']" +
+                          "[data-time-bg-color='#" + savedSettings.color_bg.toLowerCase() + "']" +
+                          "[data-sidebar-color='#" + savedSettings.color_sidebar.toLowerCase() + "']"
+  ).each(function() {
+    $(this).addClass('active');
+    $(this).children('input').attr('checked', true);
+  });
 
   // load checkbox settings
   loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
