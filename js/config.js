@@ -15,11 +15,34 @@ function loadSettingCheckbox(elementID, setting) {
   }
 }
 
+// populates the sidebar widgets for someone with pre-widget saved settings
+function migrateLegacySettings(config) {
+
+  if(config.disable_weather != "yes") {
+    // if the weather is enabled, it goes on top
+    config.widget_0_id = '7';
+    config.widget_1_id = (config.battery_meter_setting != 'no') ? '2' : '0';
+  } else {
+    // if the weather is disabled, the battery meter goes on top
+    config.widget_0_id = (config.battery_meter_setting != 'no') ? '2' : '0';
+    config.widget_1_id = '0';
+  }
+
+  // the third widget is always the date
+  config.widget_2_id = '4';
+
+  return config;
+}
+
 function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
 
-  // TODO: migrate the settings if the settings_version key isn't found
+
+  // if savedsettings exists but doesn't contain a version flag, it must be upgraded
+  if(savedSettings && !savedSettings.settings_version) {
+    savedSettings = migrateLegacySettings(savedSettings);
+  }
 
   if(!savedSettings) {
     // if there are no settings set, load the default settings
