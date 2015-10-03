@@ -31,6 +31,7 @@ GFont batteryFont;
 char currentDayName[8];
 char currentDayNum[8];
 char currentMonth[8];
+char currentWeekNum[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -52,6 +53,10 @@ void CurrentWeather_draw(GContext* ctx, int yPosition);
 SidebarWidget btDisconnectWidget;
 int BTDisconnect_getHeight();
 void BTDisconnect_draw(GContext* ctx, int yPosition);
+
+SidebarWidget weekNumberWidget;
+int WeekNumber_getHeight();
+void WeekNumber_draw(GContext* ctx, int yPosition);
 
 void SidebarWidgets_init() {
   // load fonts
@@ -88,6 +93,9 @@ void SidebarWidgets_init() {
   btDisconnectWidget.getHeight = BTDisconnect_getHeight;
   btDisconnectWidget.draw      = BTDisconnect_draw;
 
+  weekNumberWidget.getHeight = WeekNumber_getHeight;
+  weekNumberWidget.draw      = WeekNumber_draw;
+
 }
 
 void SidebarWidgets_deinit() {
@@ -116,7 +124,9 @@ void SidebarWidgets_updateFonts() {
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set all the date strings
+
   strftime(currentDayNum,  3, "%e", timeInfo);
+  strftime(currentWeekNum, 3, "%U", timeInfo);
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
@@ -143,6 +153,8 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     case WEATHER_CURRENT:
       return currentWeatherWidget;
       break;
+    case WEEK_NUMBER:
+      return weekNumberWidget;
     default:
       return emptyWidget;
       break;
@@ -406,5 +418,41 @@ void BTDisconnect_draw(GContext* ctx, int yPosition) {
     #else
       graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3, yPosition, 25, 25));
     #endif
+  }
+}
+
+/***** Week Number Widget *****/
+
+int WeekNumber_getHeight() {
+  return (globalSettings.useLargeFonts) ? 27 : 25;
+}
+
+void WeekNumber_draw(GContext* ctx, int yPosition) {
+  // note that it draws "above" the y position to correct for
+  // the vertical padding
+  graphics_draw_text(ctx,
+                     wordForWeek[globalSettings.languageId],
+                     smSidebarFont,
+                     GRect(0, yPosition - 4, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  if(!globalSettings.useLargeFonts) {
+    graphics_draw_text(ctx,
+                       currentWeekNum,
+                       mdSidebarFont,
+                       GRect(0, yPosition + 8, 30, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  } else {
+    graphics_draw_text(ctx,
+                       currentWeekNum,
+                       lgSidebarFont,
+                       GRect(0, yPosition + 4, 30, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
   }
 }

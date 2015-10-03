@@ -71,3 +71,29 @@ static char monthNames[21][12][8] = {
 	{"URT", "OTS", "MAR", "API", "MAI", "EKA", "UZT", "ABU", "IRA", "URR", "AZA", "ABE"},
 	{"TAM", "HEL", "MAA", "HUH", "TOU", "KES", "HEI", "ELO", "SYY", "LOK", "MAR", "JOU"}
 };
+
+// all of these are taken from:
+// http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
+static char wordForWeek[21][12] = {
+	"Wk",
+	"Sem",
+	"W",
+	"Sem",
+	"Sett",
+	"Wk",
+	"Hf",
+	"Týd",
+	"Sem",
+	"εβδ",
+	"V",
+	"Tydz"
+	"Týž",
+	"Tuần",
+	"Săpt",
+	"Setm",
+	"Uke",
+	"нед",
+	"Näd",
+	"Ast",
+	"Vk"
+};
