@@ -9,19 +9,20 @@
 extern bool SidebarWidgets_useCompactMode;
 
 /*
- * The different types of sidebar widgets
+ * The different types of sidebar widgets:
+ * we'll give them numbers so that we can index them in settings
  */
 typedef enum {
-  EMPTY,
-  ALT_TIME_ZONE,
-  BATTERY_METER,
-  BLUETOOTH_DISCONNECT,
-  DATE,
-  SECONDS,
-  WEATHER_CURRENT,
-  WEATHER_FORECAST_TODAY,
-  WEATHER_FORECAST_TOMORROW,
-  WEEK_NUMBER
+  EMPTY                     = 0,
+  BLUETOOTH_DISCONNECT      = 1,
+  BATTERY_METER             = 2,
+  ALT_TIME_ZONE             = 3,
+  DATE                      = 4,
+  SECONDS                   = 5,
+  WEEK_NUMBER               = 6,
+  WEATHER_CURRENT           = 7,
+  WEATHER_FORECAST_TODAY    = 8,
+  WEATHER_FORECAST_TOMORROW = 9
 } SidebarWidgetType;
 
 typedef struct {

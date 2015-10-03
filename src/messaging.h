@@ -1,9 +1,6 @@
 #pragma once
 #include <pebble.h>
 
-// #define KEY_LOCATION_LAT           0
-// #define KEY_LOCATION_LNG           1
-// #define KEY_GMT_OFFSET             2
 #define KEY_TEMPERATURE                 3
 #define KEY_CONDITION_CODE              4
 #define KEY_USE_NIGHT_ICON              5
@@ -15,7 +12,6 @@
 #define KEY_SETTING_BT_VIBE             11
 #define KEY_SETTING_SIDEBAR_TEXT_COLOR  12
 #define KEY_SETTING_LANGUAGE_ID         13
-#define KEY_SETTING_SHOW_BATTERY_METER  14
 #define KEY_SETTING_SHOW_LEADING_ZERO   15
 #define KEY_SETTING_SHOW_BATTERY_PCT    16
 #define KEY_SETTING_DISABLE_WEATHER     17
@@ -23,6 +19,9 @@
 #define KEY_SETTING_HOURLY_VIBE         19
 #define KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW 20
 #define KEY_SETTING_USE_LARGE_FONTS     21
+#define KEY_WIDGET_0_ID                 22
+#define KEY_WIDGET_1_ID                 23
+#define KEY_WIDGET_2_ID                 24
 
 void messaging_requestNewWeatherData();
 

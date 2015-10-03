@@ -76,27 +76,25 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
   bool isPhoneConnected = bluetooth_connection_service_peek();
   // isPhoneConnected = false;
 
-  SidebarWidget topWidget = getSidebarWidgetByType(WEATHER_CURRENT);
-  SidebarWidget middleWidget = getSidebarWidgetByType(BATTERY_METER);
-  SidebarWidget lowerWidget = getSidebarWidgetByType(DATE);
+  SidebarWidget topWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
+  SidebarWidget middleWidget = getSidebarWidgetByType(globalSettings.widgets[1]);
+  SidebarWidget lowerWidget = getSidebarWidgetByType(globalSettings.widgets[2]);
 
+  // if the phone is disconnected, replace the center widget with the BT disconnection indication
+  if(!isPhoneConnected) {
+    middleWidget = getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
+  }
+
+  // calculate the three widget positions
   int topWidgetPos = V_PADDING;
   int lowerWidgetPos = SCREEN_HEIGHT - V_PADDING - lowerWidget.getHeight();
 
   // vertically center the middle widget using MATH
   int middleWidgetPos = ((lowerWidgetPos - middleWidget.getHeight()) + (topWidgetPos + topWidget.getHeight())) / 2;
 
-  // top widget
+  // draw the widgets
   topWidget.draw(ctx, topWidgetPos);
-
-  // middle widget
-  if (isPhoneConnected) {
-    middleWidget.draw(ctx, middleWidgetPos);
-  } else {
-    getSidebarWidgetByType(BLUETOOTH_DISCONNECT).draw(ctx, 57);
-  }
-
-  // bottom widget
+  middleWidget.draw(ctx, middleWidgetPos);
   lowerWidget.draw(ctx, lowerWidgetPos);
 
 }

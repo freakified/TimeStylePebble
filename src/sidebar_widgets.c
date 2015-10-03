@@ -342,52 +342,56 @@ int CurrentWeather_getHeight() {
 
 void CurrentWeather_draw(GContext* ctx, int yPosition) {
 
-  //TODO: maybe get rid of this eventually?
-  if(!globalSettings.disableWeather) {
-    if (Weather_currentWeatherIcon) {
-      #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, yPosition));
-      #else
-        graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, yPosition, 25, 25));
-      #endif
+  if (Weather_currentWeatherIcon) {
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3, yPosition));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3, yPosition, 25, 25));
+    #endif
+  }
+
+  // draw weather data only if it has been set
+  if(Weather_weatherInfo.currentTemp != INT32_MIN) {
+
+    int currentTemp = Weather_weatherInfo.currentTemp;
+
+    if(!globalSettings.useMetric) {
+      currentTemp = roundf(currentTemp * 1.8f + 32);
     }
 
-    // draw weather data only if it has been set
-    if(Weather_weatherInfo.currentTemp != INT32_MIN) {
+    char tempString[8];
 
-      int currentTemp = Weather_weatherInfo.currentTemp;
+    // in large font mode, omit the degree symbol and move the text
+    if(!globalSettings.useLargeFonts) {
+      snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
 
-      if(!globalSettings.useMetric) {
-        currentTemp = roundf(currentTemp * 1.8f + 32);
-      }
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 24, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    } else {
+      snprintf(tempString, sizeof(tempString), " %d", currentTemp);
 
-      char tempString[8];
-
-      // in large font mode, omit the degree symbol and move the text
-      if(!globalSettings.useLargeFonts) {
-        snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
-
-        graphics_draw_text(ctx,
-                           tempString,
-                           currentSidebarFont,
-                           GRect(-5, yPosition + 24, 38, 20),
-                           GTextOverflowModeFill,
-                           GTextAlignmentCenter,
-                           NULL);
-      } else {
-        snprintf(tempString, sizeof(tempString), " %d", currentTemp);
-
-        graphics_draw_text(ctx,
-                           tempString,
-                           currentSidebarFont,
-                           GRect(-5, yPosition + 20, 35, 20),
-                           GTextOverflowModeFill,
-                           GTextAlignmentCenter,
-                           NULL);
-      }
-
-
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 20, 35, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
     }
+  } else {
+    // if the weather data isn't set, draw a loading indication
+    graphics_draw_text(ctx,
+                       "...",
+                       currentSidebarFont,
+                       GRect(-5, yPosition, 38, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
   }
 }
 

@@ -24,13 +24,11 @@ function locationError(err) {
 
 function locationSuccess(pos) {
   // Construct URL
-
-
   var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
       encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
       pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R") and u="c" ') + '&format=json';
 
-  // console.log(url);
+  console.log(url);
 
   getAndSendWeatherData(url);
 }
@@ -137,10 +135,10 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  // var colorConfigURL = 'http://192.168.0.105:4000/config_color.html';
-  // var bwConfigURL = 'http://192.168.0.105:4000/config_bw.html';
-  var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
-  var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
+  var colorConfigURL = 'http://192.168.1.106:4000/config_color.html';
+  var bwConfigURL = 'http://192.168.1.106:4000/config_bw.html';
+  // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
+  // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
   var watch;
 
@@ -173,18 +171,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     console.log("Config data recieved!" + JSON.stringify(configData));
 
-    // weather location can be placed into window.localStorage
-    if(configData.weather_loc !== undefined) {
-      window.localStorage.setItem('weather_loc', configData.weather_loc);
-    }
-
     // prepare a structure to hold everything we'll send to the watch
     var dict = {};
 
-    if(configData.color_time) {
-      dict.KEY_SETTING_COLOR_TIME = parseInt(configData.color_time, 16);
-    }
-
+    // color settings
     if(configData.color_bg) {
       dict.KEY_SETTING_COLOR_BG = parseInt(configData.color_bg, 16);
     }
@@ -193,62 +183,17 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict.KEY_SETTING_COLOR_SIDEBAR = parseInt(configData.color_sidebar, 16);
     }
 
+    if(configData.color_time) {
+      dict.KEY_SETTING_COLOR_TIME = parseInt(configData.color_time, 16);
+    }
+
     if(configData.sidebar_text_color) {
       dict.KEY_SETTING_SIDEBAR_TEXT_COLOR = parseInt(configData.sidebar_text_color, 16);
     }
 
-    if(configData.sidebar_position) {
-      if(configData.sidebar_position == 'right') {
-        dict.KEY_SETTING_SIDEBAR_LEFT = 0;
-      } else {
-        dict.KEY_SETTING_SIDEBAR_LEFT = 1;
-      }
-    }
-
-    if(configData.units) {
-      if(configData.units == 'c') {
-        dict.KEY_SETTING_USE_METRIC = 1;
-      } else {
-        dict.KEY_SETTING_USE_METRIC = 0;
-      }
-    }
-
-    if(configData.bluetooth_vibe_setting) {
-      if(configData.bluetooth_vibe_setting == 'yes') {
-        dict.KEY_SETTING_BT_VIBE = 1;
-      } else {
-        dict.KEY_SETTING_BT_VIBE = 0;
-      }
-    }
-
-    if(configData.hourly_vibe_setting) {
-      if(configData.hourly_vibe_setting == 'yes') {
-        dict.KEY_SETTING_HOURLY_VIBE = 1;
-      } else if (configData.hourly_vibe_setting == 'half') {
-        dict.KEY_SETTING_HOURLY_VIBE = 2;
-      } else {
-        dict.KEY_SETTING_HOURLY_VIBE = 0;
-      }
-    }
-
-    if(configData.battery_meter_setting) {
-      if(configData.battery_meter_setting == 'yes-with-pct') {
-        dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
-        dict.KEY_SETTING_SHOW_BATTERY_PCT = 1;
-      } else if(configData.battery_meter_setting == 'yes') {
-        dict.KEY_SETTING_SHOW_BATTERY_METER = 1;
-        dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
-      } else {
-        dict.KEY_SETTING_SHOW_BATTERY_METER = 0;
-      }
-    }
-
-    if(configData.only_show_battery_when_low_setting) {
-      if(configData.only_show_battery_when_low_setting == 'yes') {
-        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 1;
-      } else {
-        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 0;
-      }
+    // general options
+    if(configData.language_id !== undefined) {
+      dict.KEY_SETTING_LANGUAGE_ID = configData.language_id;
     }
 
     if(configData.leading_zero_setting) {
@@ -267,6 +212,38 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    // vibration settings
+    if(configData.bluetooth_vibe_setting) {
+      if(configData.bluetooth_vibe_setting == 'yes') {
+        dict.KEY_SETTING_BT_VIBE = 1;
+      } else {
+        dict.KEY_SETTING_BT_VIBE = 0;
+      }
+    }
+
+    if(configData.hourly_vibe_setting) {
+      if(configData.hourly_vibe_setting == 'yes') {
+        dict.KEY_SETTING_HOURLY_VIBE = 1;
+      } else if (configData.hourly_vibe_setting == 'half') {
+        dict.KEY_SETTING_HOURLY_VIBE = 2;
+      } else {
+        dict.KEY_SETTING_HOURLY_VIBE = 0;
+      }
+    }
+
+    // sidebar settings
+    dict.KEY_WIDGET_0_ID = configData.widget_0_id;
+    dict.KEY_WIDGET_1_ID = configData.widget_1_id;
+    dict.KEY_WIDGET_2_ID = configData.widget_2_id;
+
+    if(configData.sidebar_position) {
+      if(configData.sidebar_position == 'right') {
+        dict.KEY_SETTING_SIDEBAR_LEFT = 0;
+      } else {
+        dict.KEY_SETTING_SIDEBAR_LEFT = 1;
+      }
+    }
+
     if(configData.use_large_sidebar_font_setting) {
       if(configData.use_large_sidebar_font_setting == 'yes') {
         dict.KEY_SETTING_USE_LARGE_FONTS = 1;
@@ -275,18 +252,35 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
-    if(configData.disable_weather) {
-      if(configData.disable_weather == 'yes') {
-        dict.KEY_SETTING_DISABLE_WEATHER = 1;
-        window.localStorage.setItem('disable_weather', 'yes');
+    // weather widget settings
+    if(configData.units) {
+      if(configData.units == 'c') {
+        dict.KEY_SETTING_USE_METRIC = 1;
       } else {
-        dict.KEY_SETTING_DISABLE_WEATHER = 0;
-        window.localStorage.setItem('disable_weather', 'no');
+        dict.KEY_SETTING_USE_METRIC = 0;
       }
     }
 
-    if(configData.language_id !== undefined) {
-      dict.KEY_SETTING_LANGUAGE_ID = configData.language_id;
+    if(configData.weather_loc !== undefined) {
+      // weather location can be placed into window.localStorage
+      window.localStorage.setItem('weather_loc', configData.weather_loc);
+    }
+
+    // battery widget settings
+    if(configData.only_show_battery_when_low_setting) {
+      if(configData.only_show_battery_when_low_setting == 'yes') {
+        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 1;
+      } else {
+        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 0;
+      }
+    }
+
+    if(configData.battery_meter_setting) {
+      if(configData.battery_meter_setting == 'icon-and-percent') {
+        dict.KEY_SETTING_SHOW_BATTERY_PCT = 1;
+      } else if(configData.battery_meter_setting == 'icon-only') {
+        dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
+      }
     }
 
     console.log('Preparing message: ', JSON.stringify(dict));

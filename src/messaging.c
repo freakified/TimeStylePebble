@@ -54,7 +54,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
   Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
   Tuple *language_tuple = dict_find(iterator, KEY_SETTING_LANGUAGE_ID);
-  Tuple *batteryMeter_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_METER);
   Tuple *leadingZero_tuple = dict_find(iterator, KEY_SETTING_SHOW_LEADING_ZERO);
   Tuple *batteryPct_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_PCT);
   Tuple *disableWeather_tuple = dict_find(iterator, KEY_SETTING_DISABLE_WEATHER);
@@ -62,6 +61,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *hourlyVibe_tuple = dict_find(iterator, KEY_SETTING_HOURLY_VIBE);
   Tuple *onlyShowBatteryWhenLow_tuple = dict_find(iterator, KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW);
   Tuple *useLargeFonts_tuple = dict_find(iterator, KEY_SETTING_USE_LARGE_FONTS);
+
+  Tuple *widget0Id_tuple = dict_find(iterator, KEY_WIDGET_0_ID);
+  Tuple *widget1Id_tuple = dict_find(iterator, KEY_WIDGET_1_ID);
+  Tuple *widget2Id_tuple = dict_find(iterator, KEY_WIDGET_2_ID);
 
   if(timeColor_tuple != NULL) {
     #ifdef PBL_COLOR
@@ -107,10 +110,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     globalSettings.btVibe = (bool)btVibe_tuple->value->int8;
   }
 
-  if(batteryMeter_tuple != NULL) {
-    globalSettings.showBatteryLevel = (bool)batteryMeter_tuple->value->int8;
-  }
-
   if(leadingZero_tuple != NULL) {
     globalSettings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
   }
@@ -142,6 +141,24 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   if(language_tuple != NULL) {
     globalSettings.languageId = language_tuple->value->int8;
   }
+
+  if(language_tuple != NULL) {
+    globalSettings.languageId = language_tuple->value->int8;
+  }
+
+  if(widget0Id_tuple != NULL) {
+    globalSettings.widgets[0] = widget0Id_tuple->value->int8;
+  }
+
+  if(widget1Id_tuple != NULL) {
+    globalSettings.widgets[1] = widget1Id_tuple->value->int8;
+  }
+
+  if(widget2Id_tuple != NULL) {
+    globalSettings.widgets[2] = widget2Id_tuple->value->int8;
+  }
+
+  printf("widget 0  %i, 1: %i, 2: %i", globalSettings.widgets[0], globalSettings.widgets[1], globalSettings.widgets[2]);
 
   // notify the main screen, in case something changed
   message_processed_callback();
