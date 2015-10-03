@@ -158,7 +158,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     globalSettings.widgets[2] = widget2Id_tuple->value->int8;
   }
 
-  printf("widget 0  %i, 1: %i, 2: %i", globalSettings.widgets[0], globalSettings.widgets[1], globalSettings.widgets[2]);
+  // printf("widget 0  %i, 1: %i, 2: %i", globalSettings.widgets[0], globalSettings.widgets[1], globalSettings.widgets[2]);
 
   // notify the main screen, in case something changed
   message_processed_callback();
