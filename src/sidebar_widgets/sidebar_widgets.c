@@ -32,6 +32,7 @@ char currentDayName[8];
 char currentDayNum[8];
 char currentMonth[8];
 char currentWeekNum[8];
+char currentSecondsNum[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -57,6 +58,10 @@ void BTDisconnect_draw(GContext* ctx, int yPosition);
 SidebarWidget weekNumberWidget;
 int WeekNumber_getHeight();
 void WeekNumber_draw(GContext* ctx, int yPosition);
+
+SidebarWidget secondsWidget;
+int Seconds_getHeight();
+void Seconds_draw(GContext* ctx, int yPosition);
 
 void SidebarWidgets_init() {
   // load fonts
@@ -96,6 +101,9 @@ void SidebarWidgets_init() {
   weekNumberWidget.getHeight = WeekNumber_getHeight;
   weekNumberWidget.draw      = WeekNumber_draw;
 
+  secondsWidget.getHeight = Seconds_getHeight;
+  secondsWidget.draw      = Seconds_draw;
+
 }
 
 void SidebarWidgets_deinit() {
@@ -124,9 +132,11 @@ void SidebarWidgets_updateFonts() {
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set all the date strings
-
   strftime(currentDayNum,  3, "%e", timeInfo);
   strftime(currentWeekNum, 3, "%U", timeInfo);
+
+  // set the seconds string
+  strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
@@ -149,6 +159,9 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case DATE:
       return dateWidget;
+      break;
+    case SECONDS:
+      return secondsWidget;
       break;
     case WEATHER_CURRENT:
       return currentWeatherWidget;
@@ -407,6 +420,8 @@ void CurrentWeather_draw(GContext* ctx, int yPosition) {
   }
 }
 
+/***** Bluetooth Disconnection Widget *****/
+
 int BTDisconnect_getHeight() {
   return 22;
 }
@@ -455,4 +470,22 @@ void WeekNumber_draw(GContext* ctx, int yPosition) {
                        GTextAlignmentCenter,
                        NULL);
   }
+}
+
+/***** Seconds Widget *****/
+
+int Seconds_getHeight() {
+  return 14;
+}
+
+void Seconds_draw(GContext* ctx, int yPosition) {
+
+
+  graphics_draw_text(ctx,
+                     currentSecondsNum,
+                     lgSidebarFont,
+                     GRect(0, yPosition - 10, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
 }

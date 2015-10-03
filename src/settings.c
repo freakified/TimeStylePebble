@@ -4,7 +4,6 @@
 Settings globalSettings;
 
 void Settings_migrateLegacySidebar();
-void Settings_updateWeatherDisabledSetting();
 
 void Settings_init() {
   // first, check if we have any saved settings
@@ -62,8 +61,6 @@ void Settings_loadFromStorage() {
     globalSettings.widgets[2] = DATE;
   }
 
-  Settings_updateWeatherDisabledSetting();
-
   // load the rest of the settings, using default settings if none exist
   // all settings except colors automatically return "0" or "false" if
   // they haven't been set yet, so we don't need to check if they exist
@@ -78,11 +75,13 @@ void Settings_loadFromStorage() {
   globalSettings.hourlyVibe             = persist_read_int(SETTING_HOURLY_VIBE_KEY);
   globalSettings.onlyShowBatteryWhenLow = persist_read_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY);
   globalSettings.useLargeFonts          = persist_read_bool(SETTING_USE_LARGE_FONTS_KEY);
+
+  Settings_updateDynamicSettings();
 }
 
 void Settings_saveToStorage() {
   // ensure that the weather disabled setting is accurate before saving it
-  Settings_updateWeatherDisabledSetting();
+  Settings_updateDynamicSettings();
 
   // save settings to persistent storage
   persist_write_data(SETTING_TIME_COLOR_KEY,            &globalSettings.timeColor,        sizeof(GColor));
@@ -139,18 +138,23 @@ void Settings_migrateLegacySidebar() {
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
 }
 
-// changes the disableWeather setting to true or false, depending on
-// if there are any weather-related sidebar widgets
-void Settings_updateWeatherDisabledSetting() {
+
+void Settings_updateDynamicSettings() {
   globalSettings.disableWeather = true;
+  globalSettings.updateScreenEverySecond = false;
 
   for(int i = 0; i < 3; i++) {
+    // if there are any weather widgets, enable weather checking
     if(globalSettings.widgets[i] == WEATHER_CURRENT ||
        globalSettings.widgets[i] == WEATHER_FORECAST_TODAY ||
        globalSettings.widgets[i] == WEATHER_FORECAST_TOMORROW) {
 
       globalSettings.disableWeather = false;
-      break;
+    }
+
+    // if any widget is "seconds", we'll need to update the sidebar every second
+    if(globalSettings.widgets[i] == SECONDS) {
+      globalSettings.updateScreenEverySecond = true;
     }
   }
 }

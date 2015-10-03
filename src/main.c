@@ -11,8 +11,17 @@ static Window* mainWindow;
 // current bluetooth state
 static bool isPhoneConnected;
 
+// current time service subscription
+static bool updatingEverySecond;
+
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
+
+void update_clock();
+void redrawScreen();
+void tick_handler(struct tm *tick_time, TimeUnits units_changed);
+void bluetoothStateChanged(bool newConnectionState);
+
 
 void update_clock() {
   time_t rawTime;
@@ -51,6 +60,18 @@ void update_clock() {
 
 /* forces everything on screen to be redrawn -- perfect for keeping track of settings! */
 void redrawScreen() {
+
+  // check if the tick handler frequency should be changed
+  if(globalSettings.updateScreenEverySecond != updatingEverySecond) {
+    tick_timer_service_unsubscribe();
+
+    if(globalSettings.updateScreenEverySecond) {
+      tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+    } else {
+      tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+    }
+  }
+
   // maybe the colors changed!
   for(int i = 0; i < 4; i++) {
     ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
@@ -102,6 +123,7 @@ static void main_window_unload(Window *window) {
 }
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+
   // every 30 minutes, request new weather data
   if(!globalSettings.disableWeather) {
     if(tick_time->tm_min % 30 == 0) {
@@ -126,7 +148,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_clock();
 }
 
-void bluetoothStateChanged(bool newConnectionState){
+void bluetoothStateChanged(bool newConnectionState) {
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
   if(isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
@@ -178,7 +200,13 @@ static void init() {
   window_stack_push(mainWindow, true);
 
   // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  if(globalSettings.updateScreenEverySecond) {
+    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+    updatingEverySecond = true;
+  } else {
+    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+    updatingEverySecond = false;
+  }
 
   bool connected = bluetooth_connection_service_peek();
   bluetoothStateChanged(connected);

@@ -30,12 +30,15 @@ typedef struct {
   bool useLargeFonts;
 
   // weather widget settings
-  bool disableWeather;
   bool useMetric;
 
   // battery meter widget settings
   bool showBatteryPct;
   bool onlyShowBatteryWhenLow;
+
+  // dynamic settings (calculated based the currently-selected widgets)
+  bool disableWeather;
+  bool updateScreenEverySecond;
 } Settings;
 
 extern Settings globalSettings;
@@ -79,3 +82,4 @@ void Settings_init();
 void Settings_deinit();
 void Settings_loadFromStorage();
 void Settings_saveToStorage();
+void Settings_updateDynamicSettings();
