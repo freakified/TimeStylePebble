@@ -1,6 +1,6 @@
 #pragma once
 #include <pebble.h>
-#include "sidebar_widgets.h"
+#include "sidebar_widgets/sidebar_widgets.h"
 
 #define LEGACY_SETTINGS_PERSIST_KEY 3
 #define SETTINGS_VERSION_KEY 4
