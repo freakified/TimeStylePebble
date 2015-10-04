@@ -178,11 +178,11 @@ void batteryStateChanged(BatteryChargeState charge_state) {
 static void init() {
   setlocale(LC_ALL, "");
 
-  // init weather system
-  Weather_init();
-
   // init settings
   Settings_init();
+
+  // init weather system
+  Weather_init();
 
   // init the messaging thing
   messaging_init(redrawScreen);

@@ -13,7 +13,6 @@ void messaging_requestNewWeatherData() {
   app_message_outbox_send();
 }
 
-
 void messaging_init(void (*processed_callback)(void)) {
   // register my custom callback
   message_processed_callback = processed_callback;
@@ -37,12 +36,23 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
   Tuple *weatherIsNight_tuple = dict_find(iterator, KEY_USE_NIGHT_ICON);
 
+  // forecast info
+  Tuple *weatherForecastCondition_tuple = dict_find(iterator, KEY_FORECAST_CONDITION);
+  Tuple *weatherForecastHigh_tuple = dict_find(iterator, KEY_FORECAST_TEMP_HIGH);
+  Tuple *weatherForecastLow_tuple = dict_find(iterator, KEY_FORECAST_TEMP_LOW);
+
   if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL && weatherIsNight_tuple != NULL) {
     bool isNight = (bool)weatherIsNight_tuple->value->int32;
 
     // now set the weather conditions properly
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
-    Weather_setCondition(weatherConditions_tuple->value->int32, isNight);
+    Weather_weatherForecast.highTemp = (int)weatherForecastHigh_tuple->value->int32;
+    Weather_weatherForecast.lowTemp = (int)weatherForecastLow_tuple->value->int32;
+
+    Weather_setConditions(weatherConditions_tuple->value->int32, isNight,
+                          weatherForecastCondition_tuple->value->int32);
+
+    Weather_saveData();
   }
 
   // does this message contain new config information?

@@ -51,6 +51,10 @@ SidebarWidget currentWeatherWidget;
 int CurrentWeather_getHeight();
 void CurrentWeather_draw(GContext* ctx, int yPosition);
 
+SidebarWidget weatherForecastWidget;
+int WeatherForecast_getHeight();
+void WeatherForecast_draw(GContext* ctx, int yPosition);
+
 SidebarWidget btDisconnectWidget;
 int BTDisconnect_getHeight();
 void BTDisconnect_draw(GContext* ctx, int yPosition);
@@ -94,6 +98,9 @@ void SidebarWidgets_init() {
 
   currentWeatherWidget.getHeight = CurrentWeather_getHeight;
   currentWeatherWidget.draw      = CurrentWeather_draw;
+
+  weatherForecastWidget.getHeight = WeatherForecast_getHeight;
+  weatherForecastWidget.draw      = WeatherForecast_draw;
 
   btDisconnectWidget.getHeight = BTDisconnect_getHeight;
   btDisconnectWidget.draw      = BTDisconnect_draw;
@@ -165,6 +172,9 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case WEATHER_CURRENT:
       return currentWeatherWidget;
+      break;
+    case WEATHER_FORECAST_TODAY:
+      return weatherForecastWidget;
       break;
     case WEEK_NUMBER:
       return weekNumberWidget;
@@ -479,8 +489,6 @@ int Seconds_getHeight() {
 }
 
 void Seconds_draw(GContext* ctx, int yPosition) {
-
-
   graphics_draw_text(ctx,
                      currentSecondsNum,
                      lgSidebarFont,
@@ -488,4 +496,96 @@ void Seconds_draw(GContext* ctx, int yPosition) {
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+}
+
+/***** Weather Forecast Widget *****/
+
+int WeatherForecast_getHeight() {
+  if(globalSettings.useLargeFonts) {
+    return 63;
+  } else {
+    return 60;
+  }
+}
+
+void WeatherForecast_draw(GContext* ctx, int yPosition) {
+  if(Weather_forecastWeatherIcon) {
+    #ifdef PBL_COLOR
+      gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3, yPosition));
+    #else
+      graphics_draw_bitmap_in_rect(ctx, Weather_forecastWeatherIcon, GRect(3, yPosition, 25, 25));
+    #endif
+  }
+
+  // draw weather data only if it has been set
+  if(Weather_weatherForecast.highTemp != INT32_MIN) {
+
+    int highTemp = Weather_weatherForecast.highTemp;
+    int lowTemp  = Weather_weatherForecast.lowTemp;
+
+    if(!globalSettings.useMetric) {
+      highTemp = roundf(highTemp * 1.8f + 32);
+      lowTemp  = roundf(lowTemp * 1.8f + 32);
+    }
+
+    char tempString[8];
+
+    graphics_context_set_fill_color(ctx, globalSettings.sidebarTextColor);
+
+    // in large font mode, omit the degree symbol and move the text
+    if(!globalSettings.useLargeFonts) {
+      snprintf(tempString, sizeof(tempString), " %d°", highTemp);
+
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 24, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+
+      graphics_fill_rect(ctx, GRect(3, 8 + yPosition + 37, 24, 1), 0, GCornerNone);
+
+      snprintf(tempString, sizeof(tempString), " %d°", lowTemp);
+
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 42, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    } else {
+      snprintf(tempString, sizeof(tempString), " %d", highTemp);
+
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 20, 35, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+
+      graphics_fill_rect(ctx, GRect(3, 8 + yPosition + 38, 24, 1), 0, GCornerNone);
+
+      snprintf(tempString, sizeof(tempString), " %d", lowTemp);
+
+      graphics_draw_text(ctx,
+                         tempString,
+                         currentSidebarFont,
+                         GRect(-5, yPosition + 39, 35, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    }
+  } else {
+    // if the weather data isn't set, draw a loading indication
+    graphics_draw_text(ctx,
+                       "...",
+                       currentSidebarFont,
+                       GRect(-5, yPosition, 38, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  }
 }

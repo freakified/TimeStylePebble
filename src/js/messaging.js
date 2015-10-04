@@ -25,8 +25,8 @@ function locationError(err) {
 function locationSuccess(pos) {
   // Construct URL
   var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-      encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
-      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R") and u="c" ') + '&format=json';
+      encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
+      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R") and u="c" limit 1') + '&format=json';
 
   console.log(url);
 
@@ -52,8 +52,8 @@ function getWeather() {
 
     if(weatherLoc) {
       var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-          encodeURIComponent('select item.condition from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-          weatherLoc + '") and u="c" ') + '&format=json';
+          encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
+          weatherLoc + '") and u="c" limit 1') + '&format=json';
       console.log(url);
 
       getAndSendWeatherData(url);
@@ -70,15 +70,22 @@ function getAndSendWeatherData(url) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
       var condition = json.query.results.channel.item.condition;
+      var forecast = json.query.results.channel.item.forecast;
 
       if(json.query.count == "1") {
         // Temperature in Kelvin requires adjustment
         var temperature = Math.round(condition.temp);
-        console.log('Temperature is ' + temperature);
+        // console.log('Temperature is ' + temperature);
 
         // Conditions
         var conditionCode = parseInt(condition.code, 10);
-        console.log('Condition code is ' + conditionCode);
+        // console.log('Condition code is ' + conditionCode);
+
+        // forecast conditions
+        var forecastCondition = parseInt(forecast.code, 10);
+        var forecastHighTemp = Math.round(forecast.high);
+        var forecastLowTemp = Math.round(forecast.low);
+
 
         // night state is not used with yahoo weather
         var isNight = false;
@@ -87,7 +94,10 @@ function getAndSendWeatherData(url) {
         var dictionary = {
           'KEY_TEMPERATURE': temperature,
           'KEY_CONDITION_CODE': conditionCode,
-          'KEY_USE_NIGHT_ICON': isNight
+          'KEY_USE_NIGHT_ICON': isNight,
+          'KEY_FORECAST_CONDITION': forecastCondition,
+          'KEY_FORECAST_TEMP_HIGH': forecastHighTemp,
+          'KEY_FORECAST_TEMP_LOW': forecastLowTemp
         };
 
         // Send to Pebble
@@ -118,8 +128,10 @@ Pebble.addEventListener('ready',
   function(e) {
     console.log('JS component is now READY');
 
-    // first thing to do: get our location
-    getWeather();
+    // if applicable, get the weather data
+    if(window.localStorage.getItem('disable_weather') != 'yes') {
+      getWeather();
+    }
   }
 );
 
@@ -282,6 +294,19 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
       }
     }
+
+    // save the weather status in local storeage
+
+    var disableWeather = "yes";
+
+    for(widget in [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id]) {
+      if(widget == '7' || widget == '8') {
+        disableWeather = "no";
+      }
+    }
+
+    window.localStorage.setItem('disable_weather', disableWeather);
+
 
     console.log('Preparing message: ', JSON.stringify(dict));
 

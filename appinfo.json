@@ -20,7 +20,10 @@
         "KEY_SETTING_USE_LARGE_FONTS":    21,
         "KEY_WIDGET_0_ID":                22,
         "KEY_WIDGET_1_ID":                23,
-        "KEY_WIDGET_2_ID":                24
+        "KEY_WIDGET_2_ID":                24,
+        "KEY_FORECAST_CONDITION":         25,
+        "KEY_FORECAST_TEMP_HIGH":         26,
+        "KEY_FORECAST_TEMP_LOW":          27
     },
     "capabilities": [
         "location",

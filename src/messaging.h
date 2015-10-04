@@ -22,6 +22,9 @@
 #define KEY_WIDGET_0_ID                 22
 #define KEY_WIDGET_1_ID                 23
 #define KEY_WIDGET_2_ID                 24
+#define KEY_FORECAST_CONDITION          25
+#define KEY_FORECAST_TEMP_HIGH          26
+#define KEY_FORECAST_TEMP_LOW           27
 
 void messaging_requestNewWeatherData();
 
