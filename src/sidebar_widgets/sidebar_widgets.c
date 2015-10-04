@@ -33,6 +33,7 @@ char currentDayNum[8];
 char currentMonth[8];
 char currentWeekNum[8];
 char currentSecondsNum[8];
+char altClock[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -66,6 +67,10 @@ void WeekNumber_draw(GContext* ctx, int yPosition);
 SidebarWidget secondsWidget;
 int Seconds_getHeight();
 void Seconds_draw(GContext* ctx, int yPosition);
+
+SidebarWidget altTimeWidget;
+int AltTime_getHeight();
+void AltTime_draw(GContext* ctx, int yPosition);
 
 void SidebarWidgets_init() {
   // load fonts
@@ -111,6 +116,9 @@ void SidebarWidgets_init() {
   secondsWidget.getHeight = Seconds_getHeight;
   secondsWidget.draw      = Seconds_draw;
 
+  altTimeWidget.getHeight = AltTime_getHeight;
+  altTimeWidget.draw      = AltTime_draw;
+
 }
 
 void SidebarWidgets_deinit() {
@@ -145,6 +153,20 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set the seconds string
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
+  // set the alternate time zone string
+  if(clock_is_24h_style()) {
+    strftime(altClock, 7, "%H:%M", timeInfo);
+  } else {
+    strftime(altClock, 7, "%I:%M", timeInfo);
+
+    // trim the leading zero if needed
+    if(altClock[0] == '0') {
+      for(int i = 0; i < 8; i++) {
+        altClock[i] = altClock[i + 1];
+      }
+    }
+  }
+
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
 
@@ -166,6 +188,9 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case DATE:
       return dateWidget;
+      break;
+    case ALT_TIME_ZONE:
+      return altTimeWidget;
       break;
     case SECONDS:
       return secondsWidget;
@@ -588,4 +613,28 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
                        GTextAlignmentCenter,
                        NULL);
   }
+}
+
+/***** Alternate Time Zone Widget *****/
+
+int AltTime_getHeight() {
+  return 28;
+}
+
+void AltTime_draw(GContext* ctx, int yPosition) {
+  graphics_draw_text(ctx,
+                     "PDT",
+                     smSidebarFont,
+                     GRect(0, yPosition - 7, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  graphics_draw_text(ctx,
+                     altClock,
+                     smSidebarFont,
+                     GRect(-5, yPosition + 8, 40, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
 }
