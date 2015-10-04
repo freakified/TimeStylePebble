@@ -309,6 +309,8 @@ function sendSettingsToWatch() {
   var config = {};
 
   // for each setting, check if we need to send it
+
+  // color settings
   if($('#time-bg-color').val()) {
     config.color_bg = $('#time-bg-color').val().substr(1);
     window.localStorage.setItem('time-bg-color', config.color_bg);
@@ -329,6 +331,7 @@ function sendSettingsToWatch() {
     window.localStorage.setItem('sidebar-text-color', config.sidebar_text_color);
   }
 
+  // general options
   if($('#language_selection option:selected').data('setting') != -1) {
     config.language_id = $('#language_selection option:selected').data('setting');
   }
@@ -341,6 +344,7 @@ function sendSettingsToWatch() {
     config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
   }
 
+  // vibration settings
   if($('#bluetooth_vibe_setting .btn.active')) {
     config.bluetooth_vibe_setting = $('#bluetooth_vibe_setting .btn.active').data('setting');
   }
@@ -349,9 +353,10 @@ function sendSettingsToWatch() {
     config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
   }
 
-  config.widget_0_id = $('#widget_0_selector').val();
-  config.widget_1_id = $('#widget_1_selector').val();
-  config.widget_2_id = $('#widget_2_selector').val();
+  // sidebar settings
+  config.widget_0_id = parseInt($('#widget_0_selector').val(), 10);
+  config.widget_1_id = parseInt($('#widget_1_selector').val(), 10);
+  config.widget_2_id = parseInt($('#widget_2_selector').val(), 10);
 
   if($('#sidebar_position_setting .btn.active').size() > 0) {
     config.sidebar_position = $('#sidebar_position_setting .btn.active').data('setting');
@@ -361,6 +366,7 @@ function sendSettingsToWatch() {
     config.use_large_sidebar_font_setting = $('#use_large_sidebar_font_setting .btn.active').data('setting');
   }
 
+  // weather widget settings
   if($('#units_setting .btn.active').size() > 0) {
     config.units = $('#units_setting .btn.active').data('setting');
   }
@@ -377,6 +383,7 @@ function sendSettingsToWatch() {
     }
   }
 
+  // battery widget settings
   if($('#only_show_battery_when_low_setting .btn.active')) {
     config.only_show_battery_when_low_setting = $('#only_show_battery_when_low_setting .btn.active').data('setting');
   }
