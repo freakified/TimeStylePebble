@@ -78,6 +78,10 @@ function loadPreviousSettings() {
       only_show_battery_when_low_setting: 'no',
       battery_meter_setting: 'icon-only',
 
+      // alt timezone widget settings
+      altclock_name: 'ALT',
+      altclock_offset: 0,
+
       // version key used for migrations
       settings_version: CURRENT_SETTINGS_VERSION
     };
@@ -128,6 +132,11 @@ function loadPreviousSettings() {
   $('#widget_1_selector').val(savedSettings.widget_1_id);
   $('#widget_2_selector').val(savedSettings.widget_2_id);
 
+  // load alt timezone widget settings
+  $('#altclock_name').val(savedSettings.altclock_name);
+  $('#altclock_offset_hour option[data-setting="' + savedSettings.altclock_offset + '"]').prop('selected', true);
+  $('#altclock_offset_hour option[data-setting="' + savedSettings.altclock_offset + '"]').prop('selected', true);
+
   // update the widget settings sections to only show ones that are relevant
   showOnlySelectedWidgetSettings();
 }
@@ -161,6 +170,7 @@ $('#sidebar-text-color').on('change', customColorChanged);
 $('label.btn').on('change', setFormHasChanges);
 $('select').on('change', setFormHasChanges);
 $('#weather_loc').on('input', setFormHasChanges);
+$('#altclock_name').on('input', setFormHasChanges);
 
 function customColorChanged() {
   setFormHasChanges();
@@ -230,11 +240,19 @@ function showOnlySelectedWidgetSettings() {
   }
 
   // if any of the weather widgets are there, show the weather-related settings
-  if(selections.indexOf('7') != -1 || selections.indexOf('8') != -1 || selections.indexOf('9') != -1) {
+  if(selections.indexOf('7') != -1 || selections.indexOf('8') != -1) {
     $('#widget_weather_settings').show();
   } else {
     $('#widget_weather_settings').hide();
   }
+
+  // alt tz widget
+  if(selections.indexOf('3') != -1) {
+    $('#widget_altclock_settings').show();
+  } else {
+    $('#widget_altclock_settings').hide();
+  }
+
 }
 
 $('#sidebar_layout_section select').on('change', sidebarWidgetSelectionChanged);
@@ -278,6 +296,7 @@ function resetSettings() {
   $('#manual_weather_loc_setting_area').collapse('hide');
 
   $('#language_selection').val('(No change)');
+  $('#altclock_offset_hour option[data-setting="0"]').prop('selected', true);
 
   loadLastUsedColors();
   loadPreviousSettings();
@@ -391,6 +410,10 @@ function sendSettingsToWatch() {
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
   }
+
+  // alt clock widgets
+  config.altclock_name = $('#altclock_name').val();
+  config.altclock_offset = $('#altclock_offset_hour option:selected').data('setting');
 
   // add the version, in case we need to do more migrations
   config.settings_version = CURRENT_SETTINGS_VERSION;
