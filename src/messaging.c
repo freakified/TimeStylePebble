@@ -76,6 +76,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *widget1Id_tuple = dict_find(iterator, KEY_WIDGET_1_ID);
   Tuple *widget2Id_tuple = dict_find(iterator, KEY_WIDGET_2_ID);
 
+  Tuple *altclockName_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_NAME);
+  Tuple *altclockOffset_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_OFFSET);
+
   if(timeColor_tuple != NULL) {
     #ifdef PBL_COLOR
       globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -166,6 +169,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(widget2Id_tuple != NULL) {
     globalSettings.widgets[2] = widget2Id_tuple->value->int8;
+  }
+
+  if(altclockName_tuple != NULL) {
+    strncpy(globalSettings.altclockName, altclockName_tuple->value->cstring, sizeof(globalSettings.altclockName));
+  }
+
+  if(altclockOffset_tuple != NULL) {
+    globalSettings.altclockOffset = altclockOffset_tuple->value->int8;
   }
 
   // printf("widget 0  %i, 1: %i, 2: %i", globalSettings.widgets[0], globalSettings.widgets[1], globalSettings.widgets[2]);

@@ -145,6 +145,13 @@ void SidebarWidgets_updateFonts() {
   }
 }
 
+// c can't do true modulus on negative numbers, apparently
+// from http://stackoverflow.com/questions/11720656/modulo-operation-with-negative-numbers
+int mod(int a, int b) {
+    int r = a % b;
+    return r < 0 ? r + b : r;
+}
+
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
@@ -154,17 +161,26 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
   // set the alternate time zone string
-  if(clock_is_24h_style()) {
-    strftime(altClock, 7, "%H:%M", timeInfo);
-  } else {
-    strftime(altClock, 7, "%I:%M", timeInfo);
+  int hour = timeInfo->tm_hour;
 
-    // trim the leading zero if needed
-    if(altClock[0] == '0') {
-      for(int i = 0; i < 8; i++) {
-        altClock[i] = altClock[i + 1];
-      }
+  // apply the configured offset value
+  hour += globalSettings.altclockOffset;
+
+  // format it
+  if(clock_is_24h_style()) {
+    hour = mod(hour, 24);
+  } else {
+    hour = mod(hour, 12);
+
+    if(hour == 0) {
+      hour = 12;
     }
+  }
+
+  if(globalSettings.showLeadingZero && hour < 10) {
+    snprintf(altClock, sizeof(altClock), "0%i", hour);
+  } else {
+    snprintf(altClock, sizeof(altClock), "%i", hour);
   }
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
@@ -618,22 +634,26 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
 /***** Alternate Time Zone Widget *****/
 
 int AltTime_getHeight() {
-  return 28;
+  return (globalSettings.useLargeFonts) ? 28 : 26;
 }
 
 void AltTime_draw(GContext* ctx, int yPosition) {
+
+
   graphics_draw_text(ctx,
-                     "PDT",
+                     globalSettings.altclockName,
                      smSidebarFont,
                      GRect(0, yPosition - 7, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
 
+  int yMod = (globalSettings.useLargeFonts) ? 2 : 6;
+
   graphics_draw_text(ctx,
                      altClock,
-                     smSidebarFont,
-                     GRect(-5, yPosition + 8, 40, 20),
+                     currentSidebarFont,
+                     GRect(-1, yPosition + yMod, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);

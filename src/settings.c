@@ -61,6 +61,12 @@ void Settings_loadFromStorage() {
     globalSettings.widgets[2] = DATE;
   }
 
+  if(persist_exists(SETTING_ALTCLOCK_NAME_KEY)) {
+    persist_read_string(SETTING_ALTCLOCK_NAME_KEY, globalSettings.altclockName, sizeof(globalSettings.altclockName));
+  } else {
+    strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
+  }
+
   // load the rest of the settings, using default settings if none exist
   // all settings except colors automatically return "0" or "false" if
   // they haven't been set yet, so we don't need to check if they exist
@@ -75,6 +81,7 @@ void Settings_loadFromStorage() {
   globalSettings.hourlyVibe             = persist_read_int(SETTING_HOURLY_VIBE_KEY);
   globalSettings.onlyShowBatteryWhenLow = persist_read_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY);
   globalSettings.useLargeFonts          = persist_read_bool(SETTING_USE_LARGE_FONTS_KEY);
+  globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
 
   Settings_updateDynamicSettings();
 }
@@ -102,6 +109,8 @@ void Settings_saveToStorage() {
   persist_write_int(SETTING_SIDEBAR_WIDGET0_KEY,        globalSettings.widgets[0]);
   persist_write_int(SETTING_SIDEBAR_WIDGET1_KEY,        globalSettings.widgets[1]);
   persist_write_int(SETTING_SIDEBAR_WIDGET2_KEY,        globalSettings.widgets[2]);
+  persist_write_string(SETTING_ALTCLOCK_NAME_KEY,       globalSettings.altclockName);
+  persist_write_int(SETTING_ALTCLOCK_OFFSET_KEY,        globalSettings.altclockOffset);
 
   persist_write_int(SETTINGS_VERSION_KEY,               CURRENT_SETTINGS_VERSION);
 }

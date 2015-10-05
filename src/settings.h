@@ -36,6 +36,10 @@ typedef struct {
   bool showBatteryPct;
   bool onlyShowBatteryWhenLow;
 
+  // alt tz widget settings
+  char altclockName[8];
+  int altclockOffset;
+
   // dynamic settings (calculated based the currently-selected widgets)
   bool disableWeather;
   bool updateScreenEverySecond;
@@ -74,6 +78,10 @@ extern Settings globalSettings;
 // battery meter widget settings
 #define SETTING_BATTERY_ONLY_WHEN_LOW_KEY 15
 #define SETTING_SHOW_BATTERY_PCT_KEY      11
+
+// alt tz widget settings
+#define SETTING_ALTCLOCK_NAME_KEY         30
+#define SETTING_ALTCLOCK_OFFSET_KEY       31
 
 // deprecated settings (to be deleted in next version)
 #define SETTING_SHOW_BATTERY_METER_KEY    24

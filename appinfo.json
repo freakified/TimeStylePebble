@@ -23,7 +23,9 @@
         "KEY_WIDGET_2_ID":                24,
         "KEY_FORECAST_CONDITION":         25,
         "KEY_FORECAST_TEMP_HIGH":         26,
-        "KEY_FORECAST_TEMP_LOW":          27
+        "KEY_FORECAST_TEMP_LOW":          27,
+        "KEY_SETTING_ALTCLOCK_NAME":      28,
+        "KEY_SETTING_ALTCLOCK_OFFSET":    29
     },
     "capabilities": [
         "location",
@@ -405,7 +407,7 @@
         "basalt"
     ],
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
-    "versionLabel": "3.7",
+    "versionLabel": "4.0",
     "watchapp": {
         "watchface": true
     }

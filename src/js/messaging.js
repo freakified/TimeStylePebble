@@ -147,8 +147,8 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  var colorConfigURL = 'http://192.168.1.106:4000/config_color.html';
-  var bwConfigURL = 'http://192.168.1.106:4000/config_bw.html';
+  var colorConfigURL = 'http://192.168.1.102:4000/config_color.html';
+  var bwConfigURL = 'http://192.168.1.102:4000/config_bw.html';
   // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
   // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
@@ -293,6 +293,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
       } else if(configData.battery_meter_setting == 'icon-only') {
         dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
       }
+    }
+
+    if(configData.altclock_name) {
+      dict.KEY_SETTING_ALTCLOCK_NAME = configData.altclock_name;
+    }
+
+    if(configData.altclock_offset) {
+      dict.KEY_SETTING_ALTCLOCK_OFFSET = parseInt(configData.altclock_offset, 10);
     }
 
     // save the weather status in local storeage
