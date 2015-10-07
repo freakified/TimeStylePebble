@@ -67,8 +67,10 @@ void redrawScreen() {
 
     if(globalSettings.updateScreenEverySecond) {
       tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+      updatingEverySecond = true;
     } else {
       tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+      updatingEverySecond = false;
     }
   }
 

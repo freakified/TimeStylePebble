@@ -316,14 +316,14 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
 int DateWidget_getHeight() {
   if(globalSettings.useLargeFonts) {
-    return 62;
+    return (SidebarWidgets_useCompactMode) ? 42 : 62;
   } else  {
-    return 58;
+    return (SidebarWidgets_useCompactMode) ? 41 : 58;
   }
 }
 
 void DateWidget_draw(GContext* ctx, int yPosition) {
-  // hack to compensate for extra space that appears on the top of the date widget
+  // compensate for extra space that appears on the top of the date widget
   yPosition -= (globalSettings.useLargeFonts) ? 10 : 7;
 
   // first draw the day name
@@ -394,15 +394,19 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
     graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   #endif
 
-  yOffset = globalSettings.useLargeFonts ? 48 : 47;
+  // don't draw the month if we're in compact mode
+  if(!SidebarWidgets_useCompactMode) {
+    yOffset = globalSettings.useLargeFonts ? 48 : 47;
 
-  graphics_draw_text(ctx,
-                     currentMonth,
-                     currentSidebarFont,
-                     GRect(0, yPosition + yOffset, 30, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
+    graphics_draw_text(ctx,
+                       currentMonth,
+                       currentSidebarFont,
+                       GRect(0, yPosition + yOffset, 30, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  }
+
 
 }
 
@@ -490,7 +494,7 @@ void BTDisconnect_draw(GContext* ctx, int yPosition) {
 /***** Week Number Widget *****/
 
 int WeekNumber_getHeight() {
-  return (globalSettings.useLargeFonts) ? 27 : 25;
+  return (globalSettings.useLargeFonts) ? 29 : 26;
 }
 
 void WeekNumber_draw(GContext* ctx, int yPosition) {
@@ -508,7 +512,7 @@ void WeekNumber_draw(GContext* ctx, int yPosition) {
     graphics_draw_text(ctx,
                        currentWeekNum,
                        mdSidebarFont,
-                       GRect(0, yPosition + 8, 30, 20),
+                       GRect(0, yPosition + 9, 30, 20),
                        GTextOverflowModeFill,
                        GTextAlignmentCenter,
                        NULL);
@@ -516,7 +520,7 @@ void WeekNumber_draw(GContext* ctx, int yPosition) {
     graphics_draw_text(ctx,
                        currentWeekNum,
                        lgSidebarFont,
-                       GRect(0, yPosition + 4, 30, 20),
+                       GRect(0, yPosition + 6, 30, 20),
                        GTextOverflowModeFill,
                        GTextAlignmentCenter,
                        NULL);
@@ -597,24 +601,24 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
                          GTextAlignmentCenter,
                          NULL);
     } else {
-      snprintf(tempString, sizeof(tempString), " %d", highTemp);
+      snprintf(tempString, sizeof(tempString), "%d", highTemp);
 
       graphics_draw_text(ctx,
                          tempString,
                          currentSidebarFont,
-                         GRect(-5, yPosition + 20, 35, 20),
+                         GRect(0, yPosition + 20, 30, 20),
                          GTextOverflowModeFill,
                          GTextAlignmentCenter,
                          NULL);
 
       graphics_fill_rect(ctx, GRect(3, 8 + yPosition + 38, 24, 1), 0, GCornerNone);
 
-      snprintf(tempString, sizeof(tempString), " %d", lowTemp);
+      snprintf(tempString, sizeof(tempString), "%d", lowTemp);
 
       graphics_draw_text(ctx,
                          tempString,
                          currentSidebarFont,
-                         GRect(-5, yPosition + 39, 35, 20),
+                         GRect(0, yPosition + 39, 30, 20),
                          GTextOverflowModeFill,
                          GTextAlignmentCenter,
                          NULL);
@@ -634,21 +638,20 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
 /***** Alternate Time Zone Widget *****/
 
 int AltTime_getHeight() {
-  return (globalSettings.useLargeFonts) ? 28 : 26;
+  return (globalSettings.useLargeFonts) ? 29 : 26;
 }
 
 void AltTime_draw(GContext* ctx, int yPosition) {
 
-
   graphics_draw_text(ctx,
                      globalSettings.altclockName,
                      smSidebarFont,
-                     GRect(0, yPosition - 7, 30, 20),
+                     GRect(0, yPosition - 5, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
 
-  int yMod = (globalSettings.useLargeFonts) ? 2 : 6;
+  int yMod = (globalSettings.useLargeFonts) ? 5 : 8;
 
   graphics_draw_text(ctx,
                      altClock,

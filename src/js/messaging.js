@@ -43,7 +43,7 @@ function getLocation() {
 
 function getWeather() {
   var weatherDisabled = window.localStorage.getItem('disable_weather');
-
+  console.log("Get weather function called! DisableWeather is '" + weatherDisabled + "'");
   if(weatherDisabled !== "yes") {
     window.localStorage.setItem('disable_weather', 'no');
     var weatherLoc = window.localStorage.getItem('weather_loc');
@@ -128,6 +128,7 @@ Pebble.addEventListener('ready',
   function(e) {
     console.log('JS component is now READY');
 
+    console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');
     // if applicable, get the weather data
     if(window.localStorage.getItem('disable_weather') != 'yes') {
       getWeather();
@@ -147,8 +148,8 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  var colorConfigURL = 'http://192.168.1.102:4000/config_color.html';
-  var bwConfigURL = 'http://192.168.1.102:4000/config_bw.html';
+  var colorConfigURL = 'http://localhost:4000/config_color.html';
+  var bwConfigURL = 'http://localhost:4000/config_bw.html';
   // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
   // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
@@ -303,18 +304,19 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict.KEY_SETTING_ALTCLOCK_OFFSET = parseInt(configData.altclock_offset, 10);
     }
 
-    // save the weather status in local storeage
+    // determine whether or not the weather checking should be enabled
+    var disableWeather;
 
-    var disableWeather = "yes";
+    var widgetIDs = [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id];
 
-    for(widget in [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id]) {
-      if(widget == '7' || widget == '8') {
-        disableWeather = "no";
-      }
+    // if there is either a current conditions or a today's forecast widget, enable the weather
+    if(widgetIDs.indexOf('7') != -1 || widgetIDs.indexOf('8') != -1) {
+        disableWeather = 'no';
+    } else {
+        disableWeather = 'yes';
     }
 
     window.localStorage.setItem('disable_weather', disableWeather);
-
 
     console.log('Preparing message: ', JSON.stringify(dict));
 

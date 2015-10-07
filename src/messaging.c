@@ -179,13 +179,11 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     globalSettings.altclockOffset = altclockOffset_tuple->value->int8;
   }
 
-  // printf("widget 0  %i, 1: %i, 2: %i", globalSettings.widgets[0], globalSettings.widgets[1], globalSettings.widgets[2]);
+  // save the new settings to persistent storage
+  Settings_saveToStorage();
 
   // notify the main screen, in case something changed
   message_processed_callback();
-
-  // save the new settings to persistent storage
-  Settings_saveToStorage();
 }
 
 void inbox_dropped_callback(AppMessageResult reason, void *context) {

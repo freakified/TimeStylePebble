@@ -80,6 +80,12 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
   SidebarWidget middleWidget = getSidebarWidgetByType(globalSettings.widgets[1]);
   SidebarWidget lowerWidget = getSidebarWidgetByType(globalSettings.widgets[2]);
 
+
+  // if the widgets are too tall, enable "compact mode"
+  SidebarWidgets_useCompactMode = false; // ensure that we compare the non-compacted heights
+  int totalHeight = topWidget.getHeight() + middleWidget.getHeight() + lowerWidget.getHeight();
+  SidebarWidgets_useCompactMode = (totalHeight > 142) ? true : false;
+
   // if the phone is disconnected, replace the center widget with the BT disconnection indication
   if(!isPhoneConnected) {
     middleWidget = getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
