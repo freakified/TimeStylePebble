@@ -6,12 +6,24 @@ $(document).ready(function() {
   loadLastUsedColors();
   showCustomPresets();
   showCorrectedColors();
+  updateSidebarPreview();
+
+  checkVersion();
 });
 
 function loadSettingCheckbox(elementID, setting) {
   if(setting) {
     $('#' + elementID + ' label[data-setting="' + setting + '"] input').attr('checked', true);
     $('#' + elementID + ' label[data-setting="' + setting + '"]').addClass('active');
+  }
+}
+
+function checkVersion() {
+  var appVersion = getQueryParam('appversion');
+
+  // if the app version is not present, or is less than the current version show the warning
+  if(!appVersion || parseInt(appVersion, 10) < CURRENT_SETTINGS_VERSION) {
+    $('#version_warning').removeClass('hidden');
   }
 }
 
@@ -221,6 +233,7 @@ function sidebarWidgetSelectionChanged() {
   }
 
   showOnlySelectedWidgetSettings();
+  updateSidebarPreview(); // in case a setting impacts this
 }
 
 function showOnlySelectedWidgetSettings() {
@@ -251,6 +264,64 @@ function showOnlySelectedWidgetSettings() {
     $('#widget_altclock_settings').show();
   } else {
     $('#widget_altclock_settings').hide();
+  }
+}
+
+
+
+function updateSidebarPreview() {
+
+  var useLargeFonts = ($('#use_large_sidebar_font_setting .btn.active').data('setting') == 'yes') ? true : false;
+
+  for(var i = 0; i < 3; i++) {
+    var widget_id = $('#widget_' + i + '_selector').val();
+
+    var image_url = 'images/sidebar_widgets/';
+
+    if(useLargeFonts) {
+      image_url += 'large_font/';
+    }
+
+    image_url += widget_id + '-';
+
+    // set the first image
+    switch(widget_id) {
+      case '2':
+        image_url += 'BATTERY';
+
+        if($('#battery_meter_setting .btn.active').data('setting') == 'icon-and-percent') {
+          image_url += '_WITH_PCT';
+        }
+        break;
+      case '3':
+        image_url += 'ALT_TZ';
+        break;
+      case '4':
+        image_url += 'DATE';
+        // check for compact mode
+        break;
+      case '5':
+        image_url += 'SECONDS';
+        break;
+      case '6':
+        image_url += 'WEEK_NUMBER';
+        break;
+      case '7':
+        image_url += 'WEATHER_CURRENT';
+        break;
+      case '8':
+        image_url += 'WEATHER_TODAY';
+        break;
+      case '0':
+        image_url += 'NONE';
+        break;
+    }
+
+    image_url += '.png';
+
+    console.log(image_url);
+
+    $('#widget_' + i + '_preview img').attr("src", image_url);
   }
 
 }
