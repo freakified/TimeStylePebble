@@ -421,6 +421,11 @@ int CurrentWeather_getHeight() {
 }
 
 void CurrentWeather_draw(GContext* ctx, int yPosition) {
+  // debug: set fake condition for screenshots
+  // Weather_setConditions(44, false, 36);
+  // Weather_weatherInfo.currentTemp = 21;
+  // Weather_weatherForecast.highTemp = 22;
+  // Weather_weatherForecast.lowTemp = 16;
 
   if (Weather_currentWeatherIcon) {
     #ifdef PBL_COLOR

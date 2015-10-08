@@ -1,5 +1,8 @@
+var APP_VERSION = 4;
+
 var failureRetryAmount = 3;
 var currentFailures = 0;
+
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -153,7 +156,8 @@ Pebble.addEventListener('showConfiguration', function(e) {
   // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
   // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
 
-  var watch;
+
+  var versionString = '?appversion=' + APP_VERSION;
 
   if(Pebble.getActiveWatchInfo) {
     try {
@@ -170,9 +174,9 @@ Pebble.addEventListener('showConfiguration', function(e) {
   }
 
   if(watch.platform == "aplite"){
-    Pebble.openURL(bwConfigURL);
+    Pebble.openURL(bwConfigURL + versionString);
   } else {
-    Pebble.openURL(colorConfigURL);
+    Pebble.openURL(colorConfigURL + versionString);
   }
 });
 
