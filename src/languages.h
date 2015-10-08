@@ -20,10 +20,10 @@
 #define LANGUAGE_RU 17
 #define LANGUAGE_EE 18
 #define LANGUAGE_EU 19
-#define LANGUAGE_FI 20 
+#define LANGUAGE_FI 20
 
 /* day names in many different languages! */
-char dayNames[21][7][8] = {
+static char dayNames[21][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -48,7 +48,7 @@ char dayNames[21][7][8] = {
 };
 
 /* month names in many different languages! */
-char monthNames[21][12][8] = {
+static char monthNames[21][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -70,4 +70,30 @@ char monthNames[21][12][8] = {
 	{"JAN", "VEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DET"},
 	{"URT", "OTS", "MAR", "API", "MAI", "EKA", "UZT", "ABU", "IRA", "URR", "AZA", "ABE"},
 	{"TAM", "HEL", "MAA", "HUH", "TOU", "KES", "HEI", "ELO", "SYY", "LOK", "MAR", "JOU"}
+};
+
+// all of these are taken from:
+// http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
+static char wordForWeek[21][12] = {
+	"Wk",
+	"Sem",
+	"W",
+	"Sem",
+	"Sett",
+	"Wk",
+	"Hf",
+	"Týd",
+	"Sem",
+	"εβδ",
+	"V",
+	"Tydz"
+	"Týž",
+	"Tuần",
+	"Săpt",
+	"Setm",
+	"Uke",
+	"нед",
+	"Näd",
+	"Ast",
+	"Vk"
 };

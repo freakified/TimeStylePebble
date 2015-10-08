@@ -3,21 +3,32 @@
 
 // persistent storage
 #define WEATHERINFO_PERSIST_KEY 2
+#define WEATHERFORECAST_PERSIST_KEY 222
 
 typedef struct {
   int currentTemp;
   uint32_t currentIconResourceID;
 } WeatherInfo;
 
-WeatherInfo Weather_weatherInfo;
+typedef struct {
+  int highTemp;
+  int lowTemp;
+  uint32_t forecastIconResourceID;
+} WeatherForecastInfo;
+
+extern WeatherInfo Weather_weatherInfo;
+extern WeatherForecastInfo Weather_weatherForecast;
 
 #ifdef PBL_COLOR
-GDrawCommandImage* Weather_currentWeatherIcon;
+  extern GDrawCommandImage* Weather_currentWeatherIcon;
+  extern GDrawCommandImage* Weather_forecastWeatherIcon;
 #else
-GBitmap* Weather_currentWeatherIcon;
+  extern GBitmap* Weather_currentWeatherIcon;
+  extern GBitmap* Weather_forecastWeatherIcon;
 #endif
 
 
-void Weather_setCondition(int conditionCode, bool isNight);
+void Weather_setConditions(int conditionCode, bool isNight, int forecastCondition);
+void Weather_saveData();
 void Weather_init();
 void Weather_deinit();

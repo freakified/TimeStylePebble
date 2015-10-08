@@ -1,12 +1,17 @@
+#include <pebble.h>
 #include "settings.h"
+
+Settings globalSettings;
+
+void Settings_migrateLegacySidebar();
 
 void Settings_init() {
   // first, check if we have any saved settings
   int settingsVersion = persist_read_int(SETTINGS_VERSION_KEY);
 
-  if(settingsVersion == 2) {
-    // if it's the old version of the settings migrate them
-    Settings_migrateLegacySettings();
+  if(settingsVersion == 3) {
+    // if it's the pre-widgets version of the settings migrate them
+    Settings_migrateLegacySidebar();
   }
 
   // load all settings
@@ -44,13 +49,30 @@ void Settings_loadFromStorage() {
     #endif
   }
 
+  // load widgets
+  if(persist_exists(SETTING_SIDEBAR_WIDGET0_KEY)) {
+    globalSettings.widgets[0] = persist_read_int(SETTING_SIDEBAR_WIDGET0_KEY);
+    globalSettings.widgets[1] = persist_read_int(SETTING_SIDEBAR_WIDGET1_KEY);
+    globalSettings.widgets[2] = persist_read_int(SETTING_SIDEBAR_WIDGET2_KEY);
+  } else {
+    // in the case of a new installation, set the default widgets
+    globalSettings.widgets[0] = WEATHER_CURRENT;
+    globalSettings.widgets[1] = EMPTY;
+    globalSettings.widgets[2] = DATE;
+  }
+
+  if(persist_exists(SETTING_ALTCLOCK_NAME_KEY)) {
+    persist_read_string(SETTING_ALTCLOCK_NAME_KEY, globalSettings.altclockName, sizeof(globalSettings.altclockName));
+  } else {
+    strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
+  }
+
   // load the rest of the settings, using default settings if none exist
   // all settings except colors automatically return "0" or "false" if
   // they haven't been set yet, so we don't need to check if they exist
   globalSettings.useMetric              = persist_read_bool(SETTING_USE_METRIC_KEY);
   globalSettings.sidebarOnLeft          = persist_read_bool(SETTING_SIDEBAR_LEFT_KEY);
   globalSettings.btVibe                 = persist_read_bool(SETTING_BT_VIBE_KEY);
-  globalSettings.showBatteryLevel       = persist_read_bool(SETTING_SHOW_BATTERY_METER_KEY);
   globalSettings.languageId             = persist_read_int(SETTING_LANGUAGE_ID_KEY);
   globalSettings.showLeadingZero        = persist_read_int(SETTING_LEADING_ZERO_KEY);
   globalSettings.showBatteryPct         = persist_read_bool(SETTING_SHOW_BATTERY_PCT_KEY);
@@ -59,9 +81,15 @@ void Settings_loadFromStorage() {
   globalSettings.hourlyVibe             = persist_read_int(SETTING_HOURLY_VIBE_KEY);
   globalSettings.onlyShowBatteryWhenLow = persist_read_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY);
   globalSettings.useLargeFonts          = persist_read_bool(SETTING_USE_LARGE_FONTS_KEY);
+  globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
+
+  Settings_updateDynamicSettings();
 }
 
 void Settings_saveToStorage() {
+  // ensure that the weather disabled setting is accurate before saving it
+  Settings_updateDynamicSettings();
+
   // save settings to persistent storage
   persist_write_data(SETTING_TIME_COLOR_KEY,            &globalSettings.timeColor,        sizeof(GColor));
   persist_write_data(SETTING_TIME_BG_COLOR_KEY,         &globalSettings.timeBgColor,      sizeof(GColor));
@@ -70,7 +98,6 @@ void Settings_saveToStorage() {
   persist_write_bool(SETTING_USE_METRIC_KEY,            globalSettings.useMetric);
   persist_write_bool(SETTING_SIDEBAR_LEFT_KEY,          globalSettings.sidebarOnLeft);
   persist_write_bool(SETTING_BT_VIBE_KEY,               globalSettings.btVibe);
-  persist_write_bool(SETTING_SHOW_BATTERY_METER_KEY,    globalSettings.showBatteryLevel);
   persist_write_int( SETTING_LANGUAGE_ID_KEY,           globalSettings.languageId);
   persist_write_int( SETTING_LEADING_ZERO_KEY,          globalSettings.showLeadingZero);
   persist_write_bool(SETTING_SHOW_BATTERY_PCT_KEY,      globalSettings.showBatteryPct);
@@ -79,26 +106,63 @@ void Settings_saveToStorage() {
   persist_write_int( SETTING_HOURLY_VIBE_KEY,           globalSettings.hourlyVibe);
   persist_write_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY, globalSettings.onlyShowBatteryWhenLow);
   persist_write_bool(SETTING_USE_LARGE_FONTS_KEY,       globalSettings.useLargeFonts);
+  persist_write_int(SETTING_SIDEBAR_WIDGET0_KEY,        globalSettings.widgets[0]);
+  persist_write_int(SETTING_SIDEBAR_WIDGET1_KEY,        globalSettings.widgets[1]);
+  persist_write_int(SETTING_SIDEBAR_WIDGET2_KEY,        globalSettings.widgets[2]);
+  persist_write_string(SETTING_ALTCLOCK_NAME_KEY,       globalSettings.altclockName);
+  persist_write_int(SETTING_ALTCLOCK_OFFSET_KEY,        globalSettings.altclockOffset);
+
   persist_write_int(SETTINGS_VERSION_KEY,               CURRENT_SETTINGS_VERSION);
 }
 
-void Settings_migrateLegacySettings() {
-  Settings_Legacy oldSettings;
+void Settings_migrateLegacySidebar() {
+  // two legacy settings impact the selection of sidebar widgets:
+  bool disableWeather   = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
+  bool showBatteryLevel = persist_read_bool(SETTING_SHOW_BATTERY_METER_KEY);
 
-  // read the older settings
-  persist_read_data(LEGACY_SETTINGS_PERSIST_KEY, &oldSettings, sizeof(Settings_Legacy));
+  if(!disableWeather) {
+    // if the weather is enabled, it goes on top
+    globalSettings.widgets[0] = WEATHER_CURRENT;
+    globalSettings.widgets[1] = (showBatteryLevel) ? BATTERY_METER : EMPTY;
+  } else {
+    // if the weather is disabled, the battery meter goes on top
+    globalSettings.widgets[0] = (showBatteryLevel) ? BATTERY_METER : EMPTY;
+    globalSettings.widgets[1] = EMPTY;
+  }
 
-  // write each setting into the new format
-  persist_write_data(SETTING_TIME_COLOR_KEY,         &oldSettings.timeColor,        sizeof(GColor));
-  persist_write_data(SETTING_TIME_BG_COLOR_KEY,      &oldSettings.timeBgColor,      sizeof(GColor));
-  persist_write_data(SETTING_SIDEBAR_COLOR_KEY,      &oldSettings.sidebarColor,     sizeof(GColor));
-  persist_write_data(SETTING_SIDEBAR_TEXT_COLOR_KEY, &oldSettings.sidebarTextColor, sizeof(GColor));
-  persist_write_bool(SETTING_USE_METRIC_KEY,         oldSettings.useMetric);
-  persist_write_bool(SETTING_SIDEBAR_LEFT_KEY,       !oldSettings.sidebarOnRight);
-  persist_write_bool(SETTING_BT_VIBE_KEY,            oldSettings.btVibe);
-  persist_write_bool(SETTING_SHOW_BATTERY_METER_KEY, oldSettings.showBatteryLevel);
-  persist_write_int( SETTING_LANGUAGE_ID_KEY,        oldSettings.languageId);
+  // the third widget is always the date
+  globalSettings.widgets[2] = DATE;
 
-  // delete the old settings data
-  persist_delete(LEGACY_SETTINGS_PERSIST_KEY);
+  // save the new data
+  persist_write_int(SETTING_SIDEBAR_WIDGET0_KEY, globalSettings.widgets[0]);
+  persist_write_int(SETTING_SIDEBAR_WIDGET1_KEY, globalSettings.widgets[1]);
+  persist_write_int(SETTING_SIDEBAR_WIDGET2_KEY, globalSettings.widgets[2]);
+
+  // delete the battery meter enable setting, which is no longer useful
+  // note that "disableWeather" still has a purpose, in that it is used to
+  // control whether or not the watch does weather updates
+  persist_delete(SETTING_SHOW_BATTERY_METER_KEY);
+
+  // save the new settings version key
+  persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
+}
+
+
+void Settings_updateDynamicSettings() {
+  globalSettings.disableWeather = true;
+  globalSettings.updateScreenEverySecond = false;
+
+  for(int i = 0; i < 3; i++) {
+    // if there are any weather widgets, enable weather checking
+    if(globalSettings.widgets[i] == WEATHER_CURRENT ||
+       globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
+
+      globalSettings.disableWeather = false;
+    }
+
+    // if any widget is "seconds", we'll need to update the sidebar every second
+    if(globalSettings.widgets[i] == SECONDS) {
+      globalSettings.updateScreenEverySecond = true;
+    }
+  }
 }
