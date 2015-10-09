@@ -31,8 +31,8 @@ void update_clock() {
   timeInfo = localtime(&rawTime);
 
   // DEBUG: use fake time for screenshots
-  // timeInfo->tm_hour = 6;
-  // timeInfo->tm_min = 23;
+  timeInfo->tm_hour = 22;
+  timeInfo->tm_min = 23;
 
   int hour = timeInfo->tm_hour;
 
@@ -77,6 +77,7 @@ void redrawScreen() {
   // maybe the colors changed!
   for(int i = 0; i < 4; i++) {
     ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
+    // ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, GColorWhite);
   }
 
   window_set_background_color(mainWindow, globalSettings.timeBgColor);
@@ -96,10 +97,17 @@ void redrawScreen() {
 }
 
 static void main_window_load(Window *window) {
-  ClockDigit_construct(&clockDigits[0], GPoint(7, 7));
-  ClockDigit_construct(&clockDigits[1], GPoint(60, 7));
-  ClockDigit_construct(&clockDigits[2], GPoint(7, 90));
-  ClockDigit_construct(&clockDigits[3], GPoint(60, 90));
+
+  #ifdef PBL_ROUND
+    GPoint points[4] = {GPoint(40, 11), GPoint(91, 11), GPoint(40, 86), GPoint(91, 86)};
+  #else
+    GPoint points[4] = {GPoint(7, 7), GPoint(60, 7), GPoint(7, 90), GPoint(60, 90)};
+  #endif
+
+  ClockDigit_construct(&clockDigits[0], points[0]);
+  ClockDigit_construct(&clockDigits[1], points[1]);
+  ClockDigit_construct(&clockDigits[2], points[2]);
+  ClockDigit_construct(&clockDigits[3], points[3]);
 
   for(int i = 0; i < 4; i++) {
     ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);

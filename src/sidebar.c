@@ -15,19 +15,40 @@ void updateSidebarLayer(Layer *l, GContext* ctx);
 
 Layer* sidebarLayer;
 
+#ifdef PBL_ROUND
+  Layer* sidebarLayer2;
+#endif
+
 void Sidebar_init(Window* window) {
   // init the sidebar layer
-  if(!globalSettings.sidebarOnLeft) {
-    sidebarLayer = layer_create(GRect(114, 0, 30, SCREEN_HEIGHT));
-  } else {
-    sidebarLayer = layer_create(GRect(0, 0, 30, SCREEN_HEIGHT));
-  }
+  GRect screenRect = layer_get_bounds(window_get_root_layer(window));
+  GRect bounds;
+
+  #ifdef PBL_ROUND
+    bounds = GRect(0, 0, 35, screenRect.size.h);
+  #else
+    if(!globalSettings.sidebarOnLeft) {
+      bounds = GRect(114, 0, 30, screenRect.size.h);
+    } else {
+      bounds = GRect(0, 0, 30, screenRect.size.h);
+    }
+  #endif
+
+  sidebarLayer = layer_create(bounds);
+
+
 
   // init the widgets
   SidebarWidgets_init();
 
   layer_add_child(window_get_root_layer(window), sidebarLayer);
   layer_set_update_proc(sidebarLayer, updateSidebarLayer);
+
+  #ifdef PBL_ROUND
+    sidebarLayer2 = layer_create(GRect(screenRect.size.w - 35, 0, 35, screenRect.size.h));
+    layer_add_child(window_get_root_layer(window), sidebarLayer2);
+    layer_set_update_proc(sidebarLayer2, updateSidebarLayer);
+  #endif
 }
 
 void Sidebar_deinit() {
@@ -37,12 +58,14 @@ void Sidebar_deinit() {
 }
 
 void Sidebar_redraw() {
-  // reposition the sidebar if needed
-  if(globalSettings.sidebarOnLeft) {
-    layer_set_frame(sidebarLayer, GRect(0, 0, 30, SCREEN_HEIGHT));
-  } else {
-    layer_set_frame(sidebarLayer, GRect(114, 0, 30, SCREEN_HEIGHT));
-  }
+  #ifndef PBL_ROUND
+    // reposition the sidebar if needed
+    if(globalSettings.sidebarOnLeft) {
+      layer_set_frame(sidebarLayer, GRect(0, 0, 30, SCREEN_HEIGHT));
+    } else {
+      layer_set_frame(sidebarLayer, GRect(114, 0, 30, SCREEN_HEIGHT));
+    }
+  #endif
 
   // redraw the layer
   layer_mark_dirty(sidebarLayer);
@@ -76,9 +99,17 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
   bool isPhoneConnected = bluetooth_connection_service_peek();
   // isPhoneConnected = false;
 
-  SidebarWidget topWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
-  SidebarWidget middleWidget = getSidebarWidgetByType(globalSettings.widgets[1]);
-  SidebarWidget lowerWidget = getSidebarWidgetByType(globalSettings.widgets[2]);
+  SidebarWidget topWidget, middleWidget, lowerWidget;
+
+  #ifdef PBL_ROUND
+    topWidget = getSidebarWidgetByType(EMPTY);
+    middleWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
+    lowerWidget = getSidebarWidgetByType(EMPTY);
+  #else
+    topWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
+    middleWidget = getSidebarWidgetByType(globalSettings.widgets[1]);
+    lowerWidget = getSidebarWidgetByType(globalSettings.widgets[2]);
+  #endif
 
 
   // if the widgets are too tall, enable "compact mode"
