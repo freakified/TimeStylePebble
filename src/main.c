@@ -99,15 +99,15 @@ void redrawScreen() {
 static void main_window_load(Window *window) {
 
   #ifdef PBL_ROUND
-    GPoint points[4] = {GPoint(40, 11), GPoint(91, 11), GPoint(40, 86), GPoint(91, 86)};
+    GPoint digitPoints[4] = {GPoint(40, 17), GPoint(90, 17), GPoint(40, 92), GPoint(90, 92)};
   #else
-    GPoint points[4] = {GPoint(7, 7), GPoint(60, 7), GPoint(7, 90), GPoint(60, 90)};
+    GPoint digitPoints[4] = {GPoint(7, 7), GPoint(60, 7), GPoint(7, 90), GPoint(60, 90)};
   #endif
 
-  ClockDigit_construct(&clockDigits[0], points[0]);
-  ClockDigit_construct(&clockDigits[1], points[1]);
-  ClockDigit_construct(&clockDigits[2], points[2]);
-  ClockDigit_construct(&clockDigits[3], points[3]);
+  ClockDigit_construct(&clockDigits[0], digitPoints[0]);
+  ClockDigit_construct(&clockDigits[1], digitPoints[1]);
+  ClockDigit_construct(&clockDigits[2], digitPoints[2]);
+  ClockDigit_construct(&clockDigits[3], digitPoints[3]);
 
   for(int i = 0; i < 4; i++) {
     ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
