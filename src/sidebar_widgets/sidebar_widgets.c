@@ -248,6 +248,8 @@ int BatteryMeter_getHeight() {
 void BatteryMeter_draw(GContext* ctx, int yPosition) {
   BatteryChargeState chargeState = battery_state_service_peek();
 
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   char batteryString[6];
 
   int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
@@ -324,6 +326,8 @@ int DateWidget_getHeight() {
 }
 
 void DateWidget_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   // compensate for extra space that appears on the top of the date widget
   yPosition -= (globalSettings.useLargeFonts) ? 10 : 7;
 
@@ -427,7 +431,9 @@ void CurrentWeather_draw(GContext* ctx, int yPosition) {
   // Weather_weatherInfo.currentTemp = 21;
   // Weather_weatherForecast.highTemp = 22;
   // Weather_weatherForecast.lowTemp = 16;
-  
+
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   if (Weather_currentWeatherIcon) {
     #ifdef PBL_COLOR
       gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
@@ -504,6 +510,8 @@ int WeekNumber_getHeight() {
 }
 
 void WeekNumber_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   // note that it draws "above" the y position to correct for
   // the vertical padding
   graphics_draw_text(ctx,
@@ -540,6 +548,8 @@ int Seconds_getHeight() {
 }
 
 void Seconds_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   graphics_draw_text(ctx,
                      currentSecondsNum,
                      lgSidebarFont,
@@ -560,6 +570,8 @@ int WeatherForecast_getHeight() {
 }
 
 void WeatherForecast_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
   if(Weather_forecastWeatherIcon) {
     #ifdef PBL_COLOR
       gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
@@ -648,6 +660,7 @@ int AltTime_getHeight() {
 }
 
 void AltTime_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   graphics_draw_text(ctx,
                      globalSettings.altclockName,

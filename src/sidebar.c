@@ -11,10 +11,16 @@
 #define SCREEN_HEIGHT 168
 
 // "private" functions
-void updateSidebarLayer(Layer *l, GContext* ctx);
+// layer update callbacks
+void updateRectSidebar(Layer *l, GContext* ctx);
 
-void updateLeftSidebar(Layer *l, GContext* ctx);
-void updateRightSidebar(Layer *l, GContext* ctx);
+#ifdef PBL_ROUND
+  void updateRoundSidebarLeft(Layer *l, GContext* ctx);
+  void updateRoundSidebarRight(Layer *l, GContext* ctx);
+
+  // shared drawing stuff between all layers
+  void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetType, int widgetXOffset);
+#endif
 
 Layer* sidebarLayer;
 
@@ -45,15 +51,15 @@ void Sidebar_init(Window* window) {
   layer_add_child(window_get_root_layer(window), sidebarLayer);
 
   #ifdef PBL_ROUND
-    layer_set_update_proc(sidebarLayer, updateLeftSidebar);
+    layer_set_update_proc(sidebarLayer, updateRoundSidebarLeft);
   #else
-    layer_set_update_proc(sidebarLayer, updateSidebarLayer);
+    layer_set_update_proc(sidebarLayer, updateRectSidebar);
   #endif
 
   #ifdef PBL_ROUND
     sidebarLayer2 = layer_create(bounds2);
     layer_add_child(window_get_root_layer(window), sidebarLayer2);
-    layer_set_update_proc(sidebarLayer2, updateRightSidebar);
+    layer_set_update_proc(sidebarLayer2, updateRoundSidebarRight);
   #endif
 }
 
@@ -75,6 +81,10 @@ void Sidebar_redraw() {
 
   // redraw the layer
   layer_mark_dirty(sidebarLayer);
+
+  #ifdef PBL_ROUND
+    layer_mark_dirty(sidebarLayer2);
+  #endif
 }
 
 void Sidebar_updateTime(struct tm* timeInfo) {
@@ -84,50 +94,48 @@ void Sidebar_updateTime(struct tm* timeInfo) {
   Sidebar_redraw();
 }
 
-void updateRightSidebar(Layer *l, GContext* ctx) {
-  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+#ifdef PBL_ROUND
 
+void updateRoundSidebarRight(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_bounds(l);
+  GRect bgBounds = GRect(bounds.origin.x, bounds.origin.y, bounds.size.h, bounds.size.h);
 
-  #ifdef PBL_ROUND
-    graphics_fill_radial(ctx,
-                         GRect(bounds.origin.x, bounds.origin.y, bounds.size.h, bounds.size.h),
-                         GOvalScaleModeFillCircle,
-                         100,
-                         DEG_TO_TRIGANGLE(0),
-                         TRIG_MAX_ANGLE);
-  #endif
-
-  SidebarWidgets_xOffset = 3;
-  updateSidebarLayer(l, ctx);
+  drawRoundSidebar(ctx, bgBounds, globalSettings.widgets[2], 3);
 }
 
-void updateLeftSidebar(Layer *l, GContext* ctx) {
-  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
-
+void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_bounds(l);
+  GRect bgBounds = GRect(bounds.origin.x - bounds.size.h + bounds.size.w, bounds.origin.y, bounds.size.h, bounds.size.h);
 
-  #ifdef PBL_ROUND
-    graphics_fill_radial(ctx,
-                         GRect(bounds.origin.x - bounds.size.h + bounds.size.w, bounds.origin.y, bounds.size.h, bounds.size.h),
-                         GOvalScaleModeFillCircle,
-                         100,
-                         DEG_TO_TRIGANGLE(0),
-                         TRIG_MAX_ANGLE);
-  #endif
-
-  SidebarWidgets_xOffset = 7;
-  updateSidebarLayer(l, ctx);
+  drawRoundSidebar(ctx, bgBounds, globalSettings.widgets[0], 7);
 }
 
-void updateSidebarLayer(Layer *l, GContext* ctx) {
+void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetType, int widgetXOffset) {
   SidebarWidgets_updateFonts();
 
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
 
-  #ifndef PBL_ROUND
-    graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
-  #endif
+  graphics_fill_radial(ctx,
+                       bgBounds,
+                       GOvalScaleModeFillCircle,
+                       100,
+                       DEG_TO_TRIGANGLE(0),
+                       TRIG_MAX_ANGLE);
+
+  SidebarWidgets_xOffset = widgetXOffset;
+  SidebarWidget widget = getSidebarWidgetByType(widgetType);
+
+  // calculate center position of the widget
+  int widgetPosition = bgBounds.size.h / 2 - widget.getHeight() / 2;
+  widget.draw(ctx, widgetPosition);
+}
+#endif
+
+void updateRectSidebar(Layer *l, GContext* ctx) {
+  SidebarWidgets_updateFonts();
+
+  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
