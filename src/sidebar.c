@@ -107,7 +107,9 @@ void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_bounds(l);
   GRect bgBounds = GRect(bounds.origin.x - bounds.size.h + bounds.size.w, bounds.origin.y, bounds.size.h, bounds.size.h);
 
-  drawRoundSidebar(ctx, bgBounds, globalSettings.widgets[0], 7);
+  bool isPhoneConnected = bluetooth_connection_service_peek();
+
+  drawRoundSidebar(ctx, bgBounds, (isPhoneConnected) ? globalSettings.widgets[0] : BLUETOOTH_DISCONNECT, 7);
 }
 
 void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetType, int widgetXOffset) {
