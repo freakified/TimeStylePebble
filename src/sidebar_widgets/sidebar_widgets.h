@@ -9,6 +9,12 @@
 extern bool SidebarWidgets_useCompactMode;
 
 /*
+ * A global x offset used for nudging the widgets left and right
+ * Included for round support
+ */
+extern int SidebarWidgets_xOffset;
+
+/*
  * The different types of sidebar widgets:
  * we'll give them numbers so that we can index them in settings
  */

@@ -31,8 +31,8 @@ void update_clock() {
   timeInfo = localtime(&rawTime);
 
   // DEBUG: use fake time for screenshots
-  timeInfo->tm_hour = 22;
-  timeInfo->tm_min = 23;
+  // timeInfo->tm_hour = 22;
+  // timeInfo->tm_min = 23;
 
   int hour = timeInfo->tm_hour;
 

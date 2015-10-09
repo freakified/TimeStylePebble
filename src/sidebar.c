@@ -13,6 +13,9 @@
 // "private" functions
 void updateSidebarLayer(Layer *l, GContext* ctx);
 
+void updateLeftSidebar(Layer *l, GContext* ctx);
+void updateRightSidebar(Layer *l, GContext* ctx);
+
 Layer* sidebarLayer;
 
 #ifdef PBL_ROUND
@@ -22,10 +25,11 @@ Layer* sidebarLayer;
 void Sidebar_init(Window* window) {
   // init the sidebar layer
   GRect screenRect = layer_get_bounds(window_get_root_layer(window));
-  GRect bounds;
+  GRect bounds, bounds2;
 
   #ifdef PBL_ROUND
-    bounds = GRect(0, 0, 35, screenRect.size.h);
+    bounds = GRect(0, 0, 40, screenRect.size.h);
+    bounds2 = GRect(screenRect.size.w - 40, 0, 40, screenRect.size.h);
   #else
     if(!globalSettings.sidebarOnLeft) {
       bounds = GRect(114, 0, 30, screenRect.size.h);
@@ -34,20 +38,22 @@ void Sidebar_init(Window* window) {
     }
   #endif
 
-  sidebarLayer = layer_create(bounds);
-
-
-
   // init the widgets
   SidebarWidgets_init();
 
+  sidebarLayer = layer_create(bounds);
   layer_add_child(window_get_root_layer(window), sidebarLayer);
-  layer_set_update_proc(sidebarLayer, updateSidebarLayer);
 
   #ifdef PBL_ROUND
-    sidebarLayer2 = layer_create(GRect(screenRect.size.w - 35, 0, 35, screenRect.size.h));
+    layer_set_update_proc(sidebarLayer, updateLeftSidebar);
+  #else
+    layer_set_update_proc(sidebarLayer, updateSidebarLayer);
+  #endif
+
+  #ifdef PBL_ROUND
+    sidebarLayer2 = layer_create(bounds2);
     layer_add_child(window_get_root_layer(window), sidebarLayer2);
-    layer_set_update_proc(sidebarLayer2, updateSidebarLayer);
+    layer_set_update_proc(sidebarLayer2, updateRightSidebar);
   #endif
 }
 
@@ -78,11 +84,51 @@ void Sidebar_updateTime(struct tm* timeInfo) {
   Sidebar_redraw();
 }
 
+void updateRightSidebar(Layer *l, GContext* ctx) {
+  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+
+  GRect bounds = layer_get_bounds(l);
+
+  #ifdef PBL_ROUND
+    graphics_fill_radial(ctx,
+                         GRect(bounds.origin.x, bounds.origin.y, bounds.size.h, bounds.size.h),
+                         GOvalScaleModeFillCircle,
+                         100,
+                         DEG_TO_TRIGANGLE(0),
+                         TRIG_MAX_ANGLE);
+  #endif
+
+  SidebarWidgets_xOffset = 3;
+  updateSidebarLayer(l, ctx);
+}
+
+void updateLeftSidebar(Layer *l, GContext* ctx) {
+  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+
+  GRect bounds = layer_get_bounds(l);
+
+  #ifdef PBL_ROUND
+    graphics_fill_radial(ctx,
+                         GRect(bounds.origin.x - bounds.size.h + bounds.size.w, bounds.origin.y, bounds.size.h, bounds.size.h),
+                         GOvalScaleModeFillCircle,
+                         100,
+                         DEG_TO_TRIGANGLE(0),
+                         TRIG_MAX_ANGLE);
+  #endif
+
+  SidebarWidgets_xOffset = 7;
+  updateSidebarLayer(l, ctx);
+}
+
 void updateSidebarLayer(Layer *l, GContext* ctx) {
   SidebarWidgets_updateFonts();
 
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
-  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+
+  #ifndef PBL_ROUND
+    graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+  #endif
+
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   // on black and white pebbles, invert the icons if we're using the dark bar
@@ -103,7 +149,7 @@ void updateSidebarLayer(Layer *l, GContext* ctx) {
 
   #ifdef PBL_ROUND
     topWidget = getSidebarWidgetByType(EMPTY);
-    middleWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
+    middleWidget = getSidebarWidgetByType(DATE);
     lowerWidget = getSidebarWidgetByType(EMPTY);
   #else
     topWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
