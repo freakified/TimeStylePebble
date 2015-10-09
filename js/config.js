@@ -184,6 +184,8 @@ $('select').on('change', setFormHasChanges);
 $('#weather_loc').on('input', setFormHasChanges);
 $('#altclock_name').on('input', setFormHasChanges);
 
+$('#use_large_sidebar_font_setting').on('change', updateSidebarPreview);
+
 function customColorChanged() {
   setFormHasChanges();
   updateCustomPreview();
@@ -268,6 +270,45 @@ function showOnlySelectedWidgetSettings() {
 }
 
 
+function widgetsShouldBeCompact() {
+  var useLargeFonts = ($('#use_large_sidebar_font_setting .btn.active').data('setting') == 'yes') ? true : false;
+  var showBatteryPct = ($('#battery_meter_setting .btn.active').data('setting') == 'icon-and-percent') ? true : false;
+
+  var totalHeight = 0;
+
+  var widgetHeights;
+
+  if(useLargeFonts) {
+    widgetHeights = {
+      '0' : 0,
+      '2' : (showBatteryPct) ? 14 : 33,
+      '3' : 29,
+      '4' : 62,
+      '5' : 14,
+      '6' : 29,
+      '7' : 44,
+      '8' : 63
+    }
+  } else {
+    widgetHeights = {
+      '0' : 0,
+      '2' : (showBatteryPct) ? 14 : 27,
+      '3' : 26,
+      '4' : 58,
+      '5' : 14,
+      '6' : 26,
+      '7' : 42,
+      '8' : 60
+    }
+  }
+
+  for(var i = 0; i < 3; i++) {
+    var widget_id = $('#widget_' + i + '_selector').val();
+    totalHeight += widgetHeights[widget_id];
+  }
+
+  return (totalHeight > 142) ? true : false;
+}
 
 function updateSidebarPreview() {
 
@@ -298,7 +339,9 @@ function updateSidebarPreview() {
         break;
       case '4':
         image_url += 'DATE';
-        // check for compact mode
+        if(widgetsShouldBeCompact()) {
+          image_url += '_COMPACT';
+        }
         break;
       case '5':
         image_url += 'SECONDS';
@@ -318,8 +361,6 @@ function updateSidebarPreview() {
     }
 
     image_url += '.png';
-
-    console.log(image_url);
 
     $('#widget_' + i + '_preview img').attr("src", image_url);
   }
@@ -360,6 +401,7 @@ function updateCustomPreview() {
   showCorrectedColors();
 }
 
+
 function resetSettings() {
   $('label.btn').removeClass('active');
   $(':radio').prop('checked', false);
@@ -371,6 +413,7 @@ function resetSettings() {
 
   loadLastUsedColors();
   loadPreviousSettings();
+  updateSidebarPreview();
   setFormIsUnchanged();
 }
 
