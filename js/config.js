@@ -185,6 +185,7 @@ $('#weather_loc').on('input', setFormHasChanges);
 $('#altclock_name').on('input', setFormHasChanges);
 
 $('#use_large_sidebar_font_setting').on('change', updateSidebarPreview);
+$('#battery_meter_setting').on('change', updateSidebarPreview);
 
 function customColorChanged() {
   setFormHasChanges();
@@ -281,7 +282,7 @@ function widgetsShouldBeCompact() {
   if(useLargeFonts) {
     widgetHeights = {
       '0' : 0,
-      '2' : (showBatteryPct) ? 14 : 33,
+      '2' : (showBatteryPct) ? 33 : 14,
       '3' : 29,
       '4' : 62,
       '5' : 14,
@@ -292,7 +293,7 @@ function widgetsShouldBeCompact() {
   } else {
     widgetHeights = {
       '0' : 0,
-      '2' : (showBatteryPct) ? 14 : 27,
+      '2' : (showBatteryPct) ? 27 : 14,
       '3' : 26,
       '4' : 58,
       '5' : 14,
@@ -329,7 +330,7 @@ function updateSidebarPreview() {
     switch(widget_id) {
       case '2':
         image_url += 'BATTERY';
-
+console.log($('#battery_meter_setting .btn.active').data('setting'));
         if($('#battery_meter_setting .btn.active').data('setting') == 'icon-and-percent') {
           image_url += '_WITH_PCT';
         }
