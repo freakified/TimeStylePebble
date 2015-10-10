@@ -31,8 +31,14 @@ void update_clock() {
   timeInfo = localtime(&rawTime);
 
   // DEBUG: use fake time for screenshots
-  // timeInfo->tm_hour = 22;
+  // timeInfo->tm_hour = 6;
   // timeInfo->tm_min = 23;
+
+  // debug: set fake condition for screenshots
+  // Weather_setConditions(44, false, 44);
+  // Weather_weatherInfo.currentTemp = 21;
+  // Weather_weatherForecast.highTemp = 22;
+  // Weather_weatherForecast.lowTemp = 16;
 
   int hour = timeInfo->tm_hour;
 
