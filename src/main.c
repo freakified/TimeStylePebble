@@ -136,19 +136,19 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // every 30 minutes, request new weather data
   if(!globalSettings.disableWeather) {
-    if(tick_time->tm_min % 30 == 0) {
+    if(tick_time->tm_min % 30 == 0 && tick_time->tm_sec == 0) {
       messaging_requestNewWeatherData();
     }
   }
 
   // every hour, if requested, vibrate
   if(globalSettings.hourlyVibe == 1) {
-    if(tick_time->tm_min % 60 == 0) {
+    if(tick_time->tm_min % 60 == 0 && tick_time->tm_sec == 0) {
       vibes_short_pulse();
     }
   } else if(globalSettings.hourlyVibe == 2) {
     // if half hour vibes are also enabled, do that
-    if(tick_time->tm_min % 60 == 0) {
+    if(tick_time->tm_min % 60 == 0 && tick_time->tm_sec == 0) {
       vibes_double_pulse();
     } else if(tick_time->tm_min % 30 == 0) {
       vibes_short_pulse();

@@ -103,6 +103,8 @@ function getAndSendWeatherData(url) {
           'KEY_FORECAST_TEMP_LOW': forecastLowTemp
         };
 
+        console.log(JSON.stringify(dictionary));
+
         // Send to Pebble
         Pebble.sendAppMessage(dictionary,
           function(e) {
@@ -151,10 +153,12 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  var colorConfigURL = 'http://localhost:4000/config_color.html';
-  var bwConfigURL = 'http://localhost:4000/config_bw.html';
-  // var colorConfigURL = 'http://freakified.github.io/TimeStylePebble/config_color.html';
-  // var bwConfigURL = 'http://freakified.github.io/TimeStylePebble/config_bw.html';
+  // var baseURL = 'http://localhost:4000/';
+  var baseURL = 'http://freakified.github.io/TimeStylePebble/';
+
+  var bwConfigURL    = baseURL + 'config_bw.html';
+  var colorConfigURL = baseURL + 'config_color.html';
+  var roundConfigURL = baseURL + 'config_color_round.html';
 
 
   var versionString = '?appversion=' + APP_VERSION;
@@ -175,6 +179,8 @@ Pebble.addEventListener('showConfiguration', function(e) {
 
   if(watch.platform == "aplite"){
     Pebble.openURL(bwConfigURL + versionString);
+  } else if(watch.platform == "chalk") {
+    Pebble.openURL(roundConfigURL + versionString);
   } else {
     Pebble.openURL(colorConfigURL + versionString);
   }
@@ -314,7 +320,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
     var widgetIDs = [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id];
 
     // if there is either a current conditions or a today's forecast widget, enable the weather
-    if(widgetIDs.indexOf('7') != -1 || widgetIDs.indexOf('8') != -1) {
+    if(widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1) {
         disableWeather = 'no';
     } else {
         disableWeather = 'yes';
