@@ -1,4 +1,6 @@
 var APP_VERSION = 4;
+// var BASE_CONFIG_URL = 'http://localhost:4000/';
+var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 
 var failureRetryAmount = 3;
 var currentFailures = 0;
@@ -153,13 +155,9 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  // var baseURL = 'http://localhost:4000/';
-  var baseURL = 'http://freakified.github.io/TimeStylePebble/';
-
-  var bwConfigURL    = baseURL + 'config_bw.html';
-  var colorConfigURL = baseURL + 'config_color.html';
-  var roundConfigURL = baseURL + 'config_color_round.html';
-
+  var bwConfigURL    = BASE_CONFIG_URL + 'config_bw.html';
+  var colorConfigURL = BASE_CONFIG_URL + 'config_color.html';
+  var roundConfigURL = BASE_CONFIG_URL + 'config_color_round.html';
 
   var versionString = '?appversion=' + APP_VERSION;
 

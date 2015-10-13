@@ -156,7 +156,7 @@ int mod(int a, int b) {
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
-  strftime(currentWeekNum, 3, "%U", timeInfo);
+  strftime(currentWeekNum, 3, "%V", timeInfo);
 
   // set the seconds string
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
@@ -238,79 +238,87 @@ void EmptyWidget_draw(GContext* ctx, int yPosition) {
 /********** functions for the battery meter widget **********/
 
 int BatteryMeter_getHeight() {
-  if(globalSettings.showBatteryPct) {
-    return (globalSettings.useLargeFonts) ? 33 : 27;
+  BatteryChargeState chargeState = battery_state_service_peek();
+
+  if(chargeState.is_charging || !globalSettings.showBatteryPct) {
+    return 14; // graphic only height
   } else {
-    return 14; // graphic-only height
+    return (globalSettings.useLargeFonts) ? 33 : 27; // heights with text
   }
 }
 
 void BatteryMeter_draw(GContext* ctx, int yPosition) {
   BatteryChargeState chargeState = battery_state_service_peek();
 
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  // respect the "only show battery meter when low" setting
+  if(!globalSettings.onlyShowBatteryWhenLow ||
+    (globalSettings.onlyShowBatteryWhenLow && chargeState.charge_percent <= 20) ||
+    (globalSettings.onlyShowBatteryWhenLow && chargeState.is_charging)
+  ) {
 
-  char batteryString[6];
+    graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-  int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
+    char batteryString[6];
+    int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
 
-  if(chargeState.is_charging) {
-    if(batteryChargeImage) {
-      #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-      #else
-        graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
-      #endif
-    }
-  } else {
-    if (batteryImage) {
-      #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-      #else
-        graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
-      #endif
-    }
-
-    int width = roundf(18 * chargeState.charge_percent / 100.0f);
-
-    graphics_context_set_fill_color(ctx, GColorBlack);
-
-    #ifdef PBL_COLOR
-      if(chargeState.charge_percent <= 20) {
-        graphics_context_set_fill_color(ctx, GColorRed);
+    if(chargeState.is_charging) {
+      if(batteryChargeImage) {
+        #ifdef PBL_COLOR
+          gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
+        #else
+          graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
+        #endif
       }
-    #else
-      if(globalSettings.sidebarTextColor == GColorWhite) {
-        graphics_context_set_fill_color(ctx, GColorWhite);
-      }
-    #endif
-
-    graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
-  }
-
-  // never show battery % while charging, because of this issue:
-  // https://github.com/freakified/TimeStylePebble/issues/11
-  if(globalSettings.showBatteryPct && !chargeState.is_charging) {
-    if(!globalSettings.useLargeFonts) {
-      snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
-
-      graphics_draw_text(ctx,
-                         batteryString,
-                         batteryFont,
-                         GRect(-4 + SidebarWidgets_xOffset, 18 + batteryPositionY, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
     } else {
-      snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+      if (batteryImage) {
+        #ifdef PBL_COLOR
+          gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
+        #else
+          graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
+        #endif
+      }
 
-      graphics_draw_text(ctx,
-                         batteryString,
-                         batteryFont,
-                         GRect(-4 + SidebarWidgets_xOffset, 14 + batteryPositionY, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
+      int width = roundf(18 * chargeState.charge_percent / 100.0f);
+
+      graphics_context_set_fill_color(ctx, GColorBlack);
+
+      #ifdef PBL_COLOR
+        if(chargeState.charge_percent <= 20) {
+          graphics_context_set_fill_color(ctx, GColorRed);
+        }
+      #else
+        if(globalSettings.sidebarTextColor == GColorWhite) {
+          graphics_context_set_fill_color(ctx, GColorWhite);
+        }
+      #endif
+
+      graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
+    }
+
+    // never show battery % while charging, because of this issue:
+    // https://github.com/freakified/TimeStylePebble/issues/11
+    if(globalSettings.showBatteryPct && !chargeState.is_charging) {
+      if(!globalSettings.useLargeFonts) {
+        snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+
+        graphics_draw_text(ctx,
+                           batteryString,
+                           batteryFont,
+                           GRect(-4 + SidebarWidgets_xOffset, 18 + batteryPositionY, 38, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      } else {
+        snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+
+        graphics_draw_text(ctx,
+                           batteryString,
+                           batteryFont,
+                           GRect(-4 + SidebarWidgets_xOffset, 14 + batteryPositionY, 38, 20),
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+                           NULL);
+      }
     }
   }
 }
@@ -355,30 +363,32 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
       graphics_context_set_fill_color(ctx, GColorWhite);
       graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
     #else
-      if(globalSettings.sidebarTextColor == GColorWhite) {
-        graphics_context_set_fill_color(ctx, GColorWhite);
-      } else {
-        graphics_context_set_fill_color(ctx, GColorBlack);
-      }
+      // on black and white watches, draw an outlined rectangle
 
-      graphics_fill_rect(ctx, GRect(1 + SidebarWidgets_xOffset, yPosition + 23, 28, 22), 2, GCornersAll);
-
-      if(globalSettings.sidebarTextColor == GColorWhite) {
+      // this is the "outline" color
+      if(globalSettings.sidebarColor == GColorWhite) {
         graphics_context_set_fill_color(ctx, GColorBlack);
       } else {
         graphics_context_set_fill_color(ctx, GColorWhite);
       }
 
-      graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, yPosition + 6, 24, 18), 0, GCornersAll);
+      graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
+
+      // this is the "inner" color
+      if(globalSettings.sidebarColor == GColorWhite) {
+        graphics_context_set_fill_color(ctx, GColorWhite);
+      } else {
+        graphics_context_set_fill_color(ctx, GColorBlack);
+      }
+
+      graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, yPosition + 31, 24, 20), 0, GCornersAll);
 
     #endif
 
   }
 
   // next, draw the date number
-
-  // color pebble should always use black for the date number
-  #ifdef PBL_COLOR
+  #if PBL_COLOR
     graphics_context_set_text_color(ctx, GColorBlack);
   #endif
 
@@ -395,9 +405,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
 
 
    // switch back to normal color for the rest
-  #ifdef PBL_COLOR
-    graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-  #endif
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   // don't draw the month if we're in compact mode
   if(!SidebarWidgets_useCompactMode) {
