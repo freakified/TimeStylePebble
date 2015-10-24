@@ -546,7 +546,7 @@ function sendSettingsToWatch() {
 
 function trackSettings(config) {
   // track the color theme
-  var colorTheme = 'Time: #' + config.color_time + ', #' + config.color_bg + ', Sidebar: #' + config.sidebar_text_color + ', #' + config.color_sidebar;
+  var colorTheme = 'TimeStyleTheme,#' + config.color_time + ',#' + config.color_bg + ',#' + config.color_sidebar + ',#' + config.sidebar_text_color;
   ga('set', 'dimension1', colorTheme);
 
   // track the sidebar layout
