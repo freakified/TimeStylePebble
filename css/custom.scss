@@ -50,7 +50,7 @@
   }
 
   label.btn {
-    width: 49%;
+    width: 130px;
     margin-bottom: 3px;
   }
 
@@ -224,4 +224,21 @@
   > div {
     display: inline-block;
   }
+}
+
+#presets_scroller_outer {
+  width: 100vw;
+  overflow-y: scroll;
+  position: relative;
+  right: 15px;
+}
+
+#presets_scroller_inner {
+  width: 2260px;
+  padding-left: 15px;
+}
+
+.presets_group {
+  width: 280px;
+  float: left;
 }
