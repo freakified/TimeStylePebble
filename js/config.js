@@ -582,6 +582,13 @@ function trackSettings(config) {
   // language
   var languageName = $('#language_selection option:selected').html();
   ga('set', 'dimension9', languageName);
+
+  // save the config info
+  ga('send', {
+    hitType: 'event',
+    eventCategory: 'Settings',
+    eventAction: 'save',
+  });
 }
 
 function cancelAndClose() {
