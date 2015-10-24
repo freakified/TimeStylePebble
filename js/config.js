@@ -536,9 +536,52 @@ function sendSettingsToWatch() {
   // Save the configuration data to localStorage
   window.localStorage.setItem('savedSettings', JSON.stringify(config));
 
+  // Send the config data to the tracking service for SCIENCE
+  trackSettings(config);
+
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');
   document.location.href = return_to + encodeURIComponent(JSON.stringify(config));
+}
+
+function trackSettings(config) {
+  // track the color theme
+  var colorTheme = 'Time: #' + config.color_time + ', #' + config.color_bg + ', Sidebar: #' + config.sidebar_text_color + ', #' + config.color_sidebar;
+  ga('set', 'dimension1', colorTheme);
+
+  // track the sidebar layout
+  var widgetNames = {
+    '0': 'None',
+    '2': 'Battery',
+    '3': 'Alt-TZ',
+    '4': 'Date',
+    '5': 'Seconds',
+    '6': 'WeekNum',
+    '7': 'WeatherCurrent',
+    '8': 'WeatherToday'
+  };
+
+  // track the sidebar layout selections
+  var sidebarLayout = widgetNames[config.widget_0_id] + ', ' +
+                      widgetNames[config.widget_1_id] + ', ' +
+                      widgetNames[config.widget_2_id];
+  ga('set', 'dimension2', sidebarLayout);
+
+  // sidebar options
+  ga('set', 'dimension3', config.sidebar_position);
+  ga('set', 'dimension4', config.use_large_sidebar_font_setting);
+
+  // clock options
+  ga('set', 'dimension5', config.clock_font_setting);
+  ga('set', 'dimension6', config.leading_zero_setting);
+
+  // vibration options
+  ga('set', 'dimension7', config.bluetooth_vibe_setting);
+  ga('set', 'dimension8', config.hourly_vibe_setting);
+
+  // language
+  var languageName = $('#language_selection option:selected').html();
+  ga('set', 'dimension9', languageName);
 }
 
 function cancelAndClose() {
