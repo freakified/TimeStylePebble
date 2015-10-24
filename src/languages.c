@@ -2,7 +2,7 @@
 #include "languages.h"
 
 /* day names in many different languages! */
-char dayNames[22][7][8] = {
+const char dayNames[22][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -28,7 +28,7 @@ char dayNames[22][7][8] = {
 };
 
 /* month names in many different languages! */
-char monthNames[22][12][8] = {
+const char monthNames[22][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -55,7 +55,7 @@ char monthNames[22][12][8] = {
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-char wordForWeek[22][12] = {
+const char wordForWeek[22][12] = {
 	"Wk",
 	"Sem",
 	"W",
@@ -67,7 +67,7 @@ char wordForWeek[22][12] = {
 	"Sem",
 	"εβδ",
 	"V",
-	"Tydz"
+	"Tydz",
 	"Týž",
 	"Tuần",
 	"Săpt",

@@ -519,7 +519,7 @@ void WeekNumber_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      wordForWeek[globalSettings.languageId],
                      smSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition - 4, 30, 20),
+                     GRect(-4 + SidebarWidgets_xOffset, yPosition - 4, 38, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
