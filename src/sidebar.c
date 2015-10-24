@@ -31,9 +31,10 @@ Layer* sidebarLayer;
 void Sidebar_init(Window* window) {
   // init the sidebar layer
   GRect screenRect = layer_get_bounds(window_get_root_layer(window));
-  GRect bounds, bounds2;
+  GRect bounds;
 
   #ifdef PBL_ROUND
+    GRect bounds2;
     bounds = GRect(0, 0, 40, screenRect.size.h);
     bounds2 = GRect(screenRect.size.w - 40, 0, 40, screenRect.size.h);
   #else
