@@ -1,31 +1,31 @@
 {
     "appKeys": {
-        "KEY_TEMPERATURE":                 3,
-        "KEY_CONDITION_CODE":              4,
-        "KEY_USE_NIGHT_ICON":              5,
-        "KEY_SETTING_COLOR_TIME":          6,
-        "KEY_SETTING_COLOR_BG":            7,
-        "KEY_SETTING_COLOR_SIDEBAR":       8,
-        "KEY_SETTING_SIDEBAR_LEFT":        9,
-        "KEY_SETTING_USE_METRIC":         10,
-        "KEY_SETTING_BT_VIBE":            11,
-        "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12,
-        "KEY_SETTING_LANGUAGE_ID":        13,
-        "KEY_SETTING_SHOW_LEADING_ZERO":  15,
-        "KEY_SETTING_SHOW_BATTERY_PCT":   16,
-        "KEY_SETTING_DISABLE_WEATHER":    17,
-        "KEY_SETTING_CLOCK_FONT_ID":      18,
-        "KEY_SETTING_HOURLY_VIBE":        19,
+        "KEY_CONDITION_CODE": 4,
+        "KEY_FORECAST_CONDITION": 25,
+        "KEY_FORECAST_TEMP_HIGH": 26,
+        "KEY_FORECAST_TEMP_LOW": 27,
+        "KEY_SETTING_ALTCLOCK_NAME": 28,
+        "KEY_SETTING_ALTCLOCK_OFFSET": 29,
+        "KEY_SETTING_BT_VIBE": 11,
+        "KEY_SETTING_CLOCK_FONT_ID": 18,
+        "KEY_SETTING_COLOR_BG": 7,
+        "KEY_SETTING_COLOR_SIDEBAR": 8,
+        "KEY_SETTING_COLOR_TIME": 6,
+        "KEY_SETTING_DISABLE_WEATHER": 17,
+        "KEY_SETTING_HOURLY_VIBE": 19,
+        "KEY_SETTING_LANGUAGE_ID": 13,
         "KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW": 20,
-        "KEY_SETTING_USE_LARGE_FONTS":    21,
-        "KEY_WIDGET_0_ID":                22,
-        "KEY_WIDGET_1_ID":                23,
-        "KEY_WIDGET_2_ID":                24,
-        "KEY_FORECAST_CONDITION":         25,
-        "KEY_FORECAST_TEMP_HIGH":         26,
-        "KEY_FORECAST_TEMP_LOW":          27,
-        "KEY_SETTING_ALTCLOCK_NAME":      28,
-        "KEY_SETTING_ALTCLOCK_OFFSET":    29
+        "KEY_SETTING_SHOW_BATTERY_PCT": 16,
+        "KEY_SETTING_SHOW_LEADING_ZERO": 15,
+        "KEY_SETTING_SIDEBAR_LEFT": 9,
+        "KEY_SETTING_SIDEBAR_TEXT_COLOR": 12,
+        "KEY_SETTING_USE_LARGE_FONTS": 21,
+        "KEY_SETTING_USE_METRIC": 10,
+        "KEY_TEMPERATURE": 3,
+        "KEY_USE_NIGHT_ICON": 5,
+        "KEY_WIDGET_0_ID": 22,
+        "KEY_WIDGET_1_ID": 23,
+        "KEY_WIDGET_2_ID": 24
     },
     "capabilities": [
         "location",
@@ -37,266 +37,60 @@
     "resources": {
         "media": [
             {
-              "file": "images/menuicon.png",
-              "name": "MENU_ICON",
-              "menuIcon": true,
-              "type": "png"
+                "file": "images/menuicon.png",
+                "menuIcon": true,
+                "name": "MENU_ICON",
+                "type": "png"
             },
             {
-                "file": "images/BW_BATTERY_BG.png",
-                "name": "BATTERY_BG",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_9.png",
+                "name": "CLOCK_DIGIT_LECO_9",
+                "type": "png"
             },
             {
-                "file": "images/BW_BATTERY_CHARGE.png",
-                "name": "BATTERY_CHARGE",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_8.png",
+                "name": "CLOCK_DIGIT_LECO_8",
+                "type": "png"
             },
             {
-                "file": "images/BW_WEATHER_GENERIC.png",
-                "name": "WEATHER_GENERIC",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_7.png",
+                "name": "CLOCK_DIGIT_LECO_7",
+                "type": "png"
             },
             {
-                "file": "images/BW_THUNDERSTORM.png",
-                "name": "WEATHER_THUNDERSTORM",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_6.png",
+                "name": "CLOCK_DIGIT_LECO_6",
+                "type": "png"
             },
             {
-                "file": "images/BW_HEAVY_RAIN.png",
-                "name": "WEATHER_HEAVY_RAIN",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_5.png",
+                "name": "CLOCK_DIGIT_LECO_5",
+                "type": "png"
             },
             {
-                "file": "images/BW_CLEAR_NIGHT.png",
-                "name": "WEATHER_CLEAR_NIGHT",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_4.png",
+                "name": "CLOCK_DIGIT_LECO_4",
+                "type": "png"
             },
             {
-                "file": "images/BW_CLEAR_DAY.png",
-                "name": "WEATHER_CLEAR_DAY",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_3.png",
+                "name": "CLOCK_DIGIT_LECO_3",
+                "type": "png"
             },
             {
-                "file": "images/BW_PARTLY_CLOUDY_NIGHT.png",
-                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_2.png",
+                "name": "CLOCK_DIGIT_LECO_2",
+                "type": "png"
             },
             {
-                "file": "images/BW_RAINING_AND_SNOWING.png",
-                "name": "WEATHER_RAINING_AND_SNOWING",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
+                "file": "images/digit_leco_1.png",
+                "name": "CLOCK_DIGIT_LECO_1",
+                "type": "png"
             },
             {
-                "file": "images/BW_LIGHT_SNOW.png",
-                "name": "WEATHER_LIGHT_SNOW",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_LIGHT_RAIN.png",
-                "name": "WEATHER_LIGHT_RAIN",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_HEAVY_SNOW.png",
-                "name": "WEATHER_HEAVY_SNOW",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_CLOUDY_DAY.png",
-                "name": "WEATHER_CLOUDY",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_PARTLY_CLOUDY.png",
-                "name": "WEATHER_PARTLY_CLOUDY",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_DISCONNECTED.png",
-                "name": "DISCONNECTED",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "images/BW_DATE_BG.png",
-                "name": "DATE_BG",
-                "type": "png",
-                "targetPlatforms": [
-                  "aplite"
-                ]
-            },
-            {
-                "file": "data/BATTERY_BG.pdc",
-                "name": "BATTERY_BG",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/BATTERY_CHARGE.pdc",
-                "name": "BATTERY_CHARGE",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/WEATHER_GENERIC.pdc",
-                "name": "WEATHER_GENERIC",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/THUNDERSTORM.pdc",
-                "name": "WEATHER_THUNDERSTORM",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/HEAVY_RAIN.pdc",
-                "name": "WEATHER_HEAVY_RAIN",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/CLEAR_NIGHT.pdc",
-                "name": "WEATHER_CLEAR_NIGHT",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/CLEAR_DAY.pdc",
-                "name": "WEATHER_CLEAR_DAY",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
-                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/RAINING_AND_SNOWING.pdc",
-                "name": "WEATHER_RAINING_AND_SNOWING",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/LIGHT_SNOW.pdc",
-                "name": "WEATHER_LIGHT_SNOW",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/LIGHT_RAIN.pdc",
-                "name": "WEATHER_LIGHT_RAIN",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/HEAVY_SNOW.pdc",
-                "name": "WEATHER_HEAVY_SNOW",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/CLOUDY_DAY.pdc",
-                "name": "WEATHER_CLOUDY",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/PARTLY_CLOUDY.pdc",
-                "name": "WEATHER_PARTLY_CLOUDY",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/DISCONNECTED.pdc",
-                "name": "DISCONNECTED",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
-            },
-            {
-                "file": "data/DATE_BG.pdc",
-                "name": "DATE_BG",
-                "type": "raw",
-                "targetPlatforms": [
-                  "basalt", "chalk"
-                ]
+                "file": "images/digit_leco_0.png",
+                "name": "CLOCK_DIGIT_LECO_0",
+                "type": "png"
             },
             {
                 "file": "images/digit_9.png",
@@ -349,54 +143,276 @@
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_9.png",
-                "name": "CLOCK_DIGIT_LECO_9",
+                "file": "images/BW_WEATHER_GENERIC.png",
+                "name": "WEATHER_GENERIC",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_8.png",
-                "name": "CLOCK_DIGIT_LECO_8",
+                "file": "images/BW_THUNDERSTORM.png",
+                "name": "WEATHER_THUNDERSTORM",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_7.png",
-                "name": "CLOCK_DIGIT_LECO_7",
+                "file": "images/BW_RAINING_AND_SNOWING.png",
+                "name": "WEATHER_RAINING_AND_SNOWING",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_6.png",
-                "name": "CLOCK_DIGIT_LECO_6",
+                "file": "images/BW_PARTLY_CLOUDY_NIGHT.png",
+                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_5.png",
-                "name": "CLOCK_DIGIT_LECO_5",
+                "file": "images/BW_PARTLY_CLOUDY.png",
+                "name": "WEATHER_PARTLY_CLOUDY",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_4.png",
-                "name": "CLOCK_DIGIT_LECO_4",
+                "file": "images/BW_LIGHT_SNOW.png",
+                "name": "WEATHER_LIGHT_SNOW",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_3.png",
-                "name": "CLOCK_DIGIT_LECO_3",
+                "file": "images/BW_LIGHT_RAIN.png",
+                "name": "WEATHER_LIGHT_RAIN",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_2.png",
-                "name": "CLOCK_DIGIT_LECO_2",
+                "file": "images/BW_HEAVY_SNOW.png",
+                "name": "WEATHER_HEAVY_SNOW",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_1.png",
-                "name": "CLOCK_DIGIT_LECO_1",
+                "file": "images/BW_HEAVY_RAIN.png",
+                "name": "WEATHER_HEAVY_RAIN",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
             },
             {
-                "file": "images/digit_leco_0.png",
-                "name": "CLOCK_DIGIT_LECO_0",
+                "file": "images/BW_DISCONNECTED.png",
+                "name": "DISCONNECTED",
+                "targetPlatforms": [
+                    "aplite"
+                ],
                 "type": "png"
+            },
+            {
+                "file": "images/BW_DATE_BG.png",
+                "name": "DATE_BG",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/BW_CLOUDY_DAY.png",
+                "name": "WEATHER_CLOUDY",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/BW_CLEAR_NIGHT.png",
+                "name": "WEATHER_CLEAR_NIGHT",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/BW_CLEAR_DAY.png",
+                "name": "WEATHER_CLEAR_DAY",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/BW_BATTERY_CHARGE.png",
+                "name": "BATTERY_CHARGE",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/BW_BATTERY_BG.png",
+                "name": "BATTERY_BG",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "data/WEATHER_GENERIC.pdc",
+                "name": "WEATHER_GENERIC",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/THUNDERSTORM.pdc",
+                "name": "WEATHER_THUNDERSTORM",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/RAINING_AND_SNOWING.pdc",
+                "name": "WEATHER_RAINING_AND_SNOWING",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
+                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/PARTLY_CLOUDY.pdc",
+                "name": "WEATHER_PARTLY_CLOUDY",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/LIGHT_SNOW.pdc",
+                "name": "WEATHER_LIGHT_SNOW",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/LIGHT_RAIN.pdc",
+                "name": "WEATHER_LIGHT_RAIN",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/HEAVY_SNOW.pdc",
+                "name": "WEATHER_HEAVY_SNOW",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/HEAVY_RAIN.pdc",
+                "name": "WEATHER_HEAVY_RAIN",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/DISCONNECTED.pdc",
+                "name": "DISCONNECTED",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/DATE_BG.pdc",
+                "name": "DATE_BG",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/CLOUDY_DAY.pdc",
+                "name": "WEATHER_CLOUDY",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/CLEAR_NIGHT.pdc",
+                "name": "WEATHER_CLEAR_NIGHT",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/CLEAR_DAY.pdc",
+                "name": "WEATHER_CLEAR_DAY",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/BATTERY_CHARGE.pdc",
+                "name": "BATTERY_CHARGE",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
+            },
+            {
+                "file": "data/BATTERY_BG.pdc",
+                "name": "BATTERY_BG",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "raw"
             }
         ]
     },
@@ -408,7 +424,7 @@
         "chalk"
     ],
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
-    "versionLabel": "4.3",
+    "versionLabel": "4.4",
     "watchapp": {
         "watchface": true
     }
