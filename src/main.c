@@ -148,19 +148,20 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   }
 
   // every hour, if requested, vibrate
-  if(globalSettings.hourlyVibe == 1) {
-    if(tick_time->tm_min % 60 == 0 && tick_time->tm_sec == 0) {
-      vibes_short_pulse();
-    }
-  } else if(globalSettings.hourlyVibe == 2) {
-    // if half hour vibes are also enabled, do that
-    if(tick_time->tm_min % 60 == 0 && tick_time->tm_sec == 0) {
-      vibes_double_pulse();
-    } else if(tick_time->tm_min % 30 == 0) {
-      vibes_short_pulse();
+  if(tick_time->tm_sec == 0) {
+    if(globalSettings.hourlyVibe == 1) { // hourly vibes only
+      if(tick_time->tm_min % 60 == 0) {
+        vibes_short_pulse();
+      }
+    } else if(globalSettings.hourlyVibe == 2) {  // hourly and half-hourly
+      if(tick_time->tm_min % 60 == 0) {
+        vibes_double_pulse();
+      } else if(tick_time->tm_min % 30 == 0) {
+        vibes_short_pulse();
+      }
     }
   }
-
+  
   update_clock();
 }
 
