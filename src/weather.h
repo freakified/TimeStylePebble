@@ -19,13 +19,8 @@ typedef struct {
 extern WeatherInfo Weather_weatherInfo;
 extern WeatherForecastInfo Weather_weatherForecast;
 
-#ifdef PBL_COLOR
-  extern GDrawCommandImage* Weather_currentWeatherIcon;
-  extern GDrawCommandImage* Weather_forecastWeatherIcon;
-#else
-  extern GBitmap* Weather_currentWeatherIcon;
-  extern GBitmap* Weather_forecastWeatherIcon;
-#endif
+extern GDrawCommandImage* Weather_currentWeatherIcon;
+extern GDrawCommandImage* Weather_forecastWeatherIcon;
 
 
 void Weather_setConditions(int conditionCode, bool isNight, int forecastCondition);

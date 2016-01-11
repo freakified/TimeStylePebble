@@ -114,9 +114,9 @@ void ClockDigit_destruct(ClockDigit* this) {
 }
 
 void adjustImagePalette(ClockDigit* this) {
+  GColor* pal = gbitmap_get_palette(this->currentImage);
+  
   #ifdef PBL_COLOR
-    GColor* pal = gbitmap_get_palette(this->currentImage);
-
     if(this->currentFontId == FONT_ID_DEFAULT) {
       pal[0] = this->fgColor;
       pal[1] = this->midColor1;
@@ -128,10 +128,7 @@ void adjustImagePalette(ClockDigit* this) {
     }
 
   #else
-    if(this->bgColor == GColorBlack) {
-      bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssignInverted);
-    } else {
-      bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssign);
-    }
+  pal[0] = this->fgColor;
+  pal[1] = this->bgColor;
   #endif
 }

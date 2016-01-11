@@ -142,15 +142,6 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-  // on black and white pebbles, invert the icons if we're using the dark bar
-  #ifndef PBL_COLOR
-    if(globalSettings.sidebarTextColor == GColorWhite) {
-      graphics_context_set_compositing_mode(ctx, GCompOpAssignInverted);
-    } else {
-      graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-    }
-  #endif
-
   // if the pebble is connected, show the middle widget
   // otherwise, show the disconnection widget
   bool isPhoneConnected = bluetooth_connection_service_peek();

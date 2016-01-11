@@ -4,13 +4,8 @@
 WeatherInfo Weather_weatherInfo;
 WeatherForecastInfo Weather_weatherForecast;
 
-#ifdef PBL_COLOR
-  GDrawCommandImage* Weather_currentWeatherIcon;
-  GDrawCommandImage* Weather_forecastWeatherIcon;
-#else
-  GBitmap* Weather_currentWeatherIcon;
-  GBitmap* Weather_forecastWeatherIcon;
-#endif
+GDrawCommandImage* Weather_currentWeatherIcon;
+GDrawCommandImage* Weather_forecastWeatherIcon;
 
 uint32_t getConditionIcon(int conditionCode) {
   uint32_t iconToLoad;
@@ -100,23 +95,13 @@ void Weather_setConditions(int conditionCode, bool isNight, int forecastConditio
   uint32_t forecastWeatherIcon = getConditionIcon(forecastCondition);
 
   // ok, now load the new icon:
-  #ifdef PBL_COLOR
-    GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
-    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(currentWeatherIcon);
-    gdraw_command_image_destroy(oldImage);
+  GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
+  Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(currentWeatherIcon);
+  gdraw_command_image_destroy(oldImage);
 
-    oldImage = Weather_forecastWeatherIcon;
-    Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
-    gdraw_command_image_destroy(oldImage);
-  #else
-    GBitmap* oldImage = Weather_currentWeatherIcon;
-    Weather_currentWeatherIcon = gbitmap_create_with_resource(currentWeatherIcon);
-    gbitmap_destroy(oldImage);
-
-    oldImage = Weather_forecastWeatherIcon;
-    Weather_forecastWeatherIcon = gbitmap_create_with_resource(forecastWeatherIcon);
-    gbitmap_destroy(oldImage);
-  #endif
+  oldImage = Weather_forecastWeatherIcon;
+  Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
+  gdraw_command_image_destroy(oldImage);
 
   Weather_weatherInfo.currentIconResourceID = currentWeatherIcon;
   Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
@@ -132,11 +117,7 @@ void Weather_init() {
 
     Weather_weatherInfo = w;
 
-    #ifdef PBL_COLOR
-      Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
-    #else
-      Weather_currentWeatherIcon = gbitmap_create_with_resource(w.currentIconResourceID);
-    #endif
+    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(w.currentIconResourceID);
 
   } else {
 
@@ -153,11 +134,7 @@ void Weather_init() {
 
     Weather_weatherForecast = w;
 
-    #ifdef PBL_COLOR
-      Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(w.forecastIconResourceID);
-    #else
-      Weather_forecastWeatherIcon = gbitmap_create_with_resource(w.forecastIconResourceID);
-    #endif
+    Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(w.forecastIconResourceID);
 
   } else {
     printf("forecast key does not exist!");
@@ -179,11 +156,6 @@ void Weather_deinit() {
   Weather_saveData();
 
   // free memory
-  #ifdef PBL_COLOR
-    gdraw_command_image_destroy(Weather_currentWeatherIcon);
-    gdraw_command_image_destroy(Weather_forecastWeatherIcon);
-  #else
-    gbitmap_destroy(Weather_currentWeatherIcon);
-    gbitmap_destroy(Weather_forecastWeatherIcon);
-  #endif
+  gdraw_command_image_destroy(Weather_currentWeatherIcon);
+  gdraw_command_image_destroy(Weather_forecastWeatherIcon);
 }

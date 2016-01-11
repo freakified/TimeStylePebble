@@ -9,17 +9,10 @@ bool SidebarWidgets_useCompactMode = false;
 int SidebarWidgets_xOffset;
 
 // sidebar icons
-#ifdef PBL_COLOR
-  GDrawCommandImage* dateImage;
-  GDrawCommandImage* disconnectImage;
-  GDrawCommandImage* batteryImage;
-  GDrawCommandImage* batteryChargeImage;
-#else
-  GBitmap* dateImage;
-  GBitmap* disconnectImage;
-  GBitmap* batteryImage;
-  GBitmap* batteryChargeImage;
-#endif
+GDrawCommandImage* dateImage;
+GDrawCommandImage* disconnectImage;
+GDrawCommandImage* batteryImage;
+GDrawCommandImage* batteryChargeImage;
 
 // fonts
 GFont smSidebarFont;
@@ -80,17 +73,11 @@ void SidebarWidgets_init() {
   lgSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
 
   // load the sidebar graphics
-  #ifdef PBL_COLOR
-    dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
-    disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
-    batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
-    batteryChargeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
-  #else
-    dateImage = gbitmap_create_with_resource(RESOURCE_ID_DATE_BG);
-    disconnectImage = gbitmap_create_with_resource(RESOURCE_ID_DISCONNECTED);
-    batteryImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_BG);
-    batteryChargeImage = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
-  #endif
+  dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
+  disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
+  batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
+  batteryChargeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
+
 
   // set up widgets' function pointers correctly
   batteryMeterWidget.getHeight = BatteryMeter_getHeight;
@@ -123,17 +110,10 @@ void SidebarWidgets_init() {
 }
 
 void SidebarWidgets_deinit() {
-  #ifdef PBL_COLOR
-    gdraw_command_image_destroy(dateImage);
-    gdraw_command_image_destroy(disconnectImage);
-    gdraw_command_image_destroy(batteryImage);
-    gdraw_command_image_destroy(batteryChargeImage);
-  #else
-    gbitmap_destroy(dateImage);
-    gbitmap_destroy(disconnectImage);
-    gbitmap_destroy(batteryImage);
-    gbitmap_destroy(batteryChargeImage);
-  #endif
+  gdraw_command_image_destroy(dateImage);
+  gdraw_command_image_destroy(disconnectImage);
+  gdraw_command_image_destroy(batteryImage);
+  gdraw_command_image_destroy(batteryChargeImage);
 }
 
 void SidebarWidgets_updateFonts() {
@@ -263,34 +243,20 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
     if(chargeState.is_charging) {
       if(batteryChargeImage) {
-        #ifdef PBL_COLOR
-          gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-        #else
-          graphics_draw_bitmap_in_rect(ctx, batteryChargeImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
-        #endif
+        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
       }
     } else {
       if (batteryImage) {
-        #ifdef PBL_COLOR
-          gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-        #else
-          graphics_draw_bitmap_in_rect(ctx, batteryImage, GRect(3 + SidebarWidgets_xOffset, batteryPositionY, 25, 25));
-        #endif
+        gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
       }
 
       int width = roundf(18 * chargeState.charge_percent / 100.0f);
 
       graphics_context_set_fill_color(ctx, GColorBlack);
 
-      #ifdef PBL_COLOR
-        if(chargeState.charge_percent <= 20) {
-          graphics_context_set_fill_color(ctx, GColorRed);
-        }
-      #else
-        if(globalSettings.sidebarTextColor == GColorWhite) {
-          graphics_context_set_fill_color(ctx, GColorWhite);
-        }
-      #endif
+      if(chargeState.charge_percent <= 20) {
+        graphics_context_set_fill_color(ctx, GColorRed);
+      }
 
       graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
     }
@@ -352,45 +318,36 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   // (an image in normal mode, a rectangle in large font mode)
   if(!globalSettings.useLargeFonts) {
     if (dateImage) {
-      #ifdef PBL_COLOR
-        gdraw_command_image_draw(ctx, dateImage, GPoint(3 + SidebarWidgets_xOffset, yPosition + 23));
-      #else
-        graphics_draw_bitmap_in_rect(ctx, dateImage, GRect(3 + SidebarWidgets_xOffset, yPosition + 23, 25, 25));
-      #endif
+      gdraw_command_image_draw(ctx, dateImage, GPoint(3 + SidebarWidgets_xOffset, yPosition + 23));
     }
   } else {
-    #ifdef PBL_COLOR
-      graphics_context_set_fill_color(ctx, GColorWhite);
-      graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
-    #else
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
       // on black and white watches, draw an outlined rectangle
 
       // this is the "outline" color
-      if(globalSettings.sidebarColor == GColorWhite) {
-        graphics_context_set_fill_color(ctx, GColorBlack);
-      } else {
-        graphics_context_set_fill_color(ctx, GColorWhite);
-      }
+      // if(globalSettings.sidebarColor == GColorWhite) {
+      //   graphics_context_set_fill_color(ctx, GColorBlack);
+      // } else {
+      //   graphics_context_set_fill_color(ctx, GColorWhite);
+      // }
+      //
+      // graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
+      //
+      // // this is the "inner" color
+      // if(globalSettings.sidebarColor == GColorWhite) {
+      //   graphics_context_set_fill_color(ctx, GColorWhite);
+      // } else {
+      //   graphics_context_set_fill_color(ctx, GColorBlack);
+      // }
+      //
+      // graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, yPosition + 31, 24, 20), 0, GCornersAll);
 
-      graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
-
-      // this is the "inner" color
-      if(globalSettings.sidebarColor == GColorWhite) {
-        graphics_context_set_fill_color(ctx, GColorWhite);
-      } else {
-        graphics_context_set_fill_color(ctx, GColorBlack);
-      }
-
-      graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, yPosition + 31, 24, 20), 0, GCornersAll);
-
-    #endif
 
   }
 
   // next, draw the date number
-  #if PBL_COLOR
-    graphics_context_set_text_color(ctx, GColorBlack);
-  #endif
+  graphics_context_set_text_color(ctx, GColorBlack);
 
   int yOffset = 0;
   yOffset = globalSettings.useLargeFonts ? 24 : 26;
@@ -437,11 +394,7 @@ void CurrentWeather_draw(GContext* ctx, int yPosition) {
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   if (Weather_currentWeatherIcon) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, Weather_currentWeatherIcon, GRect(3 + SidebarWidgets_xOffset, yPosition, 25, 25));
-    #endif
+    gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 
   // draw weather data only if it has been set
@@ -497,11 +450,7 @@ int BTDisconnect_getHeight() {
 
 void BTDisconnect_draw(GContext* ctx, int yPosition) {
   if(disconnectImage) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, disconnectImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, disconnectImage, GRect(3 + SidebarWidgets_xOffset, yPosition, 25, 25));
-    #endif
+    gdraw_command_image_draw(ctx, disconnectImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 }
 
@@ -575,11 +524,7 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   if(Weather_forecastWeatherIcon) {
-    #ifdef PBL_COLOR
-      gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-    #else
-      graphics_draw_bitmap_in_rect(ctx, Weather_forecastWeatherIcon, GRect(3 + SidebarWidgets_xOffset, yPosition, 25, 25));
-    #endif
+    gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 
   // draw weather data only if it has been set
