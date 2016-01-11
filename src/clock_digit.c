@@ -115,7 +115,7 @@ void ClockDigit_destruct(ClockDigit* this) {
 
 void adjustImagePalette(ClockDigit* this) {
   GColor* pal = gbitmap_get_palette(this->currentImage);
-  
+
   #ifdef PBL_COLOR
     if(this->currentFontId == FONT_ID_DEFAULT) {
       pal[0] = this->fgColor;
@@ -126,9 +126,8 @@ void adjustImagePalette(ClockDigit* this) {
       pal[0] = this->fgColor;
       pal[1] = this->bgColor;
     }
-
   #else
-  pal[0] = this->fgColor;
-  pal[1] = this->bgColor;
+    pal[0] = this->fgColor;
+    pal[1] = this->bgColor;
   #endif
 }

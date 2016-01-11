@@ -80,34 +80,23 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *altclockOffset_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_OFFSET);
 
   if(timeColor_tuple != NULL) {
-    #ifdef PBL_COLOR
-      globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
-    #else
-      globalSettings.timeColor = (timeColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
-    #endif
+    globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
   }
 
   if(bgColor_tuple != NULL) {
-    #ifdef PBL_COLOR
-      globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
-    #else
-      globalSettings.timeBgColor = (bgColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
-    #endif
+    globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
   }
 
   if(sidebarColor_tuple != NULL) {
-    #ifdef PBL_COLOR
-      globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
-    #else
-      globalSettings.sidebarColor = (sidebarColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
-    #endif
+    globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
   }
 
   if(sidebarTextColor_tuple != NULL) {
+    // text can only be black or white, so we'll enforce that here
     #ifdef PBL_COLOR
       globalSettings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
     #else
-      globalSettings.sidebarTextColor = (sidebarTextColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
+      globalSettings.sidebarTextColor = (timeColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
     #endif
   }
 
