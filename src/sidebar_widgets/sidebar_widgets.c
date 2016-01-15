@@ -287,7 +287,7 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
           graphics_context_set_fill_color(ctx, GColorRed);
         }
       #else
-        if(globalSettings.sidebarTextColor == GColorWhite) {
+        if(gcolor_equal(globalSettings.sidebarTextColor, GColorWhite)) {
           graphics_context_set_fill_color(ctx, GColorWhite);
         }
       #endif
@@ -366,7 +366,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
       // on black and white watches, draw an outlined rectangle
 
       // this is the "outline" color
-      if(globalSettings.sidebarColor == GColorWhite) {
+      if(gcolor_equal(globalSettings.sidebarColor, GColorWhite)) {
         graphics_context_set_fill_color(ctx, GColorBlack);
       } else {
         graphics_context_set_fill_color(ctx, GColorWhite);
@@ -375,7 +375,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
       graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
 
       // this is the "inner" color
-      if(globalSettings.sidebarColor == GColorWhite) {
+      if(gcolor_equal(globalSettings.sidebarColor, GColorWhite)) {
         graphics_context_set_fill_color(ctx, GColorWhite);
       } else {
         graphics_context_set_fill_color(ctx, GColorBlack);

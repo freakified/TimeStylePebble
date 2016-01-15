@@ -128,7 +128,7 @@ void adjustImagePalette(ClockDigit* this) {
     }
 
   #else
-    if(this->bgColor == GColorBlack) {
+    if(gcolor_equal(this->bgColor, GColorBlack)) {
       bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssignInverted);
     } else {
       bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssign);
