@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "weather.h"
 #include "languages.h"
+#include "util.h"
 #include "sidebar_widgets.h"
 
 bool SidebarWidgets_useCompactMode = false;
@@ -318,6 +319,8 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   // (an image in normal mode, a rectangle in large font mode)
   if(!globalSettings.useLargeFonts) {
     if (dateImage) {
+      // gdraw_command_image_recolor(dateImage, GColorLightGray, GColorBlack);
+
       gdraw_command_image_draw(ctx, dateImage, GPoint(3 + SidebarWidgets_xOffset, yPosition + 23));
     }
   } else {
