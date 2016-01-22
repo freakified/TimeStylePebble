@@ -3,6 +3,8 @@ var APP_VERSION = 4;
 // var BASE_CONFIG_URL = 'http://192.168.1.105:4000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 
+var WEATHER_CACHE_LIFETIME = 86400; // 1 day
+
 var failureRetryAmount = 3;
 var currentFailures = 0;
 
@@ -18,8 +20,11 @@ var xhrRequest = function (url, type, callback) {
 
 function locationError(err) {
   console.log('location error on the JS side! Failure #' + currentFailures);
-  //if we fail, try again!
+  //if we fail, try using the cached location
   if(currentFailures <= failureRetryAmount) {
+    // reset cache time
+    window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
+
     getWeather();
     currentFailures++;
   } else {
@@ -30,13 +35,29 @@ function locationError(err) {
 
 function locationSuccess(pos) {
   // Construct URL
-  var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-      encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.placefinder(1) where text="' +
-      pos.coords.latitude + ',' + pos.coords.longitude +  '" and gflags="R") and u="c" limit 1') + '&format=json';
+  // first, do a reverse geocode lookup on the coordinates
 
-  console.log(url);
+  var url = 'http://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
 
-  getAndSendWeatherData(url);
+  console.log("Reverse geocoding url: " + url);
+
+  xhrRequest(url, 'GET',
+    function(responseText) {
+
+      // responseText contains a JSON object with weather info
+      var json = JSON.parse(responseText);
+
+      var location = json.display_name;
+
+      console.log("We did it! Location was " + location);
+
+
+      window.localStorage.setItem('weather_loc_cache', location);
+      window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
+
+      getWeather();
+    }
+  );
 }
 
 function getLocation() {
@@ -52,14 +73,27 @@ function getWeather() {
   console.log("Get weather function called! DisableWeather is '" + weatherDisabled + "'");
   if(weatherDisabled !== "yes") {
     window.localStorage.setItem('disable_weather', 'no');
-    var weatherLoc = window.localStorage.getItem('weather_loc');
 
-    console.log('Getting Weather! WeatherLoc is: "' + weatherLoc + '"');
+    var weatherLoc = window.localStorage.getItem('weather_loc');
+    var weatherLocCache = window.localStorage.getItem('weather_loc_cache');
+    var weatherLocCacheTime = window.localStorage.getItem('weather_loc_cache_time');
+    var cacheAge = (new Date().getTime() / 1000) - weatherLocCacheTime;
+
+    var location = false;
 
     if(weatherLoc) {
+      location = weatherLoc;
+      console.log("it thinks we have a location");
+    } else if ((new Date().getTime() / 1000) - weatherLocCacheTime < WEATHER_CACHE_LIFETIME ) {
+      location = weatherLocCache;
+      console.log("it thinks we have a cache! Loc:" + weatherLocCache + ", Age: " + cacheAge);
+
+    }
+
+    if(location !== false) {
       var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
           encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-          weatherLoc + '") and u="c" limit 1') + '&format=json';
+          location + '") and u="c" limit 1') + '&format=json';
       console.log(url);
 
       getAndSendWeatherData(url);
