@@ -356,6 +356,9 @@ console.log($('#battery_meter_setting .btn.active').data('setting'));
       case '8':
         image_url += 'WEATHER_TODAY';
         break;
+	  case '9':
+        image_url += 'TIME';
+        break;
       case '0':
         image_url += 'NONE';
         break;
