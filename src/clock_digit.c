@@ -133,6 +133,5 @@ void adjustImagePalette(ClockDigit* this) {
     } else {
       bitmap_layer_set_compositing_mode(this->imageLayer, GCompOpAssign);
     }
-
   #endif
 }
