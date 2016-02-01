@@ -149,7 +149,6 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
     } else {
       graphics_context_set_compositing_mode(ctx, GCompOpAssign);
     }
-
   #endif
 
   // if the pebble is connected, show the middle widget
