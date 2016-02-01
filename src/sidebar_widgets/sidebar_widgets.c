@@ -28,13 +28,15 @@ GFont lgSidebarFont;
 GFont currentSidebarFont;
 GFont batteryFont;
 
-// the date and weather strings
+// the date, time and weather strings
 char currentDayName[8];
 char currentDayNum[8];
 char currentMonth[8];
 char currentWeekNum[8];
 char currentSecondsNum[8];
 char altClock[8];
+char currentHours[8];
+char currentMinutes[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -72,6 +74,10 @@ void Seconds_draw(GContext* ctx, int yPosition);
 SidebarWidget altTimeWidget;
 int AltTime_getHeight();
 void AltTime_draw(GContext* ctx, int yPosition);
+
+SidebarWidget timeWidget;
+int Time_getHeight();
+void Time_draw(GContext* ctx, int yPosition);
 
 void SidebarWidgets_init() {
   // load fonts
@@ -119,6 +125,9 @@ void SidebarWidgets_init() {
 
   altTimeWidget.getHeight = AltTime_getHeight;
   altTimeWidget.draw      = AltTime_draw;
+  
+  timeWidget.getHeight = Time_getHeight;
+  timeWidget.draw      = Time_draw;
 
 }
 
@@ -160,6 +169,14 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
 
   // set the seconds string
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
+  
+  // set the current time strings
+  if(clock_is_24h_style()) {
+    strftime(currentHours, 3, "%H", timeInfo);
+  } else {
+    strftime(currentHours, 3, "%I", timeInfo);
+  }
+  strftime(currentMinutes, 3, "%M", timeInfo);
 
   // set the alternate time zone string
   int hour = timeInfo->tm_hour;
@@ -208,6 +225,9 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case ALT_TIME_ZONE:
       return altTimeWidget;
+      break;
+    case TIME:
+      return timeWidget;
       break;
     case SECONDS:
       return secondsWidget;
@@ -556,6 +576,31 @@ void Seconds_draw(GContext* ctx, int yPosition) {
                      currentSecondsNum,
                      lgSidebarFont,
                      GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+}
+
+/***** Time Widget *****/
+
+int Time_getHeight() {
+  return 14;
+}
+
+void Time_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
+  graphics_draw_text(ctx,
+                     currentHours,
+                     lgSidebarFont,
+                     GRect(0 + SidebarWidgets_xOffset, yPosition - 15, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+  graphics_draw_text(ctx,
+                     currentMinutes,
+                     lgSidebarFont,
+                     GRect(0 + SidebarWidgets_xOffset, yPosition, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
