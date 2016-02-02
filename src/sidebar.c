@@ -144,11 +144,12 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   // on black and white pebbles, invert the icons if we're using the dark bar
   #ifndef PBL_COLOR
-    if(globalSettings.sidebarTextColor == GColorWhite) {
+    if(gcolor_equal(globalSettings.sidebarTextColor, GColorWhite)) {
       graphics_context_set_compositing_mode(ctx, GCompOpAssignInverted);
     } else {
       graphics_context_set_compositing_mode(ctx, GCompOpAssign);
     }
+
   #endif
 
   // if the pebble is connected, show the middle widget
