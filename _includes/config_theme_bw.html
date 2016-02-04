@@ -1,40 +1,16 @@
 <label>Theme</label>
-<ul id="ColorSelectorTabs" class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true"><span class="glyphicon glyphicon-star"></span> Presets</a></li>
-  <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile"><span class="glyphicon glyphicon-pencil"></span> Customize</a></li>
-</ul>
 <div id="ColorSelectorTabContent" class="tab-content">
   <div role="tabpanel" class="tab-pane fade in active" id="tab_presetcolors" aria-labelledBy="home-tab">
     <div class="form-group">
       <div id="preset_selector" data-toggle="buttons">
+        <div id="presets_scroller_outer">
+          <div id="presets_scroller_inner" style="width: 1000px">
+          <div class="presets_group">
+
         <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#FFFFFF">
           <input type="radio" name="options" id="option1" autocomplete="off">
           <div class="example_face" style="color: #FFFFFF; background-color: #000000; border-color: #FFFFFF;">6<br>32</div>
-          Default
-        </label>
-
-        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
-          <input type="radio" name="options" id="option1" autocomplete="off">
-          <div class="example_face" style="color: #000000; background-color: #FFFFFF; border-color: #000000;">6<br>32</div>
-          Invert
-        </label>
-
-        <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#FFFFFF">
-          <input type="radio" name="options" id="option1" autocomplete="off">
-          <div class="example_face" style="color: #000000; background-color: #FFFFFF; border-color: #AAAAAA;">6<br>32</div>
-          Timeline
-        </label>
-
-        <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#FFFFFF">
-          <input type="radio" name="options" id="option1" autocomplete="off">
-          <div class="example_face" style="color: #FFFFFF; background-color: #000000; border-color: #AAAAAA;">6<br>32</div>
-          Timeline-Dark
-        </label>
-
-        <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#FFFFFF">
-          <input type="radio" name="options" id="option1" autocomplete="off">
-          <div class="example_face" style="color: #000000; background-color: #AAAAAA; border-color: #AAAAAA;">6<br>32</div>
-          Steel
+          Contrast
         </label>
 
         <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
@@ -43,24 +19,98 @@
           Pure Dark
         </label>
 
+        <label class="btn btn-default" data-time-color="#FFFFFF" data-time-bg-color="#000000" data-sidebar-color="#AAAAAA">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #FFFFFF; background-color: #000000; border-color: #AAAAAA;">6<br>32</div>
+          Timeline-Dark
+        </label>
+
+        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#AAAAAA">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #000000; background-color: #FFFFFF; border-color: #AAAAAA;">6<br>32</div>
+          Timeline
+        </label>
+
+        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #000000; background-color: #FFFFFF; border-color: #000000;">6<br>32</div>
+          Invert
+        </label>
+
         <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#FFFFFF" data-sidebar-color="#FFFFFF">
           <input type="radio" name="options" id="option1" autocomplete="off">
           <div class="example_face" style="color: #000000; background-color: #FFFFFF; border-color: #FFFFFF;">6<br>32</div>
           Pure Light
         </label>
+
+      </div>
+      <div class="presets_group">
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#000000" data-sidebar-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #AAAAAA; background-color: #000000; border-color: #FFFFFF;">6<br>32</div>
+          Daybreak
+        </label>
+
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#000000" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #FFFFFF; background-color: #000000; border-color: #000000;">6<br>32</div>
+           Midnight
+        </label>
+
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#000000" data-sidebar-color="#AAAAAA">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #AAAAAA; background-color: #000000; border-color: #AAAAAA;">6<br>32</div>
+          Shade
+        </label>
+
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#FFFFFF" data-sidebar-color="#AAAAAA">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #AAAAAA; background-color: #FFFFFF; border-color: #AAAAAA;">6<br>32</div>
+          Faded
+        </label>
+
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#FFFFFF" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #AAAAAA; background-color: #FFFFFF; border-color: #000000;">6<br>32</div>
+          Faded 1
+        </label>
+
+        <label class="btn btn-default" data-time-color="#AAAAAA" data-time-bg-color="#FFFFFF" data-sidebar-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #AAAAAA; background-color: #FFFFFF; border-color: #FFFFFF;">6<br>32</div>
+          Faded 2
+        </label>
+
+      </div>
+      <div class="presets_group">
+
+        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#AAAAAA" data-sidebar-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #000000; background-color: #AAAAAA; border-color: #ffffff;">6<br>32</div>
+          Steel
+        </label>
+
+        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#AAAAAA" data-sidebar-color="#000000" data-sidebar-text-color="#FFFFFF">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #000000; background-color: #AAAAAA; border-color: #000000;">6<br>32</div>
+          Steel 2
+        </label>
+
+        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#AAAAAA" data-sidebar-color="#AAAAAA">
+          <input type="radio" name="options" id="option1" autocomplete="off">
+          <div class="example_face" style="color: #000000; background-color: #AAAAAA; border-color: #AAAAAA;">6<br>32</div>
+          Steel 3
+        </label>
+
+      </div>
       </div>
     </div>
 
 </div>
+</div>
+</div>
 
-<div role="tabpanel" class="tab-pane fade" id="tab_customcolors" aria-labelledBy="profile-tab">
-  <div id="custom_preview_help" class="alert alert-info" role="alert">
-    Select the three required colors to create a theme
-  </div>
-  <div id="custom_preview_container">
-    <div id="custom_preview" class="example_face" style="margin: 13px">6<br>32</div>
-  </div>
-
+<div class="hidden">
 <label>Time Text Color</label>
 <div class="form-group">
   <input type='text' id="time-color" class="colorpicker"/>
@@ -76,7 +126,5 @@
 <label>Sidebar Text Color (not shown in preview)</label>
 <div class="form-group">
   <input type='text' id="sidebar-text-color" class="colorpicker"/>
-</div>
-
 </div>
 </div>
