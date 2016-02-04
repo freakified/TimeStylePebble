@@ -29,9 +29,6 @@ uint32_t ClockDigit_imageIds[2][10] = {
    RESOURCE_ID_CLOCK_DIGIT_LECO_9}
 };
 
-
-
-
 void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
 
   if(this->currentNum != number || this->currentFontId != fontId) {

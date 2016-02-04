@@ -93,11 +93,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(sidebarTextColor_tuple != NULL) {
     // text can only be black or white, so we'll enforce that here
-    #ifdef PBL_COLOR
-      globalSettings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
-    #else
-      globalSettings.sidebarTextColor = (timeColor_tuple->value->int32 == 0) ? GColorBlack : GColorWhite;
-    #endif
+    globalSettings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
   }
 
   if(sidebarPos_tuple != NULL) {

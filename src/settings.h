@@ -43,6 +43,9 @@ typedef struct {
   // dynamic settings (calculated based the currently-selected widgets)
   bool disableWeather;
   bool updateScreenEverySecond;
+  // TODO: these shouldn't be dynamic
+  GColor iconFillColor;
+  GColor iconStrokeColor;
 } Settings;
 
 extern Settings globalSettings;

@@ -127,6 +127,7 @@ void SidebarWidgets_updateFonts() {
   }
 }
 
+
 // c can't do true modulus on negative numbers, apparently
 // from http://stackoverflow.com/questions/11720656/modulo-operation-with-negative-numbers
 int mod(int a, int b) {
@@ -229,6 +230,7 @@ int BatteryMeter_getHeight() {
 }
 
 void BatteryMeter_draw(GContext* ctx, int yPosition) {
+
   BatteryChargeState chargeState = battery_state_service_peek();
 
   // respect the "only show battery meter when low" setting
@@ -244,16 +246,18 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
     if(chargeState.is_charging) {
       if(batteryChargeImage) {
+        gdraw_command_image_recolor(batteryChargeImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
         gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
       }
     } else {
       if (batteryImage) {
+        gdraw_command_image_recolor(batteryImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
         gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
       }
 
       int width = roundf(18 * chargeState.charge_percent / 100.0f);
 
-      graphics_context_set_fill_color(ctx, GColorBlack);
+      graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
 
       if(chargeState.charge_percent <= 20) {
         graphics_context_set_fill_color(ctx, GColorRed);
@@ -318,39 +322,22 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   // next, draw the date background
   // (an image in normal mode, a rectangle in large font mode)
   if(!globalSettings.useLargeFonts) {
-    if (dateImage) {
-      // gdraw_command_image_recolor(dateImage, GColorLightGray, GColorBlack);
+    if(dateImage) {
 
+      // TODO: replace this with a more generalized version
+      gdraw_command_image_recolor(dateImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
       gdraw_command_image_draw(ctx, dateImage, GPoint(3 + SidebarWidgets_xOffset, yPosition + 23));
     }
   } else {
-    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
     graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
-      // on black and white watches, draw an outlined rectangle
 
-      // this is the "outline" color
-      // if(globalSettings.sidebarColor == GColorWhite) {
-      //   graphics_context_set_fill_color(ctx, GColorBlack);
-      // } else {
-      //   graphics_context_set_fill_color(ctx, GColorWhite);
-      // }
-      //
-      // graphics_fill_rect(ctx, GRect(2 + SidebarWidgets_xOffset, yPosition + 30, 26, 22), 2, GCornersAll);
-      //
-      // // this is the "inner" color
-      // if(globalSettings.sidebarColor == GColorWhite) {
-      //   graphics_context_set_fill_color(ctx, GColorWhite);
-      // } else {
-      //   graphics_context_set_fill_color(ctx, GColorBlack);
-      // }
-      //
-      // graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, yPosition + 31, 24, 20), 0, GCornersAll);
-
-
+    graphics_context_set_fill_color(ctx, globalSettings.iconFillColor);
+    graphics_fill_rect(ctx, GRect(4 + SidebarWidgets_xOffset, yPosition + 32, 22, 18), 0, GCornersAll);
   }
 
   // next, draw the date number
-  graphics_context_set_text_color(ctx, GColorBlack);
+  graphics_context_set_text_color(ctx, globalSettings.iconStrokeColor);
 
   int yOffset = 0;
   yOffset = globalSettings.useLargeFonts ? 24 : 26;
@@ -397,6 +384,8 @@ void CurrentWeather_draw(GContext* ctx, int yPosition) {
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   if (Weather_currentWeatherIcon) {
+    gdraw_command_image_recolor(Weather_currentWeatherIcon, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+
     gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 
@@ -453,6 +442,9 @@ int BTDisconnect_getHeight() {
 
 void BTDisconnect_draw(GContext* ctx, int yPosition) {
   if(disconnectImage) {
+    gdraw_command_image_recolor(disconnectImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+
+
     gdraw_command_image_draw(ctx, disconnectImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 }
@@ -527,6 +519,8 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   if(Weather_forecastWeatherIcon) {
+    gdraw_command_image_recolor(Weather_forecastWeatherIcon, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+
     gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 
