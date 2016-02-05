@@ -176,6 +176,9 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   } else {
     strftime(currentHours, 3, "%I", timeInfo);
   }
+  if(!globalSettings.showLeadingZero && currentHours[0] == '0') {
+    currentHours[0] = ' ';
+  }
   strftime(currentMinutes, 3, "%M", timeInfo);
 
   // set the alternate time zone string

@@ -32,6 +32,7 @@
         "configurable"
     ],
     "companyName": "Freakified",
+    "enableMultiJS": false,
     "longName": "TimeStyle",
     "projectType": "native",
     "resources": {
