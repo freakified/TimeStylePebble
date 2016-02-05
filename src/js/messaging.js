@@ -1,4 +1,4 @@
-var APP_VERSION = 4;
+var APP_VERSION = 5;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
 // var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
