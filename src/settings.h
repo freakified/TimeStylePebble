@@ -6,7 +6,7 @@
 #define SETTINGS_VERSION_KEY 4
 
 // settings "version" for app version 4.0
-#define CURRENT_SETTINGS_VERSION 4
+#define CURRENT_SETTINGS_VERSION 5
 
 typedef struct {
   // color settings

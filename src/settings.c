@@ -9,13 +9,18 @@ void Settings_init() {
   // first, check if we have any saved settings
   int settingsVersion = persist_read_int(SETTINGS_VERSION_KEY);
 
-  if(settingsVersion == 3) {
-    // if it's the pre-widgets version of the settings migrate them
-    Settings_migrateLegacySidebar();
-  }
-
   // load all settings
   Settings_loadFromStorage();
+
+  // for BW watches, reset colors to defaults
+  #ifndef PBL_COLOR
+    if(settingsVersion < CURRENT_SETTINGS_VERSION) {
+      globalSettings.timeColor      = GColorWhite;
+      globalSettings.sidebarColor   = GColorWhite;
+      globalSettings.timeBgColor      = GColorBlack;
+      globalSettings.sidebarTextColor = GColorBlack;
+    }
+  #endif
 }
 
 void Settings_deinit() {
@@ -114,39 +119,6 @@ void Settings_saveToStorage() {
 
   persist_write_int(SETTINGS_VERSION_KEY,               CURRENT_SETTINGS_VERSION);
 }
-
-void Settings_migrateLegacySidebar() {
-  // two legacy settings impact the selection of sidebar widgets:
-  bool disableWeather   = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
-  bool showBatteryLevel = persist_read_bool(SETTING_SHOW_BATTERY_METER_KEY);
-
-  if(!disableWeather) {
-    // if the weather is enabled, it goes on top
-    globalSettings.widgets[0] = WEATHER_CURRENT;
-    globalSettings.widgets[1] = (showBatteryLevel) ? BATTERY_METER : EMPTY;
-  } else {
-    // if the weather is disabled, the battery meter goes on top
-    globalSettings.widgets[0] = (showBatteryLevel) ? BATTERY_METER : EMPTY;
-    globalSettings.widgets[1] = EMPTY;
-  }
-
-  // the third widget is always the date
-  globalSettings.widgets[2] = DATE;
-
-  // save the new data
-  persist_write_int(SETTING_SIDEBAR_WIDGET0_KEY, globalSettings.widgets[0]);
-  persist_write_int(SETTING_SIDEBAR_WIDGET1_KEY, globalSettings.widgets[1]);
-  persist_write_int(SETTING_SIDEBAR_WIDGET2_KEY, globalSettings.widgets[2]);
-
-  // delete the battery meter enable setting, which is no longer useful
-  // note that "disableWeather" still has a purpose, in that it is used to
-  // control whether or not the watch does weather updates
-  persist_delete(SETTING_SHOW_BATTERY_METER_KEY);
-
-  // save the new settings version key
-  persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
-}
-
 
 void Settings_updateDynamicSettings() {
   globalSettings.disableWeather = true;
