@@ -540,17 +540,17 @@ void Time_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      currentHours,
                      lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 30, 14),
+                     GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 25, 14),
                      GTextOverflowModeFill,
-                     GTextAlignmentCenter,
+                     GTextAlignmentRight,
                      NULL);
 
   graphics_draw_text(ctx,
                      currentMinutes,
                      lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition + 7, 30, 14),
+                     GRect(0 + SidebarWidgets_xOffset, yPosition + 7, 25, 14),
                      GTextOverflowModeFill,
-                     GTextAlignmentCenter,
+                     GTextAlignmentRight,
                      NULL);
 }
 
