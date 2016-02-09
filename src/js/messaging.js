@@ -1,7 +1,10 @@
 var APP_VERSION = 5;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
-var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
-// var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+// var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
+var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+// var BASE_CONFIG_URL = 'http://192.168.1.105:4000/';
+
+>>>>>>> 9c26abe920830d6e83eda19da7f5d8e3c96d3cc0
 
 var WEATHER_CACHE_LIFETIME = 86400; // 1 day
 
