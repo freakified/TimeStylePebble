@@ -13,56 +13,15 @@
   <div class="col">
     <label class="subtle">Left Side</label>
     <select class="form-control" id="widget_0_selector">
-      <option value="0">None</option>
-      <optgroup label="Time &amp; Date">
-        <option value="3">Alternate Time Zone</option>
-        <option value="4">Today's Date</option>
-        <option value="9">Current Time</option>
-        <option value="5">Seconds</option>
-        <option value="6">Week Number</option>
-      </optgroup>
-      <optgroup label="Watch Status">
-        <option value="2">Battery Meter</option>
-      </optgroup>
-      <optgroup label="Weather">
-        <option value="7">Current Weather</option>
-        <option value="8">Today's Forecast</option>
-      </optgroup>
+      {% include widget_selector.html %}
     </select>
     <br>
     <label class="subtle">Right Side</label>
     <select class="form-control" id="widget_2_selector">
-      <option value="0">None</option>
-      <optgroup label="Time &amp; Date">
-        <option value="3">Alternate Time Zone</option>
-        <option value="4">Today's Date</option>
-        <option value="9">Current Time</option>
-        <option value="5">Seconds</option>
-        <option value="6">Week Number</option>
-      </optgroup>
-      <optgroup label="Watch Status">
-        <option value="2">Battery Meter</option>
-      </optgroup>
-      <optgroup label="Weather">
-        <option value="7">Current Weather</option>
-        <option value="8">Today's Forecast</option>
-      </optgroup>
+      {% include widget_selector.html %}
     </select>
     <select class="form-control" style="display: none" id="widget_1_selector">
-      <option value="0" selected>None</option>
-      <optgroup label="Time &amp; Date">
-        <option value="3">Alternate Time Zone</option>
-        <option value="4">Today's Date</option>
-        <option value="5">Seconds</option>
-        <option value="6">Week Number</option>
-      </optgroup>
-      <optgroup label="Watch Status">
-        <option value="2">Battery Meter</option>
-      </optgroup>
-      <optgroup label="Weather">
-        <option value="7">Current Weather</option>
-        <option value="8">Today's Forecast</option>
-      </optgroup>
+      {% include widget_selector.html %}  
     </select>
   </div>
 </div>
