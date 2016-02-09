@@ -531,7 +531,7 @@ void Seconds_draw(GContext* ctx, int yPosition) {
 /***** Time Widget *****/
 
 int Time_getHeight() {
-  return 14;
+  return 31;
 }
 
 void Time_draw(GContext* ctx, int yPosition) {
@@ -540,14 +540,15 @@ void Time_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      currentHours,
                      lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition - 15, 30, 20),
+                     GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 30, 14),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+
   graphics_draw_text(ctx,
                      currentMinutes,
                      lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition, 30, 20),
+                     GRect(0 + SidebarWidgets_xOffset, yPosition + 7, 30, 14),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
