@@ -144,6 +144,56 @@
                 "type": "bitmap"
             },
             {
+                "file": "images/digit_bold_9.png",
+                "name": "CLOCK_DIGIT_BOLD_9",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_8.png",
+                "name": "CLOCK_DIGIT_BOLD_8",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_7.png",
+                "name": "CLOCK_DIGIT_BOLD_7",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_6.png",
+                "name": "CLOCK_DIGIT_BOLD_6",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_5.png",
+                "name": "CLOCK_DIGIT_BOLD_5",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_4.png",
+                "name": "CLOCK_DIGIT_BOLD_4",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_3.png",
+                "name": "CLOCK_DIGIT_BOLD_3",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_2.png",
+                "name": "CLOCK_DIGIT_BOLD_2",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_1.png",
+                "name": "CLOCK_DIGIT_BOLD_1",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/digit_bold_0.png",
+                "name": "CLOCK_DIGIT_BOLD_0",
+                "type": "bitmap"
+            },
+            {
                 "file": "data/WEATHER_GENERIC.pdc",
                 "name": "WEATHER_GENERIC",
                 "type": "raw"

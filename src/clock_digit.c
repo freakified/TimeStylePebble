@@ -6,7 +6,7 @@ void adjustImagePalette(ClockDigit* this);
 /*
  * Array mapping numbers to resource ids
  */
-uint32_t ClockDigit_imageIds[2][10] = {
+uint32_t ClockDigit_imageIds[3][10] = {
   {RESOURCE_ID_CLOCK_DIGIT_0,
     RESOURCE_ID_CLOCK_DIGIT_1,
     RESOURCE_ID_CLOCK_DIGIT_2,
@@ -26,7 +26,17 @@ uint32_t ClockDigit_imageIds[2][10] = {
    RESOURCE_ID_CLOCK_DIGIT_LECO_6,
    RESOURCE_ID_CLOCK_DIGIT_LECO_7,
    RESOURCE_ID_CLOCK_DIGIT_LECO_8,
-   RESOURCE_ID_CLOCK_DIGIT_LECO_9}
+   RESOURCE_ID_CLOCK_DIGIT_LECO_9},
+  {RESOURCE_ID_CLOCK_DIGIT_BOLD_0,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_1,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_2,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_3,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_4,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_5,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_6,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_7,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_8,
+   RESOURCE_ID_CLOCK_DIGIT_BOLD_9}
 };
 
 void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
@@ -114,7 +124,7 @@ void adjustImagePalette(ClockDigit* this) {
   GColor* pal = gbitmap_get_palette(this->currentImage);
 
   #ifdef PBL_COLOR
-    if(this->currentFontId == FONT_ID_DEFAULT) {
+    if(this->currentFontId == FONT_ID_DEFAULT || this->currentFontId == FONT_ID_BOLD) {
       pal[0] = this->fgColor;
       pal[1] = this->midColor1;
       pal[2] = this->midColor2;

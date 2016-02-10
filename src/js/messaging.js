@@ -1,8 +1,8 @@
 var APP_VERSION = 5;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
-var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
-// var BASE_CONFIG_URL = 'http://192.168.0.105:4000/';
+// var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+var BASE_CONFIG_URL = 'http://192.168.0.105:4000/';
 
 var WEATHER_CACHE_LIFETIME = 86400; // 1 day
 
@@ -264,8 +264,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
     if(configData.clock_font_setting) {
       if(configData.clock_font_setting == 'default') {
         dict.KEY_SETTING_CLOCK_FONT_ID = 0;
-      } else {
+      } else if(configData.clock_font_setting == 'leco') {
         dict.KEY_SETTING_CLOCK_FONT_ID = 1;
+      } else if(configData.clock_font_setting == 'bold') {
+        dict.KEY_SETTING_CLOCK_FONT_ID = 2;
       }
     }
 

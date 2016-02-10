@@ -125,7 +125,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(clockFont_tuple != NULL) {
-    globalSettings.clockFontId = (bool)clockFont_tuple->value->int8;
+    globalSettings.clockFontId = clockFont_tuple->value->int8;
   }
 
   if(useLargeFonts_tuple != NULL) {

@@ -4,6 +4,7 @@
 
 #define FONT_ID_DEFAULT 0
 #define FONT_ID_LECO 1
+#define FONT_ID_BOLD 2
 
 /*
  * Represents a single digit, as shown on the clock.
