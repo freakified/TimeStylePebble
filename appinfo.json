@@ -29,6 +29,7 @@
     },
     "capabilities": [
         "location",
+        "health",
         "configurable"
     ],
     "companyName": "Freakified",
@@ -272,6 +273,16 @@
                 "file": "data/BATTERY_BG.pdc",
                 "name": "BATTERY_BG",
                 "type": "raw"
+            },
+            {
+                "file": "data/HEALTH_SLEEP.pdc",
+                "name": "HEALTH_SLEEP",
+                "type": "raw"
+            },
+            {
+                "file": "data/HEALTH_STEPS.pdc",
+                "name": "HEALTH_STEPS",
+                "type": "raw"
             }
         ]
     },
@@ -283,7 +294,7 @@
         "chalk"
     ],
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
-    "versionLabel": "4.8",
+    "versionLabel": "5.0",
     "watchapp": {
         "watchface": true
     }
