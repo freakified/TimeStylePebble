@@ -9,7 +9,6 @@ var WEATHER_CACHE_LIFETIME = 86400; // 1 day
 var failureRetryAmount = 3;
 var currentFailures = 0;
 
-
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.onload = function () {
@@ -38,7 +37,11 @@ function locationSuccess(pos) {
   // Construct URL
   // first, do a reverse geocode lookup on the coordinates
 
-  var url = 'http://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
+  var query = 'select woeid from geo.places where text="(' +
+       pos.coords.latitude + ',' + pos.coords.longitude + ')" limit 1';
+
+  var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
+       encodeURIComponent(query) + '&amp;format=json';
 
   console.log("Reverse geocoding url: " + url);
 
@@ -48,10 +51,9 @@ function locationSuccess(pos) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
 
-      var location = json.display_name;
+      var location = json.query.results.place.woeid;
 
       console.log("We did it! Location was " + location);
-
 
       window.localStorage.setItem('weather_loc_cache', location);
       window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
