@@ -2,9 +2,11 @@
 
 #include <pebble.h>
 
-#define FONT_ID_DEFAULT 0
-#define FONT_ID_LECO 1
-#define FONT_ID_BOLD 2
+#define FONT_SETTING_DEFAULT 0
+#define FONT_SETTING_LECO    1
+#define FONT_SETTING_BOLD    2
+#define FONT_SETTING_BOLD_H  3
+#define FONT_SETTING_BOLD_M  4
 
 /*
  * Represents a single digit, as shown on the clock.

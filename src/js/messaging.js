@@ -270,6 +270,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_CLOCK_FONT_ID = 1;
       } else if(configData.clock_font_setting == 'bold') {
         dict.KEY_SETTING_CLOCK_FONT_ID = 2;
+      } else if(configData.clock_font_setting == 'bold-h') {
+        dict.KEY_SETTING_CLOCK_FONT_ID = 3;
+      } else if(configData.clock_font_setting == 'bold-m') {
+        dict.KEY_SETTING_CLOCK_FONT_ID = 4;
       }
     }
 

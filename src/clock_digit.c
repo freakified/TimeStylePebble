@@ -124,7 +124,7 @@ void adjustImagePalette(ClockDigit* this) {
   GColor* pal = gbitmap_get_palette(this->currentImage);
 
   #ifdef PBL_COLOR
-    if(this->currentFontId == FONT_ID_DEFAULT || this->currentFontId == FONT_ID_BOLD) {
+    if(this->currentFontId == FONT_SETTING_DEFAULT || this->currentFontId == FONT_SETTING_BOLD) {
       pal[0] = this->fgColor;
       pal[1] = this->midColor1;
       pal[2] = this->midColor2;

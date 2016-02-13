@@ -50,16 +50,31 @@ void update_clock() {
     }
   }
 
+  uint8_t current_font = globalSettings.clockFontId;
+
+  if(globalSettings.clockFontId == FONT_SETTING_BOLD_H) {
+    current_font = FONT_SETTING_BOLD;
+  } else if(globalSettings.clockFontId == FONT_SETTING_BOLD_M) {
+    current_font = FONT_SETTING_DEFAULT;
+  }
+
   // use the blank image for the leading hour digit if needed
   if(globalSettings.showLeadingZero || hour / 10 != 0) {
-    ClockDigit_setNumber(&clockDigits[0], hour / 10, globalSettings.clockFontId);
+    ClockDigit_setNumber(&clockDigits[0], hour / 10, current_font);
   } else {
     ClockDigit_setBlank(&clockDigits[0]);
   }
 
-  ClockDigit_setNumber(&clockDigits[1], hour % 10, globalSettings.clockFontId);
-  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, globalSettings.clockFontId);
-  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, globalSettings.clockFontId);
+  ClockDigit_setNumber(&clockDigits[1], hour % 10, current_font);
+
+  if(globalSettings.clockFontId == FONT_SETTING_BOLD_H) {
+    current_font = FONT_SETTING_DEFAULT;
+  } else if(globalSettings.clockFontId == FONT_SETTING_BOLD_M) {
+    current_font = FONT_SETTING_BOLD;
+  }
+
+  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, current_font);
+  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, current_font);
 
   Sidebar_updateTime(timeInfo);
 }
