@@ -2,31 +2,21 @@
 <hr>
 <div id="widget_battery_settings">
   <label>Battery Meter</label>
+  <div class="alert alert-info" role="alert" id="autobattery_info">
+    The battery meter is shown when the battery is low or charging.
+  </div>
   <div id="battery_meter_setting" class="form-group" >
     <label class="subtle">Style</label>
     <div class="btn-group btn-group-justified"  data-toggle="buttons">
       <label class="btn btn-default" data-setting="icon-only" >
         <input type="radio" name="options" autocomplete="off">
         <img src="images/battery_meter.png" width="30" height="30" ><br />
-        Icon
+        Icon only
       </label>
       <label class="btn btn-default" data-setting="icon-and-percent" >
         <input type="radio" name="options" autocomplete="off">
         <img src="images/battery_meter_with_percent.png" width="30" height="30" ><br />
         Icon &amp; percent
-      </label>
-    </div>
-  </div>
-  <div id="only_show_battery_when_low_setting" class="form-group">
-    <label class="subtle">Visibility</label>
-    <div class="btn-group btn-group-justified"  data-toggle="buttons">
-      <label class="btn btn-default" data-setting="yes">
-        <input type="radio" name="options" id="option1" autocomplete="off">
-        Only when low
-      </label>
-      <label class="btn btn-default" data-setting="no">
-        <input type="radio" name="options" id="option2" autocomplete="off">
-        Always
       </label>
     </div>
   </div>

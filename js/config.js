@@ -87,7 +87,6 @@ function loadPreviousSettings() {
       weather_setting: 'auto',
 
       // battery widget settings
-      only_show_battery_when_low_setting: 'no',
       battery_meter_setting: 'icon-only',
 
       // alt timezone widget settings
@@ -121,7 +120,6 @@ function loadPreviousSettings() {
   loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
   loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
   loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
-  loadSettingCheckbox('only_show_battery_when_low_setting', savedSettings.only_show_battery_when_low_setting);
   loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
   loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
   loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
@@ -248,11 +246,11 @@ function showOnlySelectedWidgetSettings() {
     selections.push($(this).val());
   });
 
-  // if the battery widget is there, show its settings
-  if(selections.indexOf('2') != -1) {
-    $('#widget_battery_settings').show();
+  // if the battery widget isn't there, show the autobattery info
+  if(selections.indexOf('2') == -1) {
+    $('#autobattery_info').show();
   } else {
-    $('#widget_battery_settings').hide();
+    $('#autobattery_info').hide();
   }
 
   // if any of the weather widgets are there, show the weather-related settings
@@ -528,10 +526,6 @@ function sendSettingsToWatch() {
   }
 
   // battery widget settings
-  if($('#only_show_battery_when_low_setting .btn.active')) {
-    config.only_show_battery_when_low_setting = $('#only_show_battery_when_low_setting .btn.active').data('setting');
-  }
-
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
   }
