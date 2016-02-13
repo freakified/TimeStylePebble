@@ -41,7 +41,7 @@ function locationSuccess(pos) {
        pos.coords.latitude + ',' + pos.coords.longitude + ')" limit 1';
 
   var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-       encodeURIComponent(query) + '&amp;format=json';
+       encodeURIComponent(query) + '&format=json';
 
   console.log("Reverse geocoding url: " + url);
 
@@ -83,20 +83,28 @@ function getWeather() {
     var cacheAge = (new Date().getTime() / 1000) - weatherLocCacheTime;
 
     var location = false;
+    var is_woeid = false;
 
     if(weatherLoc) {
       location = weatherLoc;
       console.log("it thinks we have a location");
     } else if ((new Date().getTime() / 1000) - weatherLocCacheTime < WEATHER_CACHE_LIFETIME ) {
       location = weatherLocCache;
+      is_woeid = true; //cached locations are woeids
       console.log("it thinks we have a cache! Loc:" + weatherLocCache + ", Age: " + cacheAge);
-
     }
 
     if(location !== false) {
-      var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-          encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-          location + '") and u="c" limit 1') + '&format=json';
+      var url = "";
+      if(is_woeid === true) {
+        var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
+            encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid="' +
+            location + '" and u="c" limit 1') + '&format=json';
+      } else {
+        var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
+            encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
+            location + '") and u="c" limit 1') + '&format=json';
+      }
       console.log(url);
 
       getAndSendWeatherData(url);
