@@ -84,9 +84,12 @@ void Settings_loadFromStorage() {
   globalSettings.disableWeather         = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
   globalSettings.clockFontId            = persist_read_int(SETTING_CLOCK_FONT_ID_KEY);
   globalSettings.hourlyVibe             = persist_read_int(SETTING_HOURLY_VIBE_KEY);
-  globalSettings.onlyShowBatteryWhenLow = persist_read_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY);
   globalSettings.useLargeFonts          = persist_read_bool(SETTING_USE_LARGE_FONTS_KEY);
   globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
+  globalSettings.healthUseDistance      = persist_read_bool(SETTING_HEALTH_USE_DISTANCE);
+  globalSettings.healthUseRestfulSleep  = persist_read_bool(SETTING_HEALTH_USE_RESTFUL_SLEEP);
+  globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
+
 
   Settings_updateDynamicSettings();
 }
@@ -109,7 +112,6 @@ void Settings_saveToStorage() {
   persist_write_bool(SETTING_DISABLE_WEATHER_KEY,       globalSettings.disableWeather);
   persist_write_int(SETTING_CLOCK_FONT_ID_KEY,          globalSettings.clockFontId);
   persist_write_int( SETTING_HOURLY_VIBE_KEY,           globalSettings.hourlyVibe);
-  persist_write_bool(SETTING_BATTERY_ONLY_WHEN_LOW_KEY, globalSettings.onlyShowBatteryWhenLow);
   persist_write_bool(SETTING_USE_LARGE_FONTS_KEY,       globalSettings.useLargeFonts);
   persist_write_int(SETTING_SIDEBAR_WIDGET0_KEY,        globalSettings.widgets[0]);
   persist_write_int(SETTING_SIDEBAR_WIDGET1_KEY,        globalSettings.widgets[1]);
@@ -123,6 +125,7 @@ void Settings_saveToStorage() {
 void Settings_updateDynamicSettings() {
   globalSettings.disableWeather = true;
   globalSettings.updateScreenEverySecond = false;
+  globalSettings.enableAutoBatteryWidget = true;
 
   for(int i = 0; i < 3; i++) {
     // if there are any weather widgets, enable weather checking
@@ -135,6 +138,11 @@ void Settings_updateDynamicSettings() {
     // if any widget is "seconds", we'll need to update the sidebar every second
     if(globalSettings.widgets[i] == SECONDS) {
       globalSettings.updateScreenEverySecond = true;
+    }
+
+    // if any widget is "battery", disable the automatic battery indication
+    if(globalSettings.widgets[i] == BATTERY_METER) {
+      globalSettings.enableAutoBatteryWidget = false;
     }
   }
 

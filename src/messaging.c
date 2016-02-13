@@ -69,7 +69,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *disableWeather_tuple = dict_find(iterator, KEY_SETTING_DISABLE_WEATHER);
   Tuple *clockFont_tuple = dict_find(iterator, KEY_SETTING_CLOCK_FONT_ID);
   Tuple *hourlyVibe_tuple = dict_find(iterator, KEY_SETTING_HOURLY_VIBE);
-  Tuple *onlyShowBatteryWhenLow_tuple = dict_find(iterator, KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW);
   Tuple *useLargeFonts_tuple = dict_find(iterator, KEY_SETTING_USE_LARGE_FONTS);
 
   Tuple *widget0Id_tuple = dict_find(iterator, KEY_WIDGET_0_ID);
@@ -114,10 +113,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(batteryPct_tuple != NULL) {
     globalSettings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
-  }
-
-  if(onlyShowBatteryWhenLow_tuple != NULL) {
-    globalSettings.onlyShowBatteryWhenLow = (bool)onlyShowBatteryWhenLow_tuple->value->int8;
   }
 
   if(disableWeather_tuple != NULL) {

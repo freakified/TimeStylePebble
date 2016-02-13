@@ -332,14 +332,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     }
 
     // battery widget settings
-    if(configData.only_show_battery_when_low_setting) {
-      if(configData.only_show_battery_when_low_setting == 'yes') {
-        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 1;
-      } else {
-        dict.KEY_SETTING_ONLY_SHOW_BATTERY_WHEN_LOW = 0;
-      }
-    }
-
     if(configData.battery_meter_setting) {
       if(configData.battery_meter_setting == 'icon-and-percent') {
         dict.KEY_SETTING_SHOW_BATTERY_PCT = 1;

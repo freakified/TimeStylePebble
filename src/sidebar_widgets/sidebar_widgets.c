@@ -284,63 +284,58 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
   BatteryChargeState chargeState = battery_state_service_peek();
 
-  // respect the "only show battery meter when low" setting
-  if(!globalSettings.onlyShowBatteryWhenLow ||
-    (globalSettings.onlyShowBatteryWhenLow && chargeState.charge_percent <= 20) ||
-    (globalSettings.onlyShowBatteryWhenLow && chargeState.is_charging)
-  ) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-    graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  char batteryString[6];
+  int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
 
-    char batteryString[6];
-    int batteryPositionY = yPosition - 5; // correct for vertical empty space on battery icon
+  if (batteryImage) {
+    gdraw_command_image_recolor(batteryImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+    gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
+  }
 
-    if(chargeState.is_charging) {
-      if(batteryChargeImage) {
-        gdraw_command_image_recolor(batteryChargeImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-        gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-      }
-    } else {
-      if (batteryImage) {
-        gdraw_command_image_recolor(batteryImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-        gdraw_command_image_draw(ctx, batteryImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
-      }
+  if(chargeState.is_charging) {
+    if(batteryChargeImage) {
+      // the charge "bolt" icon uses inverted colors
+      gdraw_command_image_recolor(batteryChargeImage, globalSettings.iconStrokeColor, globalSettings.iconFillColor);
+      gdraw_command_image_draw(ctx, batteryChargeImage, GPoint(3 + SidebarWidgets_xOffset, batteryPositionY));
+    }
+  } else {
 
-      int width = roundf(18 * chargeState.charge_percent / 100.0f);
+    int width = roundf(18 * chargeState.charge_percent / 100.0f);
 
-      graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
+    graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
 
-      if(chargeState.charge_percent <= 20) {
-        graphics_context_set_fill_color(ctx, GColorRed);
-      }
-
-      graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
+    if(chargeState.charge_percent <= 20) {
+      graphics_context_set_fill_color(ctx, GColorRed);
     }
 
-    // never show battery % while charging, because of this issue:
-    // https://github.com/freakified/TimeStylePebble/issues/11
-    if(globalSettings.showBatteryPct && !chargeState.is_charging) {
-      if(!globalSettings.useLargeFonts) {
-        snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+    graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
+  }
 
-        graphics_draw_text(ctx,
-                           batteryString,
-                           batteryFont,
-                           GRect(-4 + SidebarWidgets_xOffset, 18 + batteryPositionY, 38, 20),
-                           GTextOverflowModeFill,
-                           GTextAlignmentCenter,
-                           NULL);
-      } else {
-        snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+  // never show battery % while charging, because of this issue:
+  // https://github.com/freakified/TimeStylePebble/issues/11
+  if(globalSettings.showBatteryPct && !chargeState.is_charging) {
+    if(!globalSettings.useLargeFonts) {
+      snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
 
-        graphics_draw_text(ctx,
-                           batteryString,
-                           batteryFont,
-                           GRect(-4 + SidebarWidgets_xOffset, 14 + batteryPositionY, 38, 20),
-                           GTextOverflowModeFill,
-                           GTextAlignmentCenter,
-                           NULL);
-      }
+      graphics_draw_text(ctx,
+                         batteryString,
+                         batteryFont,
+                         GRect(-4 + SidebarWidgets_xOffset, 18 + batteryPositionY, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
+    } else {
+      snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+
+      graphics_draw_text(ctx,
+                         batteryString,
+                         batteryFont,
+                         GRect(-4 + SidebarWidgets_xOffset, 14 + batteryPositionY, 38, 20),
+                         GTextOverflowModeFill,
+                         GTextAlignmentCenter,
+                         NULL);
     }
   }
 }
@@ -374,8 +369,6 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   // (an image in normal mode, a rectangle in large font mode)
   if(!globalSettings.useLargeFonts) {
     if(dateImage) {
-
-      // TODO: replace this with a more generalized version
       gdraw_command_image_recolor(dateImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
       gdraw_command_image_draw(ctx, dateImage, GPoint(3 + SidebarWidgets_xOffset, yPosition + 23));
     }
@@ -709,7 +702,7 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 bool Health_use_sleep_mode() {
   uint32_t current_activities = health_service_peek_current_activities();
   bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-  sleeping = true;
+
   return sleeping;
 }
 

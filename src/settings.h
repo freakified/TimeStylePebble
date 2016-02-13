@@ -34,15 +34,19 @@ typedef struct {
 
   // battery meter widget settings
   bool showBatteryPct;
-  bool onlyShowBatteryWhenLow;
 
   // alt tz widget settings
   char altclockName[8];
   int altclockOffset;
 
+  // health widget Settings
+  bool healthUseDistance;
+  bool healthUseRestfulSleep;
+
   // dynamic settings (calculated based the currently-selected widgets)
   bool disableWeather;
   bool updateScreenEverySecond;
+  bool enableAutoBatteryWidget;
   // TODO: these shouldn't be dynamic
   GColor iconFillColor;
   GColor iconStrokeColor;
@@ -79,15 +83,15 @@ extern Settings globalSettings;
 #define SETTING_USE_METRIC_KEY            21
 
 // battery meter widget settings
-#define SETTING_BATTERY_ONLY_WHEN_LOW_KEY 15
 #define SETTING_SHOW_BATTERY_PCT_KEY      11
 
 // alt tz widget settings
 #define SETTING_ALTCLOCK_NAME_KEY         30
 #define SETTING_ALTCLOCK_OFFSET_KEY       31
 
-// deprecated settings (to be deleted in next version)
-#define SETTING_SHOW_BATTERY_METER_KEY    24
+// health widget settings
+#define SETTING_HEALTH_USE_DISTANCE       32
+#define SETTING_HEALTH_USE_RESTFUL_SLEEP  33
 
 void Settings_init();
 void Settings_deinit();

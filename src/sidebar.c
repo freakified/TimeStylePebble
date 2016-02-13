@@ -134,6 +134,29 @@ void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetTyp
 }
 #endif
 
+// returns the best candidate widget for replacement by the auto battery
+// or the disconnection icon
+// TODO: make this work on round watches
+int getReplacableWidget() {
+  // if any widgets are empty, it's an obvious choice
+  for(int i = 0; i < 3; i++) {
+    if(globalSettings.widgets[i] == EMPTY) {
+      return i;
+    }
+  }
+
+  // are there any bluetooth-enabled widgets? if so, they're the second-best
+  // candidates
+  for(int i = 0; i < 3; i++) {
+    if(globalSettings.widgets[i] == WEATHER_CURRENT || globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
+      return i;
+    }
+  }
+
+  // if we don't have any of those things, just replace the middle widget
+  return 1;
+}
+
 void updateRectSidebar(Layer *l, GContext* ctx) {
   SidebarWidgets_updateFonts();
 
@@ -142,44 +165,52 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-  // if the pebble is connected, show the middle widget
-  // otherwise, show the disconnection widget
-  bool isPhoneConnected = bluetooth_connection_service_peek();
-  // isPhoneConnected = false;
+  // if the pebble is disconnected, show the disconnect icon
+  bool showDisconnectIcon = !bluetooth_connection_service_peek();
 
-  SidebarWidget topWidget, middleWidget, lowerWidget;
+  BatteryChargeState chargeState = battery_state_service_peek();
 
-  #ifdef PBL_ROUND
-    topWidget = getSidebarWidgetByType(EMPTY);
-    middleWidget = getSidebarWidgetByType(DATE);
-    lowerWidget = getSidebarWidgetByType(EMPTY);
-  #else
-    topWidget = getSidebarWidgetByType(globalSettings.widgets[0]);
-    middleWidget = getSidebarWidgetByType(globalSettings.widgets[1]);
-    lowerWidget = getSidebarWidgetByType(globalSettings.widgets[2]);
-  #endif
+  bool showAutoBattery = false;
 
+  if(globalSettings.enableAutoBatteryWidget) {
+    if(chargeState.charge_percent <= 20 || chargeState.is_charging) {
+      showAutoBattery = true;
+    }
+  }
+
+  SidebarWidget displayWidgets[3];
+
+  displayWidgets[0] = getSidebarWidgetByType(globalSettings.widgets[0]);
+  displayWidgets[1] = getSidebarWidgetByType(globalSettings.widgets[1]);
+  displayWidgets[2] = getSidebarWidgetByType(globalSettings.widgets[2]);
+
+  // do we need to replace a widget?
+  // if so, determine which widget should be replaced
+  if(showAutoBattery || showDisconnectIcon) {
+    int widget_to_replace = getReplacableWidget();
+
+    if(showAutoBattery) {
+      displayWidgets[widget_to_replace] = getSidebarWidgetByType(BATTERY_METER);
+    } else if(showDisconnectIcon) {
+      displayWidgets[widget_to_replace] = getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
+    }
+  }
 
   // if the widgets are too tall, enable "compact mode"
   SidebarWidgets_useCompactMode = false; // ensure that we compare the non-compacted heights
-  int totalHeight = topWidget.getHeight() + middleWidget.getHeight() + lowerWidget.getHeight();
+  int totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() + displayWidgets[2].getHeight();
   SidebarWidgets_useCompactMode = (totalHeight > 142) ? true : false;
-
-  // if the phone is disconnected, replace the center widget with the BT disconnection indication
-  if(!isPhoneConnected) {
-    middleWidget = getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
-  }
 
   // calculate the three widget positions
   int topWidgetPos = V_PADDING;
-  int lowerWidgetPos = SCREEN_HEIGHT - V_PADDING - lowerWidget.getHeight();
+  int lowerWidgetPos = SCREEN_HEIGHT - V_PADDING - displayWidgets[2].getHeight();
 
   // vertically center the middle widget using MATH
-  int middleWidgetPos = ((lowerWidgetPos - middleWidget.getHeight()) + (topWidgetPos + topWidget.getHeight())) / 2;
-
+  int middleWidgetPos = ((lowerWidgetPos - displayWidgets[1].getHeight()) + (topWidgetPos + displayWidgets[0].getHeight())) / 2;
+  
   // draw the widgets
-  topWidget.draw(ctx, topWidgetPos);
-  middleWidget.draw(ctx, middleWidgetPos);
-  lowerWidget.draw(ctx, lowerWidgetPos);
+  displayWidgets[0].draw(ctx, topWidgetPos);
+  displayWidgets[1].draw(ctx, middleWidgetPos);
+  displayWidgets[2].draw(ctx, lowerWidgetPos);
 
 }
