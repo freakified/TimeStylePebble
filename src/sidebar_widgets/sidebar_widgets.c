@@ -709,13 +709,13 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 bool Health_use_sleep_mode() {
   uint32_t current_activities = health_service_peek_current_activities();
   bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-
+  sleeping = true;
   return sleeping;
 }
 
 int Health_getHeight() {
   if(Health_use_sleep_mode()) {
-    return 55;
+    return 44;
   } else {
     return 32;
   }
@@ -737,7 +737,7 @@ void Health_draw(GContext* ctx, int yPosition) {
 void Sleep_draw(GContext* ctx, int yPosition) {
   if(sleepImage) {
     gdraw_command_image_recolor(sleepImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, sleepImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 3));
+    gdraw_command_image_draw(ctx, sleepImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
   }
 
   // get sleep in seconds
@@ -757,7 +757,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      sleep_text,
                      mdSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 22, 34, 20),
+                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 14, 34, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -767,7 +767,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      sleep_text,
                      smSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 40, 34, 20),
+                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 30, 34, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -775,10 +775,12 @@ void Sleep_draw(GContext* ctx, int yPosition) {
 }
 
 void Steps_draw(GContext* ctx, int yPosition) {
+
   if(stepsImage) {
     gdraw_command_image_recolor(stepsImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
     gdraw_command_image_draw(ctx, stepsImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
   }
+
 
   int steps = (int)health_service_sum_today(HealthMetricStepCount);
 
