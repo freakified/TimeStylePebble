@@ -288,7 +288,9 @@ function widgetsShouldBeCompact() {
       '5' : 14,
       '6' : 29,
       '7' : 44,
-      '8' : 63
+      '8' : 63,
+      '9' : 31,
+      '10' : 32
     }
   } else {
     widgetHeights = {
@@ -299,7 +301,9 @@ function widgetsShouldBeCompact() {
       '5' : 14,
       '6' : 26,
       '7' : 42,
-      '8' : 60
+      '8' : 60,
+      '9' : 31,
+      '10' : 32
     }
   }
 
@@ -358,6 +362,9 @@ console.log($('#battery_meter_setting .btn.active').data('setting'));
         break;
       case '9':
         image_url += 'TIME';
+        break;
+      case '10':
+        image_url += 'HEALTH';
         break;
       case '0':
         image_url += 'NONE';
@@ -561,7 +568,9 @@ function trackSettings(config) {
     '5': 'Seconds',
     '6': 'WeekNum',
     '7': 'WeatherCurrent',
-    '8': 'WeatherToday'
+    '8': 'WeatherToday',
+    '9': 'CurrentTime',
+    '10': 'Health'
   };
 
   // track the sidebar layout selections

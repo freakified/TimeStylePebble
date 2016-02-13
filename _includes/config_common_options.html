@@ -146,7 +146,7 @@
 </div>
 <label class="subtle">Font</label>
 <div id="clock_font_setting" class="form-group" >
-  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+  <div data-toggle="buttons">
     <label class="btn btn-default" data-setting="default" >
       <input type="radio" name="options" autocomplete="off">
       <img class="example_img" src="images/font-preview-default.png" width="56" height="66">
@@ -156,6 +156,16 @@
       <input type="radio" name="options" autocomplete="off">
       <img class="example_img" src="images/font-preview-bold.png" width="56" height="66">
       Bold
+    </label>
+    <label class="btn btn-default" data-setting="bold-h" >
+      <input type="radio" name="options" autocomplete="off">
+      <img class="example_img" src="images/font-preview-bold-H.png" width="56" height="66">
+      Bold Hour
+    </label>
+    <label class="btn btn-default" data-setting="bold-m" >
+      <input type="radio" name="options" autocomplete="off">
+      <img class="example_img" src="images/font-preview-bold-M.png" width="56" height="66">
+      Bold Minute
     </label>
     <label class="btn btn-default" data-setting="leco" >
       <input type="radio" name="options" autocomplete="off">
@@ -173,7 +183,7 @@
       <input type="radio" name="options" autocomplete="off">No vibration
     </label>
     <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off">Vibrate on bluetooth disconnect
+      <input type="radio" name="options" autocomplete="off">Vibrate
     </label>
   </div>
 </div>
@@ -192,7 +202,9 @@
   </div>
 </div>
 <hr>
-<label>Language</label>
+<label>International</label><br />
+<label class="subtle">Language</label><br />
+<div class="form-group" >
 <select id="language_selection" class="form-control">
   <option data-setting="0">Default (English)</option>
   <option data-setting="15">Català</option>
@@ -206,6 +218,7 @@
   <option data-setting="26">Gaeilge</option>
   <option data-setting="25">Hrvatski</option>
   <option data-setting="4">Italiano</option>
+  <option data-setting="27">Latviešu</option>
   <option data-setting="22">Lietuviškai</option>
   <option data-setting="24">Magyar</option>
   <option data-setting="5">Nederlands</option>
@@ -222,3 +235,15 @@
   <option data-setting="9">Ελληνικά (requires language pack)</option>
   <option data-setting="17">Русский (requires language pack)</option>
 </select>
+</div>
+<!-- <label class="subtle">Decimal Separator</label>
+<div id="decimal_separator_option" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="period" style="font-size: 24px">
+      <input type="radio" name="options" autocomplete="off">.
+    </label>
+    <label class="btn btn-default" data-setting="comma" style="font-size: 24px">
+      <input type="radio" name="options" autocomplete="off">,
+    </label>
+  </div>
+</div> -->
