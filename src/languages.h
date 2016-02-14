@@ -28,13 +28,14 @@
 #define LANGUAGE_HR 25
 #define LANGUAGE_GA 26
 #define LANGUAGE_LV 27
+#define LANGUAGE_SR 28
 
 /* day names in many different languages! */
-extern const char dayNames[28][7][8];
+extern const char dayNames[29][7][8];
 
 /* month names in many different languages! */
-extern const char monthNames[28][12][8];
+extern const char monthNames[29][12][8];
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-extern const char wordForWeek[28][12];
+extern const char wordForWeek[29][12];
