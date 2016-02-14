@@ -703,6 +703,20 @@ bool Health_use_sleep_mode() {
   uint32_t current_activities = health_service_peek_current_activities();
   bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
 
+  if(sleeping) {
+    return true;
+  } else {
+    // check if they just woke up (ie have they been asleep in the last 5m?)
+    time_t end = time(NULL);
+    time_t start = end - SECONDS_PER_MINUTE * 5;
+
+    if(health_service_is_activity_in_range(HealthActivitySleep | HealthActivityRestfulSleep, start, end)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   return sleeping;
 }
 
@@ -777,8 +791,6 @@ void Steps_draw(GContext* ctx, int yPosition) {
 
 
   int steps = (int)health_service_sum_today(HealthMetricStepCount);
-
-  steps = 9124;
 
   char steps_text[8];
 
