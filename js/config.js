@@ -1,4 +1,4 @@
-var CURRENT_SETTINGS_VERSION = 5;
+var CURRENT_SETTINGS_VERSION = 6;
 
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
@@ -30,18 +30,10 @@ function checkVersion() {
 // populates the sidebar widgets for someone with pre-widget saved settings
 function migrateLegacySettings(config) {
 
-  if(config.disable_weather != "yes") {
-    // if the weather is enabled, it goes on top
-    config.widget_0_id = '7';
-    config.widget_1_id = (config.battery_meter_setting != 'no') ? '2' : '0';
-  } else {
-    // if the weather is disabled, the battery meter goes on top
-    config.widget_0_id = (config.battery_meter_setting != 'no') ? '2' : '0';
-    config.widget_1_id = '0';
-  }
-
-  // the third widget is always the date
-  config.widget_2_id = '4';
+  // stick in the new defaults
+  config.health_use_distance = 'no';
+  config.health_use_restful_sleep = 'no';
+  config.decimal_separator = '.';
 
   return config;
 }
@@ -49,7 +41,6 @@ function migrateLegacySettings(config) {
 function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
-
 
   // if savedsettings exists but doesn't contain a version flag, it must be upgraded
   if(savedSettings && !savedSettings.settings_version) {
@@ -93,6 +84,11 @@ function loadPreviousSettings() {
       altclock_name: 'ALT',
       altclock_offset: 0,
 
+      // health widget settings
+      health_use_distance: 'no',
+      health_use_restful_sleep: 'no',
+      decimal_separator: '.',
+
       // version key used for migrations
       settings_version: CURRENT_SETTINGS_VERSION
     };
@@ -124,6 +120,7 @@ function loadPreviousSettings() {
   loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
   loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
   loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
+  loadSettingCheckbox('decimal_separator', savedSettings.decimal_separator);
 
   // load weather location
   $('#weather_loc').val(savedSettings.weather_loc);
@@ -528,6 +525,10 @@ function sendSettingsToWatch() {
   // battery widget settings
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
+  }
+
+  if($('#decimal_separator .btn.active')) {
+    config.decimal_separator = $('#decimal_separator .btn.active').data('setting');
   }
 
   // alt clock widgets
