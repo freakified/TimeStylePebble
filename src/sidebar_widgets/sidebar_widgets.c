@@ -747,6 +747,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
 
   snprintf(sleep_text, sizeof(sleep_text), "%ih", sleep_hours);
 
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   graphics_draw_text(ctx,
                      sleep_text,
                      mdSidebarFont,
@@ -793,6 +794,8 @@ void Steps_draw(GContext* ctx, int yPosition) {
     }
 
   }
+
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   graphics_draw_text(ctx,
                      steps_text,
