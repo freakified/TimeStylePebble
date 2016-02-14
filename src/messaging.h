@@ -26,6 +26,7 @@
 #define KEY_FORECAST_TEMP_LOW           27
 #define KEY_SETTING_ALTCLOCK_NAME       28
 #define KEY_SETTING_ALTCLOCK_OFFSET     29
+#define KEY_SETTING_DECIMAL_SEPARATOR   30
 
 void messaging_requestNewWeatherData();
 

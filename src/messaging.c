@@ -78,6 +78,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *altclockName_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_NAME);
   Tuple *altclockOffset_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_OFFSET);
 
+  Tuple *decimalSeparator_tuple = dict_find(iterator, KEY_SETTING_DECIMAL_SEPARATOR);
+
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
   }
@@ -157,6 +159,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(altclockOffset_tuple != NULL) {
     globalSettings.altclockOffset = altclockOffset_tuple->value->int8;
+  }
+
+  if(decimalSeparator_tuple != NULL) {
+    globalSettings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
   }
 
   // save the new settings to persistent storage

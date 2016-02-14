@@ -3,8 +3,6 @@
 
 Settings globalSettings;
 
-void Settings_migrateLegacySidebar();
-
 void Settings_init() {
   // first, check if we have any saved settings
   int settingsVersion = persist_read_int(SETTINGS_VERSION_KEY);
@@ -90,6 +88,11 @@ void Settings_loadFromStorage() {
   globalSettings.healthUseRestfulSleep  = persist_read_bool(SETTING_HEALTH_USE_RESTFUL_SLEEP);
   globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
 
+  if(persist_exists(SETTING_DECIMAL_SEPARATOR_KEY)) {
+    globalSettings.decimalSeparator = '.';
+  } else {
+    globalSettings.decimalSeparator = (char)persist_read_int(SETTING_DECIMAL_SEPARATOR_KEY);
+  }
 
   Settings_updateDynamicSettings();
 }
@@ -118,6 +121,7 @@ void Settings_saveToStorage() {
   persist_write_int(SETTING_SIDEBAR_WIDGET2_KEY,        globalSettings.widgets[2]);
   persist_write_string(SETTING_ALTCLOCK_NAME_KEY,       globalSettings.altclockName);
   persist_write_int(SETTING_ALTCLOCK_OFFSET_KEY,        globalSettings.altclockOffset);
+  persist_write_int(SETTING_DECIMAL_SEPARATOR_KEY, (int)globalSettings.decimalSeparator);
 
   persist_write_int(SETTINGS_VERSION_KEY,               CURRENT_SETTINGS_VERSION);
 }

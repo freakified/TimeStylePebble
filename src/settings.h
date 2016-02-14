@@ -2,7 +2,6 @@
 #include <pebble.h>
 #include "sidebar_widgets/sidebar_widgets.h"
 
-#define LEGACY_SETTINGS_PERSIST_KEY 3
 #define SETTINGS_VERSION_KEY 4
 
 // settings "version" for app version 4.0
@@ -42,11 +41,13 @@ typedef struct {
   // health widget Settings
   bool healthUseDistance;
   bool healthUseRestfulSleep;
+  char decimalSeparator;
 
   // dynamic settings (calculated based the currently-selected widgets)
   bool disableWeather;
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
+
   // TODO: these shouldn't be dynamic
   GColor iconFillColor;
   GColor iconStrokeColor;
@@ -92,6 +93,7 @@ extern Settings globalSettings;
 // health widget settings
 #define SETTING_HEALTH_USE_DISTANCE       32
 #define SETTING_HEALTH_USE_RESTFUL_SLEEP  33
+#define SETTING_DECIMAL_SEPARATOR_KEY     34
 
 void Settings_init();
 void Settings_deinit();

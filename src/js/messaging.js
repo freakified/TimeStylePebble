@@ -1,4 +1,4 @@
-var APP_VERSION = 5;
+var CONFIG_VERSION = 6;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
 // var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
@@ -205,7 +205,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
   var colorConfigURL = BASE_CONFIG_URL + 'config_color.html';
   var roundConfigURL = BASE_CONFIG_URL + 'config_color_round.html';
 
-  var versionString = '?appversion=' + APP_VERSION;
+  var versionString = '?appversion=' + CONFIG_VERSION;
 
   if(Pebble.getActiveWatchInfo) {
     try {
@@ -354,6 +354,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     if(configData.altclock_offset) {
       dict.KEY_SETTING_ALTCLOCK_OFFSET = parseInt(configData.altclock_offset, 10);
+    }
+
+    if(configData.decimal_separator) {
+      dict.KEY_SETTING_DECIMAL_SEPARATOR = configData.decimal_separator;
     }
 
     // determine whether or not the weather checking should be enabled

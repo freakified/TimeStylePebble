@@ -778,6 +778,8 @@ void Steps_draw(GContext* ctx, int yPosition) {
 
   int steps = (int)health_service_sum_today(HealthMetricStepCount);
 
+  steps = 9124;
+
   char steps_text[8];
 
   // format step string
@@ -788,7 +790,7 @@ void Steps_draw(GContext* ctx, int yPosition) {
     int steps_hundreds  = steps / 100 % 10;
 
     if (steps < 10000) {
-      snprintf(steps_text, sizeof(steps_text), "%i.%ik", steps_thousands, steps_hundreds);
+      snprintf(steps_text, sizeof(steps_text), "%i%c%ik", steps_thousands, globalSettings.decimalSeparator, steps_hundreds);
     } else {
       snprintf(steps_text, sizeof(steps_text), "%ik", steps_thousands);
     }
