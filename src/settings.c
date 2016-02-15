@@ -154,7 +154,7 @@ void Settings_updateDynamicSettings() {
   // temp: if the sidebar is black, use inverted colors for icons
   if(gcolor_equal(globalSettings.sidebarColor, GColorBlack)) {
     globalSettings.iconFillColor = GColorBlack;
-    globalSettings.iconStrokeColor = GColorWhite;
+    globalSettings.iconStrokeColor = globalSettings.sidebarTextColor; // exciting
   } else {
     globalSettings.iconFillColor = GColorWhite;
     globalSettings.iconStrokeColor = GColorBlack;
