@@ -751,9 +751,9 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   int sleep_seconds;
 
   if(globalSettings.healthUseRestfulSleep) {
-    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
-  } else {
     sleep_seconds = (int)health_service_sum_today(HealthMetricSleepRestfulSeconds);
+  } else {
+    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
   }
 
   // convert to hours/minutes
