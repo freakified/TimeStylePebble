@@ -121,6 +121,8 @@ function loadPreviousSettings() {
   loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
   loadSettingCheckbox('weather_setting', savedSettings.weather_setting);
   loadSettingCheckbox('decimal_separator', savedSettings.decimal_separator);
+  loadSettingCheckbox('health_use_distance', savedSettings.health_use_distance);
+  loadSettingCheckbox('health_use_restful_sleep', savedSettings.health_use_restful_sleep);
 
   // load weather location
   $('#weather_loc').val(savedSettings.weather_loc);
@@ -262,6 +264,13 @@ function showOnlySelectedWidgetSettings() {
     $('#widget_altclock_settings').show();
   } else {
     $('#widget_altclock_settings').hide();
+  }
+
+  // heath widget
+  if(selections.indexOf('10') != -1) {
+    $('#widget_health_settings').show();
+  } else {
+    $('#widget_health_settings').hide();
   }
 }
 
@@ -529,6 +538,14 @@ function sendSettingsToWatch() {
 
   if($('#decimal_separator .btn.active')) {
     config.decimal_separator = $('#decimal_separator .btn.active').data('setting');
+  }
+
+  if($('#health_use_distance .btn.active')) {
+    config.health_use_distance = $('#health_use_distance .btn.active').data('setting');
+  }
+
+  if($('#health_use_restful_sleep .btn.active')) {
+    config.health_use_restful_sleep = $('#health_use_restful_sleep .btn.active').data('setting');
   }
 
   // alt clock widgets
