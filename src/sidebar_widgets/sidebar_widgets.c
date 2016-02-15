@@ -748,7 +748,13 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   }
 
   // get sleep in seconds
-  int sleep_seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
+  int sleep_seconds;
+
+  if(globalSettings.healthUseRestfulSleep) {
+    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
+  } else {
+    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepRestfulSeconds);
+  }
 
   // convert to hours/minutes
   int sleep_minutes = sleep_seconds / 60;
@@ -789,25 +795,47 @@ void Steps_draw(GContext* ctx, int yPosition) {
     gdraw_command_image_draw(ctx, stepsImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
   }
 
-
-  int steps = (int)health_service_sum_today(HealthMetricStepCount);
-
   char steps_text[8];
 
-  // format step string
-  if(steps < 1000) {
-    snprintf(steps_text, sizeof(steps_text), "%i", steps);
-  } else {
-    int steps_thousands = steps / 1000;
-    int steps_hundreds  = steps / 100 % 10;
+  if(globalSettings.healthUseDistance) {
+    int meters = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
 
-    if (steps < 10000) {
-      snprintf(steps_text, sizeof(steps_text), "%i%c%ik", steps_thousands, globalSettings.decimalSeparator, steps_hundreds);
+    // format distance string
+    if(globalSettings.useMetric) {
+      if(meters < 1000) {
+        snprintf(steps_text, sizeof(steps_text), "%im", meters);
+      } else {
+        meters /= 1000; // convert to km
+        snprintf(steps_text, sizeof(steps_text), "%ikm", meters);
+      }
     } else {
-      snprintf(steps_text, sizeof(steps_text), "%ik", steps_thousands);
-    }
+      int miles_tenths = meters * 10 / 1609 % 10;
+      int miles_whole  = (int)roundf(meters / 1609.0f);
 
+      if(miles_whole > 0) {
+        snprintf(steps_text, sizeof(steps_text), "%imi", miles_whole);
+      } else {
+        snprintf(steps_text, sizeof(steps_text), "%c%imi", globalSettings.decimalSeparator, miles_tenths);
+      }
+    }
+  } else {
+    int steps = (int)health_service_sum_today(HealthMetricStepCount);
+
+    // format step string
+    if(steps < 1000) {
+      snprintf(steps_text, sizeof(steps_text), "%i", steps);
+    } else {
+      int steps_thousands = steps / 1000;
+      int steps_hundreds  = steps / 100 % 10;
+
+      if (steps < 10000) {
+        snprintf(steps_text, sizeof(steps_text), "%i%c%ik", steps_thousands, globalSettings.decimalSeparator, steps_hundreds);
+      } else {
+        snprintf(steps_text, sizeof(steps_text), "%ik", steps_thousands);
+      }
+    }
   }
+
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 

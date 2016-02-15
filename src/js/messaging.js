@@ -360,6 +360,23 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict.KEY_SETTING_DECIMAL_SEPARATOR = configData.decimal_separator;
     }
 
+    if(configData.health_use_distance) {
+      if(configData.health_use_distance == 'yes') {
+        dict.KEY_SETTING_HEALTH_USE_DISTANCE = 1;
+      } else {
+        dict.KEY_SETTING_HEALTH_USE_DISTANCE = 0;
+      }
+    }
+
+    // heath settings
+    if(configData.health_use_restful_sleep) {
+      if(configData.health_use_restful_sleep == 'yes') {
+        dict.KEY_SETTING_HEALTH_USE_RESTFUL_SLEEP = 1;
+      } else {
+        dict.KEY_SETTING_HEALTH_USE_RESTFUL_SLEEP = 0;
+      }
+    }
+
     // determine whether or not the weather checking should be enabled
     var disableWeather;
 

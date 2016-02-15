@@ -79,6 +79,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *altclockOffset_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_OFFSET);
 
   Tuple *decimalSeparator_tuple = dict_find(iterator, KEY_SETTING_DECIMAL_SEPARATOR);
+  Tuple *healthUseDistance_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_DISTANCE);
+  Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_RESTFUL_SLEEP);
 
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -163,6 +165,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(decimalSeparator_tuple != NULL) {
     globalSettings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
+  }
+
+  if(healthUseDistance_tuple != NULL) {
+    globalSettings.healthUseDistance = (bool)healthUseDistance_tuple->value->int8;
+  }
+
+  if(healthUseRestfulSleep_tuple != NULL) {
+    globalSettings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
   }
 
   // save the new settings to persistent storage

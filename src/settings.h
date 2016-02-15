@@ -93,6 +93,7 @@ extern Settings globalSettings;
 // health widget settings
 #define SETTING_HEALTH_USE_DISTANCE       32
 #define SETTING_HEALTH_USE_RESTFUL_SLEEP  33
+#define SETTING_HEALTH_USE_METRIC         35
 #define SETTING_DECIMAL_SEPARATOR_KEY     34
 
 void Settings_init();
