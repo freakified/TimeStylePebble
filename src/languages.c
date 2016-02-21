@@ -2,7 +2,7 @@
 #include "languages.h"
 
 /* day names in many different languages! */
-const char dayNames[29][7][8] = {
+const char dayNames[31][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -31,11 +31,13 @@ const char dayNames[29][7][8] = {
 	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"},
 	{"DOM", "LUA", "MÁI", "CÉA", "DÉA", "AOI", "SAT"},
 	{"SVĒ", "PIR", "OTR", "TRE", "CET", "PIE", "SES"},
-	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"}
+	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"},
+	{"日", "一", "二", "三", "四", "五", "六"},
+	{"SEN", "SEL", "RAB", "KAM", "JUM", "SAB", "MIN"}
 };
 
 /* month names in many different languages! */
-const char monthNames[29][12][8] = {
+const char monthNames[31][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -64,12 +66,14 @@ const char monthNames[29][12][8] = {
   {"SIJ", "VEL", "OŽU", "TRA", "SVI", "LIP", "SRP", "KOL", "RUJ", "LIS", "STU", "PRO"},
 	{"EAN", "FEA", "MÁR", "AIB", "BEA", "MEI", "IÚI", "LÚN", "MFÓ", "DFÓ", "SAM", "NOL"},
 	{"JAN", "FEB", "MAR", "APR", "MAI", "JŪN", "JŪL", "AUG", "SEP", "OKT", "NOV", "DEC"},
-  {"JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AVG", "SEP", "OKT", "NOV", "DEC"}
+  {"JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AVG", "SEP", "OKT", "NOV", "DEC"},
+	{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"},
+	{"JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"}
 };
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-const char wordForWeek[29][12] = {
+const char wordForWeek[31][12] = {
 	"Wk",
 	"Sem",
 	"W",
@@ -98,5 +102,7 @@ const char wordForWeek[29][12] = {
 	"Tj",
 	"Scht",
 	"Ned",
-	"N"
+	"N",
+	"周",
+	"MIN"
 };
