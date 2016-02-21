@@ -9,16 +9,6 @@ void Settings_init() {
 
   // load all settings
   Settings_loadFromStorage();
-
-  // for BW watches, reset colors to defaults
-  #ifndef PBL_COLOR
-    if(settingsVersion < CURRENT_SETTINGS_VERSION) {
-      globalSettings.timeColor      = GColorWhite;
-      globalSettings.sidebarColor   = GColorWhite;
-      globalSettings.timeBgColor      = GColorBlack;
-      globalSettings.sidebarTextColor = GColorBlack;
-    }
-  #endif
 }
 
 void Settings_deinit() {
