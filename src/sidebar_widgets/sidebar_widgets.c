@@ -738,10 +738,12 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   // get sleep in seconds
   int sleep_seconds;
 
-  if(globalSettings.healthUseRestfulSleep) {
-    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepRestfulSeconds);
+  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepSeconds : HealthMetricSleepRestfulSeconds;
+
+  if(is_health_activity_accessible(metric)) {
+    sleep_seconds = (int)health_service_sum_today(metric);
   } else {
-    sleep_seconds = (int)health_service_sum_today(HealthMetricSleepSeconds);
+    sleep_seconds = 0;
   }
 
   // convert to hours/minutes
@@ -786,7 +788,11 @@ void Steps_draw(GContext* ctx, int yPosition) {
   char steps_text[8];
 
   if(globalSettings.healthUseDistance) {
-    int meters = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
+    int meters = 0;
+
+    if(is_health_activity_accessible(HealthMetricWalkedDistanceMeters)) {
+      meters = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
+    }
 
     // format distance string
     if(globalSettings.useMetric) {
@@ -808,6 +814,10 @@ void Steps_draw(GContext* ctx, int yPosition) {
     }
   } else {
     int steps = (int)health_service_sum_today(HealthMetricStepCount);
+
+    if(is_health_activity_accessible(HealthMetricStepCount)) {
+      steps = (int)health_service_sum_today(HealthMetricStepCount);
+    }
 
     // format step string
     if(steps < 1000) {

@@ -19,3 +19,16 @@ void gdraw_command_image_recolor(GDrawCommandImage *img, GColor fill_color, GCol
   gdraw_command_list_iterate(gdraw_command_image_get_command_list(img),
                              recolor_iterator_cb, &colors);
 }
+
+#ifdef PBL_HEALTH
+   bool is_health_activity_accessible(HealthActivityMask activity_mask) {
+     time_t start = time_start_of_today();
+     time_t end = time(NULL);
+
+     // Check step data is available
+     HealthServiceAccessibilityMask mask = health_service_metric_accessible(HealthMetricStepCount, start, end);
+     bool result = mask & HealthServiceAccessibilityMaskAvailable;
+
+     return result;
+   }
+ #endif
