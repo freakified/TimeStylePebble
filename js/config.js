@@ -370,6 +370,9 @@ console.log($('#battery_meter_setting .btn.active').data('setting'));
       case '10':
         image_url += 'HEALTH';
         break;
+      case '11':
+        image_url += 'BEATS';
+        break;
       case '0':
         image_url += 'NONE';
         break;
