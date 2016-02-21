@@ -29,7 +29,8 @@ typedef enum {
   WEATHER_CURRENT           = 7,
   WEATHER_FORECAST_TODAY    = 8,
   TIME                      = 9,
-  HEALTH                    = 10
+  HEALTH                    = 10,
+  BEATS                     = 11
 } SidebarWidgetType;
 
 typedef struct {

@@ -31,6 +31,7 @@ char currentSecondsNum[8];
 char altClock[8];
 char currentHours[8];
 char currentMinutes[8];
+char currentBeats[8];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -72,6 +73,10 @@ void AltTime_draw(GContext* ctx, int yPosition);
 SidebarWidget timeWidget;
 int Time_getHeight();
 void Time_draw(GContext* ctx, int yPosition);
+
+SidebarWidget beatsWidget;
+int Beats_getHeight();
+void Beats_draw(GContext* ctx, int yPosition);
 
 #ifdef PBL_HEALTH
   GDrawCommandImage* sleepImage;
@@ -137,6 +142,9 @@ void SidebarWidgets_init() {
     healthWidget.draw = Health_draw;
   #endif
 
+  beatsWidget.getHeight = Beats_getHeight;
+  beatsWidget.draw      = Beats_draw;
+
 }
 
 void SidebarWidgets_deinit() {
@@ -186,6 +194,11 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
     currentHours[0] = ' ';
   }
   strftime(currentMinutes, 3, "%M", timeInfo);
+
+  int beats = time_get_beats(timeInfo);
+
+  // set the swatch internet time beats
+  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
 
   // set the alternate time zone string
   int hour = timeInfo->tm_hour;
@@ -255,6 +268,8 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       case HEALTH:
         return healthWidget;
     #endif
+    case BEATS:
+      return beatsWidget;
     default:
       return emptyWidget;
       break;
@@ -847,3 +862,31 @@ void Steps_draw(GContext* ctx, int yPosition) {
 }
 
 #endif
+
+/***** Beats (Swatch Internet Time) widget *****/
+
+int Beats_getHeight() {
+  return (globalSettings.useLargeFonts) ? 29 : 26;
+}
+
+void Beats_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
+  graphics_draw_text(ctx,
+                     "@",
+                     smSidebarFont,
+                     GRect(SidebarWidgets_xOffset, yPosition - 5, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  int yMod = (globalSettings.useLargeFonts) ? 5 : 8;
+
+  graphics_draw_text(ctx,
+                     currentBeats,
+                     currentSidebarFont,
+                     GRect(SidebarWidgets_xOffset, yPosition + yMod, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+}
