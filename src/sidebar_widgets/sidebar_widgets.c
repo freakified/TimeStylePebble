@@ -193,21 +193,23 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // apply the configured offset value
   hour += globalSettings.altclockOffset;
 
+  char am_pm = (mod(hour, 24) < 12) ? 'a' : 'p';
+
   // format it
   if(clock_is_24h_style()) {
     hour = mod(hour, 24);
+    am_pm = (char) 0;
   } else {
     hour = mod(hour, 12);
-
     if(hour == 0) {
       hour = 12;
     }
   }
 
   if(globalSettings.showLeadingZero && hour < 10) {
-    snprintf(altClock, sizeof(altClock), "0%i", hour);
+    snprintf(altClock, sizeof(altClock), "0%i%c", hour, am_pm);
   } else {
-    snprintf(altClock, sizeof(altClock), "%i", hour);
+    snprintf(altClock, sizeof(altClock), "%i%c", hour, am_pm);
   }
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
