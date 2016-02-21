@@ -104,5 +104,5 @@ const char wordForWeek[31][12] = {
 	"Ned",
 	"N",
 	"周",
-	"MIN"
+	"Ming"
 };
