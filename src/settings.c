@@ -69,6 +69,7 @@ void Settings_loadFromStorage() {
   globalSettings.languageId             = persist_read_int(SETTING_LANGUAGE_ID_KEY);
   globalSettings.showLeadingZero        = persist_read_int(SETTING_LEADING_ZERO_KEY);
   globalSettings.showBatteryPct         = persist_read_bool(SETTING_SHOW_BATTERY_PCT_KEY);
+  globalSettings.disableAutobattery     = persist_read_bool(SETTING_DISABLE_AUTOBATTERY);
   globalSettings.disableWeather         = persist_read_bool(SETTING_DISABLE_WEATHER_KEY);
   globalSettings.clockFontId            = persist_read_int(SETTING_CLOCK_FONT_ID_KEY);
   globalSettings.hourlyVibe             = persist_read_int(SETTING_HOURLY_VIBE_KEY);
@@ -101,6 +102,7 @@ void Settings_saveToStorage() {
   persist_write_int( SETTING_LANGUAGE_ID_KEY,           globalSettings.languageId);
   persist_write_int( SETTING_LEADING_ZERO_KEY,          globalSettings.showLeadingZero);
   persist_write_bool(SETTING_SHOW_BATTERY_PCT_KEY,      globalSettings.showBatteryPct);
+  persist_write_bool(SETTING_DISABLE_AUTOBATTERY,       globalSettings.disableAutobattery);
   persist_write_bool(SETTING_DISABLE_WEATHER_KEY,       globalSettings.disableWeather);
   persist_write_int(SETTING_CLOCK_FONT_ID_KEY,          globalSettings.clockFontId);
   persist_write_int( SETTING_HOURLY_VIBE_KEY,           globalSettings.hourlyVibe);

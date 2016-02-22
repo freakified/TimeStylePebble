@@ -33,6 +33,7 @@ typedef struct {
 
   // battery meter widget settings
   bool showBatteryPct;
+  bool disableAutobattery;
 
   // alt tz widget settings
   char altclockName[8];
@@ -85,6 +86,7 @@ extern Settings globalSettings;
 
 // battery meter widget settings
 #define SETTING_SHOW_BATTERY_PCT_KEY      11
+#define SETTING_DISABLE_AUTOBATTERY       36
 
 // alt tz widget settings
 #define SETTING_ALTCLOCK_NAME_KEY         30

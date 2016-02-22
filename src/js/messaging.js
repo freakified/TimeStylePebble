@@ -1,4 +1,4 @@
-var CONFIG_VERSION = 6;
+var CONFIG_VERSION = 7;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
@@ -345,6 +345,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
         dict.KEY_SETTING_SHOW_BATTERY_PCT = 1;
       } else if(configData.battery_meter_setting == 'icon-only') {
         dict.KEY_SETTING_SHOW_BATTERY_PCT = 0;
+      }
+    }
+
+    if(configData.autobattery_setting) {
+      if(configData.autobattery_setting == 'on') {
+        dict.KEY_SETTING_DISABLE_AUTOBATTERY = 0;
+      } else if(configData.autobattery_setting == 'off') {
+        dict.KEY_SETTING_DISABLE_AUTOBATTERY = 1;
       }
     }
 

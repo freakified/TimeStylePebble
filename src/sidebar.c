@@ -96,16 +96,19 @@ void Sidebar_updateTime(struct tm* timeInfo) {
 }
 
 bool isAutoBatteryShown() {
-  BatteryChargeState chargeState = battery_state_service_peek();
+  if(!globalSettings.disableAutobattery) {
+    BatteryChargeState chargeState = battery_state_service_peek();
 
-  if(globalSettings.enableAutoBatteryWidget) {
-    if(chargeState.charge_percent <= 20 || chargeState.is_charging) {
-      return true;
+    if(globalSettings.enableAutoBatteryWidget) {
+      if(chargeState.charge_percent <= 20 || chargeState.is_charging) {
+        return true;
+      }
     }
   }
 
   return false;
 }
+
 
 #ifdef PBL_ROUND
 

@@ -82,6 +82,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *healthUseDistance_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_DISTANCE);
   Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_RESTFUL_SLEEP);
 
+  Tuple *autobattery_tuple = dict_find(iterator, KEY_SETTING_DISABLE_AUTOBATTERY);
+
+
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
   }
@@ -117,6 +120,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(batteryPct_tuple != NULL) {
     globalSettings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
+  }
+
+  if(autobattery_tuple != NULL) {
+    globalSettings.disableAutobattery = (bool)autobattery_tuple->value->int8;
   }
 
   if(disableWeather_tuple != NULL) {
