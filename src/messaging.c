@@ -24,7 +24,11 @@ void messaging_init(void (*processed_callback)(void)) {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
+  #ifdef PBL_PLATFORM_APLITE
+  app_message_open(256, 8);
+  #else
   app_message_open(1024, 8);
+  #endif
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
   app_message_register_inbox_received(inbox_received_callback);

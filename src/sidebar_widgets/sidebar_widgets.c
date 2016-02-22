@@ -23,15 +23,13 @@ GFont currentSidebarFont;
 GFont batteryFont;
 
 // the date, time and weather strings
-char currentDayName[8];
-char currentDayNum[8];
-char currentMonth[8];
-char currentWeekNum[8];
-char currentSecondsNum[8];
-char altClock[8];
-char currentHours[8];
-char currentMinutes[8];
-char currentBeats[8];
+char currentDayName[5];
+char currentDayNum[5];
+char currentMonth[5];
+char currentWeekNum[5];
+char currentSecondsNum[5];
+char altClock[5];
+char currentBeats[5];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -69,10 +67,6 @@ void Seconds_draw(GContext* ctx, int yPosition);
 SidebarWidget altTimeWidget;
 int AltTime_getHeight();
 void AltTime_draw(GContext* ctx, int yPosition);
-
-SidebarWidget timeWidget;
-int Time_getHeight();
-void Time_draw(GContext* ctx, int yPosition);
 
 SidebarWidget beatsWidget;
 int Beats_getHeight();
@@ -134,9 +128,6 @@ void SidebarWidgets_init() {
   altTimeWidget.getHeight = AltTime_getHeight;
   altTimeWidget.draw      = AltTime_draw;
 
-  timeWidget.getHeight = Time_getHeight;
-  timeWidget.draw      = Time_draw;
-
   #ifdef PBL_HEALTH
     healthWidget.getHeight = Health_getHeight;
     healthWidget.draw = Health_draw;
@@ -177,23 +168,14 @@ int mod(int a, int b) {
 }
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
+  printf("Current RAM: %d", heap_bytes_free());
+
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
   strftime(currentWeekNum, 3, "%V", timeInfo);
 
   // set the seconds string
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
-
-  // set the current time strings
-  if(clock_is_24h_style()) {
-    strftime(currentHours, 3, "%H", timeInfo);
-  } else {
-    strftime(currentHours, 3, "%I", timeInfo);
-  }
-  if(!globalSettings.showLeadingZero && currentHours[0] == '0') {
-    currentHours[0] = ' ';
-  }
-  strftime(currentMinutes, 3, "%M", timeInfo);
 
   int beats = time_get_beats(timeInfo);
 
@@ -249,9 +231,6 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case ALT_TIME_ZONE:
       return altTimeWidget;
-      break;
-    case TIME:
-      return timeWidget;
       break;
     case SECONDS:
       return secondsWidget;
@@ -563,32 +542,6 @@ void Seconds_draw(GContext* ctx, int yPosition) {
                      GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
-                     NULL);
-}
-
-/***** Time Widget *****/
-
-int Time_getHeight() {
-  return 31;
-}
-
-void Time_draw(GContext* ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-
-  graphics_draw_text(ctx,
-                     currentHours,
-                     lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition - 10, 25, 14),
-                     GTextOverflowModeFill,
-                     GTextAlignmentRight,
-                     NULL);
-
-  graphics_draw_text(ctx,
-                     currentMinutes,
-                     lgSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition + 7, 25, 14),
-                     GTextOverflowModeFill,
-                     GTextAlignmentRight,
                      NULL);
 }
 

@@ -28,7 +28,7 @@ typedef enum {
   WEEK_NUMBER               = 6,
   WEATHER_CURRENT           = 7,
   WEATHER_FORECAST_TODAY    = 8,
-  TIME                      = 9,
+  TIME_UNUSED               = 9,
   HEALTH                    = 10,
   BEATS                     = 11
 } SidebarWidgetType;
