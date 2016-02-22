@@ -1,4 +1,4 @@
-var CURRENT_SETTINGS_VERSION = 6;
+var CURRENT_SETTINGS_VERSION = 7;
 
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
@@ -34,6 +34,7 @@ function migrateLegacySettings(config) {
   config.health_use_distance = 'no';
   config.health_use_restful_sleep = 'no';
   config.decimal_separator = '.';
+  config.autobattery_setting = 'on';
 
   return config;
 }
@@ -79,6 +80,7 @@ function loadPreviousSettings() {
 
       // battery widget settings
       battery_meter_setting: 'icon-only',
+      autobattery_setting: 'on',
 
       // alt timezone widget settings
       altclock_name: 'ALT',
@@ -116,6 +118,7 @@ function loadPreviousSettings() {
   loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
   loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
   loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
+  loadSettingCheckbox('autobattery_setting', savedSettings.autobattery_setting);
   loadSettingCheckbox('time_leading_zero_setting', savedSettings.leading_zero_setting);
   loadSettingCheckbox('clock_font_setting', savedSettings.clock_font_setting);
   loadSettingCheckbox('use_large_sidebar_font_setting', savedSettings.use_large_sidebar_font_setting);
@@ -247,9 +250,9 @@ function showOnlySelectedWidgetSettings() {
 
   // if the battery widget isn't there, show the autobattery info
   if(selections.indexOf('2') == -1) {
-    $('#autobattery_info').show();
+    $('#autobattery_setting').show();
   } else {
-    $('#autobattery_info').hide();
+    $('#autobattery_setting').hide();
   }
 
   // if any of the weather widgets are there, show the weather-related settings
@@ -338,7 +341,6 @@ function updateSidebarPreview() {
     switch(widget_id) {
       case '2':
         image_url += 'BATTERY';
-console.log($('#battery_meter_setting .btn.active').data('setting'));
         if($('#battery_meter_setting .btn.active').data('setting') == 'icon-and-percent') {
           image_url += '_WITH_PCT';
         }
@@ -537,6 +539,10 @@ function sendSettingsToWatch() {
   // battery widget settings
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
+  }
+
+  if($('#autobattery_setting .btn.active')) {
+    config.autobattery_setting = $('#autobattery_setting .btn.active').data('setting');
   }
 
   if($('#decimal_separator .btn.active')) {
