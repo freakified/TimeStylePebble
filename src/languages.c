@@ -28,7 +28,7 @@ const char dayNames[31][7][8] = {
 	{"SEK", "PIR", "ANT", "TRE", "KET", "PEN", "ŠEŠ"},
 	{"NED", "PON", "TOR", "SRE", "ČET", "PET", "SOB"},
 	{"VAS", "HÉT", "KED", "SZE", "CSÜ", "PÉN", "SZO"},
-	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"},
+	{"NED", "PON", "UTO", "SRE", "ČET", "PET", "SUB"},
 	{"DOM", "LUA", "MÁI", "CÉA", "DÉA", "AOI", "SAT"},
 	{"SVĒ", "PIR", "OTR", "TRE", "CET", "PIE", "SES"},
 	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"},
@@ -102,7 +102,7 @@ const char wordForWeek[31][12] = {
 	"Tj",
 	"Scht",
 	"Ned",
-	"N",
+	"Ned",
 	"周",
 	"Ming"
 };
