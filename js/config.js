@@ -1,4 +1,4 @@
-var CURRENT_SETTINGS_VERSION = 6;
+var CURRENT_SETTINGS_VERSION = 7;
 
 // if we have any persistent data saved, load it in
 $(document).ready(function() {
