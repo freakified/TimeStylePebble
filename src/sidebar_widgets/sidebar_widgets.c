@@ -23,12 +23,12 @@ GFont currentSidebarFont;
 GFont batteryFont;
 
 // the date, time and weather strings
-char currentDayName[5];
+char currentDayName[8];
 char currentDayNum[5];
-char currentMonth[5];
+char currentMonth[8];
 char currentWeekNum[5];
 char currentSecondsNum[5];
-char altClock[5];
+char altClock[8];
 char currentBeats[5];
 
 // the widgets
@@ -177,10 +177,6 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set the seconds string
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
-  int beats = time_get_beats(timeInfo);
-
-  // set the swatch internet time beats
-  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
 
   // set the alternate time zone string
   int hour = timeInfo->tm_hour;
@@ -215,6 +211,14 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
     currentDayNum[0] = currentDayNum[1];
     currentDayNum[1] = '\0';
   }
+
+  // this must be last, because time_get_beats screws with the time structure
+  // TODO: make that function less messy
+  int beats = time_get_beats(timeInfo);
+
+  // set the swatch internet time beats
+  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
+
 }
 
 /* Sidebar Widget Selection */

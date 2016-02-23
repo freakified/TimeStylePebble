@@ -360,7 +360,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict.KEY_SETTING_ALTCLOCK_NAME = configData.altclock_name;
     }
 
-    if(configData.altclock_offset) {
+    if(configData.altclock_offset !== null) {
       dict.KEY_SETTING_ALTCLOCK_OFFSET = parseInt(configData.altclock_offset, 10);
     }
 
