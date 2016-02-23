@@ -27,7 +27,7 @@ void messaging_init(void (*processed_callback)(void)) {
   #ifdef PBL_COLOR
   app_message_open(512, 8);
   #else
-  app_message_open(200, 8); //leave a bit of extra headroom on watches with more RAM
+  app_message_open(256, 8); //leave a bit of extra headroom on watches with more RAM
   #endif
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
