@@ -43,8 +43,8 @@ void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
 
   if(this->currentNum != number || this->currentFontId != fontId) {
 
-    //save the old digit image so we can dellocate it
-    GBitmap* oldImage = this->currentImage;
+    //deallocate the old bg image
+    gbitmap_destroy(this->currentImage);
 
     //change over to the new digit image
     this->currentImageId = ClockDigit_imageIds[fontId][number];
@@ -58,8 +58,7 @@ void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
     //set the layer to the new image
     bitmap_layer_set_bitmap(this->imageLayer, this->currentImage);
 
-    //deallocate the old bg image
-    gbitmap_destroy(oldImage);
+    printf("Currently free: %d bytes", heap_bytes_free());
   }
 
   // in case the layer was set to hidden, unhide
@@ -121,20 +120,22 @@ void ClockDigit_destruct(ClockDigit* this) {
 }
 
 void adjustImagePalette(ClockDigit* this) {
-  GColor* pal = gbitmap_get_palette(this->currentImage);
+  if(this->currentImage) {
+    GColor* pal = gbitmap_get_palette(this->currentImage);
 
-  #ifdef PBL_COLOR
-    if(this->currentFontId == FONT_SETTING_DEFAULT || this->currentFontId == FONT_SETTING_BOLD) {
-      pal[0] = this->fgColor;
-      pal[1] = this->midColor1;
-      pal[2] = this->midColor2;
-      pal[3] = this->bgColor;
-    } else { // LECO only has two colors
+    #ifdef PBL_COLOR
+      if(this->currentFontId == FONT_SETTING_DEFAULT || this->currentFontId == FONT_SETTING_BOLD) {
+        pal[0] = this->fgColor;
+        pal[1] = this->midColor1;
+        pal[2] = this->midColor2;
+        pal[3] = this->bgColor;
+      } else { // LECO only has two colors
+        pal[0] = this->fgColor;
+        pal[1] = this->bgColor;
+      }
+    #else
       pal[0] = this->fgColor;
       pal[1] = this->bgColor;
-    }
-  #else
-    pal[0] = this->fgColor;
-    pal[1] = this->bgColor;
-  #endif
+    #endif
+  }
 }
