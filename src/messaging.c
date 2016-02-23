@@ -24,7 +24,11 @@ void messaging_init(void (*processed_callback)(void)) {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
-  app_message_open(1024, 8);
+  #ifdef PBL_COLOR
+  app_message_open(512, 8);
+  #else
+  app_message_open(200, 8); //leave a bit of extra headroom on watches with more RAM
+  #endif
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
   app_message_register_inbox_received(inbox_received_callback);
@@ -140,10 +144,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(hourlyVibe_tuple != NULL) {
     globalSettings.hourlyVibe = hourlyVibe_tuple->value->int8;
-  }
-
-  if(language_tuple != NULL) {
-    globalSettings.languageId = language_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {
