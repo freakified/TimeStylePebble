@@ -57,8 +57,6 @@ void ClockDigit_setNumber(ClockDigit* this, int number, int fontId) {
 
     //set the layer to the new image
     bitmap_layer_set_bitmap(this->imageLayer, this->currentImage);
-
-    printf("Currently free: %d bytes", heap_bytes_free());
   }
 
   // in case the layer was set to hidden, unhide
