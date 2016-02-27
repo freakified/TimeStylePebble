@@ -710,7 +710,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   // get sleep in seconds
   int sleep_seconds;
 
-  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepSeconds : HealthMetricSleepRestfulSeconds;
+  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
 
   if(is_health_activity_accessible(metric)) {
     sleep_seconds = (int)health_service_sum_today(metric);
