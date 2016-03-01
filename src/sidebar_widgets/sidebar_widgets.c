@@ -405,7 +405,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
     graphics_draw_text(ctx,
                        currentMonth,
                        currentSidebarFont,
-                       GRect(0 + SidebarWidgets_xOffset, yPosition + yOffset, 30, 20),
+                       GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset, 40, 20),
                        GTextOverflowModeFill,
                        GTextAlignmentCenter,
                        NULL);
