@@ -33,7 +33,7 @@ const char dayNames[31][7][8] = {
 	{"SVĒ", "PIR", "OTR", "TRE", "CET", "PIE", "SES"},
 	{"NE", "PO", "UT", "SR", "ČE", "PE", "SU"},
 	{"日", "一", "二", "三", "四", "五", "六"},
-	{"SEN", "SEL", "RAB", "KAM", "JUM", "SAB", "MIN"}
+	{"MIN", "SEN",  "SEL", "RAB", "KAM", "JUM", "SAB"}	
 };
 
 /* month names in many different languages! */
