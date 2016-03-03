@@ -306,9 +306,11 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
     graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
 
-    if(chargeState.charge_percent <= 20) {
-      graphics_context_set_fill_color(ctx, GColorRed);
-    }
+    #ifdef PBL_COLOR
+      if(chargeState.charge_percent <= 20) {
+        graphics_context_set_fill_color(ctx, GColorRed);
+      }
+    #endif
 
     graphics_fill_rect(ctx, GRect(6 + SidebarWidgets_xOffset, 8 + batteryPositionY, width, 8), 0, GCornerNone);
   }
