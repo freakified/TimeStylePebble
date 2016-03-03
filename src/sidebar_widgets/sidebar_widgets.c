@@ -678,7 +678,7 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 bool Health_use_sleep_mode() {
   uint32_t current_activities = health_service_peek_current_activities();
   bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-  
+
   return sleeping;
 }
 
@@ -768,11 +768,14 @@ void Steps_draw(GContext* ctx, int yPosition) {
     if(is_health_activity_accessible(HealthMetricWalkedDistanceMeters)) {
       meters = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
     }
-
+    
     // format distance string
     if(globalSettings.useMetric) {
-      if(meters < 1000) {
+      if(meters < 100) {
         snprintf(steps_text, sizeof(steps_text), "%im", meters);
+      } else if(meters < 1000) {
+        meters /= 100; // convert to tenths of km
+        snprintf(steps_text, sizeof(steps_text), ".%ikm", meters);
       } else {
         meters /= 1000; // convert to km
 
