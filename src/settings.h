@@ -21,7 +21,7 @@ typedef struct {
 
   // vibration settings
   bool btVibe;
-  bool hourlyVibe;
+  int hourlyVibe;
 
   // sidebar settings
   SidebarWidgetType widgets[3];
