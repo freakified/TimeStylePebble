@@ -678,7 +678,7 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 bool Health_use_sleep_mode() {
   uint32_t current_activities = health_service_peek_current_activities();
   bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-
+  
   return sleeping;
 }
 
@@ -760,6 +760,7 @@ void Steps_draw(GContext* ctx, int yPosition) {
   }
 
   char steps_text[8];
+  bool use_small_font = false;
 
   if(globalSettings.healthUseDistance) {
     int meters = 0;
@@ -774,6 +775,11 @@ void Steps_draw(GContext* ctx, int yPosition) {
         snprintf(steps_text, sizeof(steps_text), "%im", meters);
       } else {
         meters /= 1000; // convert to km
+
+        if(meters > 9) {
+          use_small_font = true;
+        }
+
         snprintf(steps_text, sizeof(steps_text), "%ikm", meters);
       }
     } else {
@@ -813,8 +819,8 @@ void Steps_draw(GContext* ctx, int yPosition) {
 
   graphics_draw_text(ctx,
                      steps_text,
-                     mdSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 13, 34, 20),
+                     (use_small_font) ? smSidebarFont : mdSidebarFont,
+                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 13, 35, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
