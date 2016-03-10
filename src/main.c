@@ -7,6 +7,7 @@
 
 // windows and layers
 static Window* mainWindow;
+static Layer* windowLayer;
 
 // current bluetooth state
 static bool isPhoneConnected;
@@ -207,6 +208,21 @@ void batteryStateChanged(BatteryChargeState charge_state) {
   Sidebar_redraw();
 }
 
+// fixes for disappearing elements after notifications
+// (from http://codecorner.galanter.net/2016/01/08/solved-issue-with-pebble-framebuffer-after-notification-is-dismissed/)
+static void app_focus_changing(bool focusing) {
+  if (focusing) {
+     layer_set_hidden(windowLayer, true);
+  }
+}
+
+static void app_focus_changed(bool focused) {
+  if (focused) {
+     layer_set_hidden(windowLayer, false);
+     layer_mark_dirty(windowLayer);
+  }
+}
+
 static void init() {
   setlocale(LC_ALL, "");
 
@@ -231,6 +247,8 @@ static void init() {
   // Show the Window on the watch, with animated=true
   window_stack_push(mainWindow, true);
 
+  windowLayer = window_get_root_layer(mainWindow);
+
   // Register with TickTimerService
   if(globalSettings.updateScreenEverySecond) {
     tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
@@ -246,6 +264,12 @@ static void init() {
 
   // register with battery service
   battery_state_service_subscribe(batteryStateChanged);
+
+  // set up focus change handlers
+  app_focus_service_subscribe_handlers((AppFocusHandlers){
+    .did_focus = app_focus_changed,
+    .will_focus = app_focus_changing
+  });
 }
 
 static void deinit() {
