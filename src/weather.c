@@ -95,13 +95,11 @@ void Weather_setConditions(int conditionCode, bool isNight, int forecastConditio
   uint32_t forecastWeatherIcon = getConditionIcon(forecastCondition);
 
   // ok, now load the new icon:
-  GDrawCommandImage* oldImage = Weather_currentWeatherIcon;
+  gdraw_command_image_destroy(Weather_currentWeatherIcon);
   Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(currentWeatherIcon);
-  gdraw_command_image_destroy(oldImage);
 
-  oldImage = Weather_forecastWeatherIcon;
+  gdraw_command_image_destroy(Weather_forecastWeatherIcon);
   Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
-  gdraw_command_image_destroy(oldImage);
 
   Weather_weatherInfo.currentIconResourceID = currentWeatherIcon;
   Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
