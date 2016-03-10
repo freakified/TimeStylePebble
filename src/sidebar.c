@@ -161,7 +161,7 @@ int getReplacableWidget() {
 
 void updateRoundSidebarRight(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_bounds(l);
-  GRect bgBounds = GRect(bounds.origin.x, bounds.origin.y, bounds.size.h, bounds.size.h);
+  GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
 
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
@@ -181,7 +181,7 @@ void updateRoundSidebarRight(Layer *l, GContext* ctx) {
 
 void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_bounds(l);
-  GRect bgBounds = GRect(bounds.origin.x - bounds.size.h + bounds.size.w, bounds.origin.y, bounds.size.h, bounds.size.h);
+  GRect bgBounds = GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w, bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
 
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
@@ -214,7 +214,7 @@ void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetTyp
   SidebarWidget widget = getSidebarWidgetByType(widgetType);
 
   // calculate center position of the widget
-  int widgetPosition = bgBounds.size.h / 2 - widget.getHeight() / 2;
+  int widgetPosition = bgBounds.size.h / 4 - widget.getHeight() / 2;
   widget.draw(ctx, widgetPosition);
 }
 #endif
