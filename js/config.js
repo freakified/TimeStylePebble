@@ -82,7 +82,7 @@ function loadPreviousSettings() {
       weather_setting: 'auto',
 
       // battery widget settings
-      battery_meter_setting: 'icon-only',
+      battery_meter_setting: 'icon-and-percent',
       autobattery_setting: 'on',
 
       // alt timezone widget settings
