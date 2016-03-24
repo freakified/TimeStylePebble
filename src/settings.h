@@ -5,7 +5,7 @@
 #define SETTINGS_VERSION_KEY 4
 
 // settings "version" for app version 4.0
-#define CURRENT_SETTINGS_VERSION 5
+#define CURRENT_SETTINGS_VERSION 6
 
 typedef struct {
   // color settings
@@ -54,6 +54,46 @@ typedef struct {
   GColor iconStrokeColor;
 } Settings;
 
+
+// !! all future settings should be added to the bottom of this structure
+// !! do not remove fields from this structure, it will lead to unexpected behaviour
+typedef struct {
+  GColor timeColor;
+  GColor timeBgColor;
+  GColor sidebarColor;
+  GColor sidebarTextColor;
+
+  // general settings
+  uint8_t languageId;
+  uint8_t showLeadingZero:1;
+  uint8_t clockFontId:7;
+
+  // vibration settings
+  uint8_t btVibe:1;
+  int8_t hourlyVibe:7;
+
+  // sidebar settings
+  uint8_t widgets[3];
+  uint8_t sidebarOnLeft:1;
+  uint8_t useLargeFonts:1;
+
+  // weather widget settings
+  uint8_t useMetric:1;
+
+  // battery meter widget settings
+  uint8_t showBatteryPct:1;
+  uint8_t disableAutobattery:1;
+
+  // health widget Settings
+  uint8_t healthUseDistance:1;
+  uint8_t healthUseRestfulSleep:1;
+  char decimalSeparator;
+
+  // alt tz widget settings
+  char altclockName[8];
+  int8_t altclockOffset;
+} StoredSettings;
+
 extern Settings globalSettings;
 
 // persistent storage keys for each setting
@@ -97,6 +137,9 @@ extern Settings globalSettings;
 #define SETTING_HEALTH_USE_RESTFUL_SLEEP  33
 #define SETTING_HEALTH_USE_METRIC         35
 #define SETTING_DECIMAL_SEPARATOR_KEY     34
+
+// key for all the settings for versions 6 and higher
+#define SETTING_VERSION6_AND_HIGHER       100
 
 void Settings_init();
 void Settings_deinit();
