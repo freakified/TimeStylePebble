@@ -32,13 +32,14 @@
 #define LANGUAGE_CN 29
 #define LANGUAGE_ID 30
 #define LANGUAGE_UK 31
+#define LANGUAGE_CY 32 // welsh
 
 /* day names in many different languages! */
-extern const char dayNames[32][7][8];
+extern const char dayNames[33][7][8];
 
 /* month names in many different languages! */
-extern const char monthNames[32][12][8];
+extern const char monthNames[33][12][8];
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-extern const char wordForWeek[32][12];
+extern const char wordForWeek[33][12];
