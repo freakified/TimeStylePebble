@@ -763,31 +763,33 @@ void Steps_draw(GContext* ctx, int yPosition) {
   bool use_small_font = false;
 
   if(globalSettings.healthUseDistance) {
-    int meters = 0;
+    int distance = 0;
 
     if(is_health_activity_accessible(HealthMetricWalkedDistanceMeters)) {
-      meters = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
+      distance = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
     }
-    
-    // format distance string
-    if(globalSettings.useMetric) {
-      if(meters < 100) {
-        snprintf(steps_text, sizeof(steps_text), "%im", meters);
-      } else if(meters < 1000) {
-        meters /= 100; // convert to tenths of km
-        snprintf(steps_text, sizeof(steps_text), ".%ikm", meters);
-      } else {
-        meters /= 1000; // convert to km
 
-        if(meters > 9) {
+    MeasurementSystem unit_system = health_service_get_measurement_system_for_display(HealthMetricWalkedDistanceMeters);
+
+    // format distance string
+    if(unit_system == MeasurementSystemMetric) {
+      if(distance < 100) {
+        snprintf(steps_text, sizeof(steps_text), "%im", distance);
+      } else if(distance < 1000) {
+        distance /= 100; // convert to tenths of km
+        snprintf(steps_text, sizeof(steps_text), ".%ikm", distance);
+      } else {
+        distance /= 1000; // convert to km
+
+        if(distance > 9) {
           use_small_font = true;
         }
 
-        snprintf(steps_text, sizeof(steps_text), "%ikm", meters);
+        snprintf(steps_text, sizeof(steps_text), "%ikm", distance);
       }
     } else {
-      int miles_tenths = meters * 10 / 1609 % 10;
-      int miles_whole  = (int)roundf(meters / 1609.0f);
+      int miles_tenths = distance * 10 / 1609 % 10;
+      int miles_whole  = (int)roundf(distance / 1609.0f);
 
       if(miles_whole > 0) {
         snprintf(steps_text, sizeof(steps_text), "%imi", miles_whole);
