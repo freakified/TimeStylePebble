@@ -37,7 +37,7 @@
     <div class="btn-group btn-group-justified"  data-toggle="buttons">
       <label class="btn btn-default" data-setting="on" >
         <input type="radio" name="options" autocomplete="off">
-        Automatically show battery meter at 20%
+        Automatically show battery meter at 10%
       </label>
       <label class="btn btn-default" data-setting="off" >
         <input type="radio" name="options" autocomplete="off">
@@ -78,6 +78,17 @@
     </div>
     <div class="form_group collapse" id="manual_weather_loc_setting_area">
       <input type="text" class="form-control" style="margin-top: 15px" id="weather_loc" placeholder='e.g. "San Francisco CA US", or "94101 US"'>
+    </div>
+  </div>
+  <label class="subtle">Units</label>
+  <div id="units_setting" class="form-group" >
+    <div class="btn-group btn-group-justified"  data-toggle="buttons">
+      <label class="btn btn-default" data-setting="f" >
+        <input type="radio" name="options" autocomplete="off"> Fahrenheit
+      </label>
+      <label class="btn btn-default" data-setting="c" >
+        <input type="radio" name="options" autocomplete="off"> Celsius
+      </label>
     </div>
   </div>
   <hr>
@@ -229,6 +240,7 @@
   <option data-setting="30">Bahasa Indonesia</option>
   <option data-setting="15">Català</option>
   <option data-setting="7">Čeština</option>
+  <option data-setting="32">Cymraeg</option>
   <option data-setting="21">Dansk</option>
   <option data-setting="2">Deutsch</option>
   <option data-setting="18">Eesti</option>
@@ -258,17 +270,6 @@
   <option data-setting="31">Українська (requires language pack)</option>
   <option data-setting="29">中文 (requires language pack)</option>
 </select>
-</div>
-<label class="subtle">Units</label>
-<div id="units_setting" class="form-group" >
-  <div class="btn-group btn-group-justified"  data-toggle="buttons">
-    <label class="btn btn-default" data-setting="f" >
-      <input type="radio" name="options" autocomplete="off"> US
-    </label>
-    <label class="btn btn-default" data-setting="c" >
-      <input type="radio" name="options" autocomplete="off"> Metric
-    </label>
-  </div>
 </div>
 {% if health %}
 <label class="subtle">Decimal Separator</label>
