@@ -48,6 +48,9 @@ function loadPreviousSettings() {
     savedSettings = migrateLegacySettings(savedSettings);
   }
 
+  // health is the default except on BW watches, which have battery
+  var top_widget = (has_health) ? '10' : '2';
+
   if(!savedSettings) {
     // if there are no settings set, load the default settings
     savedSettings = {
@@ -67,7 +70,7 @@ function loadPreviousSettings() {
       hourly_vibe_setting: 'no',
 
       // sidebar settings
-      widget_0_id: '7', // current weather
+      widget_0_id: top_widget, // current weather
       widget_1_id: '0', // empty
       widget_2_id: '4', // today's date
       sidebar_position: 'right',
