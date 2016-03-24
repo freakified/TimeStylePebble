@@ -31,15 +31,15 @@ void Settings_loadFromStorage() {
     globalSettings.timeColor      = GColorWhite;
     globalSettings.sidebarColor   = GColorWhite;
   #endif
-  
+
   // set the default widgets
-  globalSettings.widgets[0] = WEATHER_CURRENT;
+  globalSettings.widgets[0] = PBL_IF_HEALTH_ELSE(HEALTH, BATTERY_METER);
   globalSettings.widgets[1] = EMPTY;
   globalSettings.widgets[2] = DATE;
-  
+
   strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
   globalSettings.decimalSeparator = '.';
-  
+
   int current_settings_version = persist_exists(SETTINGS_VERSION_KEY) ? persist_read_int(SETTINGS_VERSION_KEY) : -1;
   APP_LOG(APP_LOG_LEVEL_DEBUG,"current_settings_version: %d", current_settings_version);
   if( current_settings_version > 5 ) {
@@ -75,25 +75,25 @@ void Settings_loadFromStorage() {
     // old settings format
     if(persist_exists(SETTING_TIME_COLOR_KEY) && persist_exists(SETTING_TIME_BG_COLOR_KEY) &&
        persist_exists(SETTING_SIDEBAR_COLOR_KEY) && persist_exists(SETTING_SIDEBAR_TEXT_COLOR_KEY)) {
-  
+
       // if the color data exists, load the colors
       persist_read_data(SETTING_TIME_COLOR_KEY,         &globalSettings.timeColor,        sizeof(GColor));
       persist_read_data(SETTING_TIME_BG_COLOR_KEY,      &globalSettings.timeBgColor,      sizeof(GColor));
       persist_read_data(SETTING_SIDEBAR_COLOR_KEY,      &globalSettings.sidebarColor,     sizeof(GColor));
       persist_read_data(SETTING_SIDEBAR_TEXT_COLOR_KEY, &globalSettings.sidebarTextColor, sizeof(GColor));
     }
-  
+
     // load widgets
     if(persist_exists(SETTING_SIDEBAR_WIDGET0_KEY)) {
       globalSettings.widgets[0] = persist_read_int(SETTING_SIDEBAR_WIDGET0_KEY);
       globalSettings.widgets[1] = persist_read_int(SETTING_SIDEBAR_WIDGET1_KEY);
       globalSettings.widgets[2] = persist_read_int(SETTING_SIDEBAR_WIDGET2_KEY);
     }
-  
+
     if(persist_exists(SETTING_ALTCLOCK_NAME_KEY)) {
       persist_read_string(SETTING_ALTCLOCK_NAME_KEY, globalSettings.altclockName, sizeof(globalSettings.altclockName));
     }
-  
+
     // load the rest of the settings, using default settings if none exist
     // all settings except colors automatically return "0" or "false" if
     // they haven't been set yet, so we don't need to check if they exist
@@ -111,7 +111,7 @@ void Settings_loadFromStorage() {
     globalSettings.altclockOffset         = persist_read_int(SETTING_ALTCLOCK_OFFSET_KEY);
     globalSettings.healthUseDistance      = persist_read_bool(SETTING_HEALTH_USE_DISTANCE);
     globalSettings.healthUseRestfulSleep  = persist_read_bool(SETTING_HEALTH_USE_RESTFUL_SLEEP);
-  
+
     if(persist_exists(SETTING_DECIMAL_SEPARATOR_KEY)) {
       globalSettings.decimalSeparator = (char)persist_read_int(SETTING_DECIMAL_SEPARATOR_KEY);
     }
@@ -124,7 +124,7 @@ void Settings_saveToStorage() {
   // ensure that the weather disabled setting is accurate before saving it
   Settings_updateDynamicSettings();
 
-  // save settings to compressed structure and to persistent storage    
+  // save settings to compressed structure and to persistent storage
   StoredSettings storedSettings;
   // if previous version settings are used than only first part of settings would be overwrited
   // all the other fields will left filled with zeroes
