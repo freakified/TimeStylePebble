@@ -40,6 +40,8 @@ void Settings_loadFromStorage() {
   strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
   globalSettings.decimalSeparator = '.';
 
+  globalSettings.showBatteryPct = true;
+
   int current_settings_version = persist_exists(SETTINGS_VERSION_KEY) ? persist_read_int(SETTINGS_VERSION_KEY) : -1;
   APP_LOG(APP_LOG_LEVEL_DEBUG,"current_settings_version: %d", current_settings_version);
   if( current_settings_version > 5 ) {
