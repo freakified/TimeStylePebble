@@ -4,7 +4,22 @@ var CONFIG_VERSION = 7;
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 // var BASE_CONFIG_URL = 'http://192.168.0.106:4000/';
 
-var WEATHER_CACHE_LIFETIME = 86400; // 1 day
+// var WEATHER_CACHE_LIFETIME = 86400; // 1 day
+
+
+// icon codes
+var CLEAR_DAY           = 0;
+var CLEAR_NIGHT         = 1;
+var CLOUDY_DAY          = 2;
+var HEAVY_RAIN          = 3;
+var HEAVY_SNOW          = 4;
+var LIGHT_RAIN          = 5;
+var LIGHT_SNOW          = 6;
+var PARTLY_CLOUDY_NIGHT = 7;
+var PARTLY_CLOUDY       = 8;
+var RAINING_AND_SNOWING = 9;
+var THUNDERSTORM        = 10;
+var WEATHER_GENERIC     = 11;
 
 var failureRetryAmount = 3;
 var currentFailures = 0;
@@ -35,32 +50,11 @@ function locationError(err) {
 
 function locationSuccess(pos) {
   // Construct URL
-  // first, do a reverse geocode lookup on the coordinates
+  var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
+      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&units=metric&appid=' + OWM_APP_ID;
+  console.log(url);
 
-  var query = 'select woeid from geo.places where text="(' +
-       pos.coords.latitude + ',' + pos.coords.longitude + ')" limit 1';
-
-  var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-       encodeURIComponent(query) + '&format=json';
-
-  console.log("Reverse geocoding url: " + url);
-
-  xhrRequest(url, 'GET',
-    function(responseText) {
-
-      // responseText contains a JSON object with weather info
-      var json = JSON.parse(responseText);
-
-      var location = json.query.results.place.woeid;
-
-      console.log("We did it! Location was " + location);
-
-      window.localStorage.setItem('weather_loc_cache', location);
-      window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
-
-      getWeather();
-    }
-  );
+  getAndSendWeatherData(url);
 }
 
 function getLocation() {
@@ -73,41 +67,23 @@ function getLocation() {
 
 function getWeather() {
   var weatherDisabled = window.localStorage.getItem('disable_weather');
+
   console.log("Get weather function called! DisableWeather is '" + weatherDisabled + "'");
+
   if(weatherDisabled !== "yes") {
     window.localStorage.setItem('disable_weather', 'no');
 
     var weatherLoc = window.localStorage.getItem('weather_loc');
-    var weatherLocCache = window.localStorage.getItem('weather_loc_cache');
-    var weatherLocCacheTime = window.localStorage.getItem('weather_loc_cache_time');
-    var cacheAge = (new Date().getTime() / 1000) - weatherLocCacheTime;
 
-    var location = false;
-    var is_woeid = false;
+    // var weatherLocCache = window.localStorage.getItem('weather_loc_cache');
+    // var weatherLocCacheTime = window.localStorage.getItem('weather_loc_cache_time');
+    // var cacheAge = (new Date().getTime() / 1000) - weatherLocCacheTime;
 
     if(weatherLoc) {
-      location = weatherLoc;
-      console.log("it thinks we have a location");
-    } else if ((new Date().getTime() / 1000) - weatherLocCacheTime < WEATHER_CACHE_LIFETIME ) {
-      location = weatherLocCache;
-      is_woeid = true; //cached locations are woeids
-      console.log("it thinks we have a cache! Loc:" + weatherLocCache + ", Age: " + cacheAge);
-    }
+      var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
+          encodeURIComponent(weatherLoc) + '&units=metric&appid=' + OWM_APP_ID;
 
-    if(location !== false) {
-      var url = "";
-      if(is_woeid === true) {
-        var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-            encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid="' +
-            location + '" and u="c" limit 1') + '&format=json';
-      } else {
-        var url = 'https://query.yahooapis.com/v1/public/yql?q=' +
-            encodeURIComponent('select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="' +
-            location + '") and u="c" limit 1') + '&format=json';
-      }
-      console.log(url);
-
-      getAndSendWeatherData(url);
+        getAndSendWeatherData(url);
     } else {
       getLocation();
     }
@@ -120,35 +96,72 @@ function getAndSendWeatherData(url) {
     function(responseText) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
-      var condition = json.query.results.channel.item.condition;
-      var forecast = json.query.results.channel.item.forecast;
 
-      if(json.query.count == "1") {
+      if(json.cod == "200") {
         // Temperature in Kelvin requires adjustment
-        var temperature = Math.round(condition.temp);
-        // console.log('Temperature is ' + temperature);
+        var temperature = Math.round(json.main.temp);
+        console.log('Temperature is ' + temperature);
 
         // Conditions
-        var conditionCode = parseInt(condition.code, 10);
-        // console.log('Condition code is ' + conditionCode);
+        var conditionCode = json.weather[0].id;
+        console.log('Condition code is ' + conditionCode);
+        var generalCondition = Math.floor(conditionCode / 100);
 
-        // forecast conditions
-        var forecastCondition = parseInt(forecast.code, 10);
-        var forecastHighTemp = Math.round(forecast.high);
-        var forecastLowTemp = Math.round(forecast.low);
+        // night state
+        var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
 
-
-        // night state is not used with yahoo weather
-        var isNight = false;
+        // determine the correct icon
+        switch(generalCondition) {
+          case 2: //thunderstorm
+            iconToLoad = THUNDERSTORM;
+            break;
+          case 3: //drizzle
+            iconToLoad = LIGHT_RAIN;
+            break;
+          case 5: //rain
+            if(conditionCode == 500) {
+              iconToLoad = LIGHT_RAIN;
+            } else if(conditionCode < 505) {
+              iconToLoad = HEAVY_RAIN;
+            } else if(conditionCode == 511) {
+              iconToLoad = RAINING_AND_SNOWING;
+            } else {
+              iconToLoad = LIGHT_RAIN;
+            }
+            break;
+          case 6: //snow
+            if(conditionCode == 600 || conditionCode == 620) {
+              iconToLoad = LIGHT_SNOW;
+            } else if(conditionCode > 610 && conditionCode < 620) {
+              iconToLoad = RAINING_AND_SNOWING;
+            } else {
+              iconToLoad = HEAVY_SNOW;
+            }
+            break;
+          case 7: // fog, dust, etc
+            iconToLoad = CLOUDY_DAY;
+            break;
+          case 8: // clouds
+            if(conditionCode == 800) {
+              iconToLoad = (!isNight) ? CLEAR_DAY : CLEAR_NIGHT;
+            } else if(conditionCode < 803) {
+              iconToLoad = (!isNight) ? PARTLY_CLOUDY : PARTLY_CLOUDY_NIGHT;
+            } else {
+              iconToLoad = CLOUDY_DAY;
+            }
+            break;
+          default:
+            iconToLoad = WEATHER_GENERIC;
+            break;
+        }
 
         // Assemble dictionary using our keys
         var dictionary = {
           'KEY_TEMPERATURE': temperature,
-          'KEY_CONDITION_CODE': conditionCode,
-          'KEY_USE_NIGHT_ICON': isNight,
-          'KEY_FORECAST_CONDITION': forecastCondition,
-          'KEY_FORECAST_TEMP_HIGH': forecastHighTemp,
-          'KEY_FORECAST_TEMP_LOW': forecastLowTemp
+          'KEY_CONDITION_CODE': iconToLoad
+          // 'KEY_FORECAST_CONDITION': forecastCondition,
+          // 'KEY_FORECAST_TEMP_HIGH': forecastHighTemp,
+          // 'KEY_FORECAST_TEMP_LOW': forecastLowTemp
         };
 
         console.log(JSON.stringify(dictionary));
@@ -161,7 +174,9 @@ function getAndSendWeatherData(url) {
           function(e) {
             // if we fail, wait a couple seconds, then try again
             if(currentFailures < failureRetryAmount) {
-              getWeather();
+              // call it again somewhere between 3 and 10 seconds
+              setTimeout(getWeather, Math.floor(Math.random() * 10000) + 3000);
+
               currentFailures++;
             } else {
               currentFailures = 0;
@@ -415,3 +430,15 @@ Pebble.addEventListener('webviewclosed', function(e) {
   }
 
 });
+
+/*
+ Attempts to approximate a daily forecast by interpolating the next
+ 24 hours worth of 3 hour forecasts :-O
+*/
+// function extractDailyForecast(forecast) {
+//   // first, determine the max and min temperatures
+//
+//   for(var i = 0; i < 4; i++) {
+//     var temperature = Math.round(json.list);
+//   }
+// }

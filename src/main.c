@@ -18,6 +18,10 @@ static bool updatingEverySecond;
 // the four digits on the clock, ordered h1 h2, m1 m2
 static ClockDigit clockDigits[4];
 
+// try to randomize when watches call the weather API
+static uint8_t weatherRefreshMinute;
+static uint8_t weatherRefreshSecond;
+
 void update_clock();
 void redrawScreen();
 void tick_handler(struct tm *tick_time, TimeUnits units_changed);
@@ -158,7 +162,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // every 30 minutes, request new weather data
   if(!globalSettings.disableWeather) {
-    if(tick_time->tm_min % 30 == 0 && tick_time->tm_sec == 0) {
+    if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == weatherRefreshSecond) {
       messaging_requestNewWeatherData();
     }
   }
@@ -225,6 +229,12 @@ static void app_focus_changed(bool focused) {
 
 static void init() {
   setlocale(LC_ALL, "");
+
+  srand(time(NULL));
+
+  weatherRefreshMinute = rand() % 60;
+  weatherRefreshSecond = rand() % 60;
+  // printf("Will update weather every hour at XX:%i:%i", weatherRefreshMinute, weatherRefreshSecond);
 
   // init settings
   Settings_init();

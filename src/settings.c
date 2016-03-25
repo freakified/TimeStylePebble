@@ -164,9 +164,9 @@ void Settings_updateDynamicSettings() {
 
   for(int i = 0; i < 3; i++) {
     // if there are any weather widgets, enable weather checking
-    if(globalSettings.widgets[i] == WEATHER_CURRENT ||
-       globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
-
+    // if(globalSettings.widgets[i] == WEATHER_CURRENT ||
+    //    globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
+    if(globalSettings.widgets[i] == WEATHER_CURRENT) {
       globalSettings.disableWeather = false;
     }
 

@@ -7,79 +7,42 @@ WeatherForecastInfo Weather_weatherForecast;
 GDrawCommandImage* Weather_currentWeatherIcon;
 GDrawCommandImage* Weather_forecastWeatherIcon;
 
-uint32_t getConditionIcon(int conditionCode) {
+uint32_t getConditionIcon(WeatherCondition conditionCode) {
   uint32_t iconToLoad;
 
   switch(conditionCode) {
-    case 0: // tornado
-    case 1: // tropical storm
-    case 2: // hurricane
-    case 3: // severe thunderstorms
-    case 4: // thunderstorms
-    case 37: //isolated thunderstorms
-    case 38: //scattered thunderstorms
-    case 39: //scattered thunderstorms
-    case 45: //thundershowers
-    case 47: //isolated thundershowers
-      iconToLoad = RESOURCE_ID_WEATHER_THUNDERSTORM;
-      break;
-    case 5: //mixed rain and snow
-    case 6: //mixed rain and sleet
-    case 7: //mixed snow and sleet
-    case 8: //freezing drizzle
-    case 10: //freezing rain
-    case 35: //mixed rain and hail
-      iconToLoad = RESOURCE_ID_WEATHER_RAINING_AND_SNOWING;
-      break;
-    case 9: //drizzle
-    case 40: //scattered showers
-      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_RAIN;
-      break;
-    case 11: //showers
-    case 12: //showers
-      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_RAIN;
-      break;
-    case 13: //snow flurries
-    case 14: //light snow showers
-    case 15: //blowing snow
-    case 17: //hail
-    case 42: //scattered snow showers
-      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_SNOW;
-      break;
-    case 16: //snow
-    case 18: //sleet
-    case 41: //heavy snow
-    case 43: //heavy snow
-    case 46: //snow showers
-      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_SNOW;
-      break;
-    case 19: //dust
-    case 20: //foggy
-    case 21: //haze
-    case 22: //smoky
-    case 26: //cloudy
-      iconToLoad = RESOURCE_ID_WEATHER_CLOUDY;
-      break;
-    case 27: //mostly cloudy (night)
-    case 29: //partly cloudy (night)
-      iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT;
-      break;
-    case 23: //blustery
-    case 24: //windy
-    case 25: //cold
-    case 34: //fair (day)
-    case 32: //sunny
-    case 36: //hot
+    case CLEAR_DAY:
       iconToLoad = RESOURCE_ID_WEATHER_CLEAR_DAY;
       break;
-    case 31: //clear (night)
-    case 33: //fair (night)
+    case CLEAR_NIGHT:
       iconToLoad = RESOURCE_ID_WEATHER_CLEAR_NIGHT;
       break;
-    case 28: //mostly cloudy (day)
-    case 30: //partly cloudy (day)
-    case 44: //partly cloudy
+    case CLOUDY_DAY:
+      iconToLoad = RESOURCE_ID_WEATHER_CLOUDY;
+      break;
+    case HEAVY_RAIN:
+      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_RAIN;
+      break;
+    case HEAVY_SNOW:
+      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_SNOW;
+      break;
+    case LIGHT_RAIN:
+      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_RAIN;
+      break;
+    case LIGHT_SNOW:
+      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_SNOW;
+      break;
+    case PARTLY_CLOUDY_NIGHT:
+      iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT;
+      break;
+    case PARTLY_CLOUDY:
       iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY;
+      break;
+    case RAINING_AND_SNOWING:
+      iconToLoad = RESOURCE_ID_WEATHER_RAINING_AND_SNOWING;
+      break;
+    case THUNDERSTORM:
+      iconToLoad = RESOURCE_ID_WEATHER_THUNDERSTORM;
       break;
     default:
       iconToLoad = RESOURCE_ID_WEATHER_GENERIC;
@@ -89,21 +52,25 @@ uint32_t getConditionIcon(int conditionCode) {
   return iconToLoad;
 }
 
-void Weather_setConditions(int conditionCode, bool isNight, int forecastCondition) {
+void Weather_setCurrentCondition(int conditionCode) {
 
   uint32_t currentWeatherIcon = getConditionIcon(conditionCode);
-  uint32_t forecastWeatherIcon = getConditionIcon(forecastCondition);
 
   // ok, now load the new icon:
   gdraw_command_image_destroy(Weather_currentWeatherIcon);
   Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(currentWeatherIcon);
 
-  gdraw_command_image_destroy(Weather_forecastWeatherIcon);
-  Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
-
   Weather_weatherInfo.currentIconResourceID = currentWeatherIcon;
-  Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
 }
+
+// void Weather_setForecastCondition(int conditionCode) {
+//   uint32_t forecastWeatherIcon = getConditionIcon(forecastCondition);
+//
+//   gdraw_command_image_destroy(Weather_forecastWeatherIcon);
+//   Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
+//
+//   Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
+// }
 
 void Weather_init() {
   // if possible, load weather data from persistent storage
