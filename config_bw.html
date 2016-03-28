@@ -16,9 +16,11 @@ title: "TimeStyle Settings"
 </form>
 </div>
 
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAGDuWwSAK-AUtKPG3qOqESKegIZ8vp_Gg&amp;libraries=places"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="lib/spectrum/spectrum.js"></script>
+<script src="lib/jquery.geocomplete.min.js"></script>
 <script>
 $(".colorpicker").spectrum({
     allowEmpty: true,
@@ -32,6 +34,11 @@ $(".colorpicker").spectrum({
     palette: [
         ["#000000", "#AAAAAA", "#FFFFFF"]
     ]
+});
+
+// set up the geo field for weather location input
+$('#weather_loc').geocomplete().bind('geocode:result', function(event, result) {
+    $('#weather_loc').val(result.formatted_address);
 });
 </script>
 {% include analyticstracking.html %}

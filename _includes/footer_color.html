@@ -1,7 +1,10 @@
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAGDuWwSAK-AUtKPG3qOqESKegIZ8vp_Gg&amp;libraries=places"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="lib/spectrum/spectrum.js"></script>
+<script src="lib/jquery.geocomplete.min.js"></script>
 <script>
+// set up the color pickers
 $(".colorpicker").spectrum({
     allowEmpty: true,
     showPaletteOnly: true,
@@ -22,6 +25,11 @@ $(".colorpicker").spectrum({
         "#FFAA00", "#FFAA55", "#FFAAAA", "#FFAAFF", "#FFFF00", "#FFFF55", "#FFFFAA", "#FFFFFF"
         ]
     ]
+});
+
+// set up the geo field for weather location input
+$('#weather_loc').geocomplete().bind('geocode:result', function(event, result) {
+    $('#weather_loc').val(result.formatted_address);
 });
 </script>
 {% include analyticstracking.html %}
