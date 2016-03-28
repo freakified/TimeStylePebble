@@ -135,6 +135,8 @@ function loadPreviousSettings() {
 
   if(savedSettings.weather_setting == 'manual') {
     $('#manual_weather_loc_setting_area').collapse('show');
+  } else {
+    $('#manual_weather_loc_setting_area').collapse('hide');
   }
 
   // load language selector
@@ -429,7 +431,6 @@ function resetSettings() {
   $('label.btn').removeClass('active');
   $(':radio').prop('checked', false);
 
-  $('#manual_weather_loc_setting_area').collapse('hide');
 
   $('#language_selection').val('(No change)');
   $('#altclock_offset_hour option[data-setting="0"]').prop('selected', true);
