@@ -20,36 +20,4 @@ title: "TimeStyle Settings"
 
 <!-- <script src="js/vendor/jquery.min.js"></script>
 <script src="js/vendor/bootstrap.min.js"></script> -->
-<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="lib/spectrum/spectrum.js"></script>
-<script>
-$(".colorpicker").spectrum({
-    allowEmpty: true,
-    showPaletteOnly: true,
-    preferredFormat: "hex",
-    hideAfterPaletteSelect: true,
-    change: function(color) {
-        // if we change a custom color, deselect any preset_selector
-        $('#preset_selector > .active').removeClass('active');
-    },
-    palette: [
-        ["#000000", "#000055", "#0000AA", "#0000FF", "#005500", "#005555", "#0055AA", "#0055FF",
-        "#550000", "#550055", "#5500AA", "#5500FF", "#555500", "#555555", "#5555AA", "#5555FF",
-        "#AA0000", "#AA0055", "#AA00AA", "#AA00FF", "#AA5500", "#AA5555", "#AA55AA", "#AA55FF",
-        "#FF0000", "#FF0055", "#FF00AA", "#FF00FF", "#FF5500", "#FF5555", "#FF55AA", "#FF55FF",
-        "#00AA00", "#00AA55", "#00AAAA", "#00AAFF", "#00FF00", "#00FF55", "#00FFAA", "#00FFFF",
-        "#55AA00", "#55AA55", "#55AAAA", "#55AAFF", "#55FF00", "#55FF55", "#55FFAA", "#55FFFF",
-        "#AAAA00", "#AAAA55", "#AAAAAA", "#AAAAFF", "#AAFF00", "#AAFF55", "#AAFFAA", "#AAFFFF",
-        "#FFAA00", "#FFAA55", "#FFAAAA", "#FFAAFF", "#FFFF00", "#FFFF55", "#FFFFAA", "#FFFFFF"
-        ]
-    ]
-});
-</script>
-{% include analyticstracking.html %}
-<script>
-  var has_health = true;
-</script>
-<script src="js/config.js"></script>
-</body>
-</html>
+{% include footer_color.html %}
