@@ -30,27 +30,35 @@ void messaging_init(void (*processed_callback)(void)) {
   app_message_open(256, 8); //leave a bit of extra headroom on watches with more RAM
   #endif
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
   app_message_register_inbox_received(inbox_received_callback);
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  // does this message contain weather information?
+  // does this message contain current weather conditions?
   Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
   Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
-
-  // forecast info
-  // Tuple *weatherForecastCondition_tuple = dict_find(iterator, KEY_FORECAST_CONDITION);
-  // Tuple *weatherForecastHigh_tuple = dict_find(iterator, KEY_FORECAST_TEMP_HIGH);
-  // Tuple *weatherForecastLow_tuple = dict_find(iterator, KEY_FORECAST_TEMP_LOW);
 
   if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL) {
     // now set the weather conditions properly
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
-    // Weather_weatherForecast.highTemp = (int)weatherForecastHigh_tuple->value->int32;
-    // Weather_weatherForecast.lowTemp = (int)weatherForecastLow_tuple->value->int32;
 
     Weather_setCurrentCondition(weatherConditions_tuple->value->int32);
+
+    Weather_saveData();
+  }
+
+  // does this message contain weather forecast information?
+  Tuple *weatherForecastCondition_tuple = dict_find(iterator, KEY_FORECAST_CONDITION);
+  Tuple *weatherForecastHigh_tuple = dict_find(iterator, KEY_FORECAST_TEMP_HIGH);
+  Tuple *weatherForecastLow_tuple = dict_find(iterator, KEY_FORECAST_TEMP_LOW);
+
+  if(weatherForecastCondition_tuple != NULL && weatherForecastHigh_tuple != NULL
+     && weatherForecastLow_tuple != NULL) {
+
+    Weather_weatherForecast.highTemp = (int)weatherForecastHigh_tuple->value->int32;
+    Weather_weatherForecast.lowTemp = (int)weatherForecastLow_tuple->value->int32;
+    Weather_setForecastCondition(weatherForecastCondition_tuple->value->int32);
 
     Weather_saveData();
   }
@@ -186,14 +194,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 }
 
 void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+  // APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
 void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed! %d %d %d", reason, APP_MSG_SEND_TIMEOUT, APP_MSG_SEND_REJECTED);
+  // APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed! %d %d %d", reason, APP_MSG_SEND_TIMEOUT, APP_MSG_SEND_REJECTED);
 
 }
 
 void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+  // APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }

@@ -32,14 +32,14 @@ typedef enum {
 } WeatherCondition;
 
 extern WeatherInfo Weather_weatherInfo;
-// extern WeatherForecastInfo Weather_weatherForecast;
+extern WeatherForecastInfo Weather_weatherForecast;
 
 extern GDrawCommandImage* Weather_currentWeatherIcon;
-// extern GDrawCommandImage* Weather_forecastWeatherIcon;
+extern GDrawCommandImage* Weather_forecastWeatherIcon;
 
 
 void Weather_setCurrentCondition(int conditionCode);
-// void Weather_setForecastCondition(int conditionCode);
+void Weather_setForecastCondition(int conditionCode);
 void Weather_saveData();
 void Weather_init();
 void Weather_deinit();

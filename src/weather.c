@@ -63,20 +63,19 @@ void Weather_setCurrentCondition(int conditionCode) {
   Weather_weatherInfo.currentIconResourceID = currentWeatherIcon;
 }
 
-// void Weather_setForecastCondition(int conditionCode) {
-//   uint32_t forecastWeatherIcon = getConditionIcon(forecastCondition);
-//
-//   gdraw_command_image_destroy(Weather_forecastWeatherIcon);
-//   Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
-//
-//   Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
-// }
+void Weather_setForecastCondition(int conditionCode) {
+  uint32_t forecastWeatherIcon = getConditionIcon(conditionCode);
+
+  gdraw_command_image_destroy(Weather_forecastWeatherIcon);
+  Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
+
+  Weather_weatherForecast.forecastIconResourceID = forecastWeatherIcon;
+}
 
 void Weather_init() {
   // if possible, load weather data from persistent storage
-  printf("starting weather!");
   if (persist_exists(WEATHERINFO_PERSIST_KEY)) {
-    printf("current key exists!");
+    // printf("current key exists!");
     WeatherInfo w;
     persist_read_data(WEATHERINFO_PERSIST_KEY, &w, sizeof(WeatherInfo));
 
@@ -86,14 +85,14 @@ void Weather_init() {
 
   } else {
 
-    printf("current key does not exist!");
+    // printf("current key does not exist!");
     // otherwise, use null data
     Weather_currentWeatherIcon = NULL;
     Weather_weatherInfo.currentTemp = INT32_MIN;
   }
 
   if (persist_exists(WEATHERFORECAST_PERSIST_KEY)) {
-    printf("forecast key exists!");
+    // printf("forecast key exists!");
     WeatherForecastInfo w;
     persist_read_data(WEATHERFORECAST_PERSIST_KEY, &w, sizeof(WeatherForecastInfo));
 
@@ -102,7 +101,7 @@ void Weather_init() {
     Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(w.forecastIconResourceID);
 
   } else {
-    printf("forecast key does not exist!");
+    // printf("forecast key does not exist!");
 
     Weather_forecastWeatherIcon = NULL;
     Weather_weatherForecast.highTemp = INT32_MIN;
@@ -111,7 +110,7 @@ void Weather_init() {
 }
 
 void Weather_saveData() {
-  printf("saving data!");
+  // printf("saving data!");
   persist_write_data(WEATHERINFO_PERSIST_KEY, &Weather_weatherInfo, sizeof(WeatherInfo));
   persist_write_data(WEATHERFORECAST_PERSIST_KEY, &Weather_weatherForecast, sizeof(WeatherForecastInfo));
 }
