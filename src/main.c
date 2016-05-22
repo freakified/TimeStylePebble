@@ -170,7 +170,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   if(tick_time->tm_sec == 0) {
     if(globalSettings.hourlyVibe == 1) { // hourly vibes only
       if(tick_time->tm_min % 60 == 0) {
-        vibes_short_pulse();
+        vibes_double_pulse();
       }
     } else if(globalSettings.hourlyVibe == 2) {  // hourly and half-hourly
       if(tick_time->tm_min % 60 == 0) {
