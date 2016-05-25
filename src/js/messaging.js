@@ -1,4 +1,4 @@
-var CONFIG_VERSION = 7;
+var CONFIG_VERSION = 8;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
@@ -7,7 +7,7 @@ var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 // get new forecasts if 3 hours have elapsed
 var FORECAST_MAX_AGE = 3 * 60 * 60 * 1000;
 
-// icon codes
+// icon codes for sending weather icons to pebble
 var CLEAR_DAY           = 0;
 var CLEAR_NIGHT         = 1;
 var CLOUDY_DAY          = 2;
@@ -55,7 +55,7 @@ function locationSuccess(pos) {
   console.log(url);
 
   var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&cnt=4&units=metric&appid=' + OWM_APP_ID;
+      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&cnt=8&units=metric&appid=' + OWM_APP_ID;
 
   getAndSendCurrentWeather(url);
   getForecastIfNeeded(forecastURL);
@@ -96,7 +96,7 @@ function getWeather() {
           encodeURIComponent(weatherLoc) + '&units=metric&appid=' + OWM_APP_ID;
 
       var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
-          encodeURIComponent(weatherLoc) + '&cnt=4&units=metric&appid=' + OWM_APP_ID;
+          encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + OWM_APP_ID;
 
       getAndSendCurrentWeather(url);
       getForecastIfNeeded(forecastURL);
@@ -160,6 +160,7 @@ function getAndSendCurrentWeather(url) {
 }
 
 function getAndSendWeatherForecast(url) {
+  console.log(url);
   xhrRequest(url, 'GET',
     function(responseText) {
       // responseText contains a JSON object with weather info
@@ -455,21 +456,23 @@ Pebble.addEventListener('webviewclosed', function(e) {
 function extractFakeDailyForecast(json) {
   var todaysForecast = {};
 
-  // average the next four 3-hour forecasts to get a "high" and "low" for the
-  // next 24 hours
-  todaysForecast.highTemp = 0;
-  todaysForecast.lowTemp  = 0;
+  // find the max and min of those temperatures
+  todaysForecast.highTemp = -Number.MAX_SAFE_INTEGER;
+  todaysForecast.lowTemp  = Number.MAX_SAFE_INTEGER;
 
-  for(var i = 0; i < 4; i++) {
-    todaysForecast.highTemp += json.list[i].main.temp_max;
-    todaysForecast.lowTemp  += json.list[i].main.temp_min;
+  console.log("List length" + json.list.length);
+
+  for(var i = 0; i < json.list.length; i++) {
+    if(todaysForecast.highTemp < json.list[i].main.temp_max) {
+      todaysForecast.highTemp = json.list[i].main.temp_max;
+    }
+
+    if(todaysForecast.lowTemp > json.list[i].main.temp_min) {
+      todaysForecast.lowTemp = json.list[i].main.temp_min;
+    }
   }
 
-  todaysForecast.highTemp = Math.round(todaysForecast.highTemp / 4);
-  todaysForecast.lowTemp  = Math.round(todaysForecast.lowTemp / 4);
-
-  // we can't really "average" conditions, so we'll just cheat and use the last one
-  // let's see how long til someone notices
+  // we can't really "average" conditions, so we'll just cheat and use...one of them :-O
   todaysForecast.condition = json.list[3].weather[0].id;
 
   return todaysForecast;
