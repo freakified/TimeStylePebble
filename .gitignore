@@ -1,5 +1,5 @@
 
-src/js/config.js
+src/js/secrets.js
 
 # Ignore waf build tool generated files
 .waf*

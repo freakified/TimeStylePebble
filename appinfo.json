@@ -36,7 +36,6 @@
         "configurable"
     ],
     "companyName": "Freakified",
-    "enableMultiJS": false,
     "longName": "TimeStyle",
     "projectType": "native",
     "resources": {
@@ -300,5 +299,6 @@
     "versionLabel": "5.13",
     "watchapp": {
         "watchface": true
-    }
+    },
+    "enableMultiJS": true
 }

@@ -1,8 +1,11 @@
+var secrets = require('secrets');
+
 var CONFIG_VERSION = 8;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 // var BASE_CONFIG_URL = 'http://192.168.0.106:4000/';
+
 
 // get new forecasts if 3 hours have elapsed
 var FORECAST_MAX_AGE = 3 * 60 * 60 * 1000;
@@ -51,11 +54,11 @@ function locationError(err) {
 function locationSuccess(pos) {
   // Construct URL
   var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&units=metric&appid=' + OWM_APP_ID;
+      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&units=metric&appid=' + secrets.OWM_APP_ID;
   console.log(url);
 
   var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&cnt=8&units=metric&appid=' + OWM_APP_ID;
+      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
 
   getAndSendCurrentWeather(url);
   getForecastIfNeeded(forecastURL);
@@ -93,10 +96,10 @@ function getWeather() {
 
     if(weatherLoc) {
       var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-          encodeURIComponent(weatherLoc) + '&units=metric&appid=' + OWM_APP_ID;
+          encodeURIComponent(weatherLoc) + '&units=metric&appid=' + secrets.OWM_APP_ID;
 
       var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
-          encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + OWM_APP_ID;
+          encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
 
       getAndSendCurrentWeather(url);
       getForecastIfNeeded(forecastURL);
