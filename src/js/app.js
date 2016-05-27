@@ -1,4 +1,5 @@
-var secrets = require('secrets');
+
+var weather = require('weather');
 
 var CONFIG_VERSION = 8;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
@@ -6,225 +7,32 @@ var CONFIG_VERSION = 8;
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 // var BASE_CONFIG_URL = 'http://192.168.0.106:4000/';
 
-
-// get new forecasts if 3 hours have elapsed
-var FORECAST_MAX_AGE = 3 * 60 * 60 * 1000;
-
-// icon codes for sending weather icons to pebble
-var CLEAR_DAY           = 0;
-var CLEAR_NIGHT         = 1;
-var CLOUDY_DAY          = 2;
-var HEAVY_RAIN          = 3;
-var HEAVY_SNOW          = 4;
-var LIGHT_RAIN          = 5;
-var LIGHT_SNOW          = 6;
-var PARTLY_CLOUDY_NIGHT = 7;
-var PARTLY_CLOUDY       = 8;
-var RAINING_AND_SNOWING = 9;
-var THUNDERSTORM        = 10;
-var WEATHER_GENERIC     = 11;
-
-var failureRetryAmount = 3;
-var currentFailures = 0;
-
-var xhrRequest = function (url, type, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-    callback(this.responseText);
-  };
-  xhr.open(type, url);
-  xhr.send();
-};
-
-function locationError(err) {
-  console.log('location error on the JS side! Failure #' + currentFailures);
-  //if we fail, try using the cached location
-  if(currentFailures <= failureRetryAmount) {
-    // reset cache time
-    window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
-
-    getWeather();
-    currentFailures++;
-  } else {
-    // until we get too many failures, at which point give up
-    currentFailures = 0;
-  }
-}
-
-function locationSuccess(pos) {
-  // Construct URL
-  var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&units=metric&appid=' + secrets.OWM_APP_ID;
-  console.log(url);
-
-  var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
-
-  getAndSendCurrentWeather(url);
-  getForecastIfNeeded(forecastURL);
-}
-
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    {timeout: 15000, maximumAge: 60000}
-  );
-}
-
-function getForecastIfNeeded(url) {
-  var enableForecast = window.localStorage.getItem('enable_forecast');
-  var lastForecastTime = window.localStorage.getItem('last_forecast_time');
-  var forecastAge = Date.now() - lastForecastTime;
-
-  console.log("Forecast requested! Age is " + forecastAge);
-
-  if(enableForecast === 'yes' && forecastAge > FORECAST_MAX_AGE) {
-    setTimeout(function() { getAndSendWeatherForecast(url); }, 5000);
-  }
-}
-
-function getWeather() {
-  var weatherDisabled = window.localStorage.getItem('disable_weather');
-
-  console.log("Get weather function called! DisableWeather is '" + weatherDisabled + "'");
-
-  if(weatherDisabled !== "yes") {
-    window.localStorage.setItem('disable_weather', 'no');
-
-    var weatherLoc = window.localStorage.getItem('weather_loc');
-
-    if(weatherLoc) {
-      var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-          encodeURIComponent(weatherLoc) + '&units=metric&appid=' + secrets.OWM_APP_ID;
-
-      var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
-          encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
-
-      getAndSendCurrentWeather(url);
-      getForecastIfNeeded(forecastURL);
-    } else {
-      getLocation();
-    }
-  }
-}
-
-// accepts an openweathermap url, gets weather data from it, and sends it to the watch
-function getAndSendCurrentWeather(url) {
-  xhrRequest(url, 'GET',
-    function(responseText) {
-      // responseText contains a JSON object with weather info
-      var json = JSON.parse(responseText);
-
-      if(json.cod == "200") {
-        var temperature = Math.round(json.main.temp);
-        console.log('Temperature is ' + temperature);
-
-        // Conditions
-        var conditionCode = json.weather[0].id;
-        console.log('Condition code is ' + conditionCode);
-
-        // night state
-        var isNight = (json.weather[0].icon.slice(-1) == 'n') ? 1 : 0;
-
-        var iconToLoad = getIconForConditionCode(conditionCode, isNight);
-
-        // Assemble dictionary using our keys
-        var dictionary = {
-          'KEY_TEMPERATURE': temperature,
-          'KEY_CONDITION_CODE': iconToLoad
-        };
-
-        console.log(JSON.stringify(dictionary));
-
-        // Send to Pebble
-        Pebble.sendAppMessage(dictionary,
-          function(e) {
-            console.log('Weather info sent to Pebble successfully!');
-          },
-          function(e) {
-            // if we fail, wait a couple seconds, then try again
-            if(currentFailures < failureRetryAmount) {
-              // call it again somewhere between 3 and 10 seconds
-              setTimeout(getWeather, Math.floor(Math.random() * 10000) + 3000);
-
-              currentFailures++;
-            } else {
-              currentFailures = 0;
-            }
-
-            console.log('Error sending weather info to Pebble! Count: #' + currentFailures);
-          }
-        );
-        }
-
-    }
-  );
-}
-
-function getAndSendWeatherForecast(url) {
-  console.log(url);
-  xhrRequest(url, 'GET',
-    function(responseText) {
-      // responseText contains a JSON object with weather info
-      var json = JSON.parse(responseText);
-
-      if(json.cod == "200") {
-        var forecast = extractFakeDailyForecast(json);
-
-        console.log('Forecast high/low temps are ' + forecast.highTemp + '/' + forecast.lowTemp);
-
-        // Conditions
-        var conditionCode = forecast.condition;
-        console.log('Forecast condition is ' + conditionCode);
-
-        var iconToLoad = getIconForConditionCode(conditionCode, false);
-
-        // Assemble dictionary using our keys
-        var dictionary = {
-          'KEY_FORECAST_CONDITION': iconToLoad,
-          'KEY_FORECAST_TEMP_HIGH': forecast.highTemp,
-          'KEY_FORECAST_TEMP_LOW': forecast.lowTemp
-        };
-
-        console.log(JSON.stringify(dictionary));
-
-        // Send to Pebble
-        Pebble.sendAppMessage(dictionary,
-          function(e) {
-            console.log('Forecast info sent to Pebble successfully!');
-            window.localStorage.setItem('last_forecast_time', Date.now());
-          },
-          function(e) {
-            console.log('Failed to send forecast info! Oh well!');
-          }
-        );
-        }
-    }
-  );
-}
-
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready',
   function(e) {
     console.log('JS component is now READY');
 
+    // if it has never been started, set the weather to disabled
+    // this is because the weather defaults to "off"
+    if(window.localStorage.getItem('disable_weather') === null) {
+      window.localStorage.setItem('disable_weather', 'yes');
+    }
+
     console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');
     // if applicable, get the weather data
     if(window.localStorage.getItem('disable_weather') != 'yes') {
-      getWeather();
+      weather.updateWeather();
     }
   }
 );
 
 // Listen for incoming messages
-// When we get one, just assume that the watch wants new weather
-// data because OF COURSE it wants some weather data!
+// when one is received, we simply assume that it is a request for new weather data
 Pebble.addEventListener('appmessage',
   function(msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
 
-    getWeather();
+    weather.updateWeather();
   }
 );
 
@@ -240,12 +48,12 @@ Pebble.addEventListener('showConfiguration', function(e) {
       watch = Pebble.getActiveWatchInfo();
     } catch(err) {
       watch = {
-        platform: "basalt",
+        platform: "basalt"
       };
     }
   } else {
     watch = {
-      platform: "aplite",
+      platform: "aplite"
     };
   }
 
@@ -362,9 +170,15 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    // weather location/source configs are not the watch's concern
+
     if(configData.weather_loc !== undefined) {
-      // weather location can be placed into window.localStorage
       window.localStorage.setItem('weather_loc', configData.weather_loc);
+    }
+
+    if(configData.weather_datasource) {
+      window.localStorage.setItem('weather_datasource', configData.weather_datasource);
+      window.localStorage.setItem('weather_api_key', configData.weather_api_key);
     }
 
     // battery widget settings
@@ -442,7 +256,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       console.log('Sent config data to Pebble, now trying to get weather');
 
       // after sending config data, force a weather refresh in case that changed
-      getWeather();
+      weather.updateWeather();
     }, function() {
         console.log('Failed to send config data!');
     });
@@ -451,84 +265,3 @@ Pebble.addEventListener('webviewclosed', function(e) {
   }
 
 });
-
-/*
- Attempts to approximate a daily forecast by interpolating the next
- 24 hours worth of 3 hour forecasts :-O
-*/
-function extractFakeDailyForecast(json) {
-  var todaysForecast = {};
-
-  // find the max and min of those temperatures
-  todaysForecast.highTemp = -Number.MAX_SAFE_INTEGER;
-  todaysForecast.lowTemp  = Number.MAX_SAFE_INTEGER;
-
-  console.log("List length" + json.list.length);
-
-  for(var i = 0; i < json.list.length; i++) {
-    if(todaysForecast.highTemp < json.list[i].main.temp_max) {
-      todaysForecast.highTemp = json.list[i].main.temp_max;
-    }
-
-    if(todaysForecast.lowTemp > json.list[i].main.temp_min) {
-      todaysForecast.lowTemp = json.list[i].main.temp_min;
-    }
-  }
-
-  // we can't really "average" conditions, so we'll just cheat and use...one of them :-O
-  todaysForecast.condition = json.list[3].weather[0].id;
-
-  return todaysForecast;
-}
-
-function getIconForConditionCode(conditionCode, isNight) {
-  var generalCondition = Math.floor(conditionCode / 100);
-
-  // determine the correct icon
-  switch(generalCondition) {
-    case 2: //thunderstorm
-      iconToLoad = THUNDERSTORM;
-      break;
-    case 3: //drizzle
-      iconToLoad = LIGHT_RAIN;
-      break;
-    case 5: //rain
-      if(conditionCode == 500) {
-        iconToLoad = LIGHT_RAIN;
-      } else if(conditionCode < 505) {
-        iconToLoad = HEAVY_RAIN;
-      } else if(conditionCode == 511) {
-        iconToLoad = RAINING_AND_SNOWING;
-      } else {
-        iconToLoad = LIGHT_RAIN;
-      }
-      break;
-    case 6: //snow
-      if(conditionCode == 600 || conditionCode == 620) {
-        iconToLoad = LIGHT_SNOW;
-      } else if(conditionCode > 610 && conditionCode < 620) {
-        iconToLoad = RAINING_AND_SNOWING;
-      } else {
-        iconToLoad = HEAVY_SNOW;
-      }
-      break;
-    case 7: // fog, dust, etc
-      iconToLoad = CLOUDY_DAY;
-      break;
-    case 8: // clouds
-      if(conditionCode == 800) {
-        iconToLoad = (!isNight) ? CLEAR_DAY : CLEAR_NIGHT;
-      } else if(conditionCode < 803) {
-        iconToLoad = (!isNight) ? PARTLY_CLOUDY : PARTLY_CLOUDY_NIGHT;
-      } else {
-        iconToLoad = CLOUDY_DAY;
-      }
-      break;
-    default:
-      iconToLoad = WEATHER_GENERIC;
-      break;
-  }
-
-  return iconToLoad;
-
-}
