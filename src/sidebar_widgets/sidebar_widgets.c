@@ -283,6 +283,7 @@ int BatteryMeter_getHeight() {
 void BatteryMeter_draw(GContext* ctx, int yPosition) {
 
   BatteryChargeState chargeState = battery_state_service_peek();
+  uint8_t battery_percent = (chargeState.charge_percent > 0) ? chargeState.charge_percent : 5;
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
@@ -302,12 +303,12 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
     }
   } else {
 
-    int width = roundf(18 * chargeState.charge_percent / 100.0f);
+    int width = roundf(18 * battery_percent / 100.0f);
 
     graphics_context_set_fill_color(ctx, globalSettings.iconStrokeColor);
 
     #ifdef PBL_COLOR
-      if(chargeState.charge_percent <= 20) {
+      if(battery_percent <= 20) {
         graphics_context_set_fill_color(ctx, GColorRed);
       }
     #endif
@@ -319,7 +320,7 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
   // https://github.com/freakified/TimeStylePebble/issues/11
   if(globalSettings.showBatteryPct && !chargeState.is_charging) {
     if(!globalSettings.useLargeFonts) {
-      snprintf(batteryString, sizeof(batteryString), "%d%%", chargeState.charge_percent);
+      snprintf(batteryString, sizeof(batteryString), "%d%%", battery_percent);
 
       graphics_draw_text(ctx,
                          batteryString,
@@ -329,7 +330,7 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
                          GTextAlignmentCenter,
                          NULL);
     } else {
-      snprintf(batteryString, sizeof(batteryString), "%d", chargeState.charge_percent);
+      snprintf(batteryString, sizeof(batteryString), "%d", battery_percent);
 
       graphics_draw_text(ctx,
                          batteryString,
