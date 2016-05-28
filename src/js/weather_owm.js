@@ -2,24 +2,18 @@
 var secrets = require('secrets');
 var weatherCommon = require('weather');
 
-// public functions
+// "public" functions
+
 module.exports.getWeather = getWeather;
 module.exports.getWeatherFromCoords = getWeatherFromCoords;
 module.exports.getForecast = getForecast;
 module.exports.getForecastFromCoords = getForecastFromCoords;
 
 function getWeather(weatherLoc) {
-    var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
-        encodeURIComponent(weatherLoc) + '&units=metric&appid=' + secrets.OWM_APP_ID;
+  var url = 'http://api.openweathermap.org/data/2.5/weather?q=' +
+      encodeURIComponent(weatherLoc) + '&units=metric&appid=' + secrets.OWM_APP_ID;
 
-    getAndSendCurrentWeather(url);
-}
-
-function getForecast() {
-  var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
-      encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
-
-  getAndSendWeatherForecast(forecastURL);
+  getAndSendCurrentWeather(url);
 }
 
 function getWeatherFromCoords(pos) {
@@ -29,6 +23,13 @@ function getWeatherFromCoords(pos) {
   console.log(url);
 
   getAndSendCurrentWeather(url);
+}
+
+function getForecast(weatherLoc) {
+  var forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
+      encodeURIComponent(weatherLoc) + '&cnt=8&units=metric&appid=' + secrets.OWM_APP_ID;
+
+  getAndSendWeatherForecast(forecastURL);
 }
 
 function getForecastFromCoords(pos) {

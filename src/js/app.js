@@ -256,7 +256,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       console.log('Sent config data to Pebble, now trying to get weather');
 
       // after sending config data, force a weather refresh in case that changed
-      weather.updateWeather();
+      weather.updateWeather(true);
     }, function() {
         console.log('Failed to send config data!');
     });
