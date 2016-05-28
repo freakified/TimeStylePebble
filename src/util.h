@@ -18,5 +18,10 @@ extern int time_get_beats(const struct tm *tm);
   /*
    * Checks if any of the specified health activites exist in the specified time range
    */
-  extern bool is_health_activity_accessible(HealthActivityMask activity_mask);
+  extern bool is_health_metric_accessible(HealthMetric metric);
+
+  /*
+   * Returns true if the user is sleeping, false otherwise
+   */
+  extern bool is_user_sleeping();
 #endif

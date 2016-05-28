@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "weather.h"
 #include "sidebar.h"
+#include "util.h"
 
 // windows and layers
 static Window* mainWindow;

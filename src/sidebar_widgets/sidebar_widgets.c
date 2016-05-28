@@ -679,15 +679,8 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 
 #ifdef PBL_HEALTH
 
-bool Health_use_sleep_mode() {
-  uint32_t current_activities = health_service_peek_current_activities();
-  bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-
-  return sleeping;
-}
-
 int Health_getHeight() {
-  if(Health_use_sleep_mode()) {
+  if(is_user_sleeping()) {
     return 44;
   } else {
     return 32;
@@ -698,7 +691,7 @@ void Health_draw(GContext* ctx, int yPosition) {
   // check if we're showing the sleep data or step data
 
   // is the user asleep?
-  bool sleep_mode = Health_use_sleep_mode();
+  bool sleep_mode = is_user_sleeping();
 
   if(sleep_mode) {
     Sleep_draw(ctx, yPosition);
@@ -718,7 +711,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
 
   HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
 
-  if(is_health_activity_accessible(metric)) {
+  if(is_health_metric_accessible(metric)) {
     sleep_seconds = (int)health_service_sum_today(metric);
   } else {
     sleep_seconds = 0;
@@ -769,7 +762,7 @@ void Steps_draw(GContext* ctx, int yPosition) {
   if(globalSettings.healthUseDistance) {
     int distance = 0;
 
-    if(is_health_activity_accessible(HealthMetricWalkedDistanceMeters)) {
+    if(is_health_metric_accessible(HealthMetricWalkedDistanceMeters)) {
       distance = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
     }
 
@@ -804,7 +797,7 @@ void Steps_draw(GContext* ctx, int yPosition) {
   } else {
     int steps = (int)health_service_sum_today(HealthMetricStepCount);
 
-    if(is_health_activity_accessible(HealthMetricStepCount)) {
+    if(is_health_metric_accessible(HealthMetricStepCount)) {
       steps = (int)health_service_sum_today(HealthMetricStepCount);
     }
 
