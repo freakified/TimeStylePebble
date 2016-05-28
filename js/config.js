@@ -747,12 +747,12 @@ function showCustomPresets() {
     $('#saved_themes_area').html(htmlToInsert);
 
     if( savedPresets.length > 0) {
-      $('#custom_theme_empty').hide();
+      $('#custom_theme_area').show();
     } else {
-      $('#custom_theme_empty').show();
+      $('#custom_theme_area').hide();
     }
   } else {
-    $('#custom_theme_empty').show();
+    $('#custom_theme_area').hide();
   }
 
   // finally, re-register event handlers if needed
