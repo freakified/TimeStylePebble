@@ -143,26 +143,19 @@
 }
 
 #sidebar_layout_section.rect {
+  display: table-row;
 
   .col {
-    display: inline-block;
+    display: table-cell;
     vertical-align: middle;
   }
 
-
   .col:nth-child(2) {
-    background: url('../images/lines.svg');
-    background-size: contain;
-    height: 155px;
-    width: 40px;
+    padding: 0 10px;
   }
 
   .col:nth-child(3) {
-    margin-left: 10px;
-
-    .form-control {
-      width: calc(100vw - 130px);
-    }
+    width: 100%;
 
     select:nth-child(2) {
       margin: 41px 0;
@@ -171,7 +164,6 @@
 
   .col:nth-child(4) {
     width: 40px;
-    margin-left: 10px;
 
     button:nth-child(2) {
       margin: 41px 0;
