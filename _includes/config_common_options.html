@@ -100,10 +100,10 @@
         <img class="example_img" src="images/weather_provider_owm.png" width="56" height="56">
         <input id="datasource_default" type="radio" name="options" autocomplete="off"> OpenWeather (Default)
       </label>
-      <label class="btn btn-default" data-setting="forecast" style="vertical-align:top">
+      <!-- <label class="btn btn-default" data-setting="forecast" style="vertical-align:top">
         <img class="example_img" src="images/weather_provider_forecast.png" width="56" height="56">
         <input type="radio" name="options" autocomplete="off"> Forecast.io
-      </label>
+      </label> -->
       <label class="btn btn-default" data-setting="wunderground" >
         <img class="example_img" src="images/weather_provider_wunderground.png" width="56" height="56">
         <input type="radio" name="options" autocomplete="off"> Weather Underground
@@ -111,9 +111,9 @@
     </div>
 
     <div class="form_group collapse" id="weather_api_key_setting_area" style="padding-top: 15px;">
-      <div id="forecast_api_info" class="alert alert-warning" role="alert">
-        <a href="https://developer.forecast.io/register">Forecast.io</a> and <a href="https://www.wunderground.com/weather/api/">Weather Underground</a> provide more accurate weather data, but require
-        API Keys to work.
+      <div class="alert alert-warning" role="alert">
+        Weather Underground provides more accurate weather data, but requires
+        an API key to work. <a href="https://www.wunderground.com/weather/api/">You can sign up for a free API key here.</a>
       </div>
       <input type="text" class="form-control" id="weather_api_key" placeholder='API Key'>
     </div>
