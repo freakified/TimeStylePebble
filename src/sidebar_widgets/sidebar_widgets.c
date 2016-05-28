@@ -320,7 +320,10 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
   // https://github.com/freakified/TimeStylePebble/issues/11
   if(globalSettings.showBatteryPct && !chargeState.is_charging) {
     if(!globalSettings.useLargeFonts) {
-      snprintf(batteryString, sizeof(batteryString), "%d%%", battery_percent);
+      // put the percent sign on the opposite side if turkish
+      snprintf(batteryString, sizeof(batteryString),
+               (globalSettings.languageId == LANGUAGE_TR) ? "%%%d" : "%d%%",
+               battery_percent);
 
       graphics_draw_text(ctx,
                          batteryString,
