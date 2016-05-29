@@ -32,6 +32,8 @@ Pebble.addEventListener('appmessage',
   function(msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
 
+    // in the case of recieving this, we assume the watch does, in fact, need weather data
+    window.localStorage.setItem('disable_weather', 'no');
     weather.updateWeather();
   }
 );
