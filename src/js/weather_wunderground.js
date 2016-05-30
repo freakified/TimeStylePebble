@@ -64,9 +64,8 @@ function getAndSendCurrentWeather(url) {
         // night state
         var isNight = false;
 
-        if(!conditionCode.indexOf('nt_')) {
+        if(json.current_observation.icon_url.indexOf('nt_') != -1) {
           isNight = true;
-          conditionCode = conditionCode.slice(3);
         }
 
         var iconToLoad = getIconForConditionCode(conditionCode, isNight);
