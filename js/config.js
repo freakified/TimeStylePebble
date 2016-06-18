@@ -133,6 +133,8 @@ function loadPreviousSettings() {
 
   // load weather location
   $('#weather_loc').val(savedSettings.weather_loc);
+  $('#weather_loc_lat').val(savedSettings.weather_loc_lat);
+  $('#weather_loc_lng').val(savedSettings.weather_loc_lng);
 
   if(savedSettings.weather_setting == 'manual') {
     $('#manual_weather_loc_setting_area').collapse('show');
@@ -548,6 +550,8 @@ function sendSettingsToWatch() {
       config.weather_loc = '';
     } else if(weather_setting == 'manual') {
       config.weather_loc = $('#weather_loc').val();
+      config.weather_loc_lng = $('#weather_loc_lng').val();
+      config.weather_loc_lat = $('#weather_loc_lat').val();
     }
   }
 
