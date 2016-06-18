@@ -2,9 +2,9 @@
 var weather = require('weather');
 
 var CONFIG_VERSION = 8;
-// var BASE_CONFIG_URL = 'http://localhost:4000/';
+var BASE_CONFIG_URL = 'http://localhost:4000/';
 // var BASE_CONFIG_URL = 'http://192.168.0.108:40000/';
-var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+// var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 // var BASE_CONFIG_URL = 'http://192.168.0.106:4000/';
 
 // Listen for when the watchface is opened
@@ -176,6 +176,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     if(configData.weather_loc !== undefined) {
       window.localStorage.setItem('weather_loc', configData.weather_loc);
+      window.localStorage.setItem('weather_loc_lat', configData.weather_loc_lat);
+      window.localStorage.setItem('weather_loc_lng', configData.weather_loc_lng);
     }
 
     if(configData.weather_datasource) {

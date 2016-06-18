@@ -52,8 +52,27 @@ function updateWeather(forceUpdate) {
     window.localStorage.setItem('disable_weather', 'no');
 
     var weatherLoc = window.localStorage.getItem('weather_loc');
+    var storedLat = window.localStorage.getItem('weather_loc_lat');
+    var storedLng = window.localStorage.getItem('weather_loc_lng');
 
-    if(weatherLoc) {
+    // console.log("Stored lat: " +  storedLat + ", stored lng: " + storedLng);
+
+    hasLocationString = (weatherLoc !== null);
+    hasLocationCoords = (storedLat != '' && storedLng != '');
+
+    if(hasLocationCoords) {
+      var pos = {
+          coords : {
+            latitude : storedLat,
+            longitude : storedLng
+          }
+      };
+
+      getCurrentWeatherProvider().getWeatherFromCoords(pos);
+      if(forceUpdate || isForecastNeeded()) {
+        getCurrentWeatherProvider().getForecastFromCoords(pos);
+      }
+    } else if(hasLocationString) {
       getCurrentWeatherProvider().getWeather(weatherLoc);
       if(forceUpdate || isForecastNeeded()) {
         getCurrentWeatherProvider().getForecast(weatherLoc);
