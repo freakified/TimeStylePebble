@@ -57,27 +57,34 @@ function updateWeather(forceUpdate) {
 
     // console.log("Stored lat: " +  storedLat + ", stored lng: " + storedLng);
 
-    hasLocationString = (weatherLoc !== null);
-    hasLocationCoords = (storedLat != '' && storedLng != '');
+    if(weatherLoc) { // do we have a stored location?
+      // if so, we should check if we have valid LAT and LNG coords
+      hasLocationCoords = (storedLat != undefined && storedLng != undefined)
+                       && (storedLat != '' && storedLng != '');
+      if(hasLocationCoords) { // do we have valid stored coordinates?
+        // if we have valid coords, use them
+        var pos = {
+                    coords : {
+                      latitude : storedLat,
+                      longitude : storedLng
+                    }
+                  };
 
-    if(hasLocationCoords) {
-      var pos = {
-          coords : {
-            latitude : storedLat,
-            longitude : storedLng
-          }
-      };
+        getCurrentWeatherProvider().getWeatherFromCoords(pos);
 
-      getCurrentWeatherProvider().getWeatherFromCoords(pos);
-      if(forceUpdate || isForecastNeeded()) {
-        getCurrentWeatherProvider().getForecastFromCoords(pos);
-      }
-    } else if(hasLocationString) {
-      getCurrentWeatherProvider().getWeather(weatherLoc);
-      if(forceUpdate || isForecastNeeded()) {
-        getCurrentWeatherProvider().getForecast(weatherLoc);
+        if(forceUpdate || isForecastNeeded()) {
+          getCurrentWeatherProvider().getForecastFromCoords(pos);
+        }
+      } else {
+        // otherwise, use the stored string (legacy, or google was blocked from running)
+        getCurrentWeatherProvider().getWeather(weatherLoc);
+
+        if(forceUpdate || isForecastNeeded()) {
+          getCurrentWeatherProvider().getForecast(weatherLoc);
+        }
       }
     } else {
+      // if we don't have a stored location, get the GPS location
       getLocation();
     }
   }
