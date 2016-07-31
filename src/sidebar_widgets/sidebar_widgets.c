@@ -366,7 +366,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      currentDayName,
                      currentSidebarFont,
-                     GRect(-4 + SidebarWidgets_xOffset, yPosition, 40, 20),
+                     GRect(-5 + SidebarWidgets_xOffset, yPosition, 40, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -395,7 +395,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
   graphics_draw_text(ctx,
                      currentDayNum,
                      currentSidebarFont,
-                     GRect(0 + SidebarWidgets_xOffset, yPosition + yOffset, 31, 20),
+                     GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset, 40, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
@@ -411,7 +411,7 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
     graphics_draw_text(ctx,
                        currentMonth,
                        currentSidebarFont,
-                       GRect(-4 + SidebarWidgets_xOffset, yPosition + yOffset, 40, 20),
+                       GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset, 40, 20),
                        GTextOverflowModeFill,
                        GTextAlignmentCenter,
                        NULL);
