@@ -1,4 +1,4 @@
-var weatherCommon = require('weather');
+var weatherCommon = require('./weather');
 
 // "public" functions
 
