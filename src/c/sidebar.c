@@ -5,7 +5,7 @@
 #include "weather.h"
 #include "languages.h"
 #include "sidebar.h"
-#include "sidebar_widgets/sidebar_widgets.h"
+#include "sidebar_widgets.h"
 
 #define V_PADDING 8
 #define SCREEN_HEIGHT 168

@@ -1,9 +1,9 @@
 /* general utility stuff related to weather */
 
 var weatherProviders = {
-  'owm'          : require('weather_owm'),
+  'owm'          : require('./weather_owm'),
   // 'forecast'     : require('weather_forecast'),
-  'wunderground' : require('weather_wunderground')
+  'wunderground' : require('./weather_wunderground')
 };
 
 var DEFAULT_WEATHER_PROVIDER = 'owm';

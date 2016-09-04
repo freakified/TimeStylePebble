@@ -1,6 +1,6 @@
 // this contains our offical OWM weather key, hidden from prying eyes
-var secrets = require('secrets');
-var weatherCommon = require('weather');
+var secrets = require('./secrets');
+var weatherCommon = require('./weather');
 
 // "public" functions
 
