@@ -22,6 +22,8 @@
       "configurable"
     ],
     "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
       "watchface": true
     },
     "messageKeys": [
