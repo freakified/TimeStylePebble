@@ -1,6 +1,7 @@
 
 src/js/secrets.js
 .vscode
+node_modules
 
 # Ignore waf build tool generated files
 .waf*
