@@ -36,8 +36,8 @@ void messaging_init(void (*processed_callback)(void)) {
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // does this message contain current weather conditions?
-  Tuple *weatherTemp_tuple = dict_find(iterator, KEY_TEMPERATURE);
-  Tuple *weatherConditions_tuple = dict_find(iterator, KEY_CONDITION_CODE);
+  Tuple *weatherTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherTemperature);
+  Tuple *weatherConditions_tuple = dict_find(iterator, MESSAGE_KEY_WeatherCondition);
 
   if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL) {
     // now set the weather conditions properly
@@ -49,9 +49,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   // does this message contain weather forecast information?
-  Tuple *weatherForecastCondition_tuple = dict_find(iterator, KEY_FORECAST_CONDITION);
-  Tuple *weatherForecastHigh_tuple = dict_find(iterator, KEY_FORECAST_TEMP_HIGH);
-  Tuple *weatherForecastLow_tuple = dict_find(iterator, KEY_FORECAST_TEMP_LOW);
+  Tuple *weatherForecastCondition_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastCondition);
+  Tuple *weatherForecastHigh_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastHighTemp);
+  Tuple *weatherForecastLow_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastLowTemp);
 
   if(weatherForecastCondition_tuple != NULL && weatherForecastHigh_tuple != NULL
      && weatherForecastLow_tuple != NULL) {
@@ -64,33 +64,33 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   // does this message contain new config information?
-  Tuple *timeColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_TIME);
-  Tuple *bgColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_BG);
-  Tuple *sidebarColor_tuple = dict_find(iterator, KEY_SETTING_COLOR_SIDEBAR);
-  Tuple *sidebarPos_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_LEFT);
-  Tuple *sidebarTextColor_tuple = dict_find(iterator, KEY_SETTING_SIDEBAR_TEXT_COLOR);
-  Tuple *useMetric_tuple = dict_find(iterator, KEY_SETTING_USE_METRIC);
-  Tuple *btVibe_tuple = dict_find(iterator, KEY_SETTING_BT_VIBE);
-  Tuple *language_tuple = dict_find(iterator, KEY_SETTING_LANGUAGE_ID);
-  Tuple *leadingZero_tuple = dict_find(iterator, KEY_SETTING_SHOW_LEADING_ZERO);
-  Tuple *batteryPct_tuple = dict_find(iterator, KEY_SETTING_SHOW_BATTERY_PCT);
-  Tuple *disableWeather_tuple = dict_find(iterator, KEY_SETTING_DISABLE_WEATHER);
-  Tuple *clockFont_tuple = dict_find(iterator, KEY_SETTING_CLOCK_FONT_ID);
-  Tuple *hourlyVibe_tuple = dict_find(iterator, KEY_SETTING_HOURLY_VIBE);
-  Tuple *useLargeFonts_tuple = dict_find(iterator, KEY_SETTING_USE_LARGE_FONTS);
+  Tuple *timeColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorTime);
+  Tuple *bgColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorBG);
+  Tuple *sidebarColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorSidebar);
+  Tuple *sidebarPos_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarOnLeft);
+  Tuple *sidebarTextColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarTextColor);
+  Tuple *useMetric_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseMetric);
+  Tuple *btVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingBluetoothVibe);
+  Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
+  Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
+  Tuple *batteryPct_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowBatteryPct);
+  Tuple *disableWeather_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableWeather);
+  Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
+  Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
+  Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
 
-  Tuple *widget0Id_tuple = dict_find(iterator, KEY_WIDGET_0_ID);
-  Tuple *widget1Id_tuple = dict_find(iterator, KEY_WIDGET_1_ID);
-  Tuple *widget2Id_tuple = dict_find(iterator, KEY_WIDGET_2_ID);
+  Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
+  Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
+  Tuple *widget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget2ID);
 
-  Tuple *altclockName_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_NAME);
-  Tuple *altclockOffset_tuple = dict_find(iterator, KEY_SETTING_ALTCLOCK_OFFSET);
+  Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
+  Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
 
-  Tuple *decimalSeparator_tuple = dict_find(iterator, KEY_SETTING_DECIMAL_SEPARATOR);
-  Tuple *healthUseDistance_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_DISTANCE);
-  Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, KEY_SETTING_HEALTH_USE_RESTFUL_SLEEP);
+  Tuple *decimalSeparator_tuple = dict_find(iterator, MESSAGE_KEY_SettingDecimalSep);
+  Tuple *healthUseDistance_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseDistance);
+  Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
 
-  Tuple *autobattery_tuple = dict_find(iterator, KEY_SETTING_DISABLE_AUTOBATTERY);
+  Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
 
 
   if(timeColor_tuple != NULL) {

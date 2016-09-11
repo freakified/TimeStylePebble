@@ -73,8 +73,8 @@ function getAndSendCurrentWeather(url) {
 
         // Assemble dictionary using our keys
         var dictionary = {
-          'KEY_TEMPERATURE': temperature,
-          'KEY_CONDITION_CODE': iconToLoad
+          'WeatherTemperature': temperature,
+          'WeatherCondition': iconToLoad
         };
 
         console.log(JSON.stringify(dictionary));
@@ -107,9 +107,9 @@ function getAndSendWeatherForecast(url) {
 
         // Assemble dictionary using our keys
         var dictionary = {
-          'KEY_FORECAST_CONDITION': iconToLoad,
-          'KEY_FORECAST_TEMP_HIGH': highTemp,
-          'KEY_FORECAST_TEMP_LOW': lowTemp
+          'WeatherForecastCondition': iconToLoad,
+          'WeatherForecastHighTemp': highTemp,
+          'WeatherForecastLowTemp': lowTemp
         };
 
         console.log(JSON.stringify(dictionary));
