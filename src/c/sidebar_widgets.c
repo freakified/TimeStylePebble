@@ -213,11 +213,15 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   }
 
   // this must be last, because time_get_beats screws with the time structure
-  // TODO: make that function less messy
-  int beats = time_get_beats(timeInfo);
+  int beats = 0;
+
+  #ifndef PBL_PLATFORM_APLITE
+  beats = time_get_beats(timeInfo);
 
   // set the swatch internet time beats
   snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
+  
+  #endif
 
 }
 
