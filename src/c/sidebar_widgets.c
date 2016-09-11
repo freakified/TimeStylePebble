@@ -215,13 +215,14 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // this must be last, because time_get_beats screws with the time structure
   int beats = 0;
 
+  // set the swatch internet time beats
+  // note that this is disabled on Aplite, as floating point eats RAM
   #ifndef PBL_PLATFORM_APLITE
   beats = time_get_beats(timeInfo);
-
-  // set the swatch internet time beats
-  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
-  
   #endif
+
+  
+  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
 
 }
 
