@@ -2,9 +2,13 @@
   "name": "timestyle-pebble",
   "author": "Freakified",
   "version": "6.5.0",
-  "keywords": ["pebble-watchface"],
+  "keywords": [
+    "pebble-watchface"
+  ],
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "pebble-fctx": "^1.4.0"
+  },
   "pebble": {
     "displayName": "TimeStyle",
     "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
@@ -27,285 +31,143 @@
       "watchface": true
     },
     "messageKeys": [
-        "WeatherCondition",
-        "WeatherTemperature",
-        "WeatherForecastCondition",
-        "WeatherForecastHighTemp",
-        "WeatherForecastLowTemp",
-        "SettingAltClockName",
-        "SettingAltClockOffset",
-        "SettingDisableAutobattery",
-        "SettingBluetoothVibe",
-        "SettingClockFontId",
-        "SettingColorBG",
-        "SettingColorSidebar",
-        "SettingColorTime",
-        "SettingDecimalSep",
-        "SettingDisableWeather",
-        "SettingHealthUseDistance",
-        "SettingHealthUseRestfulSleep",
-        "SettingHourlyVibe",
-        "SettingLanguageID",
-        "SettingShowBatteryPct",
-        "SettingShowLeadingZero",
-        "SettingSidebarOnLeft",
-        "SettingSidebarTextColor",
-        "SettingUseLargeFonts",
-        "SettingUseMetric",
-        "WeatherUseNightIcon",
-        "SettingWidget0ID",
-        "SettingWidget1ID",
-        "SettingWidget2ID"
+      "WeatherCondition",
+      "WeatherTemperature",
+      "WeatherForecastCondition",
+      "WeatherForecastHighTemp",
+      "WeatherForecastLowTemp",
+      "SettingAltClockName",
+      "SettingAltClockOffset",
+      "SettingDisableAutobattery",
+      "SettingBluetoothVibe",
+      "SettingClockFontId",
+      "SettingColorBG",
+      "SettingColorSidebar",
+      "SettingColorTime",
+      "SettingDecimalSep",
+      "SettingDisableWeather",
+      "SettingHealthUseDistance",
+      "SettingHealthUseRestfulSleep",
+      "SettingHourlyVibe",
+      "SettingLanguageID",
+      "SettingShowBatteryPct",
+      "SettingShowLeadingZero",
+      "SettingSidebarOnLeft",
+      "SettingSidebarTextColor",
+      "SettingUseLargeFonts",
+      "SettingUseMetric",
+      "WeatherUseNightIcon",
+      "SettingWidget0ID",
+      "SettingWidget1ID",
+      "SettingWidget2ID"
     ],
     "resources": {
-        "media": [
-            {
-                "file": "images/menuicon.png",
-                "menuIcon": true,
-                "name": "MENU_ICON",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_9.png",
-                "name": "CLOCK_DIGIT_LECO_9",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_8.png",
-                "name": "CLOCK_DIGIT_LECO_8",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_7.png",
-                "name": "CLOCK_DIGIT_LECO_7",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_6.png",
-                "name": "CLOCK_DIGIT_LECO_6",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_5.png",
-                "name": "CLOCK_DIGIT_LECO_5",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_4.png",
-                "name": "CLOCK_DIGIT_LECO_4",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_3.png",
-                "name": "CLOCK_DIGIT_LECO_3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_2.png",
-                "name": "CLOCK_DIGIT_LECO_2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_1.png",
-                "name": "CLOCK_DIGIT_LECO_1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_leco_0.png",
-                "name": "CLOCK_DIGIT_LECO_0",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_9.png",
-                "name": "CLOCK_DIGIT_9",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_8.png",
-                "name": "CLOCK_DIGIT_8",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_7.png",
-                "name": "CLOCK_DIGIT_7",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_6.png",
-                "name": "CLOCK_DIGIT_6",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_5.png",
-                "name": "CLOCK_DIGIT_5",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_4.png",
-                "name": "CLOCK_DIGIT_4",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_3.png",
-                "name": "CLOCK_DIGIT_3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_2.png",
-                "name": "CLOCK_DIGIT_2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_1.png",
-                "name": "CLOCK_DIGIT_1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_0.png",
-                "name": "CLOCK_DIGIT_0",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_9.png",
-                "name": "CLOCK_DIGIT_BOLD_9",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_8.png",
-                "name": "CLOCK_DIGIT_BOLD_8",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_7.png",
-                "name": "CLOCK_DIGIT_BOLD_7",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_6.png",
-                "name": "CLOCK_DIGIT_BOLD_6",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_5.png",
-                "name": "CLOCK_DIGIT_BOLD_5",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_4.png",
-                "name": "CLOCK_DIGIT_BOLD_4",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_3.png",
-                "name": "CLOCK_DIGIT_BOLD_3",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_2.png",
-                "name": "CLOCK_DIGIT_BOLD_2",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_1.png",
-                "name": "CLOCK_DIGIT_BOLD_1",
-                "type": "bitmap"
-            },
-            {
-                "file": "images/digit_bold_0.png",
-                "name": "CLOCK_DIGIT_BOLD_0",
-                "type": "bitmap"
-            },
-            {
-                "file": "data/WEATHER_GENERIC.pdc",
-                "name": "WEATHER_GENERIC",
-                "type": "raw"
-            },
-            {
-                "file": "data/THUNDERSTORM.pdc",
-                "name": "WEATHER_THUNDERSTORM",
-                "type": "raw"
-            },
-            {
-                "file": "data/RAINING_AND_SNOWING.pdc",
-                "name": "WEATHER_RAINING_AND_SNOWING",
-                "type": "raw"
-            },
-            {
-                "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
-                "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
-                "type": "raw"
-            },
-            {
-                "file": "data/PARTLY_CLOUDY.pdc",
-                "name": "WEATHER_PARTLY_CLOUDY",
-                "type": "raw"
-            },
-            {
-                "file": "data/LIGHT_SNOW.pdc",
-                "name": "WEATHER_LIGHT_SNOW",
-                "type": "raw"
-            },
-            {
-                "file": "data/LIGHT_RAIN.pdc",
-                "name": "WEATHER_LIGHT_RAIN",
-                "type": "raw"
-            },
-            {
-                "file": "data/HEAVY_SNOW.pdc",
-                "name": "WEATHER_HEAVY_SNOW",
-                "type": "raw"
-            },
-            {
-                "file": "data/HEAVY_RAIN.pdc",
-                "name": "WEATHER_HEAVY_RAIN",
-                "type": "raw"
-            },
-            {
-                "file": "data/DISCONNECTED.pdc",
-                "name": "DISCONNECTED",
-                "type": "raw"
-            },
-            {
-                "file": "data/DATE_BG.pdc",
-                "name": "DATE_BG",
-                "type": "raw"
-            },
-            {
-                "file": "data/CLOUDY_DAY.pdc",
-                "name": "WEATHER_CLOUDY",
-                "type": "raw"
-            },
-            {
-                "file": "data/CLEAR_NIGHT.pdc",
-                "name": "WEATHER_CLEAR_NIGHT",
-                "type": "raw"
-            },
-            {
-                "file": "data/CLEAR_DAY.pdc",
-                "name": "WEATHER_CLEAR_DAY",
-                "type": "raw"
-            },
-            {
-                "file": "data/BATTERY_CHARGE.pdc",
-                "name": "BATTERY_CHARGE",
-                "type": "raw"
-            },
-            {
-                "file": "data/BATTERY_BG.pdc",
-                "name": "BATTERY_BG",
-                "type": "raw"
-            },
-            {
-                "file": "data/HEALTH_SLEEP.pdc",
-                "name": "HEALTH_SLEEP",
-                "type": "raw"
-            },
-            {
-                "file": "data/HEALTH_STEPS.pdc",
-                "name": "HEALTH_STEPS",
-                "type": "raw"
-            }
-        ]
+      "media": [
+        {
+          "file": "images/menuicon.png",
+          "menuIcon": true,
+          "name": "MENU_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "fonts/AvenirNextLTW01RegularRegular.ffont",
+          "name": "AVENIR_REGULAR_FFONT",
+          "type": "raw"
+        },
+        {
+          "file": "data/WEATHER_GENERIC.pdc",
+          "name": "WEATHER_GENERIC",
+          "type": "raw"
+        },
+        {
+          "file": "data/THUNDERSTORM.pdc",
+          "name": "WEATHER_THUNDERSTORM",
+          "type": "raw"
+        },
+        {
+          "file": "data/RAINING_AND_SNOWING.pdc",
+          "name": "WEATHER_RAINING_AND_SNOWING",
+          "type": "raw"
+        },
+        {
+          "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
+          "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
+          "type": "raw"
+        },
+        {
+          "file": "data/PARTLY_CLOUDY.pdc",
+          "name": "WEATHER_PARTLY_CLOUDY",
+          "type": "raw"
+        },
+        {
+          "file": "data/LIGHT_SNOW.pdc",
+          "name": "WEATHER_LIGHT_SNOW",
+          "type": "raw"
+        },
+        {
+          "file": "data/LIGHT_RAIN.pdc",
+          "name": "WEATHER_LIGHT_RAIN",
+          "type": "raw"
+        },
+        {
+          "file": "data/HEAVY_SNOW.pdc",
+          "name": "WEATHER_HEAVY_SNOW",
+          "type": "raw"
+        },
+        {
+          "file": "data/HEAVY_RAIN.pdc",
+          "name": "WEATHER_HEAVY_RAIN",
+          "type": "raw"
+        },
+        {
+          "file": "data/DISCONNECTED.pdc",
+          "name": "DISCONNECTED",
+          "type": "raw"
+        },
+        {
+          "file": "data/DATE_BG.pdc",
+          "name": "DATE_BG",
+          "type": "raw"
+        },
+        {
+          "file": "data/CLOUDY_DAY.pdc",
+          "name": "WEATHER_CLOUDY",
+          "type": "raw"
+        },
+        {
+          "file": "data/CLEAR_NIGHT.pdc",
+          "name": "WEATHER_CLEAR_NIGHT",
+          "type": "raw"
+        },
+        {
+          "file": "data/CLEAR_DAY.pdc",
+          "name": "WEATHER_CLEAR_DAY",
+          "type": "raw"
+        },
+        {
+          "file": "data/BATTERY_CHARGE.pdc",
+          "name": "BATTERY_CHARGE",
+          "type": "raw"
+        },
+        {
+          "file": "data/BATTERY_BG.pdc",
+          "name": "BATTERY_BG",
+          "type": "raw"
+        },
+        {
+          "file": "data/HEALTH_SLEEP.pdc",
+          "name": "HEALTH_SLEEP",
+          "type": "raw"
+        },
+        {
+          "file": "data/HEALTH_STEPS.pdc",
+          "name": "HEALTH_STEPS",
+          "type": "raw"
+        }
+      ]
     }
+  },
+  "devDependencies": {
+    "pebble-fctx-compiler": "^1.1.0"
   }
 }

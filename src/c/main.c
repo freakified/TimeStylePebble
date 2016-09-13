@@ -1,5 +1,5 @@
 #include <pebble.h>
-#include "clock_digit.h"
+#include "clock_area.h"
 #include "messaging.h"
 #include "settings.h"
 #include "weather.h"
@@ -15,9 +15,6 @@ static bool isPhoneConnected;
 
 // current time service subscription
 static bool updatingEverySecond;
-
-// the four digits on the clock, ordered h1 h2, m1 m2
-static ClockDigit clockDigits[4];
 
 // try to randomize when watches call the weather API
 static uint8_t weatherRefreshMinute;
@@ -35,52 +32,7 @@ void update_clock() {
   time(&rawTime);
   timeInfo = localtime(&rawTime);
 
-  // DEBUG: use fake time for screenshots
-  // timeInfo->tm_hour = 6;
-  // timeInfo->tm_min = 23;
-
-  // debug: set fake condition for screenshots
-  // Weather_setConditions(44, false, 44);
-  // Weather_weatherInfo.currentTemp = 21;
-  // Weather_weatherForecast.highTemp = 22;
-  // Weather_weatherForecast.lowTemp = 16;
-
-  int hour = timeInfo->tm_hour;
-
-  if (!clock_is_24h_style()) {
-    if(hour > 12) {
-      hour %= 12;
-    } else if(timeInfo->tm_hour == 0) {
-      hour = 12;
-    }
-  }
-
-  uint8_t current_font = globalSettings.clockFontId;
-
-  if(globalSettings.clockFontId == FONT_SETTING_BOLD_H) {
-    current_font = FONT_SETTING_BOLD;
-  } else if(globalSettings.clockFontId == FONT_SETTING_BOLD_M) {
-    current_font = FONT_SETTING_DEFAULT;
-  }
-
-  // use the blank image for the leading hour digit if needed
-  if(globalSettings.showLeadingZero || hour / 10 != 0) {
-    ClockDigit_setNumber(&clockDigits[0], hour / 10, current_font);
-  } else {
-    ClockDigit_setBlank(&clockDigits[0]);
-  }
-
-  ClockDigit_setNumber(&clockDigits[1], hour % 10, current_font);
-
-  if(globalSettings.clockFontId == FONT_SETTING_BOLD_H) {
-    current_font = FONT_SETTING_DEFAULT;
-  } else if(globalSettings.clockFontId == FONT_SETTING_BOLD_M) {
-    current_font = FONT_SETTING_BOLD;
-  }
-
-  ClockDigit_setNumber(&clockDigits[2], timeInfo->tm_min  / 10, current_font);
-  ClockDigit_setNumber(&clockDigits[3], timeInfo->tm_min  % 10, current_font);
-
+  ClockArea_update_time(timeInfo);
   Sidebar_updateTime(timeInfo);
 }
 
@@ -100,47 +52,21 @@ void redrawScreen() {
     }
   }
 
-  // maybe the colors changed!
-  for(int i = 0; i < 4; i++) {
-    ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
-    // ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, GColorWhite);
-  }
-
   window_set_background_color(mainWindow, globalSettings.timeBgColor);
-
-  // or maybe the sidebar position changed!
-  int digitOffset = (globalSettings.sidebarOnLeft) ? 30 : 0;
-
-  for(int i = 0; i < 4; i++) {
-    ClockDigit_offsetPosition(&clockDigits[i], digitOffset);
-  }
 
   // maybe the language changed!
   update_clock();
 
   // update the sidebar
   Sidebar_redraw();
+
+  ClockArea_redraw();
 }
 
 static void main_window_load(Window *window) {
-
-  #ifdef PBL_ROUND
-    GPoint digitPoints[4] = {GPoint(40, 17), GPoint(90, 17), GPoint(40, 92), GPoint(90, 92)};
-  #else
-    GPoint digitPoints[4] = {GPoint(7, 7), GPoint(60, 7), GPoint(7, 90), GPoint(60, 90)};
-  #endif
-
-  ClockDigit_construct(&clockDigits[0], digitPoints[0]);
-  ClockDigit_construct(&clockDigits[1], digitPoints[1]);
-  ClockDigit_construct(&clockDigits[2], digitPoints[2]);
-  ClockDigit_construct(&clockDigits[3], digitPoints[3]);
-
-  for(int i = 0; i < 4; i++) {
-    ClockDigit_setColor(&clockDigits[i], globalSettings.timeColor, globalSettings.timeBgColor);
-    layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(clockDigits[i].imageLayer));
-  }
-
   window_set_background_color(window, globalSettings.timeBgColor);
+
+  ClockArea_init(window);
 
   // create the sidebar
   Sidebar_init(window);
@@ -151,10 +77,7 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
-  for(int i = 0; i < 4; i++) {
-    ClockDigit_destruct(&clockDigits[i]);
-  }
-
+  ClockArea_deinit();
   Sidebar_deinit();
 }
 
