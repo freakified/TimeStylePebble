@@ -70,18 +70,18 @@
           "type": "bitmap"
         },
         {
-          "file": "fonts/Consolas.ffont",
-          "name": "CONSOLAS_REGULAR_FFONT",
-          "type": "raw"
-        },
-        {
           "file": "fonts/LECO1976-Regular.ffont",
           "name": "LECO_REGULAR_FFONT",
           "type": "raw"
         },
         {
-          "file": "fonts/AvenirNextLTW01RegularRegular.ffont",
+          "file": "fonts/AvenirNextRegular.ffont",
           "name": "AVENIR_REGULAR_FFONT",
+          "type": "raw"
+        },
+        {
+          "file": "fonts/AvenirNextDemiBold.ffont",
+          "name": "AVENIR_BOLD_FFONT",
           "type": "raw"
         },
         {

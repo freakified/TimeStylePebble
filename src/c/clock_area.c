@@ -9,7 +9,38 @@ char time_hours[3];
 char time_minutes[3];
 
 Layer* clock_area_layer;
-FFont* clock_font;
+FFont* hours_font;
+FFont* minutes_font;
+
+// just allocate all the fonts at startup because i'm lazy
+FFont* avenir;
+FFont* avenir_bold;
+FFont* leco;
+
+void update_fonts() {
+  switch(globalSettings.clockFontId) {
+    case FONT_SETTING_DEFAULT:
+        hours_font = avenir;
+        minutes_font = avenir;
+      break;
+    case FONT_SETTING_BOLD:
+        hours_font = avenir_bold;
+        minutes_font = avenir_bold;
+      break;
+    case FONT_SETTING_BOLD_H:
+        hours_font = avenir_bold;
+        minutes_font = avenir;
+      break;
+    case FONT_SETTING_BOLD_M:
+        hours_font = avenir;
+        minutes_font = avenir_bold;
+      break;
+    case FONT_SETTING_LECO:
+        hours_font = leco;
+        minutes_font = leco;
+      break;
+  }
+}
 
 // "private" functions
 void update_clock_area_layer(Layer *l, GContext* ctx) {
@@ -42,18 +73,19 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   FPoint time_pos;
   fctx_begin_fill(&fctx);
-  fctx_set_text_size(&fctx, clock_font, font_size);
+  fctx_set_text_size(&fctx, hours_font, font_size);
+  fctx_set_text_size(&fctx, minutes_font, font_size);
 
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
   time_pos.y = INT_TO_FIXED(v_padding);
   fctx_set_offset(&fctx, time_pos);
-  fctx_draw_string(&fctx, time_hours, clock_font, GTextAlignmentCenter, FTextAnchorTop);
+  fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
 
   //draw minutes 
   time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding);
   fctx_set_offset(&fctx, time_pos);
-  fctx_draw_string(&fctx, time_minutes, clock_font, GTextAlignmentCenter, FTextAnchorBaseline);
+  fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
   fctx_end_fill(&fctx);
 
   fctx_deinit_context(&fctx);
@@ -71,22 +103,32 @@ void ClockArea_init(Window* window) {
   layer_add_child(window_get_root_layer(window), clock_area_layer);
   layer_set_update_proc(clock_area_layer, update_clock_area_layer);
 
-  // init font
-  // clock_font = ffont_create_from_resource(RESOURCE_ID_LECO_REGULAR_FFONT);
-  // clock_font = ffont_create_from_resource(RESOURCE_ID_CONSOLAS_REGULAR_FFONT);
-  clock_font = ffont_create_from_resource(RESOURCE_ID_AVENIR_REGULAR_FFONT);
+  // allocate fonts
+  avenir =      ffont_create_from_resource(RESOURCE_ID_AVENIR_REGULAR_FFONT);
+  avenir_bold = ffont_create_from_resource(RESOURCE_ID_AVENIR_BOLD_FFONT);
+  leco =        ffont_create_from_resource(RESOURCE_ID_LECO_REGULAR_FFONT);
+
+  // select fonts based on settings
+  update_fonts();
 }
 
 void ClockArea_deinit() {
   layer_destroy(clock_area_layer);
-  ffont_destroy(clock_font);
+
+  ffont_destroy(avenir);
+  ffont_destroy(avenir_bold);
+  ffont_destroy(leco);
 }
 
 void ClockArea_redraw() {
+  // check if the fonts need to be switched
+  update_fonts();
+
   layer_mark_dirty(clock_area_layer);  
 }
 
 void ClockArea_update_time(struct tm* time_info) {
+
   // hours
   if (clock_is_24h_style()) {
     strftime(time_hours, sizeof(time_hours), (globalSettings.showLeadingZero) ? "%H" : "%k", time_info);
