@@ -7,14 +7,14 @@ Created by FontForge 20110222 at Thu May 30 13:47:27 2013
 Copyright (c) 2004 - 2007 Linotype GmbH, www.linotype.com. All rights reserved. This font software may not be reproduced, modified, disclosed or transferred without the express written approval of Linotype GmbH. Avenir is a trademark of Linotype GmbH registered in the U.S. Patent and Trademark Office and may be registered in certain other jurisdictions. This typeface is original artwork of Adrian Frutiger and Akira Kobayashi. The design may be protected in certain jurisdictions.
 </metadata>
 <defs>
-<font id="AvenirNextLTW01RegularRegular" horiz-adv-x="580" >
+<font id="AvenirNextLTW01RegularRegular" horiz-adv-x="560" >
   <font-face 
     font-family="AvenirNextLTW01RegularRegular"
     font-weight="400"
     font-stretch="normal"
     units-per-em="1000"
     panose-1="2 11 5 3 2 2 2 2 2 4"
-    ascent="756"
+    ascent="700"
     descent="-244"
     x-height="468"
     cap-height="708"
@@ -31,7 +31,7 @@ Copyright (c) 2004 - 2007 Linotype GmbH, www.linotype.com. All rights reserved. 
  />
     <glyph glyph-name="uni000D" unicode="&#xd;" horiz-adv-x="0" 
  />
-    <glyph glyph-name="space" unicode=" " horiz-adv-x="250" 
+    <glyph glyph-name="space" unicode=" "
  />
     <glyph glyph-name="exclam" unicode="!" horiz-adv-x="328" 
 d="M200 192h-72v516h72v-516zM218 48q0 -21 -15 -37.5t-39 -16.5t-39 16.5t-15 37.5t15 37.5t39 16.5t39 -16.5t15 -37.5z" />

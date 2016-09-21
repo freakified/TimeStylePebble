@@ -224,6 +224,8 @@ void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetTyp
 
 
 void updateRectSidebar(Layer *l, GContext* ctx) {
+  GRect bounds = layer_get_unobstructed_bounds(l);
+
   SidebarWidgets_updateFonts();
 
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
@@ -260,7 +262,7 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   // calculate the three widget positions
   int topWidgetPos = V_PADDING;
-  int lowerWidgetPos = SCREEN_HEIGHT - V_PADDING - displayWidgets[2].getHeight();
+  int lowerWidgetPos = bounds.size.h - V_PADDING - displayWidgets[2].getHeight();
 
   // vertically center the middle widget using MATH
   int middleWidgetPos = ((lowerWidgetPos - displayWidgets[1].getHeight()) + (topWidgetPos + displayWidgets[0].getHeight())) / 2;
@@ -269,5 +271,4 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
   displayWidgets[0].draw(ctx, topWidgetPos);
   displayWidgets[1].draw(ctx, middleWidgetPos);
   displayWidgets[2].draw(ctx, lowerWidgetPos);
-
 }
