@@ -89,11 +89,13 @@ void ClockArea_redraw() {
 void ClockArea_update_time(struct tm* time_info) {
   // hours
   if (clock_is_24h_style()) {
-    strftime(time_hours, sizeof(time_hours), "%H", time_info);
+    strftime(time_hours, sizeof(time_hours), (globalSettings.showLeadingZero) ? "%H" : "%k", time_info);
   } else {
-    strftime(time_hours, sizeof(time_hours), "%I", time_info);
+    strftime(time_hours, sizeof(time_hours), (globalSettings.showLeadingZero) ? "%I" : "%l", time_info);
   }
 
   // minutes
   strftime(time_minutes, sizeof(time_minutes), "%M", time_info);
+
+  ClockArea_redraw();
 }
