@@ -8,7 +8,8 @@
 #include "sidebar_widgets.h"
 
 #define V_PADDING 8
-#define SCREEN_HEIGHT 168
+
+GRect screen_rect;
 
 // "private" functions
 // layer update callbacks
@@ -30,18 +31,18 @@ Layer* sidebarLayer;
 
 void Sidebar_init(Window* window) {
   // init the sidebar layer
-  GRect screenRect = layer_get_bounds(window_get_root_layer(window));
+  screen_rect = layer_get_bounds(window_get_root_layer(window));
   GRect bounds;
 
   #ifdef PBL_ROUND
     GRect bounds2;
-    bounds = GRect(0, 0, 40, screenRect.size.h);
-    bounds2 = GRect(screenRect.size.w - 40, 0, 40, screenRect.size.h);
+    bounds = GRect(0, 0, 40, screen_rect.size.h);
+    bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
   #else
     if(!globalSettings.sidebarOnLeft) {
-      bounds = GRect(114, 0, 30, screenRect.size.h);
+      bounds = GRect(114, 0, 30, screen_rect.size.h);
     } else {
-      bounds = GRect(0, 0, 30, screenRect.size.h);
+      bounds = GRect(0, 0, 30, screen_rect.size.h);
     }
   #endif
 
@@ -74,9 +75,9 @@ void Sidebar_redraw() {
   #ifndef PBL_ROUND
     // reposition the sidebar if needed
     if(globalSettings.sidebarOnLeft) {
-      layer_set_frame(sidebarLayer, GRect(0, 0, 30, SCREEN_HEIGHT));
+      layer_set_frame(sidebarLayer, GRect(0, 0, 30, screen_rect.size.h));
     } else {
-      layer_set_frame(sidebarLayer, GRect(114, 0, 30, SCREEN_HEIGHT));
+      layer_set_frame(sidebarLayer, GRect(114, 0, 30, screen_rect.size.h));
     }
   #endif
 
@@ -218,10 +219,6 @@ void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetTyp
   widget.draw(ctx, widgetPosition);
 }
 #endif
-
-
-
-
 
 void updateRectSidebar(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);

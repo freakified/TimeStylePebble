@@ -66,10 +66,10 @@ void redrawScreen() {
 static void main_window_load(Window *window) {
   window_set_background_color(window, globalSettings.timeBgColor);
 
-  ClockArea_init(window);
-
   // create the sidebar
   Sidebar_init(window);
+
+  ClockArea_init(window);
 
   // Make sure the time is displayed from the start
   redrawScreen();

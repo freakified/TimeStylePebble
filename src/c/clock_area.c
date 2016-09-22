@@ -12,11 +12,15 @@ Layer* clock_area_layer;
 FFont* hours_font;
 FFont* minutes_font;
 
-// just allocate all the fonts at startup because i'm lazy
+// just allocate all the fonts at startup because i don't feel like
+// dealing with allocating and deallocating things
 FFont* avenir;
 FFont* avenir_bold;
 FFont* leco;
 
+GRect screen_rect;
+
+// "private" functions
 void update_fonts() {
   switch(globalSettings.clockFontId) {
     case FONT_SETTING_DEFAULT:
@@ -42,7 +46,6 @@ void update_fonts() {
   }
 }
 
-// "private" functions
 void update_clock_area_layer(Layer *l, GContext* ctx) {
   // check layer bounds
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -54,21 +57,28 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   fctx_set_color_bias(&fctx, 0);
   fctx_set_fill_color(&fctx, globalSettings.timeColor);
   
-  // draw the time
+
+  // calculate font size
   int font_size = 4 * bounds.size.h / 7;
 
-  // avenir
+  // avenir + avenir bold metrics
   int v_padding = bounds.size.h / 16;
   int h_adjust = 0;
 
-  // alternate params for LECO
+  // alternate metrics for LECO
   if(globalSettings.clockFontId == FONT_SETTING_LECO) {
     v_padding = bounds.size.h / 13;
     h_adjust = -2;
 
+    // leco looks awful with antialiasing
     #ifdef PBL_COLOR
       fctx_enable_aa(false);
     #endif
+  }
+
+  // if the sidebar is on the other side, modify offset to accomodate
+  if(globalSettings.sidebarOnLeft) {
+    h_adjust += 30;
   }
 
   FPoint time_pos;
@@ -91,14 +101,15 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   fctx_deinit_context(&fctx);
 }
 
-void ClockArea_init(Window* window) {
-  // init the clock area layer
-  GRect screen_rect = layer_get_bounds(window_get_root_layer(window));
-  GRect bounds;
 
-  // TODO: add left-side-sidebar support
+void ClockArea_init(Window* window) {
+  // record the screen size, since we NEVER GET IT AGAIN
+  screen_rect = layer_get_bounds(window_get_root_layer(window));
+
+  GRect bounds;
   bounds = GRect(0, 0, screen_rect.size.w - 30, screen_rect.size.h);
 
+  // init the clock area layer
   clock_area_layer = layer_create(bounds);
   layer_add_child(window_get_root_layer(window), clock_area_layer);
   layer_set_update_proc(clock_area_layer, update_clock_area_layer);
@@ -121,8 +132,11 @@ void ClockArea_deinit() {
 }
 
 void ClockArea_redraw() {
+
   // check if the fonts need to be switched
   update_fonts();
+  // check if we need to move the frame
+
 
   layer_mark_dirty(clock_area_layer);  
 }
