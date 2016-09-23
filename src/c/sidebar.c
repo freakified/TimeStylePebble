@@ -7,7 +7,8 @@
 #include "sidebar.h"
 #include "sidebar_widgets.h"
 
-#define V_PADDING 8
+#define V_PADDING_DEFAULT 8
+#define V_PADDING_COMPACT 4
 
 GRect screen_rect;
 
@@ -253,19 +254,35 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
   }
 
   // if the widgets are too tall, enable "compact mode"
+  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 3; 
+  int v_padding = V_PADDING_DEFAULT;
+
   SidebarWidgets_useCompactMode = false; // ensure that we compare the non-compacted heights
   int totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() + displayWidgets[2].getHeight();
-  SidebarWidgets_useCompactMode = (totalHeight > 142) ? true : false;
+  SidebarWidgets_useCompactMode = (totalHeight > compact_mode_threshold) ? true : false;
+
+  // now that they have been compacted, check if they fit a second time,
+  // if they still don't fit, our only choice is MURDER (of the middle widget)
+  totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() + displayWidgets[2].getHeight();
+  bool hide_middle_widget = (totalHeight > compact_mode_threshold) ? true : false;
+
+  // still doesn't fit? try compacting the vertical padding
+  totalHeight = displayWidgets[0].getHeight() + displayWidgets[2].getHeight();
+  if(totalHeight > compact_mode_threshold) {
+    v_padding = V_PADDING_COMPACT;
+  }
 
   // calculate the three widget positions
-  int topWidgetPos = V_PADDING;
-  int lowerWidgetPos = bounds.size.h - V_PADDING - displayWidgets[2].getHeight();
+  int topWidgetPos = v_padding;
+  int lowerWidgetPos = bounds.size.h - v_padding - displayWidgets[2].getHeight();
 
   // vertically center the middle widget using MATH
   int middleWidgetPos = ((lowerWidgetPos - displayWidgets[1].getHeight()) + (topWidgetPos + displayWidgets[0].getHeight())) / 2;
 
   // draw the widgets
   displayWidgets[0].draw(ctx, topWidgetPos);
-  displayWidgets[1].draw(ctx, middleWidgetPos);
+  if(!hide_middle_widget) {
+    displayWidgets[1].draw(ctx, middleWidgetPos);
+  }
   displayWidgets[2].draw(ctx, lowerWidgetPos);
 }
