@@ -20,8 +20,6 @@ void gdraw_command_image_recolor(GDrawCommandImage *img, GColor fill_color, GCol
                              recolor_iterator_cb, &colors);
 }
 
-// avoid floating point arithmetic on Aplite, which just doesn't have the RAM for it
-#ifndef PBL_PLATFORM_APLITE
 int time_get_beats(const struct tm *tm) {
   // code from https://gist.github.com/insom/bf40b91fd25ae1d84764
 
@@ -34,7 +32,6 @@ int time_get_beats(const struct tm *tm) {
 
   return beats;
 }
-#endif
 
 #ifdef PBL_HEALTH
    bool is_health_metric_accessible(HealthMetric metric) {
