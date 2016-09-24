@@ -1,8 +1,10 @@
 {
   "name": "timestyle-pebble",
   "author": "Freakified",
-  "version": "6.5.0",
-  "keywords": ["pebble-watchface"],
+  "version": "6.6.0",
+  "keywords": [
+    "pebble-watchface"
+  ],
   "private": true,
   "dependencies": {},
   "pebble": {
