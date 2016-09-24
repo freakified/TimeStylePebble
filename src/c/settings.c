@@ -29,7 +29,7 @@ void Settings_loadFromStorage() {
     globalSettings.sidebarColor   = GColorOrange;
   #else
     globalSettings.timeColor      = GColorWhite;
-    globalSettings.sidebarColor   = GColorWhite;
+    globalSettings.sidebarColor   = GColorLightGray;
   #endif
 
   // set the default widgets
