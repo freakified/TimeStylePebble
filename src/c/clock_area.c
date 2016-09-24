@@ -5,6 +5,8 @@
 #include "clock_area.h"
 #include "settings.h"
 
+#define ROUND_VERTICAL_PADDING 15
+
 char time_hours[3];
 char time_minutes[3];
 
@@ -49,6 +51,10 @@ void update_fonts() {
 void update_clock_area_layer(Layer *l, GContext* ctx) {
   // check layer bounds
   GRect bounds = layer_get_unobstructed_bounds(l);
+
+  #ifdef PBL_ROUND
+    bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, screen_rect.size.h - ROUND_VERTICAL_PADDING * 2);
+  #endif
   
   // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use
   FContext fctx;
@@ -64,6 +70,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   // avenir + avenir bold metrics
   int v_padding = bounds.size.h / 16;
   int h_adjust = 0;
+  int v_adjust = 0;
 
   // alternate metrics for LECO
   if(globalSettings.clockFontId == FONT_SETTING_LECO) {
@@ -76,10 +83,21 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     #endif
   }
 
-  // if the sidebar is on the other side, modify offset to accomodate
-  if(globalSettings.sidebarOnLeft) {
-    h_adjust += 30;
-  }
+  // if it's a round watch, EVERYTHING CHANGES
+  #ifdef PBL_ROUND
+    v_adjust = ROUND_VERTICAL_PADDING;
+
+    if(globalSettings.clockFontId != FONT_SETTING_LECO) {
+      h_adjust = -4;
+    }
+  #else
+    // for rectangular watches, adjust X position based on sidebar position 
+    if(globalSettings.sidebarOnLeft) {
+      h_adjust += 15;
+    } else {
+      h_adjust -= 16;
+    }
+  #endif
 
   FPoint time_pos;
   fctx_begin_fill(&fctx);
@@ -88,12 +106,12 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
-  time_pos.y = INT_TO_FIXED(v_padding);
+  time_pos.y = INT_TO_FIXED(v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
 
   //draw minutes 
-  time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding);
+  time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
   fctx_end_fill(&fctx);
@@ -107,7 +125,7 @@ void ClockArea_init(Window* window) {
   screen_rect = layer_get_bounds(window_get_root_layer(window));
 
   GRect bounds;
-  bounds = GRect(0, 0, screen_rect.size.w - 30, screen_rect.size.h);
+  bounds = GRect(0, 0, screen_rect.size.w, screen_rect.size.h);
 
   // init the clock area layer
   clock_area_layer = layer_create(bounds);
