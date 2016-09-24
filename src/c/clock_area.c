@@ -150,11 +150,8 @@ void ClockArea_deinit() {
 }
 
 void ClockArea_redraw() {
-
   // check if the fonts need to be switched
   update_fonts();
-  // check if we need to move the frame
-
 
   layer_mark_dirty(clock_area_layer);  
 }
