@@ -254,17 +254,19 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
   }
 
   // if the widgets are too tall, enable "compact mode"
-  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 3; 
+  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2; 
   int v_padding = V_PADDING_DEFAULT;
 
   SidebarWidgets_useCompactMode = false; // ensure that we compare the non-compacted heights
   int totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() + displayWidgets[2].getHeight();
   SidebarWidgets_useCompactMode = (totalHeight > compact_mode_threshold);
+  // printf("Total Height: %i, Threshold: %i", totalHeight, compact_mode_threshold);
 
   // now that they have been compacted, check if they fit a second time,
   // if they still don't fit, our only choice is MURDER (of the middle widget)
   totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() + displayWidgets[2].getHeight();
   bool hide_middle_widget = (totalHeight > compact_mode_threshold);
+  // printf("Compact Mode Enabled. Total Height: %i, Threshold: %i", totalHeight, compact_mode_threshold);
 
   // still doesn't fit? try compacting the vertical padding
   totalHeight = displayWidgets[0].getHeight() + displayWidgets[2].getHeight();
