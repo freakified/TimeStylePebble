@@ -88,7 +88,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     v_adjust = ROUND_VERTICAL_PADDING;
 
     if(globalSettings.clockFontId != FONT_SETTING_LECO) {
-      h_adjust = -4;
+      h_adjust = -1;
     }
   #else
     // for rectangular watches, adjust X position based on sidebar position 
