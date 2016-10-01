@@ -2,7 +2,7 @@
 #include "languages.h"
 
 /* day names in many different languages! */
-const char dayNames[34][7][8] = {
+const char dayNames[35][7][8] = {
 	{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"},
 	{"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"},
 	{"SO",  "MO",  "DI",  "MI",  "DO",  "FR",  "SA"},
@@ -36,11 +36,12 @@ const char dayNames[34][7][8] = {
 	{"MIN", "SEN",  "SEL", "RAB", "KAM", "JUM", "SAB"},
 	{"НД", "ПН", "ВТ",  "СР", "ЧТ", "ПТ", "СБ"},
 	{"SUL", "LLN", "MAW", "MER", "IAU", "GWE", "SAD"},
-	{"DOM", "LUN", "MAR", "MER", "XOV", "VEN", "SAB"}
+	{"DOM", "LUN", "MAR", "MER", "XOV", "VEN", "SAB"},
+	{"日", "月", "火", "水", "木", "金", "土"}
 };
 
 /* month names in many different languages! */
-const char monthNames[34][12][8] = {
+const char monthNames[35][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"},
 	{"JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"},
 	{"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"},
@@ -74,12 +75,13 @@ const char monthNames[34][12][8] = {
 	{"JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"},
 	{"СІЧ", "ЛЮТ", "БЕР", "КВІ", "ТРА", "ЧЕР", "ЛИП", "СЕР", "ВЕР", "ЖОВ", "ЛИС", "ГРУ"},
 	{"ION", "CHW", "MAW", "EBR", "MAI", "MEH", "GOR", "AWS", "MED", "HYD", "TCH", "RHA"},
-	{"XAN", "FEB", "MAR", "ABR", "MAI", "XUÑ", "XUL", "AGO", "SET", "OUT", "NOV", "NAD"}
+	{"XAN", "FEB", "MAR", "ABR", "MAI", "XUÑ", "XUL", "AGO", "SET", "OUT", "NOV", "NAD"},
+	{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}
 };
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-const char wordForWeek[34][12] = {
+const char wordForWeek[35][12] = {
 	"Wk",
 	"Sem",
 	"W",
@@ -113,5 +115,6 @@ const char wordForWeek[34][12] = {
 	"Ming",
 	"Тиж",
 	"Wnos",
-	"Sem"
+	"Sem",
+	"週"
 };
