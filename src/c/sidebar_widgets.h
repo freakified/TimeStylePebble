@@ -30,7 +30,8 @@ typedef enum {
   WEATHER_FORECAST_TODAY    = 8,
   TIME_UNUSED               = 9,
   HEALTH                    = 10,
-  BEATS                     = 11
+  BEATS                     = 11,
+  HEARTRATE                 = 12
 } SidebarWidgetType;
 
 typedef struct {

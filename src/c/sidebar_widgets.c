@@ -75,12 +75,17 @@ void Beats_draw(GContext* ctx, int yPosition);
 #ifdef PBL_HEALTH
   GDrawCommandImage* sleepImage;
   GDrawCommandImage* stepsImage;
+  GDrawCommandImage* heartImage;
 
   SidebarWidget healthWidget;
   int Health_getHeight();
   void Health_draw(GContext* ctx, int yPosition);
   void Sleep_draw(GContext* ctx, int yPosition);
   void Steps_draw(GContext* ctx, int yPosition);
+
+  SidebarWidget heartRateWidget;
+  int HeartRate_getHeight();
+  void HeartRate_draw(GContext* ctx, int yPosition);
 #endif
 
 void SidebarWidgets_init() {
@@ -98,6 +103,7 @@ void SidebarWidgets_init() {
   #ifdef PBL_HEALTH
     sleepImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_SLEEP);
     stepsImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_STEPS);
+    heartImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_HEART);
   #endif
 
   // set up widgets' function pointers correctly
@@ -131,6 +137,9 @@ void SidebarWidgets_init() {
   #ifdef PBL_HEALTH
     healthWidget.getHeight = Health_getHeight;
     healthWidget.draw = Health_draw;
+    
+    heartRateWidget.getHeight = HeartRate_getHeight;
+    heartRateWidget.draw = HeartRate_draw;
   #endif
 
   beatsWidget.getHeight = Beats_getHeight;
@@ -251,6 +260,8 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     #ifdef PBL_HEALTH
       case HEALTH:
         return healthWidget;
+      case HEARTRATE:
+        return heartRateWidget;
     #endif
     case BEATS:
       return beatsWidget;
@@ -436,7 +447,6 @@ void CurrentWeather_draw(GContext* ctx, int yPosition) {
 
   if (Weather_currentWeatherIcon) {
     gdraw_command_image_recolor(Weather_currentWeatherIcon, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-
     gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 
@@ -680,6 +690,7 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 
 #ifdef PBL_HEALTH
 
+
 int Health_getHeight() {
   if(is_user_sleeping()) {
     return 44;
@@ -817,13 +828,44 @@ void Steps_draw(GContext* ctx, int yPosition) {
     }
   }
 
-
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
   graphics_draw_text(ctx,
                      steps_text,
                      (use_small_font) ? smSidebarFont : mdSidebarFont,
                      GRect(-2 + SidebarWidgets_xOffset, yPosition + 13, 35, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+}
+
+int HeartRate_getHeight() {
+  if(globalSettings.useLargeFonts) {
+    return 40;
+  } else {
+    return 38;
+  }
+}
+
+void HeartRate_draw(GContext* ctx, int yPosition) {
+  if(heartImage) {
+    gdraw_command_image_recolor(heartImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+    gdraw_command_image_draw(ctx, heartImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
+  }
+
+  int yOffset = globalSettings.useLargeFonts ? 17 : 21;
+
+  // TODO: accessibility check?
+  int heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
+  char heart_rate_text[8];
+
+  snprintf(heart_rate_text, sizeof(heart_rate_text), "%i", heart_rate);
+
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  graphics_draw_text(ctx,
+                     heart_rate_text,
+                     currentSidebarFont,
+                     GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset, 38, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);

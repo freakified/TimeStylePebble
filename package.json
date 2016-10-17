@@ -172,6 +172,11 @@
           "file": "data/HEALTH_STEPS.pdc",
           "name": "HEALTH_STEPS",
           "type": "raw"
+        },
+        {
+          "file": "data/HEALTH_HEART.pdc",
+          "name": "HEALTH_HEART",
+          "type": "raw"
         }
       ]
     }
