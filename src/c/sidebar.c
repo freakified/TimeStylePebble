@@ -254,7 +254,7 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
   }
 
   // if the widgets are too tall, enable "compact mode"
-  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2; 
+  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2 - 3; 
   int v_padding = V_PADDING_DEFAULT;
 
   SidebarWidgets_useCompactMode = false; // ensure that we compare the non-compacted heights
