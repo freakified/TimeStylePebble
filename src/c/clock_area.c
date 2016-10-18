@@ -83,6 +83,10 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     #ifdef PBL_COLOR
       fctx_enable_aa(false);
     #endif
+  } else {
+    #ifdef PBL_COLOR
+      fctx_enable_aa(true);
+    #endif
   }
 
   // if it's a round watch, EVERYTHING CHANGES
