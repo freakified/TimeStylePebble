@@ -74,8 +74,10 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   // alternate metrics for LECO
   if(globalSettings.clockFontId == FONT_SETTING_LECO) {
-    v_padding = bounds.size.h / 13;
-    h_adjust = -2;
+    font_size = 4 * bounds.size.h / 7 + 6;
+    v_padding = bounds.size.h / 20;
+    h_adjust = -4;
+    v_adjust = 0;
 
     // leco looks awful with antialiasing
     #ifdef PBL_COLOR
