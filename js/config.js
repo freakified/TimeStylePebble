@@ -54,8 +54,8 @@ function loadPreviousSettings() {
     savedSettings = {
       // color settings
       color_bg: '000000',
-      color_sidebar: (is_bw) ? 'AAAAAA' : 'FF5500',
-      color_time:    (is_bw) ? 'FFFFFF' : 'FF5500',
+      color_sidebar: 'FF5500',
+      color_time: 'FF5500',
       sidebar_text_color: '000000',
 
       // general settings
@@ -98,7 +98,12 @@ function loadPreviousSettings() {
       settings_version: CURRENT_SETTINGS_VERSION
     };
 
-    // load the color settings
+    if(is_bw) {
+      savedSettings.color_sidebar = 'AAAAAA';
+      savedSettings.color_time = 'FFFFFF';
+    }
+
+    // save the color settings
     window.localStorage.setItem('time-color', savedSettings.color_time);
     window.localStorage.setItem('time-bg-color', savedSettings.color_bg);
     window.localStorage.setItem('sidebar-color', savedSettings.color_sidebar);
