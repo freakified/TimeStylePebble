@@ -398,6 +398,9 @@ function updateSidebarPreview() {
       case '11':
         image_url += 'BEATS';
         break;
+      case '12':
+        image_url += 'HRM';
+        break;
       case '0':
         image_url += 'NONE';
         break;
@@ -622,7 +625,9 @@ function trackSettings(config) {
     '7': 'WeatherCurrent',
     '8': 'WeatherToday',
     '9': 'CurrentTime',
-    '10': 'Health'
+    '10': 'Health',
+    '11': 'SwatchBeats',
+    '12': 'HeartRate'
   };
 
   // track the sidebar layout selections
