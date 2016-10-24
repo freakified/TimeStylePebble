@@ -17,7 +17,8 @@
     "targetPlatforms": [
       "basalt",
       "chalk",
-      "diorite"
+      "diorite",
+      "emery"
     ],
     "capabilities": [
       "location",
@@ -62,12 +63,6 @@
     ],
     "resources": {
       "media": [
-        {
-          "file": "images/menuicon.png",
-          "menuIcon": true,
-          "name": "MENU_ICON",
-          "type": "bitmap"
-        },
         {
           "file": "fonts/LECO1976-Regular.ffont",
           "name": "LECO_REGULAR_FFONT",

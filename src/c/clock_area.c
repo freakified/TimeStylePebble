@@ -55,14 +55,14 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #ifdef PBL_ROUND
     bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, screen_rect.size.h - ROUND_VERTICAL_PADDING * 2);
   #endif
-  
+
   // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use
   FContext fctx;
 
   fctx_init_context(&fctx, ctx);
   fctx_set_color_bias(&fctx, 0);
   fctx_set_fill_color(&fctx, globalSettings.timeColor);
-  
+
 
   // calculate font size
   int font_size = 4 * bounds.size.h / 7;
@@ -97,7 +97,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
       h_adjust = -1;
     }
   #else
-    // for rectangular watches, adjust X position based on sidebar position 
+    // for rectangular watches, adjust X position based on sidebar position
     if(globalSettings.sidebarOnLeft) {
       h_adjust += 15;
     } else {
@@ -107,16 +107,16 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   FPoint time_pos;
   fctx_begin_fill(&fctx);
-  fctx_set_text_size(&fctx, hours_font, font_size);
-  fctx_set_text_size(&fctx, minutes_font, font_size);
-
+  fctx_set_text_em_height(&fctx, hours_font, font_size);
+  fctx_set_text_em_height(&fctx, minutes_font, font_size);
+  
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
   time_pos.y = INT_TO_FIXED(v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
 
-  //draw minutes 
+  //draw minutes
   time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
@@ -159,7 +159,7 @@ void ClockArea_redraw() {
   // check if the fonts need to be switched
   update_fonts();
 
-  layer_mark_dirty(clock_area_layer);  
+  layer_mark_dirty(clock_area_layer);
 }
 
 void ClockArea_update_time(struct tm* time_info) {
