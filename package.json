@@ -17,8 +17,7 @@
     "targetPlatforms": [
       "basalt",
       "chalk",
-      "diorite",
-      "emery"
+      "diorite"
     ],
     "capabilities": [
       "location",
