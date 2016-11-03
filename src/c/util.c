@@ -46,20 +46,23 @@ int time_get_beats(const struct tm *tm) {
    }
 
    bool is_user_sleeping() {
-     time_t now = time(NULL);
-
-     HealthActivityMask activities = HealthActivitySleep | HealthActivityRestfulSleep;
-
-     HealthServiceAccessibilityMask mask = health_service_any_activity_accessible(activities, now, now);
-     bool sleep_access_available = mask & HealthServiceAccessibilityMaskAvailable;
-
-     if(sleep_access_available) {
-       uint32_t current_activities = health_service_peek_current_activities();
-       bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-
-       return sleeping;
-     } else {
-       return false;
-     }
+     // temporarily disable sleep function until Pebble gets their act together
+     return false;
+     //
+    //  time_t now = time(NULL);
+     //
+    //  HealthActivityMask activities = HealthActivitySleep | HealthActivityRestfulSleep;
+     //
+    //  HealthServiceAccessibilityMask mask = health_service_any_activity_accessible(activities, now, now);
+    //  bool sleep_access_available = mask & HealthServiceAccessibilityMaskAvailable;
+     //
+    //  if(sleep_access_available) {
+    //    uint32_t current_activities = health_service_peek_current_activities();
+    //    bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
+     //
+    //    return sleeping;
+    //  } else {
+    //    return false;
+    //  }
    }
  #endif
