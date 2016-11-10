@@ -4,6 +4,9 @@
 #include "weather.h"
 #include "languages.h"
 #include "util.h"
+#ifdef PBL_HEALTH
+#include "health.h"
+#endif
 #include "sidebar_widgets.h"
 
 bool SidebarWidgets_useCompactMode = false;
@@ -689,10 +692,8 @@ void AltTime_draw(GContext* ctx, int yPosition) {
 /***** Health Widget *****/
 
 #ifdef PBL_HEALTH
-
-
 int Health_getHeight() {
-  if(is_user_sleeping()) {
+  if(Health_isUserSleeping()) {
     return 44;
   } else {
     return 32;
@@ -701,11 +702,7 @@ int Health_getHeight() {
 
 void Health_draw(GContext* ctx, int yPosition) {
   // check if we're showing the sleep data or step data
-
-  // is the user asleep?
-  bool sleep_mode = is_user_sleeping();
-
-  if(sleep_mode) {
+  if(Health_isUserSleeping()) {
     Sleep_draw(ctx, yPosition);
   } else {
     Steps_draw(ctx, yPosition);
@@ -719,15 +716,7 @@ void Sleep_draw(GContext* ctx, int yPosition) {
   }
 
   // get sleep in seconds
-  int sleep_seconds;
-
-  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
-
-  if(is_health_metric_accessible(metric)) {
-    sleep_seconds = (int)health_service_sum_today(metric);
-  } else {
-    sleep_seconds = 0;
-  }
+  HealthValue sleep_seconds = globalSettings.healthUseRestfulSleep ? Health_getRestfulSleepSeconds() : Health_getSleepSeconds();
 
   // convert to hours/minutes
   int sleep_minutes = sleep_seconds / 60;
@@ -772,21 +761,16 @@ void Steps_draw(GContext* ctx, int yPosition) {
   bool use_small_font = false;
 
   if(globalSettings.healthUseDistance) {
-    int distance = 0;
-
-    if(is_health_metric_accessible(HealthMetricWalkedDistanceMeters)) {
-      distance = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
-    }
-
+    HealthValue distance = Health_getDistanceWalked();
     MeasurementSystem unit_system = health_service_get_measurement_system_for_display(HealthMetricWalkedDistanceMeters);
 
     // format distance string
     if(unit_system == MeasurementSystemMetric) {
       if(distance < 100) {
-        snprintf(steps_text, sizeof(steps_text), "%im", distance);
+        snprintf(steps_text, sizeof(steps_text), "%lim", distance);
       } else if(distance < 1000) {
         distance /= 100; // convert to tenths of km
-        snprintf(steps_text, sizeof(steps_text), ".%ikm", distance);
+        snprintf(steps_text, sizeof(steps_text), ".%likm", distance);
       } else {
         distance /= 1000; // convert to km
 
@@ -794,7 +778,7 @@ void Steps_draw(GContext* ctx, int yPosition) {
           use_small_font = true;
         }
 
-        snprintf(steps_text, sizeof(steps_text), "%ikm", distance);
+        snprintf(steps_text, sizeof(steps_text), "%likm", distance);
       }
     } else {
       int miles_tenths = distance * 10 / 1609 % 10;
@@ -807,15 +791,11 @@ void Steps_draw(GContext* ctx, int yPosition) {
       }
     }
   } else {
-    int steps = (int)health_service_sum_today(HealthMetricStepCount);
-
-    if(is_health_metric_accessible(HealthMetricStepCount)) {
-      steps = (int)health_service_sum_today(HealthMetricStepCount);
-    }
+    HealthValue steps = Health_getSteps();
 
     // format step string
     if(steps < 1000) {
-      snprintf(steps_text, sizeof(steps_text), "%i", steps);
+      snprintf(steps_text, sizeof(steps_text), "%li", steps);
     } else {
       int steps_thousands = steps / 1000;
       int steps_hundreds  = steps / 100 % 10;
@@ -855,11 +835,10 @@ void HeartRate_draw(GContext* ctx, int yPosition) {
 
   int yOffset = globalSettings.useLargeFonts ? 17 : 21;
 
-  // TODO: accessibility check?
-  int heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
+  HealthValue heart_rate = Health_getHeartRate();
   char heart_rate_text[8];
 
-  snprintf(heart_rate_text, sizeof(heart_rate_text), "%i", heart_rate);
+  snprintf(heart_rate_text, sizeof(heart_rate_text), "%li", heart_rate);
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
   graphics_draw_text(ctx,
