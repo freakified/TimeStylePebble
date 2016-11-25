@@ -159,7 +159,6 @@ static void main_window_unload(Window *window) {
 }
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-
   // every 30 minutes, request new weather data
   if(!globalSettings.disableWeather) {
     if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == 0) {
@@ -168,7 +167,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   }
 
   // every hour, if requested, vibrate
-  if(tick_time->tm_sec == 0) {
+  if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
     if(globalSettings.hourlyVibe == 1) { // hourly vibes only
       if(tick_time->tm_min % 60 == 0) {
         vibes_double_pulse();
@@ -188,7 +187,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 void bluetoothStateChanged(bool newConnectionState) {
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
-  if(isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
+  if(!quiet_time_is_active() && isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
     static uint32_t const segments[] = { 200, 100, 100, 100, 500 };
     VibePattern pat = {
       .durations = segments,
