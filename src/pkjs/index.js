@@ -124,7 +124,15 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
-    // vibration settings
+    // bluetooth settings
+    if(configData.disconnect_icon_setting) {
+      if(configData.disconnect_icon_setting == 'yes') {
+        dict.SettingDisconnectIcon = 1;
+      } else {
+        dict.SettingDisconnectIcon = 0;
+      }
+    }
+
     if(configData.bluetooth_vibe_setting) {
       if(configData.bluetooth_vibe_setting == 'yes') {
         dict.SettingBluetoothVibe = 1;
@@ -133,6 +141,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    // notification settings
     if(configData.hourly_vibe_setting) {
       if(configData.hourly_vibe_setting == 'yes') {
         dict.SettingHourlyVibe = 1;
