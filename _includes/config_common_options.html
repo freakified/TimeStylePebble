@@ -234,8 +234,22 @@
   </div>
 </div>
 <hr>
-<label>Vibration</label><br>
-<label class="subtle">If the connection to the phone is lost</label>
+<label>Bluetooth</label><br>
+<div class="alert alert-info" role="alert" id="bluetooth_info">
+  If the connection to the phone is lost
+</div>
+<label class="subtle">Disconnect icon</label>
+<div id="disconnect_icon_setting" class="form-group" >
+  <div class="btn-group btn-group-justified"  data-toggle="buttons">
+    <label class="btn btn-default" data-setting="no" >
+      <input type="radio" name="options" autocomplete="off">No display
+    </label>
+    <label class="btn btn-default" data-setting="yes" >
+      <input type="radio" name="options" autocomplete="off">Display
+    </label>
+  </div>
+</div>
+<label class="subtle">Vibration</label>
 <div id="bluetooth_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
@@ -246,7 +260,9 @@
     </label>
   </div>
 </div>
-<label class="subtle">On interval</label>
+<hr>
+<label>Notification</label><br>
+<label class="subtle">Vibration on interval</label>
 <div id="hourly_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
