@@ -37,6 +37,9 @@ void Settings_loadFromStorage() {
   globalSettings.widgets[1] = EMPTY;
   globalSettings.widgets[2] = DATE;
 
+  // set default disconnect icon activation
+  globalSettings.activateDisconnectIcon = false; //TODO: Set to true
+
   strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
   globalSettings.decimalSeparator = '.';
 
