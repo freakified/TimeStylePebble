@@ -37,6 +37,9 @@ void Settings_loadFromStorage() {
   globalSettings.widgets[1] = EMPTY;
   globalSettings.widgets[2] = DATE;
 
+  // set default disconnect icon activation
+  globalSettings.activateDisconnectIcon = true;
+
   strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
   globalSettings.decimalSeparator = '.';
 
@@ -73,6 +76,7 @@ void Settings_loadFromStorage() {
     globalSettings.decimalSeparator = storedSettings.decimalSeparator;
     memcpy(globalSettings.altclockName, storedSettings.altclockName, 8);
     globalSettings.altclockOffset = storedSettings.altclockOffset;
+    globalSettings.activateDisconnectIcon = storedSettings.activateDisconnectIcon;
   } else if( current_settings_version >= 0 ) {
     // old settings format
     if(persist_exists(SETTING_TIME_COLOR_KEY) && persist_exists(SETTING_TIME_BG_COLOR_KEY) &&
@@ -152,6 +156,7 @@ void Settings_saveToStorage() {
   storedSettings.decimalSeparator = globalSettings.decimalSeparator;
   memcpy(storedSettings.altclockName, globalSettings.altclockName, 8);
   storedSettings.altclockOffset = globalSettings.altclockOffset;
+  storedSettings.activateDisconnectIcon = globalSettings.activateDisconnectIcon;
 
   persist_write_data(SETTING_VERSION6_AND_HIGHER, &storedSettings, sizeof(StoredSettings));
   persist_write_int(SETTINGS_VERSION_KEY, CURRENT_SETTINGS_VERSION);
