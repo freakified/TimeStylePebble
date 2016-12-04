@@ -233,9 +233,13 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
 
-  // if the pebble is disconnected, show the disconnect icon
-  bool showDisconnectIcon = !bluetooth_connection_service_peek();
+  bool showDisconnectIcon = false;
   bool showAutoBattery = isAutoBatteryShown();
+
+  // if the pebble is disconnected and activated, show the disconnect icon
+  if(globalSettings.activateDisconnectIcon) {
+    showDisconnectIcon = !bluetooth_connection_service_peek();
+  }
 
   SidebarWidget displayWidgets[3];
 
