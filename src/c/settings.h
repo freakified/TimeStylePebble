@@ -27,7 +27,8 @@ typedef struct {
   SidebarWidgetType widgets[3];
   bool sidebarOnLeft;
   bool useLargeFonts;
-
+  bool activateDisconnectIcon;
+  
   // weather widget settings
   bool useMetric;
 
@@ -92,6 +93,9 @@ typedef struct {
   // alt tz widget settings
   char altclockName[8];
   int8_t altclockOffset;
+
+  // bluetooth disconnection icon
+  int8_t activateDisconnectIcon:1;
 } StoredSettings;
 
 extern Settings globalSettings;

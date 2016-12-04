@@ -88,6 +88,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
 
+  Tuple *activateDisconnectIcon_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisconnectIcon);
+
 
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -180,6 +182,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(healthUseRestfulSleep_tuple != NULL) {
     globalSettings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
+  }
+
+  if(healthUseRestfulSleep_tuple != NULL) {
+    globalSettings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
   }
 
   // save the new settings to persistent storage
