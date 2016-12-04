@@ -63,8 +63,11 @@ function loadPreviousSettings() {
       leading_zero_setting: 'no',
       clock_font_setting: 'default',
 
-      // vibration settings
+      // bluetooth settings
+      disconnect_icon_setting: 'no',
       bluetooth_vibe_setting: 'no',
+
+      // notification settings
       hourly_vibe_setting: 'no',
 
       // sidebar settings
@@ -123,6 +126,7 @@ function loadPreviousSettings() {
   // load checkbox settings
   loadSettingCheckbox('sidebar_position_setting', savedSettings.sidebar_position);
   loadSettingCheckbox('units_setting', savedSettings.units);
+  loadSettingCheckbox('disconnect_icon_setting', savedSettings.disconnect_icon_setting);
   loadSettingCheckbox('bluetooth_vibe_setting', savedSettings.bluetooth_vibe_setting);
   loadSettingCheckbox('hourly_vibe_setting', savedSettings.hourly_vibe_setting);
   loadSettingCheckbox('battery_meter_setting', savedSettings.battery_meter_setting);
@@ -522,11 +526,16 @@ function sendSettingsToWatch() {
     config.clock_font_setting = $('#clock_font_setting .btn.active').data('setting');
   }
 
-  // vibration settings
+  // bluetooth settings
+  if($('#disconnect_icon_setting .btn.active')) {
+    config.disconnect_icon_setting = $('#disconnect_icon_setting .btn.active').data('setting');
+  }
+
   if($('#bluetooth_vibe_setting .btn.active')) {
     config.bluetooth_vibe_setting = $('#bluetooth_vibe_setting .btn.active').data('setting');
   }
 
+  // notification settings
   if($('#hourly_vibe_setting .btn.active')) {
     config.hourly_vibe_setting = $('#hourly_vibe_setting .btn.active').data('setting');
   }
@@ -644,8 +653,11 @@ function trackSettings(config) {
   ga('set', 'dimension5', config.clock_font_setting);
   ga('set', 'dimension6', config.leading_zero_setting);
 
-  // vibration options
+  // bluetooth options
+  ga('set', 'dimension10', config.disconnect_icon_setting);
   ga('set', 'dimension7', config.bluetooth_vibe_setting);
+  
+  // notification options
   ga('set', 'dimension8', config.hourly_vibe_setting);
 
   // language
