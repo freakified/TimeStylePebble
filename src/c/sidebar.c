@@ -224,6 +224,9 @@ void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetTyp
 void updateRectSidebar(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
 
+  // this ends up being zero on every rectangular platform besides emery
+  SidebarWidgets_xOffset = (ACTION_BAR_WIDTH - 30) / 2;
+
   SidebarWidgets_updateFonts();
 
   graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
