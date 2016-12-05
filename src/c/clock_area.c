@@ -99,9 +99,9 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #else
     // for rectangular watches, adjust X position based on sidebar position
     if(globalSettings.sidebarOnLeft) {
-      h_adjust += 15;
+      h_adjust += ACTION_BAR_WIDTH / 2;
     } else {
-      h_adjust -= 16;
+      h_adjust -= ACTION_BAR_WIDTH / 2 + 1;
     }
   #endif
 
@@ -109,7 +109,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   fctx_begin_fill(&fctx);
   fctx_set_text_em_height(&fctx, hours_font, font_size);
   fctx_set_text_em_height(&fctx, minutes_font, font_size);
-  
+
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
   time_pos.y = INT_TO_FIXED(v_padding + v_adjust);

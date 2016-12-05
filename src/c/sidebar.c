@@ -10,8 +10,6 @@
 #define V_PADDING_DEFAULT 8
 #define V_PADDING_COMPACT 4
 
-#define SIDEBAR_WIDTH 30
-
 GRect screen_rect;
 
 // "private" functions
@@ -43,9 +41,9 @@ void Sidebar_init(Window* window) {
     bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
   #else
     if(!globalSettings.sidebarOnLeft) {
-      bounds = GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH, screen_rect.size.h);
+      bounds = GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0, ACTION_BAR_WIDTH, screen_rect.size.h);
     } else {
-      bounds = GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h);
+      bounds = GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h);
     }
   #endif
 
@@ -78,9 +76,9 @@ void Sidebar_redraw() {
   #ifndef PBL_ROUND
     // reposition the sidebar if needed
     if(!globalSettings.sidebarOnLeft) {
-      layer_set_frame(sidebarLayer, GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH, screen_rect.size.h));
+      layer_set_frame(sidebarLayer, GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0, ACTION_BAR_WIDTH, screen_rect.size.h));
     } else {
-      layer_set_frame(sidebarLayer, GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h));
+      layer_set_frame(sidebarLayer, GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h));
     }
   #endif
 
