@@ -5,9 +5,6 @@
 #include "weather.h"
 #include "sidebar.h"
 #include "util.h"
-#ifdef PBL_HEALTH
-#include "health.h"
-#endif
 
 // windows and layers
 static Window* mainWindow;
@@ -165,13 +162,6 @@ static void init() {
   // init weather system
   Weather_init();
 
-#ifdef PBL_HEALTH
-  // init health service
-  if (!Health_init(redrawScreen)) {
-      APP_LOG(APP_LOG_LEVEL_WARNING, "Could not init health service");
-  }
-#endif
-
   // init the messaging thing
   messaging_init(redrawScreen);
 
@@ -216,13 +206,9 @@ static void deinit() {
   // Destroy Window
   window_destroy(mainWindow);
 
-#ifdef PBL_HEALTH
-  Health_deinit();
-#endif
   // unload weather stuff
   Weather_deinit();
   Settings_deinit();
-
 
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
