@@ -39,7 +39,10 @@ static void health_event_handler(HealthEventType event, void *context) {
         s_distance_walked = get_health_value_sum_today(HealthMetricWalkedDistanceMeters);
         s_steps = get_health_value_sum_today(HealthMetricStepCount);
     } else if (event == HealthEventHeartRateUpdate) {
-        s_heart_rate = is_health_metric_accessible(HealthMetricHeartRateBPM) ? health_service_peek_current_value(HealthMetricHeartRateBPM) : 0;
+        HealthServiceAccessibilityMask hr = health_service_metric_accessible(HealthMetricHeartRateBPM, time(NULL), time(NULL));
+        if (hr & HealthServiceAccessibilityMaskAvailable) {
+            s_heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
+        }
     }
 
     if (s_health_event_callback) s_health_event_callback();
