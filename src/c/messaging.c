@@ -184,7 +184,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     globalSettings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
   }
 
-  if(healthUseRestfulSleep_tuple != NULL) {
+  if(activateDisconnectIcon_tuple != NULL) {
     globalSettings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
   }
 
