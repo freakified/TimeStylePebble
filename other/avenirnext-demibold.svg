@@ -35,7 +35,7 @@ q-6 -20 -6 -72h-46zM462 50v617h-412v-617h412zM512 718v-718h-512v718h512z" />
  />
     <glyph glyph-name="nonmarkingreturn" unicode="&#xd;" horiz-adv-x="0" 
  />
-    <glyph glyph-name="space" unicode=" " 
+    <glyph glyph-name="space" unicode=" " horiz-adv-x="560" 
  />
     <glyph glyph-name="exclam" unicode="!" horiz-adv-x="340" 
 d="M230 222h-120v486h120v-486zM90 70q0 32 23.5 55t56.5 23q32 0 56 -22t24 -54t-23.5 -55t-56.5 -23q-16 0 -30.5 6t-25.5 16t-17.5 24t-6.5 30z" />

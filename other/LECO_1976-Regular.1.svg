@@ -25,7 +25,7 @@ Copyright (c) 2009 by Samuel Carnoky. All rights reserved.
     unicode-range="U+0020-2122"
   />
     <missing-glyph />
-    <glyph glyph-name="space" unicode=" " 
+    <glyph glyph-name="space" unicode=" " horiz-adv-x="540"
  />
     <glyph glyph-name="exclam" unicode="!" horiz-adv-x="280" 
 d="M70 210v490h140v-490h-140zM70 0v140h140v-140h-140z" />
