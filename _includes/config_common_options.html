@@ -234,18 +234,15 @@
   </div>
 </div>
 <hr>
-<label>Bluetooth</label><br>
-<div class="alert alert-info" role="alert" id="bluetooth_info">
-  If the connection to the phone is lost
-</div>
-<label class="subtle">Disconnect icon</label>
+<label>Bluetooth Disconnection</label><br>
+<label class="subtle">Icon Indication</label>
 <div id="disconnect_icon_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off">No display
+      <input type="radio" name="options" autocomplete="off">Hide
     </label>
     <label class="btn btn-default" data-setting="yes" >
-      <input type="radio" name="options" autocomplete="off">Display
+      <input type="radio" name="options" autocomplete="off">Show
     </label>
   </div>
 </div>
@@ -253,7 +250,7 @@
 <div id="bluetooth_vibe_setting" class="form-group" >
   <div class="btn-group btn-group-justified"  data-toggle="buttons">
     <label class="btn btn-default" data-setting="no" >
-      <input type="radio" name="options" autocomplete="off">No vibration
+      <input type="radio" name="options" autocomplete="off">None
     </label>
     <label class="btn btn-default" data-setting="yes" >
       <input type="radio" name="options" autocomplete="off">Vibrate
@@ -317,6 +314,7 @@
   <option data-setting="29">中文 (requires language pack)</option>
   <option data-setting="34">日本語 (requires language pack)</option>
   <option data-setting="35">한국어 (requires language pack)</option>
+  <option data-setting="36">‏עברית‏ (requires language pack)</option>
 </select>
 </div>
 {% if health %}
