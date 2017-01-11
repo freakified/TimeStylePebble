@@ -36,13 +36,14 @@
 #define LANGUAGE_GL 33 // gallacian
 #define LANGUAGE_JP 34 // japanese
 #define LANGUAGE_KR 35 // korean
+#define LANGUAGE_IW 36 // hebrew
 
 /* day names in many different languages! */
-extern const char dayNames[36][7][8];
+extern const char dayNames[37][7][8];
 
 /* month names in many different languages! */
-extern const char monthNames[36][12][8];
+extern const char monthNames[37][12][8];
 
 // all of these are taken from:
 // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-extern const char wordForWeek[36][12];
+extern const char wordForWeek[37][12];
