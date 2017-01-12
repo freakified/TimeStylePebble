@@ -173,6 +173,4 @@ void ClockArea_update_time(struct tm* time_info) {
 
   // minutes
   strftime(time_minutes, sizeof(time_minutes), "%M", time_info);
-
-  ClockArea_redraw();
 }
