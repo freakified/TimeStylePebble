@@ -213,6 +213,7 @@ static void deinit() {
   Weather_deinit();
   Settings_deinit();
 
+  tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
 }
