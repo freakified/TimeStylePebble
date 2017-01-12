@@ -80,6 +80,7 @@ static void main_window_unload(Window *window) {
   Sidebar_deinit();
 }
 
+
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // every 30 minutes, request new weather data
   if(!globalSettings.disableWeather) {
@@ -90,14 +91,14 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // every hour, if requested, vibrate
   if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
-    if(globalSettings.hourlyVibe == 1) { // hourly vibes only
-      if(tick_time->tm_min % 60 == 0) {
+    if(globalSettings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
+      if(tick_time->tm_min == 0) {
         vibes_double_pulse();
       }
-    } else if(globalSettings.hourlyVibe == 2) {  // hourly and half-hourly
-      if(tick_time->tm_min % 60 == 0) {
+    } else if(globalSettings.hourlyVibe == VIBE_EVERY_HALF_HOUR) {  // hourly and half-hourly
+      if(tick_time->tm_min == 0) {
         vibes_double_pulse();
-      } else if(tick_time->tm_min % 30 == 0) {
+      } else if(tick_time->tm_min == 30) {
         vibes_short_pulse();
       }
     }
