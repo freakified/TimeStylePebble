@@ -49,6 +49,8 @@ typedef struct {
   bool disableWeather;
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
+  bool enableBeats;
+  bool enableAltTimeZone;
 
   // TODO: these shouldn't be dynamic
   GColor iconFillColor;
