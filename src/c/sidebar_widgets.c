@@ -156,6 +156,7 @@ void SidebarWidgets_deinit() {
   #ifdef PBL_HEALTH
     gdraw_command_image_destroy(stepsImage);
     gdraw_command_image_destroy(sleepImage);
+    gdraw_command_image_destroy(heartImage);
   #endif
 }
 
@@ -181,54 +182,56 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
 
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
-  strftime(currentWeekNum, 3, "%V", timeInfo);
-
-  // set the seconds string
-  strftime(currentSecondsNum, 4, ":%S", timeInfo);
-
-
-  // set the alternate time zone string
-  int hour = timeInfo->tm_hour;
-
-  // apply the configured offset value
-  hour += globalSettings.altclockOffset;
-
-  char am_pm = (mod(hour, 24) < 12) ? 'a' : 'p';
-
-  // format it
-  if(clock_is_24h_style()) {
-    hour = mod(hour, 24);
-    am_pm = (char) 0;
-  } else {
-    hour = mod(hour, 12);
-    if(hour == 0) {
-      hour = 12;
-    }
-  }
-
-  if(globalSettings.showLeadingZero && hour < 10) {
-    snprintf(altClock, sizeof(altClock), "0%i%c", hour, am_pm);
-  } else {
-    snprintf(altClock, sizeof(altClock), "%i%c", hour, am_pm);
-  }
-
-  strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
-  strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
-
   // remove padding on date num, if needed
   if(currentDayNum[0] == ' ') {
     currentDayNum[0] = currentDayNum[1];
     currentDayNum[1] = '\0';
   }
 
-  // this must be last, because time_get_beats screws with the time structure
-  int beats = 0;
+  strftime(currentWeekNum, 3, "%V", timeInfo);
 
-  // set the swatch internet time beats
-  beats = time_get_beats(timeInfo);
+  strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
+  strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
+
+  // set the seconds string
+  strftime(currentSecondsNum, 4, ":%S", timeInfo);
+
+  if(globalSettings.enableAltTimeZone) {
+    // set the alternate time zone string
+    int hour = timeInfo->tm_hour;
+
+    // apply the configured offset value
+    hour += globalSettings.altclockOffset;
+
+    char am_pm = (mod(hour, 24) < 12) ? 'a' : 'p';
+
+    // format it
+    if(clock_is_24h_style()) {
+      hour = mod(hour, 24);
+      am_pm = (char) 0;
+    } else {
+      hour = mod(hour, 12);
+      if(hour == 0) {
+        hour = 12;
+      }
+    }
+
+    if(globalSettings.showLeadingZero && hour < 10) {
+      snprintf(altClock, sizeof(altClock), "0%i%c", hour, am_pm);
+    } else {
+      snprintf(altClock, sizeof(altClock), "%i%c", hour, am_pm);
+    }
+  }
+
+  if(globalSettings.enableBeats) {
+    // this must be last, because time_get_beats screws with the time structure
+    int beats = 0;
+
+    // set the swatch internet time beats
+    beats = time_get_beats(timeInfo);
   
-  snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
-
+    snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
+  }
 }
 
 /* Sidebar Widget Selection */
