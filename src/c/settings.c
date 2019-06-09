@@ -166,6 +166,8 @@ void Settings_updateDynamicSettings() {
   globalSettings.disableWeather = true;
   globalSettings.updateScreenEverySecond = false;
   globalSettings.enableAutoBatteryWidget = true;
+  globalSettings.enableBeats = false;
+  globalSettings.enableAltTimeZone = false;
 
   for(int i = 0; i < 3; i++) {
     // if there are any weather widgets, enable weather checking
@@ -183,6 +185,16 @@ void Settings_updateDynamicSettings() {
     // if any widget is "battery", disable the automatic battery indication
     if(globalSettings.widgets[i] == BATTERY_METER) {
       globalSettings.enableAutoBatteryWidget = false;
+    }
+
+    // if any widget is "beats", enable the beats calculation
+    if(globalSettings.widgets[i] == BEATS) {
+      globalSettings.enableBeats = true;
+    }
+
+    // if any widget is "alt_time_zone", enable the alternative time calculation
+    if(globalSettings.widgets[i] == ALT_TIME_ZONE) {
+      globalSettings.enableAltTimeZone = true;
     }
   }
 

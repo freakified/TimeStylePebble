@@ -7,6 +7,12 @@
 // settings "version" for app version 4.0
 #define CURRENT_SETTINGS_VERSION 6
 
+typedef enum {
+  NO_VIBE              = 0,
+  VIBE_EVERY_HOUR      = 1,
+  VIBE_EVERY_HALF_HOUR = 2
+} VibeIntervalType;
+
 typedef struct {
   // color settings
   GColor timeColor;
@@ -21,7 +27,7 @@ typedef struct {
 
   // vibration settings
   bool btVibe;
-  int hourlyVibe;
+  VibeIntervalType hourlyVibe;
 
   // sidebar settings
   SidebarWidgetType widgets[3];
@@ -49,6 +55,8 @@ typedef struct {
   bool disableWeather;
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
+  bool enableBeats;
+  bool enableAltTimeZone;
 
   // TODO: these shouldn't be dynamic
   GColor iconFillColor;
