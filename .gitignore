@@ -17,3 +17,6 @@ pebble_app.ld
 
 # Ignore other generated files
 serial_dump.txt
+resources/.DS_Store
+src/.DS_Store
+src/pkjs/.DS_Store
