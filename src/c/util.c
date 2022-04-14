@@ -1,21 +1,6 @@
 #include <pebble.h>
 #include "util.h"
 
-#include <inttypes.h>
-#include <time.h>
-#include <stdio.h>
-#define MS_PER_SEC 1000
-#define MS_PER_MIN (MS_PER_SEC * 60)
-#define MS_PER_HOUR (MS_PER_MIN * 60)
-#define DESECS_PER_DESIM 100
-#define DESIMS_PER_DECA 100
-#define DECAS_PER_DAY 10
-#define DESECS_PER_DECA (DESECS_PER_DESIM * DESIMS_PER_DECA)
-#define DESECS_PER_DAY (DESECS_PER_DECA * DECAS_PER_DAY)
-// 86400 seconds in a day; 100000 desecs in a day; therefore 864 milliseconds per desec, computed by compiler.
-#define MS_PER_DESEC ((1000 * 86400)/DESECS_PER_DAY)
-
-
 bool recolor_iterator_cb(GDrawCommand *command, uint32_t index, void *context) {
   GColor *colors = (GColor *)context;
 
@@ -46,6 +31,19 @@ int time_get_beats(const struct tm *tm) {
 
   return beats;
 }
+
+
+// DIT calc defines
+#define MS_PER_SEC 1000
+#define MS_PER_MIN (MS_PER_SEC * 60)
+#define MS_PER_HOUR (MS_PER_MIN * 60)
+#define DESECS_PER_DESIM 100
+#define DESIMS_PER_DECA 100
+#define DECAS_PER_DAY 10
+#define DESECS_PER_DECA (DESECS_PER_DESIM * DESIMS_PER_DECA)
+#define DESECS_PER_DAY (DESECS_PER_DECA * DECAS_PER_DAY)
+// 86400 seconds in a day; 100000 desecs in a day; therefore 864 milliseconds per desec, computed by compiler.
+#define MS_PER_DESEC ((1000 * 86400)/DESECS_PER_DAY)
 
 int time_get_dit(const struct tm *tm) {
     // From https://gitea.s0.is/s0/Dit/src/branch/main/Echo%20scripts/dit-s0.c
