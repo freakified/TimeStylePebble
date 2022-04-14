@@ -30,6 +30,7 @@ char currentWeekNum[5];
 char currentSecondsNum[5];
 char altClock[8];
 char currentBeats[5];
+char currentDit[6];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -71,6 +72,10 @@ void AltTime_draw(GContext* ctx, int yPosition);
 SidebarWidget beatsWidget;
 int Beats_getHeight();
 void Beats_draw(GContext* ctx, int yPosition);
+
+SidebarWidget DITWidget;
+int DIT_getHeight();
+void DIT_draw(GContext* ctx, int yPosition);
 
 #ifdef PBL_HEALTH
   GDrawCommandImage* sleepImage;
@@ -137,7 +142,7 @@ void SidebarWidgets_init() {
   #ifdef PBL_HEALTH
     healthWidget.getHeight = Health_getHeight;
     healthWidget.draw = Health_draw;
-    
+
     heartRateWidget.getHeight = HeartRate_getHeight;
     heartRateWidget.draw = HeartRate_draw;
   #endif
@@ -145,6 +150,8 @@ void SidebarWidgets_init() {
   beatsWidget.getHeight = Beats_getHeight;
   beatsWidget.draw      = Beats_draw;
 
+  DITWidget.getHeight   = DIT_getHeight;
+  DITWidget.draw        = DIT_draw;
 }
 
 void SidebarWidgets_deinit() {
@@ -229,8 +236,13 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
 
     // set the swatch internet time beats
     beats = time_get_beats(timeInfo);
-  
+
     snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
+  }
+
+  if (globalSettings.enableDIT) {
+      int desims = time_get_dit(timeInfo);
+      snprintf(currentDit, sizeof(currentDit), "%i.%02i", desims / 100, desims % 100);
   }
 }
 
@@ -268,6 +280,9 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     #endif
     case BEATS:
       return beatsWidget;
+    case DIT:
+      return DITWidget;
+
     default:
       return emptyWidget;
       break;
@@ -899,6 +914,34 @@ void Beats_draw(GContext* ctx, int yPosition) {
                      currentBeats,
                      currentSidebarFont,
                      GRect(SidebarWidgets_xOffset, yPosition + yMod, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+}
+
+/***** DIT (Decimal Internet Time) widget *****/
+
+int DIT_getHeight() {
+  return (globalSettings.useLargeFonts) ? 29 : 26;
+}
+
+void DIT_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
+  graphics_draw_text(ctx,
+                     "DIT",
+                     smSidebarFont,
+                     GRect(SidebarWidgets_xOffset, yPosition - 5, 30, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  int yMod = (globalSettings.useLargeFonts) ? 5 : 8;
+
+  graphics_draw_text(ctx,
+                     currentDit,
+                     currentSidebarFont,
+                     GRect(SidebarWidgets_xOffset-2, yPosition + yMod, 34, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);

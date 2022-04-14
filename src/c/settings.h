@@ -34,7 +34,7 @@ typedef struct {
   bool sidebarOnLeft;
   bool useLargeFonts;
   bool activateDisconnectIcon;
-  
+
   // weather widget settings
   bool useMetric;
 
@@ -56,6 +56,7 @@ typedef struct {
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
   bool enableBeats;
+  bool enableDIT;
   bool enableAltTimeZone;
 
   // TODO: these shouldn't be dynamic

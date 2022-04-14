@@ -167,6 +167,7 @@ void Settings_updateDynamicSettings() {
   globalSettings.updateScreenEverySecond = false;
   globalSettings.enableAutoBatteryWidget = true;
   globalSettings.enableBeats = false;
+  globalSettings.enableDIT = false;
   globalSettings.enableAltTimeZone = false;
 
   for(int i = 0; i < 3; i++) {
@@ -190,6 +191,11 @@ void Settings_updateDynamicSettings() {
     // if any widget is "beats", enable the beats calculation
     if(globalSettings.widgets[i] == BEATS) {
       globalSettings.enableBeats = true;
+    }
+
+    // if any widget is "DIT", enable the beats calculation
+    if(globalSettings.widgets[i] == DIT) {
+      globalSettings.enableDIT = true;
     }
 
     // if any widget is "alt_time_zone", enable the alternative time calculation

@@ -14,6 +14,9 @@ extern void gdraw_command_image_recolor(GDrawCommandImage *img, GColor fill_colo
  */
 extern int time_get_beats(const struct tm *tm);
 
+// Returns the time in Deca Internet Time, in desims (decimal minutes)
+extern int time_get_dit(const struct tm *tm);
+
 #ifdef PBL_HEALTH
   /*
    * Checks if any of the specified health activites exist in the specified time range
