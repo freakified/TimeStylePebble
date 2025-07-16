@@ -198,7 +198,7 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
 
   if(globalSettings.enableAltTimeZone) {
     // set the alternate time zone string
-    int hour = timeInfo->tm_hour;
+    int hour = timeInfo->tm_hour - timeInfo->tm_gmtoff / 60 / 60 - timeInfo->tm_isdst;
 
     // apply the configured offset value
     hour += globalSettings.altclockOffset;
