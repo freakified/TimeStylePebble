@@ -1,9 +1,4 @@
-
-src/pkjs/secrets.js
-.vscode
-node_modules
-
-# Ignore waf build tool generated files
+#Ignore waf build tool generated files
 .waf*
 build
 .lock-waf*
@@ -11,9 +6,40 @@ build
 # Ignore linked files/directories
 waf
 wscript
+tools
 include
 lib
 pebble_app.ld
+node_modules
 
 # Ignore other generated files
 serial_dump.txt
+pebble_screenshot_*
+
+# Ignore Apple Files
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

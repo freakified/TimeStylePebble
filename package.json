@@ -184,6 +184,6 @@
     }
   },
   "devDependencies": {
-    "pebble-fctx-compiler": "^1.1.0"
+    "pebble-fctx-compiler": "^1.2.2"
   }
 }
