@@ -1,9 +1,12 @@
+#ifndef PBL_PLATFORM_APLITE
 #include <pebble.h>
+
+#include "clock_area.h"
+#include "settings.h"
+
 #include <pebble-fctx/fctx.h>
 #include <pebble-fctx/fpath.h>
 #include <pebble-fctx/ffont.h>
-#include "clock_area.h"
-#include "settings.h"
 
 #define ROUND_VERTICAL_PADDING 15
 
@@ -174,3 +177,5 @@ void ClockArea_update_time(struct tm* time_info) {
   // minutes
   strftime(time_minutes, sizeof(time_minutes), "%M", time_info);
 }
+
+#endif

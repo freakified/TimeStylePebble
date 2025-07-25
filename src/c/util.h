@@ -12,7 +12,9 @@ extern void gdraw_command_image_recolor(GDrawCommandImage *img, GColor fill_colo
 /*
  * Returns the current time in Swatch Internet Time "beats"
  */
+#ifndef PBL_PLATFORM_APLITE
 extern int time_get_beats(const struct tm *tm);
+#endif
 
 #ifdef PBL_HEALTH
   /*

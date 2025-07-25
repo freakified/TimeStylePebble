@@ -20,10 +20,10 @@ void Settings_loadFromStorage() {
     globalSettings.sidebarColor = GColorOrange;
   #else
     globalSettings.timeColor = GColorWhite;
-    globalSettings.sidebarColor = GColorLightGray;
+    globalSettings.sidebarColor = GColorWhite;
   #endif
 
-  globalSettings.widgets[0] = PBL_IF_HEALTH_ELSE(HEALTH, BATTERY_METER);
+  globalSettings.widgets[0] = WEATHER_CURRENT;
   globalSettings.widgets[1] = EMPTY;
   globalSettings.widgets[2] = DATE;
 
@@ -50,7 +50,7 @@ void Settings_saveToStorage() {
 }
 
 void Settings_updateDynamicSettings() {
-  globalSettings.disableWeather = true;
+  globalSettings.disableWeather = false;
   globalSettings.updateScreenEverySecond = false;
   globalSettings.enableAutoBatteryWidget = true;
   globalSettings.enableBeats = false;

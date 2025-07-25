@@ -142,9 +142,10 @@ void SidebarWidgets_init() {
     heartRateWidget.draw = HeartRate_draw;
   #endif
 
+  #ifndef PBL_PLATFORM_APLITE
   beatsWidget.getHeight = Beats_getHeight;
   beatsWidget.draw      = Beats_draw;
-
+  #endif
 }
 
 void SidebarWidgets_deinit() {
@@ -223,6 +224,7 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
     }
   }
 
+  #ifndef PBL_PLATFORM_APLITE
   if(globalSettings.enableBeats) {
     // this must be last, because time_get_beats screws with the time structure
     int beats = 0;
@@ -232,6 +234,7 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
   
     snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
   }
+  #endif
 }
 
 /* Sidebar Widget Selection */
@@ -878,6 +881,8 @@ void HeartRate_draw(GContext* ctx, int yPosition) {
 
 /***** Beats (Swatch Internet Time) widget *****/
 
+#ifndef PBL_PLATFORM_APLITE
+
 int Beats_getHeight() {
   return (globalSettings.useLargeFonts) ? 29 : 26;
 }
@@ -903,3 +908,5 @@ void Beats_draw(GContext* ctx, int yPosition) {
                      GTextAlignmentCenter,
                      NULL);
 }
+
+#endif
