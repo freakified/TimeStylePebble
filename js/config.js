@@ -278,11 +278,18 @@ function showOnlySelectedWidgetSettings() {
     $('#widget_altclock_settings').hide();
   }
 
-  // heath widget
+  // step counter widget
   if(selections.indexOf('10') != -1) {
-    $('#widget_health_settings').show();
+    $('#widget_steps_settings').show();
   } else {
-    $('#widget_health_settings').hide();
+    $('#widget_steps_settings').hide();
+  }
+
+  // sleep timer widget
+  if(selections.indexOf('9') != -1) {
+    $('#widget_sleep_settings').show();
+  } else {
+    $('#widget_sleep_settings').hide();
   }
 }
 
@@ -376,7 +383,7 @@ function updateSidebarPreview() {
         image_url += 'WEATHER_TODAY';
         break;
       case '9':
-        image_url += 'TIME';
+        image_url += 'SLEEP';
         break;
       case '10':
         image_url += 'HEALTH';
@@ -593,7 +600,7 @@ function sendSettingsToWatch() {
   window.localStorage.setItem('savedSettings', JSON.stringify(config));
 
   // Send the config data to the tracking service for SCIENCE
-  trackSettings(config);
+  // trackSettings(config);
 
   // Set the return URL depending on the runtime environment
   var return_to = getQueryParam('return_to', 'pebblejs://close#');

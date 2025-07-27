@@ -1,16 +1,12 @@
 
 <hr>
-<div id="widget_health_settings">
-  <label>Health</label><br>
-  <!--<div class="alert alert-info" role="alert" id="autobattery_info">
-    The health complication automatically switches to sleep mode based on
-    whether or not you are asleep.
-  </div>-->
-  <label class="subtle">Activity</label>
+<div id="widget_steps_settings">
+  <label>Steps</label><br>
+  <label class="subtle">Display as</label>
   <div id="health_use_distance" class="form-group" >
     <div class="btn-group btn-group-justified"  data-toggle="buttons">
       <label class="btn btn-default" data-setting="no" >
-        <input type="radio" name="options" autocomplete="off">Steps
+        <input type="radio" name="options" autocomplete="off">Number of steps
       </label>
       <label class="btn btn-default" data-setting="yes" >
         <input type="radio" name="options" autocomplete="off">Distance
@@ -28,6 +24,21 @@
       </label>
     </div>
   </div>-->
+  <hr>
+</div>
+<div id="widget_sleep_settings">
+  <label>Sleep</label><br>
+  <label class="subtle">Which count should be used for the displayed sleep time?</label>
+  <div id="health_use_restful_sleep" class="form-group" >
+    <div class="btn-group btn-group-justified"  data-toggle="buttons">
+      <label class="btn btn-default" data-setting="no" >
+        <input type="radio" name="options" autocomplete="off">Total Sleep
+      </label>
+      <label class="btn btn-default" data-setting="yes" >
+        <input type="radio" name="options" autocomplete="off">"Restful" Sleep
+      </label>
+    </div>
+  </div>
   <hr>
 </div>
 <div id="widget_battery_settings">

@@ -1,17 +1,30 @@
-<option value="0">None</option>
+<optgroup label="None">
+<option value="0">Empty</option>
+</optgroup>
+<optgroup label="Time & Date">
 <option value="3">Alternate Time Zone</option>
-<option value="2">Battery</option>
-{% if health %}
-<option value="10">Health (Steps)</option>
-{% endif %}
-{% if hrm %}
-<option value="12">Heart Rate</option>
-{% endif %}
-{% unless aplite %}
-<option value="11">Internet Time (Beats)</option>
-{% endunless %}
 <option value="5">Seconds</option>
 <option value="4">Today's Date</option>
-<option value="7">Weather: Current</option>
-<option value="8">Weather: Forecast</option>
+{% unless aplite %}
+<option value="11">Swatch™ Internet Time (Beats)</option>
+{% endunless %}
 <option value="6">Week Number</option>
+</optgroup>
+<optgroup label="Weather">
+<option value="7">Current Weather</option>
+<option value="8">Today's Forecast</option>
+</optgroup>
+<optgroup label="Health">
+{% if health %}
+<option value="10">Steps</option>
+<option value="9">Sleep</option>
+{% endif %}
+{% if hrm %}
+<option value="12">Health: Heart Rate</option>
+{% endif %}
+</optgroup>
+<optgroup label="Status">
+<option value="2">Battery</option>
+</optgroup>
+
+
