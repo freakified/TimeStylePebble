@@ -27,27 +27,9 @@ function checkVersion() {
   }
 }
 
-// populates the sidebar widgets for someone with pre-widget saved settings
-function migrateLegacySettings(config) {
-
-  // stick in the new defaults
-  if(!config.weather_datasource) {
-    config.weather_datasource = 'owm';
-  }
-
-  return config;
-}
-
 function loadPreviousSettings() {
   // load the previous settings
   var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings'));
-
-  if(savedSettings && savedSettings.settings_version < CURRENT_SETTINGS_VERSION) {
-    savedSettings = migrateLegacySettings(savedSettings);
-  }
-
-  // health is the default except on BW watches, which have battery
-  var top_widget = (has_health) ? '10' : '2';
 
   if(!savedSettings) {
     // if there are no settings set, load the default settings
@@ -71,7 +53,7 @@ function loadPreviousSettings() {
       hourly_vibe_setting: 'no',
 
       // sidebar settings
-      widget_0_id: top_widget, // current weather
+      widget_0_id: '7', // current weather
       widget_1_id: '0', // empty
       widget_2_id: '4', // today's date
       sidebar_position: 'right',
@@ -102,7 +84,7 @@ function loadPreviousSettings() {
     };
 
     if(is_bw) {
-      savedSettings.color_sidebar = 'AAAAAA';
+      savedSettings.color_sidebar = 'FFFFFF';
       savedSettings.color_time = 'FFFFFF';
     }
 
@@ -743,9 +725,9 @@ var template = '\
   <div class="example_face" style="color: {{time-color}}; background-color: {{time-bg-color}}; border-color: {{sidebar-color}};">6<br>32</div>\
 </label>\
 <div class="theme_actions">\
-<button class="btn btn-danger btn-sm" onclick="deletePreset({{preset-id}})" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</button>\
+<button class="btn btn-danger btn-sm" onclick="deletePreset({{preset-id}})" type="button">Delete</button>\
 <button class="btn btn-info btn-sm" type="button" data-toggle="modal" data-target="#shareThemeModal" data-themestring="TimeStyleTheme,{{time-color}},{{time-bg-color}},{{sidebar-color}},{{sidebar-text-color}}">\
-  <span class="glyphicon glyphicon-share-alt"></span> Share</span>\
+   Share</span>\
 </button>\
 </div>\
 <br>';

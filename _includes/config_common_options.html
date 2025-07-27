@@ -125,62 +125,52 @@
 <div id="widget_altclock_settings">
   <label>Alternate Time Zone</label>
   <br>
+  <label class="subtle">
+    Time Zone<br>
+  </label><br>
+<select id="altclock_offset_hour" class="form-control">
+  <option data-setting="-12">UTC−12:00 (Baker Island)</option>
+  <option data-setting="-11">UTC−11:00 (American Samoa)</option>
+  <option data-setting="-10">UTC−10:00 (Hawaii, Tahiti)</option>
+  <option data-setting="-9.5">UTC−09:30 (Marquesas Islands)</option>
+  <option data-setting="-9">UTC−09:00 (Alaska)</option>
+  <option data-setting="-8">UTC−08:00 (Los Angeles, Vancouver)</option>
+  <option data-setting="-7">UTC−07:00 (Denver, Phoenix)</option>
+  <option data-setting="-6">UTC−06:00 (Chicago, Mexico City)</option>
+  <option data-setting="-5">UTC−05:00 (New York, Bogotá)</option>
+  <option data-setting="-4">UTC−04:00 (Santiago, Halifax)</option>
+  <!-- <option data-setting="-3.5">UTC−03:30 (Newfoundland)</option> -->
+  <option data-setting="-3">UTC−03:00 (Buenos Aires, Montevideo)</option>
+  <option data-setting="-2">UTC−02:00 (South Georgia)</option>
+  <option data-setting="-1">UTC−01:00 (Azores, Cape Verde)</option>
+  <option data-setting="0" selected>UTC±00:00 (London, Reykjavik)</option>
+  <option data-setting="1">UTC+01:00 (Berlin, Lagos, Paris)</option>
+  <option data-setting="2">UTC+02:00 (Cairo, Johannesburg)</option>
+  <option data-setting="3">UTC+03:00 (Moscow, Riyadh)</option>
+  <!-- <option data-setting="3.5">UTC+03:30 (Tehran)</option> -->
+  <option data-setting="4">UTC+04:00 (Dubai, Baku)</option>
+  <!-- <option data-setting="4.5">UTC+04:30 (Kabul)</option> -->
+  <option data-setting="5">UTC+05:00 (Karachi, Tashkent)</option>
+  <!-- <option data-setting="5.5">UTC+05:30 (Delhi, Colombo)</option> -->
+  <!-- <option data-setting="5.75">UTC+05:45 (Kathmandu)</option> -->
+  <option data-setting="6">UTC+06:00 (Dhaka, Almaty)</option>
+  <!-- <option data-setting="6.5">UTC+06:30 (Myanmar, Cocos Islands)</option> -->
+  <option data-setting="7">UTC+07:00 (Bangkok, Jakarta)</option>
+  <option data-setting="8">UTC+08:00 (Beijing, Perth, Singapore)</option>
+  <!-- <option data-setting="8.75">UTC+08:45 (Eucla, Australia)</option> -->
+  <option data-setting="9">UTC+09:00 (Tokyo, Seoul)</option>
+  <!-- <option data-setting="9.5">UTC+09:30 (Adelaide, Darwin)</option> -->
+  <option data-setting="10">UTC+10:00 (Sydney, Vladivostok)</option>
+  <!-- <option data-setting="10.5">UTC+10:30 (Lord Howe Island)</option> -->
+  <option data-setting="11">UTC+11:00 (Solomon Islands, Magadan)</option>
+  <option data-setting="12">UTC+12:00 (Auckland, Fiji)</option>
+  <!-- <option data-setting="12.75">UTC+12:45 (Chatham Islands)</option> -->
+  <option data-setting="13">UTC+13:00 (Tonga, Phoenix Islands)</option>
+  <option data-setting="14">UTC+14:00 (Kiritimati, Line Islands)</option>
+</select>
+  <br>
   <label class="subtle">Display Name (Max 4 letters)</label>
   <input type="text" value="ALT" class="form-control" id="altclock_name" maxlength="4" placeholder='e.g. "PDT, CET, or UTC"'>
-  <br>
-  <label class="subtle">
-    Hour Offset<br>
-    <small>Relative to GMT</small>
-  </label><br>
-  <select id="altclock_offset_hour" class="form-control">
-    <option data-setting="-23">-23</option>
-    <option data-setting="-22">-22</option>
-    <option data-setting="-21">-21</option>
-    <option data-setting="-20">-20</option>
-    <option data-setting="-19">-19</option>
-    <option data-setting="-18">-18</option>
-    <option data-setting="-17">-17</option>
-    <option data-setting="-16">-16</option>
-    <option data-setting="-15">-15</option>
-    <option data-setting="-14">-14</option>
-    <option data-setting="-13">-13</option>
-    <option data-setting="-12">-12</option>
-    <option data-setting="-11">-11</option>
-    <option data-setting="-10">-10</option>
-    <option data-setting="-9">-9</option>
-    <option data-setting="-8">-8</option>
-    <option data-setting="-7">-7</option>
-    <option data-setting="-6">-6</option>
-    <option data-setting="-5">-5</option>
-    <option data-setting="-4">-4</option>
-    <option data-setting="-3">-3</option>
-    <option data-setting="-2">-2</option>
-    <option data-setting="-1">-1</option>
-    <option data-setting="0" selected>0</option>
-    <option data-setting="+1">+1</option>
-    <option data-setting="+2">+2</option>
-    <option data-setting="+3">+3</option>
-    <option data-setting="+4">+4</option>
-    <option data-setting="+5">+5</option>
-    <option data-setting="+6">+6</option>
-    <option data-setting="+7">+7</option>
-    <option data-setting="+8">+8</option>
-    <option data-setting="+9">+9</option>
-    <option data-setting="+10">+10</option>
-    <option data-setting="+11">+11</option>
-    <option data-setting="+12">+12</option>
-    <option data-setting="+13">+13</option>
-    <option data-setting="+14">+14</option>
-    <option data-setting="+15">+15</option>
-    <option data-setting="+16">+16</option>
-    <option data-setting="+17">+17</option>
-    <option data-setting="+18">+18</option>
-    <option data-setting="+19">+19</option>
-    <option data-setting="+20">+20</option>
-    <option data-setting="+21">+21</option>
-    <option data-setting="+22">+22</option>
-    <option data-setting="+23">+23</option>
-  </select>
   <hr>
 </div>
 <label>Time Display</label><br>

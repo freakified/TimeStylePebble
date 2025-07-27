@@ -1,8 +1,8 @@
 <label>Colors</label>
 
 <ul id="ColorSelectorTabs" class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true"><span class="glyphicon glyphicon-star"></span> Presets</a></li>
-  <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile"><span class="glyphicon glyphicon-pencil"></span> Customize</a></li>
+  <li role="presentation" class="active"><a href="#tab_presetcolors" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="true"><span aria-hidden="true">⭐️</span> Presets</a></li>
+  <li role="presentation"><a href="#tab_customcolors" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile"><span aria-hidden="true">✏️</span> Customize</a></li>
 </ul>
 <div id="ColorSelectorTabContent" class="tab-content">
   <div role="tabpanel" class="tab-pane fade in active" id="tab_presetcolors" aria-labelledBy="home-tab">
@@ -350,7 +350,7 @@
        <label class="btn btn-default" data-time-color="#000000" data-time-bg-color="#ffffff" data-sidebar-color="#0000aa" data-sidebar-text-color="#ffffff">
          <input type="radio" name="options" id="option1" autocomplete="off">
          <div class="example_face" style="color: rgb(0, 0, 0); border-color: rgb(0, 67, 135); background-color: rgb(255, 255, 255);">6<br>32</div>
-         The TARDIS
+         Time Machine
        </label>
        <label class="btn btn-default" data-time-color="#00ff00" data-time-bg-color="#000055" data-sidebar-color="#aaffaa" data-sidebar-text-color="#000055">
          <input type="radio" name="options" id="option1" autocomplete="off">
@@ -459,7 +459,7 @@
         <label class="btn btn-default" data-time-color="#ff0000" data-time-bg-color="#5500aa" data-sidebar-color="#00aa00" data-sidebar-text-color="#ffffff">
           <input type="radio" name="options" id="option1" autocomplete="off">
           <div class="example_face" style="color: rgb(227, 84, 98); border-color: rgb(94, 152, 96); background-color: rgb(64, 72, 138);">6<br>32</div>
-          Joker
+          Jester
         </label>
         <label class="btn btn-default" data-time-color="#ff0000" data-time-bg-color="#ffff00" data-sidebar-color="#555500" data-sidebar-text-color="#ffffff">
           <input type="radio" name="options" id="option1" autocomplete="off">
@@ -482,10 +482,10 @@
     <div id="custom_preview_container">
       <div id="custom_preview" class="example_face" style="margin: 13px">6<br>32</div>
       <button class="btn btn-primary" id="saveNewPresetButton" type="button" onclick="saveNewPreset()">
-        <span class="glyphicon glyphicon-star"></span> Save theme
+        Save theme
       </button>
       <button class="btn btn-success" style="display:none" id="savedIndication" type="button">
-        <span class="glyphicon glyphicon-star"></span> Saved!
+        Saved!
       </button>
 
     </div>
@@ -539,8 +539,8 @@
       </div>
       <div class="modal-body">
         <p>
-          <a id="share_via_email" class="btn btn-info" style="display: block; width: 100%; margin-bottom: 5px"><span class="glyphicon glyphicon-send"></span> Send as email</a>
-          <!-- <a id="suggest_as_preset" class="btn btn-default" style="display: block; width: 100%;"><span class="glyphicon glyphicon-gift"></span> Suggest as a preset</a> -->
+          <a id="share_via_email" class="btn btn-info" style="display: block; width: 100%; margin-bottom: 5px">Send as email</a>
+          <a id="suggest_as_preset" class="btn btn-default" style="display: block; width: 100%;">Suggest as a preset</a>
         </p>
 
         <p><small>Or, copy and paste the text below:</small><br>
