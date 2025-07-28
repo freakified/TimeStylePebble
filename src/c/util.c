@@ -20,20 +20,20 @@ void gdraw_command_image_recolor(GDrawCommandImage *img, GColor fill_color, GCol
                              recolor_iterator_cb, &colors);
 }
 
-#ifndef PBL_PLATFORM_APLITE
 int time_get_beats(const struct tm *tm) {
-  // code from https://gist.github.com/insom/bf40b91fd25ae1d84764
+  // get utc time
+  time_t local = mktime((struct tm *)tm);
+  time_t utc = local - tm->tm_gmtoff;
 
-  time_t t = mktime((struct tm *)tm);
-  t = t + 3600; // Add an hour to make into BMT
+  // convert to "biel mean time" by adding an hour
+  utc += 3600;
 
-  struct tm *bt = gmtime(&t);
-  double sex = (bt->tm_hour * 3600) + (bt->tm_min * 60) + bt->tm_sec;
-  int beats = (int)(10 * (sex / 864)) % 1000;
+  // how many seconds have passed since midnight?
+  int seconds_since_midnight = (utc % 86400 + 86400) % 86400;
+  int beats = (seconds_since_midnight * 1000 + 43200) / 86400;
 
-  return beats;
+  return beats % 1000;
 }
-#endif
 
 #ifdef PBL_HEALTH
    bool is_health_metric_accessible(HealthMetric metric) {
