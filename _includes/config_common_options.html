@@ -90,9 +90,10 @@
       </label>
     </div>
     <div class="form_group collapse" id="manual_weather_loc_setting_area">
-      <input type="text" class="form-control" style="margin-top: 15px" id="weather_loc" placeholder='e.g. "San Francisco CA US", or "94101 US"'>
+      <input type="text" class="form-control" style="margin-top: 15px" id="weather_loc" placeholder='Type to search for a location...'>
       <input type="hidden" id="weather_loc_lat">
       <input type="hidden" id="weather_loc_lng">
+      <div id="weather_suggestions" class="list-group"></div>
     </div>
   </div>
   <label class="subtle">Units</label>
@@ -111,16 +112,16 @@
     <div class="btn-group btn-group-justified"  data-toggle="buttons" >
       <label class="btn btn-default" data-setting="owm">
         <img class="example_img" src="images/weather_provider_owm.png" width="56" height="56">
-        <input id="datasource_default" type="radio" name="options" autocomplete="off"> OpenWeather (Default)
+        <input id="datasource_default" type="radio" name="options" autocomplete="off"> OpenWeather
       </label>
       <!-- <label class="btn btn-default" data-setting="forecast" style="vertical-align:top">
         <img class="example_img" src="images/weather_provider_forecast.png" width="56" height="56">
         <input type="radio" name="options" autocomplete="off"> Forecast.io
       </label> -->
-      <label class="btn btn-default" data-setting="wunderground" >
+      <!-- <label class="btn btn-default" data-setting="wunderground" >
         <img class="example_img" src="images/weather_provider_wunderground.png" width="56" height="56">
         <input type="radio" name="options" autocomplete="off"> Weather Underground
-      </label>
+      </label> -->
     </div>
 
     <div class="form_group collapse" id="weather_api_key_setting_area" style="padding-top: 15px;">

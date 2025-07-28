@@ -666,7 +666,7 @@ function cancelAndClose() {
   document.location.href = return_to;
 }
 
-$('#weather_setting input').on('change', function(){
+$('#weather_setting input[type=radio]').on('change', function(){
   $target = $('#manual_weather_loc_setting_area');
 
   if ($('#weather_setting_manual').is(':checked')) {
@@ -685,6 +685,63 @@ $('#weather_datasource_setting input').on('change', function(){
   } else {
     $target.collapse('hide');
   }
+});
+
+// new google-free code for manual weather input
+
+let debounceTimer;
+let currentSuggestions = [];
+
+$('#weather_loc').on('input', function () {
+  clearTimeout(debounceTimer);
+  const query = $(this).val().trim();
+  const $list = $('#weather_suggestions');
+
+  if (query.length < 3) {
+    $list.empty().hide();
+    return;
+  }
+
+  // if we are loading suggestions but haven't gotten them yet, display placeholder text
+  $list
+    .html('<div class="list-group-item">Loading suggestions...</div>')
+    .show();
+
+  debounceTimer = setTimeout(() => {
+    $.getJSON('https://nominatim.openstreetmap.org/search', {
+      q: query,
+      format: 'json',
+      addressdetails: 1,
+      limit: 5
+    }, function (data) {
+      currentSuggestions = data;
+      $list.empty();
+
+      if (data.length === 0) {
+        $list.append('<div class="list-group-item">No results found</div>');
+        return;
+      }
+
+      data.forEach((item, index) => {
+        const $item = 
+            $('<a class="list-group-item list-group-item-action">').text(item.display_name).attr('data-index', index);
+        $list.append($item);
+      });
+    });
+  }, 1000); // debounce timeout
+});
+
+// Handle selection
+$('#weather_suggestions').on('click', 'a', function (e) {
+  e.preventDefault();
+  const index = $(this).data('index');
+  const item = currentSuggestions[index];
+  if (!item) return;
+
+  $('#weather_loc').val(item.display_name);
+  $('#weather_loc_lat').val(item.lat);
+  $('#weather_loc_lng').val(item.lon);
+  $('#weather_suggestions').hide();
 });
 
 /* stuff for the preset saving/loading */
