@@ -10,10 +10,9 @@ Pebble.addEventListener('ready',
   function(e) {
     console.log('JS component is now READY');
 
-    // if it has never been started, set the weather to disabled
-    // this is because the weather defaults to "off"
+    // if it has never been started, set the weather to enabled
     if(window.localStorage.getItem('disable_weather') === null) {
-      window.localStorage.setItem('disable_weather', 'yes');
+      window.localStorage.setItem('disable_weather', 'no');
     }
 
     console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');

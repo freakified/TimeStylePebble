@@ -77,11 +77,13 @@ void Beats_draw(GContext* ctx, int yPosition);
   GDrawCommandImage* stepsImage;
   GDrawCommandImage* heartImage;
 
-  SidebarWidget healthWidget;
-  int Health_getHeight();
-  void Health_draw(GContext* ctx, int yPosition);
-  void Sleep_draw(GContext* ctx, int yPosition);
-  void Steps_draw(GContext* ctx, int yPosition);
+  SidebarWidget stepCounterWidget;
+  int StepCounter_getHeight();
+  void StepCounter_draw(GContext* ctx, int yPosition);
+
+  SidebarWidget sleepTimerWidget;
+  int SleepTimer_getHeight();
+  void SleepTimer_draw(GContext* ctx, int yPosition);
 
   SidebarWidget heartRateWidget;
   int HeartRate_getHeight();
@@ -135,11 +137,14 @@ void SidebarWidgets_init() {
   altTimeWidget.draw      = AltTime_draw;
 
   #ifdef PBL_HEALTH
-    healthWidget.getHeight = Health_getHeight;
-    healthWidget.draw = Health_draw;
-    
-    heartRateWidget.getHeight = HeartRate_getHeight;
-    heartRateWidget.draw = HeartRate_draw;
+  stepCounterWidget.getHeight = StepCounter_getHeight;
+  stepCounterWidget.draw      = StepCounter_draw;
+
+  sleepTimerWidget.getHeight = SleepTimer_getHeight;
+  sleepTimerWidget.draw      = SleepTimer_draw;
+
+  heartRateWidget.getHeight = HeartRate_getHeight;
+  heartRateWidget.draw      = HeartRate_draw;
   #endif
 
   #ifndef PBL_PLATFORM_APLITE
@@ -179,7 +184,7 @@ int mod(int a, int b) {
 }
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
-  printf("Current RAM: %d", heap_bytes_free());
+  // printf("Current RAM: %d", heap_bytes_free());
 
   // set all the date strings
   strftime(currentDayNum,  3, "%e", timeInfo);
@@ -264,10 +269,12 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     case WEEK_NUMBER:
       return weekNumberWidget;
     #ifdef PBL_HEALTH
-      case HEALTH:
-        return healthWidget;
-      case HEARTRATE:
-        return heartRateWidget;
+    case STEP_COUNTER:
+      return stepCounterWidget;
+    case SLEEP_TIMER:
+      return sleepTimerWidget;
+    case HEARTRATE:
+      return heartRateWidget;
     #endif
     case BEATS:
       return beatsWidget;
@@ -692,83 +699,15 @@ void AltTime_draw(GContext* ctx, int yPosition) {
                      NULL);
 }
 
-/***** Health Widget *****/
-
 #ifdef PBL_HEALTH
 
+/***** Step Counter Widget *****/
 
-int Health_getHeight() {
-  if(is_user_sleeping()) {
-    return 44;
-  } else {
-    return 32;
-  }
+int StepCounter_getHeight() {
+  return 32;
 }
 
-void Health_draw(GContext* ctx, int yPosition) {
-  // check if we're showing the sleep data or step data
-
-  // is the user asleep?
-  bool sleep_mode = is_user_sleeping();
-
-  if(sleep_mode) {
-    Sleep_draw(ctx, yPosition);
-  } else {
-    Steps_draw(ctx, yPosition);
-  }
-}
-
-void Sleep_draw(GContext* ctx, int yPosition) {
-  if(sleepImage) {
-    gdraw_command_image_recolor(sleepImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, sleepImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
-  }
-
-  // get sleep in seconds
-  int sleep_seconds;
-
-  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
-
-  if(is_health_metric_accessible(metric)) {
-    sleep_seconds = (int)health_service_sum_today(metric);
-  } else {
-    sleep_seconds = 0;
-  }
-
-  // convert to hours/minutes
-  int sleep_minutes = sleep_seconds / 60;
-  int sleep_hours   = sleep_minutes / 60;
-
-  // find minutes remainder
-  sleep_minutes %= 60;
-
-  char sleep_text[4];
-
-  snprintf(sleep_text, sizeof(sleep_text), "%ih", sleep_hours);
-
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-  graphics_draw_text(ctx,
-                     sleep_text,
-                     mdSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 14, 34, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-  snprintf(sleep_text, sizeof(sleep_text), "%im", sleep_minutes);
-
-  graphics_draw_text(ctx,
-                     sleep_text,
-                     smSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 30, 34, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-}
-
-void Steps_draw(GContext* ctx, int yPosition) {
-
+void StepCounter_draw(GContext* ctx, int yPosition) {
   if(stepsImage) {
     gdraw_command_image_recolor(stepsImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
     gdraw_command_image_draw(ctx, stepsImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
@@ -844,6 +783,63 @@ void Steps_draw(GContext* ctx, int yPosition) {
                      GTextAlignmentCenter,
                      NULL);
 }
+
+/***** Sleep Time Widget *****/
+
+int SleepTimer_getHeight() {
+  return 44;
+}
+
+void SleepTimer_draw(GContext* ctx, int yPosition) {
+  if(sleepImage) {
+    gdraw_command_image_recolor(sleepImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
+    gdraw_command_image_draw(ctx, sleepImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
+  }
+
+  // get sleep in seconds
+  int sleep_seconds;
+
+  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
+
+  if(is_health_metric_accessible(metric)) {
+    sleep_seconds = (int)health_service_sum_today(metric);
+  } else {
+    sleep_seconds = 0;
+  }
+
+  // convert to hours/minutes
+  int sleep_minutes = sleep_seconds / 60;
+  int sleep_hours   = sleep_minutes / 60;
+
+  // find minutes remainder
+  sleep_minutes %= 60;
+
+  char sleep_text[4];
+
+  snprintf(sleep_text, sizeof(sleep_text), "%ih", sleep_hours);
+
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  graphics_draw_text(ctx,
+                     sleep_text,
+                     mdSidebarFont,
+                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 14, 34, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+  snprintf(sleep_text, sizeof(sleep_text), "%im", sleep_minutes);
+
+  graphics_draw_text(ctx,
+                     sleep_text,
+                     smSidebarFont,
+                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 30, 34, 20),
+                     GTextOverflowModeFill,
+                     GTextAlignmentCenter,
+                     NULL);
+
+}
+
+
 
 int HeartRate_getHeight() {
   if(globalSettings.useLargeFonts) {
