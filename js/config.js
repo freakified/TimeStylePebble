@@ -394,6 +394,9 @@ function updateSidebarPreview() {
       case '12':
         image_url += 'HRM';
         break;
+      case '13':
+        image_url += 'WEATHER_UV_INDEX';
+        break;
       case '0':
         image_url += 'NONE';
         break;

@@ -3,8 +3,6 @@ layout: default
 title: "TimeStyle Settings"
 ---
 
-{% assign health = 'yes' %}
-
 <body style="padding: 70px 0;">
 {% include config_navbar.html %}
 
@@ -12,17 +10,15 @@ title: "TimeStyle Settings"
   {% include version_warning.html %}
 
 <form>
-  {% include config_theme_color.html %}
+  {% include config_theme_bw.html %}
   {% include config_sidebar_layout_rect.html %}
   {% include config_common_options.html %}
 </form>
 </div>
 
 <script>
-  var has_health = true;
-  var is_bw = false;
+  var has_health = false;
+  var is_bw = true;
 </script>
 
-<!-- <script src="js/vendor/jquery.min.js"></script>
-<script src="js/vendor/bootstrap.min.js"></script> -->
-{% include footer_color.html %}
+{% include footer_bw.html %}

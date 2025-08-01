@@ -4,7 +4,6 @@ title: "TimeStyle Settings"
 ---
 
 {% assign health = 'yes' %}
-{% assign hrm = 'yes' %}
 
 <body style="padding: 70px 0;">
 {% include config_navbar.html %}
@@ -13,15 +12,15 @@ title: "TimeStyle Settings"
   {% include version_warning.html %}
 
 <form>
-  {% include config_theme_bw.html %}
-  {% include config_sidebar_layout_rect.html %}
+  {% include config_theme_color.html %}
+  {% include config_sidebar_layout_round.html %}
   {% include config_common_options.html %}
 </form>
 </div>
 
 <script>
   var has_health = true;
-  var is_bw = true;
+  var is_bw = false;
 </script>
 
-{% include footer_bw.html %}
+{% include footer_color.html %}

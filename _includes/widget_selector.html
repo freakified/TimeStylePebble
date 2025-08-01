@@ -4,23 +4,22 @@
 <optgroup label="Time & Date">
 <option value="3">Alternate Time Zone</option>
 <option value="5">Seconds</option>
+<option value="11">Swatch™ Internet Time</option>
 <option value="4">Today's Date</option>
-{% unless aplite %}
-<option value="11">Swatch™ Internet Time (Beats)</option>
-{% endunless %}
 <option value="6">Week Number</option>
 </optgroup>
 <optgroup label="Weather">
 <option value="7">Current Weather</option>
 <option value="8">Today's Forecast</option>
+<option value="13">UV Index</option>
 </optgroup>
-<optgroup label="Health">
 {% if health %}
-<option value="10">Steps</option>
+<optgroup label="Health">
 <option value="9">Sleep</option>
-{% endif %}
+<option value="10">Steps</option>
 {% if hrm %}
-<option value="12">Health: Heart Rate</option>
+<option value="12">Heart Rate</option>
+{% endif %}
 {% endif %}
 </optgroup>
 <optgroup label="Status">
