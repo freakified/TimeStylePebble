@@ -63,7 +63,7 @@ function loadPreviousSettings() {
       units: 'f',
       weather_loc: '',
       weather_setting: 'auto',
-      weather_datasource: 'owm',
+      weather_datasource: 'openmeteo',
       weather_api_key: '',
 
       // battery widget settings
@@ -120,7 +120,6 @@ function loadPreviousSettings() {
   loadSettingCheckbox('decimal_separator', savedSettings.decimal_separator);
   loadSettingCheckbox('health_use_distance', savedSettings.health_use_distance);
   loadSettingCheckbox('health_use_restful_sleep', savedSettings.health_use_restful_sleep);
-  loadSettingCheckbox('weather_datasource_setting', savedSettings.weather_datasource);
 
   // load weather location
   $('#weather_loc').val(savedSettings.weather_loc);
@@ -132,15 +131,6 @@ function loadPreviousSettings() {
   } else {
     $('#manual_weather_loc_setting_area').collapse('hide');
   }
-
-  // load weather data source
-  if(savedSettings.weather_datasource != 'owm') {
-    $('#weather_api_key_setting_area').collapse('show');
-  } else {
-    $('#weather_api_key_setting_area').collapse('hide');
-  }
-
-  $('#weather_api_key').val(savedSettings.weather_api_key);
 
   // load language selector
   if(savedSettings.language_id !== undefined) {
@@ -564,13 +554,6 @@ function sendSettingsToWatch() {
     }
   }
 
-  if($('#weather_datasource_setting .btn.active').size() > 0) {
-    var weather_datasource_setting = $('#weather_datasource_setting .btn.active').data('setting');
-
-    config.weather_datasource = weather_datasource_setting;
-    config.weather_api_key = $('#weather_api_key').val();
-  }
-
   // battery widget settings
   if($('#battery_meter_setting .btn.active')) {
     config.battery_meter_setting = $('#battery_meter_setting .btn.active').data('setting');
@@ -673,17 +656,6 @@ $('#weather_setting input[type=radio]').on('change', function(){
   $target = $('#manual_weather_loc_setting_area');
 
   if ($('#weather_setting_manual').is(':checked')) {
-    $target.collapse('show');
-  } else {
-    $target.collapse('hide');
-  }
-});
-
-
-$('#weather_datasource_setting input').on('change', function(){
-  $target = $('#weather_api_key_setting_area');
-
-  if (!$('#datasource_default').is(':checked')) {
     $target.collapse('show');
   } else {
     $target.collapse('hide');

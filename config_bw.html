@@ -1,0 +1,29 @@
+---
+layout: default
+title: "TimeStyle Settings"
+---
+
+{% comment %}
+Note: this page is identical to config_aplite, and only provided for backwards
+compatibility with the old structure. It should be deleted once everyone is on the new version.
+{% endcomment %}
+
+<body style="padding: 70px 0;">
+{% include config_navbar.html %}
+
+<div class="container">
+  {% include version_warning.html %}
+
+<form>
+  {% include config_theme_bw.html %}
+  {% include config_sidebar_layout_rect.html %}
+  {% include config_common_options.html %}
+</form>
+</div>
+
+<script>
+  var has_health = false;
+  var is_bw = true;
+</script>
+
+{% include footer_bw.html %}
