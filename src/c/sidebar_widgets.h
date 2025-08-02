@@ -32,6 +32,7 @@ typedef enum {
   STEP_COUNTER              = 10,
   BEATS                     = 11,
   HEARTRATE                 = 12,
+  WEATHER_UV_INDEX          = 13
 } SidebarWidgetType;
 
 typedef struct {

@@ -1,7 +1,7 @@
 {
   "name": "timestyle-pebble",
   "author": "Freakified",
-  "version": "7.1.0",
+  "version": "7.5.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -37,6 +37,7 @@
       "WeatherForecastCondition",
       "WeatherForecastHighTemp",
       "WeatherForecastLowTemp",
+      "WeatherUVIndex",
       "SettingAltClockName",
       "SettingAltClockOffset",
       "SettingDisableAutobattery",

@@ -31,31 +31,47 @@ void messaging_init(void (*processed_callback)(void)) {
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  bool weatherDataUpdated = false;
+
   // does this message contain current weather conditions?
   Tuple *weatherTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherTemperature);
-  Tuple *weatherConditions_tuple = dict_find(iterator, MESSAGE_KEY_WeatherCondition);
-
-  if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL) {
-    // now set the weather conditions properly
+  if(weatherTemp_tuple != NULL) {
     Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
-
-    Weather_setCurrentCondition(weatherConditions_tuple->value->int32);
-
-    Weather_saveData();
+    weatherDataUpdated = true;
   }
 
-  // does this message contain weather forecast information?
+  Tuple *weatherConditions_tuple = dict_find(iterator, MESSAGE_KEY_WeatherCondition);
+  if(weatherConditions_tuple != NULL) {
+    Weather_setCurrentCondition(weatherConditions_tuple->value->int32);
+    weatherDataUpdated = true;
+  }
+
+  Tuple *weatherUVIndex_tuple = dict_find(iterator, MESSAGE_KEY_WeatherUVIndex);
+  if(weatherUVIndex_tuple != NULL) {
+    Weather_weatherInfo.currentUVIndex = (int)weatherUVIndex_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
   Tuple *weatherForecastCondition_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastCondition);
-  Tuple *weatherForecastHigh_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastHighTemp);
-  Tuple *weatherForecastLow_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastLowTemp);
-
-  if(weatherForecastCondition_tuple != NULL && weatherForecastHigh_tuple != NULL
-     && weatherForecastLow_tuple != NULL) {
-
-    Weather_weatherForecast.highTemp = (int)weatherForecastHigh_tuple->value->int32;
-    Weather_weatherForecast.lowTemp = (int)weatherForecastLow_tuple->value->int32;
+  if(weatherForecastCondition_tuple != NULL) {
     Weather_setForecastCondition(weatherForecastCondition_tuple->value->int32);
+    weatherDataUpdated = true;
+  }
 
+  Tuple *weatherForecastHigh_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastHighTemp);
+  if(weatherForecastHigh_tuple != NULL) {
+    Weather_weatherInfo.todaysHighTemp = (int)weatherForecastHigh_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
+  Tuple *weatherForecastLow_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastLowTemp);
+  if(weatherForecastLow_tuple != NULL) {
+    Weather_weatherInfo.todaysLowTemp = (int)weatherForecastLow_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
+  // only save new weather if weather info was recieved
+  if(weatherDataUpdated) {
     Weather_saveData();
   }
 

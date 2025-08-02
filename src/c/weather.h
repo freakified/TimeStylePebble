@@ -2,19 +2,19 @@
 #include <pebble.h>
 
 // persistent storage
-#define WEATHERINFO_PERSIST_KEY 2
-#define WEATHERFORECAST_PERSIST_KEY 222
+#define WEATHER_PERSIST_KEY 223
 
 typedef struct {
+  // current weather
   int currentTemp;
   uint32_t currentIconResourceID;
-} WeatherInfo;
+  int currentUVIndex;
 
-typedef struct {
-  int highTemp;
-  int lowTemp;
+  // today's forecast
+  int todaysHighTemp;
+  int todaysLowTemp;
   uint32_t forecastIconResourceID;
-} WeatherForecastInfo;
+} WeatherInfo;
 
 typedef enum {
   CLEAR_DAY           = 0,
@@ -32,11 +32,9 @@ typedef enum {
 } WeatherCondition;
 
 extern WeatherInfo Weather_weatherInfo;
-extern WeatherForecastInfo Weather_weatherForecast;
 
 extern GDrawCommandImage* Weather_currentWeatherIcon;
 extern GDrawCommandImage* Weather_forecastWeatherIcon;
-
 
 void Weather_setCurrentCondition(int conditionCode);
 void Weather_setForecastCondition(int conditionCode);

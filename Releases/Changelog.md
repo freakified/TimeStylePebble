@@ -1,5 +1,23 @@
 # TimeStyle Versions
 
+## Release-7.5
+_Published on 2025-08-02 01:40:00 UTC_
+
+Hardware Platforms:
+Aplite, Basalt, Chalk, Diorite, Emery
+
+Release Notes:
+v7.5 ("Risen From The Grave")
+- New feature: UV Index widget, allowing you to determine precisely how much of a problem it is that you forgot to put on sunscreen
+- Improvement: Swatch™ Internet Time widget is now available for classic Pebbles, allowing OG users to finally know what time it is on the internet
+- Improvement: Alternate Time Zone widget now supports selecting a time zone instead of using a confusing hourly offset (thanks FlynnD273!)
+- Improvement: The sleep widget has been restored and is now selectable as independent widget
+- Fix: The manual location input for weather in the settings page works again, and no longer depends on Google to work
+- Change: Replaced OpenWeatherMap weather data provider with OpenMeteo, which should result in higher accuracy and also the ability to get cool new data such as the previously-mentioned UV Index
+- Change: Removed WeatherUnderground as a provider option, since it is no longer possible to create API keys for it
+- Change: Default theme on black & white watches is now higher contrast
+- Change: Weather widgets are used by default because that's what everyone used anyway
+
 ## Release-7.1
 _Published on 2017-01-11 15:48:12 UTC_
 

@@ -72,6 +72,10 @@ SidebarWidget beatsWidget;
 int Beats_getHeight();
 void Beats_draw(GContext* ctx, int yPosition);
 
+SidebarWidget uvIndexWidget;
+int UVIndex_getHeight();
+void UVIndex_draw(GContext* ctx, int yPosition);
+
 #ifdef PBL_HEALTH
   GDrawCommandImage* sleepImage;
   GDrawCommandImage* stepsImage;
@@ -135,6 +139,9 @@ void SidebarWidgets_init() {
 
   altTimeWidget.getHeight = AltTime_getHeight;
   altTimeWidget.draw      = AltTime_draw;
+
+  uvIndexWidget.getHeight = UVIndex_getHeight;
+  uvIndexWidget.draw      = UVIndex_draw;
 
   #ifdef PBL_HEALTH
   stepCounterWidget.getHeight = StepCounter_getHeight;
@@ -263,6 +270,8 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
       break;
     case WEEK_NUMBER:
       return weekNumberWidget;
+    case WEATHER_UV_INDEX:
+      return uvIndexWidget;
     #ifdef PBL_HEALTH
     case STEP_COUNTER:
       return stepCounterWidget;
@@ -594,14 +603,14 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
   }
 
   // draw weather data only if it has been set
-  if(Weather_weatherForecast.highTemp != INT32_MIN) {
+  if(Weather_weatherInfo.todaysHighTemp != INT32_MIN) {
 
-    int highTemp = Weather_weatherForecast.highTemp;
-    int lowTemp  = Weather_weatherForecast.lowTemp;
+    int todaysHighTemp = Weather_weatherInfo.todaysHighTemp;
+    int todaysLowTemp  = Weather_weatherInfo.todaysLowTemp;
 
     if(!globalSettings.useMetric) {
-      highTemp = roundf(highTemp * 1.8f + 32);
-      lowTemp  = roundf(lowTemp * 1.8f + 32);
+      todaysHighTemp = roundf(todaysHighTemp * 1.8f + 32);
+      todaysLowTemp  = roundf(todaysLowTemp * 1.8f + 32);
     }
 
     char tempString[8];
@@ -610,7 +619,7 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
 
     // in large font mode, omit the degree symbol and move the text
     if(!globalSettings.useLargeFonts) {
-      snprintf(tempString, sizeof(tempString), " %d°", highTemp);
+      snprintf(tempString, sizeof(tempString), " %d°", todaysHighTemp);
 
       graphics_draw_text(ctx,
                          tempString,
@@ -622,7 +631,7 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
 
       graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, 8 + yPosition + 37, 24, 1), 0, GCornerNone);
 
-      snprintf(tempString, sizeof(tempString), " %d°", lowTemp);
+      snprintf(tempString, sizeof(tempString), " %d°", todaysLowTemp);
 
       graphics_draw_text(ctx,
                          tempString,
@@ -632,7 +641,7 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
                          GTextAlignmentCenter,
                          NULL);
     } else {
-      snprintf(tempString, sizeof(tempString), "%d", highTemp);
+      snprintf(tempString, sizeof(tempString), "%d", todaysHighTemp);
 
       graphics_draw_text(ctx,
                          tempString,
@@ -644,7 +653,7 @@ void WeatherForecast_draw(GContext* ctx, int yPosition) {
 
       graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, 8 + yPosition + 38, 24, 1), 0, GCornerNone);
 
-      snprintf(tempString, sizeof(tempString), "%d", lowTemp);
+      snprintf(tempString, sizeof(tempString), "%d", todaysLowTemp);
 
       graphics_draw_text(ctx,
                          tempString,
@@ -693,6 +702,52 @@ void AltTime_draw(GContext* ctx, int yPosition) {
                      GTextAlignmentCenter,
                      NULL);
 }
+
+/********** UV Index Widget **********/
+
+int UVIndex_getHeight() {
+  return (globalSettings.useLargeFonts) ? 29 : 26;
+}
+
+void UVIndex_draw(GContext* ctx, int yPosition) {
+  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+
+  char uvString[5];
+  
+  if (Weather_weatherInfo.currentUVIndex != INT32_MIN) {
+    snprintf(uvString, sizeof(uvString), "%d", 4);
+    // snprintf(uvString, sizeof(uvString), "%d", (int)Weather_weatherInfo.currentUVIndex);
+  } else {
+    snprintf(uvString, sizeof(uvString), "...");
+  }
+
+  graphics_draw_text(ctx,
+    "UV",
+    smSidebarFont,
+    GRect(-4 + SidebarWidgets_xOffset, yPosition - 4, 38, 20),
+    GTextOverflowModeFill,
+    GTextAlignmentCenter,
+    NULL);
+  
+  if(!globalSettings.useLargeFonts) {
+    graphics_draw_text(ctx,
+                       uvString,
+                       mdSidebarFont,
+                       GRect(0 + SidebarWidgets_xOffset, yPosition + 9, 30, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  } else {
+    graphics_draw_text(ctx,
+                       uvString,
+                       lgSidebarFont,
+                       GRect(0 + SidebarWidgets_xOffset, yPosition + 6, 30, 20),
+                       GTextOverflowModeFill,
+                       GTextAlignmentCenter,
+                       NULL);
+  }
+}
+
 
 #ifdef PBL_HEALTH
 

@@ -1,7 +1,7 @@
 
 var weather = require('./weather');
 
-var CONFIG_VERSION = 8;
+var CONFIG_VERSION = 9;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 
@@ -36,36 +36,32 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  var bwConfigURL    = BASE_CONFIG_URL + 'config_bw.html';
-  var colorConfigURL = BASE_CONFIG_URL + 'config_color.html';
-  var roundConfigURL = BASE_CONFIG_URL + 'config_color_round.html';
-  var dioriteConfigURL = BASE_CONFIG_URL + 'config_diorite.html';
+  var availabileConfigPlatforms = ['aplite', 'basalt', 'chalk', 'diorite', 'emery'];
 
-  var versionString = '?appversion=' + CONFIG_VERSION;
+  var watchInfo;
 
   if(Pebble.getActiveWatchInfo) {
     try {
-      watch = Pebble.getActiveWatchInfo();
+      watchInfo = Pebble.getActiveWatchInfo();
     } catch(err) {
-      watch = {
+      watchInfo = {
         platform: "basalt"
       };
     }
   } else {
-    watch = {
+    watchInfo = {
       platform: "aplite"
     };
   }
 
-  if(watch.platform == "aplite"){
-    Pebble.openURL(bwConfigURL + versionString);
-  } else if(watch.platform == "chalk") {
-    Pebble.openURL(roundConfigURL + versionString);
-  } else if(watch.platform == "diorite") {
-    Pebble.openURL(dioriteConfigURL + versionString);
-  } else {
-    Pebble.openURL(colorConfigURL + versionString);
+  // if the reported platform isn't one of the 5 known platforms, just assume it's basalt
+  if(availabileConfigPlatforms.indexOf(watchInfo.platform) === -1) {
+    watchInfo = {
+      platform: "basalt"
+    };
   }
+
+  Pebble.openURL(BASE_CONFIG_URL + 'config_' + watchInfo.platform + '.html?appversion=' + CONFIG_VERSION)
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
@@ -245,22 +241,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     var widgetIDs = [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id];
 
-    // if there is either a current conditions or a today's forecast widget, enable the weather
-    if(widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1) {
+    // if none of the weather widgets are present, disable the weather
+    if(widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1 || widgetIDs.indexOf(13) != -1) {
         disableWeather = 'no';
     } else {
         disableWeather = 'yes';
     }
 
     window.localStorage.setItem('disable_weather', disableWeather);
-
-    var enableForecast;
-
-    if(widgetIDs.indexOf(8) != -1) {
-      enableForecast = 'yes';
-    }
-
-    window.localStorage.setItem('enable_forecast', enableForecast);
 
     console.log('Preparing message: ', JSON.stringify(dict));
 

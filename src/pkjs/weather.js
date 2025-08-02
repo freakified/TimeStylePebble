@@ -1,15 +1,12 @@
 /* general utility stuff related to weather */
 
 var weatherProviders = {
-  'owm'          : require('./weather_owm'),
-  // 'forecast'     : require('weather_forecast'),
-  'wunderground' : require('./weather_wunderground')
+  'openmeteo': require('./weather_openmeteo')
 };
 
-var DEFAULT_WEATHER_PROVIDER = 'owm';
+var DEFAULT_WEATHER_PROVIDER = 'openmeteo';
 
 // get new forecasts if 3 hours have elapsed
-var FORECAST_MAX_AGE = 3 * 60 * 60 * 1000;
 var MAX_FAILURES = 3;
 var currentFailures = 0;
 
@@ -71,17 +68,6 @@ function updateWeather(forceUpdate) {
                   };
 
         getCurrentWeatherProvider().getWeatherFromCoords(pos);
-
-        if(forceUpdate || isForecastNeeded()) {
-          getCurrentWeatherProvider().getForecastFromCoords(pos);
-        }
-      } else {
-        // otherwise, use the stored string (legacy, or google was blocked from running)
-        getCurrentWeatherProvider().getWeather(weatherLoc);
-
-        if(forceUpdate || isForecastNeeded()) {
-          getCurrentWeatherProvider().getForecast(weatherLoc);
-        }
       }
     } else {
       // if we don't have a stored location, get the GPS location
@@ -116,24 +102,6 @@ function locationError(err) {
 
 function locationSuccess(pos) {
   getCurrentWeatherProvider().getWeatherFromCoords(pos);
-
-  if(isForecastNeeded()) {
-    setTimeout(function() { getCurrentWeatherProvider().getForecastFromCoords(pos); }, 5000);
-  }
-}
-
-function isForecastNeeded() {
-  var enableForecast = window.localStorage.getItem('enable_forecast');
-  var lastForecastTime = window.localStorage.getItem('last_forecast_time');
-  var forecastAge = Date.now() - lastForecastTime;
-
-  console.log("Forecast requested! Age is " + forecastAge);
-
-  if(enableForecast === 'yes' && forecastAge > FORECAST_MAX_AGE) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 function sendWeatherToPebble(dictionary) {

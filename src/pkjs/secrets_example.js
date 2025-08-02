@@ -1,3 +1,0 @@
-var OWM_APP_ID = 'YOUR OWM API KEY GOES HERE';
-
-module.exports.OWM_APP_ID = OWM_APP_ID;
