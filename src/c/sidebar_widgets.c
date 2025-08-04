@@ -715,8 +715,7 @@ void UVIndex_draw(GContext* ctx, int yPosition) {
   char uvString[5];
   
   if (Weather_weatherInfo.currentUVIndex != INT32_MIN) {
-    snprintf(uvString, sizeof(uvString), "%d", 4);
-    // snprintf(uvString, sizeof(uvString), "%d", (int)Weather_weatherInfo.currentUVIndex);
+    snprintf(uvString, sizeof(uvString), "%d", (int)Weather_weatherInfo.currentUVIndex);
   } else {
     snprintf(uvString, sizeof(uvString), "...");
   }

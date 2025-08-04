@@ -1,5 +1,15 @@
 # TimeStyle Versions
 
+## Release-7.6
+_Published on 2025-08-02 01:40:00 UTC_
+
+Hardware Platforms:
+Aplite, Basalt, Chalk, Diorite, Emery
+
+Release Notes
+- Fix: Settings page no longer disappears if you unselect weather widget
+- Fix: UV index is now values other than 4
+
 ## Release-7.5
 _Published on 2025-08-02 01:40:00 UTC_
 
