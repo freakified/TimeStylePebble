@@ -86,7 +86,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
   Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
   Tuple *batteryPct_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowBatteryPct);
-  Tuple *disableWeather_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableWeather);
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
@@ -108,100 +107,96 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
 
   if(timeColor_tuple != NULL) {
-    globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
+    settings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
   }
 
   if(bgColor_tuple != NULL) {
-    globalSettings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
+    settings.timeBgColor = GColorFromHEX(bgColor_tuple->value->int32);
   }
 
   if(sidebarColor_tuple != NULL) {
-    globalSettings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
+    settings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
   }
 
   if(sidebarTextColor_tuple != NULL) {
     // text can only be black or white, so we'll enforce that here
-    globalSettings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
+    settings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
   }
 
   if(sidebarPos_tuple != NULL) {
-    globalSettings.sidebarOnLeft = (bool)sidebarPos_tuple->value->int8;
+    settings.sidebarOnLeft = (bool)sidebarPos_tuple->value->int8;
   }
 
   if(useMetric_tuple != NULL) {
-    globalSettings.useMetric = (bool)useMetric_tuple->value->int8;
+    settings.useMetric = (bool)useMetric_tuple->value->int8;
   }
 
   if(btVibe_tuple != NULL) {
-    globalSettings.btVibe = (bool)btVibe_tuple->value->int8;
+    settings.btVibe = (bool)btVibe_tuple->value->int8;
   }
 
   if(leadingZero_tuple != NULL) {
-    globalSettings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
+    settings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
   }
 
   if(batteryPct_tuple != NULL) {
-    globalSettings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
+    settings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
   }
 
   if(autobattery_tuple != NULL) {
-    globalSettings.disableAutobattery = (bool)autobattery_tuple->value->int8;
-  }
-
-  if(disableWeather_tuple != NULL) {
-    globalSettings.disableWeather = (bool)disableWeather_tuple->value->int8;
+    settings.disableAutobattery = (bool)autobattery_tuple->value->int8;
   }
 
   if(clockFont_tuple != NULL) {
-    globalSettings.clockFontId = clockFont_tuple->value->int8;
+    settings.clockFontId = clockFont_tuple->value->int8;
   }
 
   if(useLargeFonts_tuple != NULL) {
-    globalSettings.useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
+    settings.useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
   }
 
   if(hourlyVibe_tuple != NULL) {
-    globalSettings.hourlyVibe = hourlyVibe_tuple->value->int8;
+    settings.hourlyVibe = hourlyVibe_tuple->value->int8;
   }
 
   if(language_tuple != NULL) {
-    globalSettings.languageId = language_tuple->value->int8;
+    settings.languageId = language_tuple->value->int8;
   }
 
   if(widget0Id_tuple != NULL) {
-    globalSettings.widgets[0] = widget0Id_tuple->value->int8;
+    settings.widgets[0] = widget0Id_tuple->value->int8;
   }
 
   if(widget1Id_tuple != NULL) {
-    globalSettings.widgets[1] = widget1Id_tuple->value->int8;
+    settings.widgets[1] = widget1Id_tuple->value->int8;
   }
 
   if(widget2Id_tuple != NULL) {
-    globalSettings.widgets[2] = widget2Id_tuple->value->int8;
+    settings.widgets[2] = widget2Id_tuple->value->int8;
   }
 
   if(altclockName_tuple != NULL) {
-    strncpy(globalSettings.altclockName, altclockName_tuple->value->cstring, sizeof(globalSettings.altclockName));
+    strncpy(settings.altclockName, altclockName_tuple->value->cstring, sizeof(settings.altclockName));
   }
 
   if(altclockOffset_tuple != NULL) {
-    globalSettings.altclockOffset = altclockOffset_tuple->value->int8;
+    settings.altclockOffset = altclockOffset_tuple->value->int8;
   }
 
   if(decimalSeparator_tuple != NULL) {
-    globalSettings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
+    settings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
   }
 
   if(healthUseDistance_tuple != NULL) {
-    globalSettings.healthUseDistance = (bool)healthUseDistance_tuple->value->int8;
+    settings.healthUseDistance = (bool)healthUseDistance_tuple->value->int8;
   }
 
   if(healthUseRestfulSleep_tuple != NULL) {
-    globalSettings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
+    settings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
   }
 
   if(activateDisconnectIcon_tuple != NULL) {
-    globalSettings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
+    settings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
   }
 
   // save the new settings to persistent storage

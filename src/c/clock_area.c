@@ -27,7 +27,7 @@ GRect screen_rect;
 
 // "private" functions
 void update_fonts() {
-  switch(globalSettings.clockFontId) {
+  switch(settings.clockFontId) {
     case FONT_SETTING_DEFAULT:
         hours_font = avenir;
         minutes_font = avenir;
@@ -64,7 +64,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   fctx_init_context(&fctx, ctx);
   fctx_set_color_bias(&fctx, 0);
-  fctx_set_fill_color(&fctx, globalSettings.timeColor);
+  fctx_set_fill_color(&fctx, settings.timeColor);
 
 
   // calculate font size
@@ -76,7 +76,7 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   int v_adjust = 0;
 
   // alternate metrics for LECO
-  if(globalSettings.clockFontId == FONT_SETTING_LECO) {
+  if(settings.clockFontId == FONT_SETTING_LECO) {
     font_size = 4 * bounds.size.h / 7 + 6;
     v_padding = bounds.size.h / 20;
     h_adjust = -4;
@@ -96,12 +96,12 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #ifdef PBL_ROUND
     v_adjust = ROUND_VERTICAL_PADDING;
 
-    if(globalSettings.clockFontId != FONT_SETTING_LECO) {
+    if(settings.clockFontId != FONT_SETTING_LECO) {
       h_adjust = -1;
     }
   #else
     // for rectangular watches, adjust X position based on sidebar position
-    if(globalSettings.sidebarOnLeft) {
+    if(settings.sidebarOnLeft) {
       h_adjust += ACTION_BAR_WIDTH / 2;
     } else {
       h_adjust -= ACTION_BAR_WIDTH / 2 + 1;
@@ -169,9 +169,9 @@ void ClockArea_update_time(struct tm* time_info) {
 
   // hours
   if (clock_is_24h_style()) {
-    strftime(time_hours, sizeof(time_hours), (globalSettings.showLeadingZero) ? "%H" : "%k", time_info);
+    strftime(time_hours, sizeof(time_hours), (settings.showLeadingZero) ? "%H" : "%k", time_info);
   } else {
-    strftime(time_hours, sizeof(time_hours), (globalSettings.showLeadingZero) ? "%I" : "%l", time_info);
+    strftime(time_hours, sizeof(time_hours), (settings.showLeadingZero) ? "%I" : "%l", time_info);
   }
 
   // minutes

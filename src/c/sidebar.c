@@ -41,7 +41,7 @@ void Sidebar_init(Window* window) {
     bounds = GRect(0, 0, 40, screen_rect.size.h);
     bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
   #else
-    if(!globalSettings.sidebarOnLeft) {
+    if(!settings.sidebarOnLeft) {
       bounds = GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0, ACTION_BAR_WIDTH, screen_rect.size.h);
     } else {
       bounds = GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h);
@@ -80,7 +80,7 @@ void Sidebar_deinit() {
 void Sidebar_redraw() {
   #ifndef PBL_ROUND
     // reposition the sidebar if needed
-    if(!globalSettings.sidebarOnLeft) {
+    if(!settings.sidebarOnLeft) {
       layer_set_frame(sidebarLayer, GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0, ACTION_BAR_WIDTH, screen_rect.size.h));
     } else {
       layer_set_frame(sidebarLayer, GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h));
@@ -100,10 +100,10 @@ void Sidebar_updateTime(struct tm* timeInfo) {
 }
 
 bool isAutoBatteryShown() {
-  if(!globalSettings.disableAutobattery) {
+  if(!settings.disableAutobattery) {
     BatteryChargeState chargeState = battery_state_service_peek();
 
-    if(globalSettings.enableAutoBatteryWidget) {
+    if(dynamicSettings.enableAutoBatteryWidget) {
       if(chargeState.charge_percent <= 10 || chargeState.is_charging) {
         return true;
       }
@@ -119,15 +119,15 @@ bool isAutoBatteryShown() {
 // returns the best candidate widget for replacement by the auto battery
 // or the disconnection icon
 int getReplacableWidget() {
-  if(globalSettings.widgets[0] == EMPTY) {
+  if(settings.widgets[0] == EMPTY) {
     return 0;
-  } else if(globalSettings.widgets[2] == EMPTY) {
+  } else if(settings.widgets[2] == EMPTY) {
     return 2;
   }
 
-  if(globalSettings.widgets[0] == WEATHER_CURRENT || globalSettings.widgets[0] == WEATHER_FORECAST_TODAY) {
+  if(settings.widgets[0] == WEATHER_CURRENT || settings.widgets[0] == WEATHER_FORECAST_TODAY) {
     return 0;
-  } else if(globalSettings.widgets[2] == WEATHER_CURRENT || globalSettings.widgets[2] == WEATHER_FORECAST_TODAY) {
+  } else if(settings.widgets[2] == WEATHER_CURRENT || settings.widgets[2] == WEATHER_FORECAST_TODAY) {
     return 2;
   }
 
@@ -142,7 +142,7 @@ int getReplacableWidget() {
 int getReplacableWidget() {
   // if any widgets are empty, it's an obvious choice
   for(int i = 0; i < 3; i++) {
-    if(globalSettings.widgets[i] == EMPTY) {
+    if(settings.widgets[i] == EMPTY) {
       return i;
     }
   }
@@ -150,7 +150,7 @@ int getReplacableWidget() {
   // are there any bluetooth-enabled widgets? if so, they're the second-best
   // candidates
   for(int i = 0; i < 3; i++) {
-    if(globalSettings.widgets[i] == WEATHER_CURRENT || globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
+    if(settings.widgets[i] == WEATHER_CURRENT || settings.widgets[i] == WEATHER_FORECAST_TODAY) {
       return i;
     }
   }
@@ -170,7 +170,7 @@ void updateRoundSidebarRight(Layer *l, GContext* ctx) {
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
 
-  SidebarWidgetType displayWidget = globalSettings.widgets[2];
+  SidebarWidgetType displayWidget = settings.widgets[2];
 
   if((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 2) {
     if(showAutoBattery) {
@@ -189,7 +189,7 @@ void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
 
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
-  SidebarWidgetType displayWidget = globalSettings.widgets[0];
+  SidebarWidgetType displayWidget = settings.widgets[0];
 
   if((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 0) {
     if(showAutoBattery) {
@@ -205,7 +205,7 @@ void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
 void drawRoundSidebar(GContext* ctx, GRect bgBounds, SidebarWidgetType widgetType, int widgetXOffset) {
   SidebarWidgets_updateFonts();
 
-  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+  graphics_context_set_fill_color(ctx, settings.sidebarColor);
 
   graphics_fill_radial(ctx,
                        bgBounds,
@@ -232,24 +232,24 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   SidebarWidgets_updateFonts();
 
-  graphics_context_set_fill_color(ctx, globalSettings.sidebarColor);
+  graphics_context_set_fill_color(ctx, settings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
 
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
+  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
 
   bool showDisconnectIcon = false;
   bool showAutoBattery = isAutoBatteryShown();
 
   // if the pebble is disconnected and activated, show the disconnect icon
-  if(globalSettings.activateDisconnectIcon) {
+  if(settings.activateDisconnectIcon) {
     showDisconnectIcon = !bluetooth_connection_service_peek();
   }
 
   SidebarWidget displayWidgets[3];
 
-  displayWidgets[0] = getSidebarWidgetByType(globalSettings.widgets[0]);
-  displayWidgets[1] = getSidebarWidgetByType(globalSettings.widgets[1]);
-  displayWidgets[2] = getSidebarWidgetByType(globalSettings.widgets[2]);
+  displayWidgets[0] = getSidebarWidgetByType(settings.widgets[0]);
+  displayWidgets[1] = getSidebarWidgetByType(settings.widgets[1]);
+  displayWidgets[2] = getSidebarWidgetByType(settings.widgets[2]);
 
   // do we need to replace a widget?
   // if so, determine which widget should be replaced

@@ -1,17 +1,30 @@
 # TimeStyle Versions
 
-## Release-7.6
-_Published on 2025-08-02 01:40:00 UTC_
+## Release-7.7
+_Published on 2025-08-12 00:00:00 UTC_
 
 Hardware Platforms:
 Aplite, Basalt, Chalk, Diorite, Emery
 
-Release Notes
-- Fix: Settings page no longer disappears if you unselect weather widget
-- Fix: UV index is now values other than 4
+Release Notes:
+v7.7 ("Forgotten Memories of Another Time")
+- Improvement: Alternate time zone settings page now provides a reminder about the potential impact of daylight savings time
+- Fix: Alternate time zone widget no longer resets back to GMT after exiting watchface
+- Fix: Should be less likely to delete all your settings during upgrades in the future
+
+## Release-7.6
+_Published on 2025-08-04 09:40:03 UTC_
+
+Hardware Platforms:
+Aplite, Basalt, Chalk, Diorite, Emery
+
+Release Notes:
+v7.6 ("Bugs are a part of life")
+- Fix: Settings page no longer half-disappears if you unselect the weather widget
+- Fix: UV index widget can now display values other than 4
 
 ## Release-7.5
-_Published on 2025-08-02 01:40:00 UTC_
+_Published on 2025-08-02 01:54:33 UTC_
 
 Hardware Platforms:
 Aplite, Basalt, Chalk, Diorite, Emery

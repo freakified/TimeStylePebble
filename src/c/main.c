@@ -40,10 +40,10 @@ void update_clock() {
 void redrawScreen() {
 
   // check if the tick handler frequency should be changed
-  if(globalSettings.updateScreenEverySecond != updatingEverySecond) {
+  if(dynamicSettings.updateScreenEverySecond != updatingEverySecond) {
     tick_timer_service_unsubscribe();
 
-    if(globalSettings.updateScreenEverySecond) {
+    if(dynamicSettings.updateScreenEverySecond) {
       tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
       updatingEverySecond = true;
     } else {
@@ -52,7 +52,7 @@ void redrawScreen() {
     }
   }
 
-  window_set_background_color(mainWindow, globalSettings.timeBgColor);
+  window_set_background_color(mainWindow, settings.timeBgColor);
 
   // maybe the language changed!
   update_clock();
@@ -64,7 +64,7 @@ void redrawScreen() {
 }
 
 static void main_window_load(Window *window) {
-  window_set_background_color(window, globalSettings.timeBgColor);
+  window_set_background_color(window, settings.timeBgColor);
 
   // create the sidebar
   Sidebar_init(window);
@@ -83,7 +83,7 @@ static void main_window_unload(Window *window) {
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // every 30 minutes, request new weather data
-  if(!globalSettings.disableWeather) {
+  if(!dynamicSettings.disableWeather) {
     if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == 0) {
       messaging_requestNewWeatherData();
     }
@@ -91,11 +91,11 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // every hour, if requested, vibrate
   if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
-    if(globalSettings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
+    if(settings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
       if(tick_time->tm_min == 0) {
         vibes_double_pulse();
       }
-    } else if(globalSettings.hourlyVibe == VIBE_EVERY_HALF_HOUR) {  // hourly and half-hourly
+    } else if(settings.hourlyVibe == VIBE_EVERY_HALF_HOUR) {  // hourly and half-hourly
       if(tick_time->tm_min == 0) {
         vibes_double_pulse();
       } else if(tick_time->tm_min == 30) {
@@ -114,7 +114,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 void bluetoothStateChanged(bool newConnectionState) {
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
-  if(!quiet_time_is_active() && isPhoneConnected && !newConnectionState && globalSettings.btVibe) {
+  if(!quiet_time_is_active() && isPhoneConnected && !newConnectionState && settings.btVibe) {
     static uint32_t const segments[] = { 200, 100, 100, 100, 500 };
     VibePattern pat = {
       .durations = segments,
@@ -184,7 +184,7 @@ static void init() {
   windowLayer = window_get_root_layer(mainWindow);
 
   // Register with TickTimerService
-  if(globalSettings.updateScreenEverySecond) {
+  if(dynamicSettings.updateScreenEverySecond) {
     tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
     updatingEverySecond = true;
   } else {

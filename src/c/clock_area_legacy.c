@@ -17,21 +17,21 @@ static GRect screen_rect;
 
 void ClockArea_update_time(struct tm* time_info) {
   if (clock_is_24h_style()) {
-    strftime(time_hours, sizeof(time_hours), globalSettings.showLeadingZero ? "%H" : "%k", time_info);
+    strftime(time_hours, sizeof(time_hours), settings.showLeadingZero ? "%H" : "%k", time_info);
   } else {
-    strftime(time_hours, sizeof(time_hours), globalSettings.showLeadingZero ? "%I" : "%l", time_info);
+    strftime(time_hours, sizeof(time_hours), settings.showLeadingZero ? "%I" : "%l", time_info);
   }
 
   strftime(time_minutes, sizeof(time_minutes), "%M", time_info);
 }
 
 void ClockArea_redraw() {
-  GColor fg = globalSettings.timeColor;
-  GColor bg = globalSettings.timeBgColor;
-  int offset = globalSettings.sidebarOnLeft ? 30 : 0;
+  GColor fg = settings.timeColor;
+  GColor bg = settings.timeBgColor;
+  int offset = settings.sidebarOnLeft ? 30 : 0;
 
-  int h_font = globalSettings.clockFontId;
-  int m_font = globalSettings.clockFontId;
+  int h_font = settings.clockFontId;
+  int m_font = settings.clockFontId;
 
   if (h_font == FONT_SETTING_BOLD_H) {
     h_font = FONT_SETTING_BOLD;
@@ -42,7 +42,7 @@ void ClockArea_redraw() {
   }
 
   // H1
-  if (time_hours[0] == ' ' && !globalSettings.showLeadingZero) {
+  if (time_hours[0] == ' ' && !settings.showLeadingZero) {
     ClockDigit_setBlank(&digits[0]);
   } else {
     ClockDigit_setNumber(&digits[0], time_hours[0] - '0', h_font);
@@ -90,7 +90,7 @@ void ClockArea_init(Window* window) {
     layer_add_child(clock_area_layer, bitmap_layer_get_layer(digits[i].imageLayer));
   }
 
-  window_set_background_color(window, globalSettings.timeBgColor);
+  window_set_background_color(window, settings.timeBgColor);
 }
 
 void ClockArea_deinit() {

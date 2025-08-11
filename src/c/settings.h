@@ -2,8 +2,11 @@
 #include <pebble.h>
 #include "sidebar_widgets.h"
 
-#define SETTINGS_VERSION_KEY 4
-#define CURRENT_SETTINGS_VERSION 6
+#define CURRENT_SETTINGS_VERSION 7
+
+// persistent storage keys
+#define SETTINGS_PERSIST_KEY 100
+#define SETTINGS_VERSION_PERSIST_KEY 4
 
 #define FONT_SETTING_DEFAULT 0
 #define FONT_SETTING_LECO    1
@@ -17,6 +20,7 @@ typedef enum {
   VIBE_EVERY_HALF_HOUR = 2
 } VibeIntervalType;
 
+// Settings struct -- note, all new settings should ALWAYS be added to the bottom
 typedef struct {
   // color settings
   GColor timeColor;
@@ -54,21 +58,22 @@ typedef struct {
   bool healthUseDistance;
   bool healthUseRestfulSleep;
   char decimalSeparator;
+} Settings;
 
-  // dynamic settings (calculated based the currently-selected widgets)
+// Dynamic settings (calculated at runtime based on currently-selected widgets)
+typedef struct {
   bool disableWeather;
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
   bool enableBeats;
   bool enableAltTimeZone;
-
+  
   GColor iconFillColor;
   GColor iconStrokeColor;
-} Settings;
+} DynamicSettings;
 
-
-// !! all future settings should be added to the bottom of this structure
-// !! do not remove fields from this structure, it will lead to unexpected behaviour
+// Legacy packed settings struct
+// this is now deprecated, and will be removed in the next version
 typedef struct {
   GColor timeColor;
   GColor timeBgColor;
@@ -107,10 +112,10 @@ typedef struct {
 
   // bluetooth disconnection icon
   int8_t activateDisconnectIcon:1;
-} StoredSettings;
+} LegacyStoredSettings;
 
-extern Settings globalSettings;
-#define SETTING_VERSION6_AND_HIGHER 100
+extern Settings settings;
+extern DynamicSettings dynamicSettings;
 
 void Settings_init();
 void Settings_deinit();
