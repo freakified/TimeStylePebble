@@ -109,14 +109,18 @@
 <div id="widget_altclock_settings">
   <label>Alternate Time Zone</label>
   <br>
+  <div class="alert alert-info" role="alert">
+    Note: Daylight Saving Time is not applied automatically, so you may need to adjust the offset by one to get the correct time.
+  </div>
   <label class="subtle">
-    Time Zone<br>
-  </label><br>
+    Time Zone
+  </label>
+
 <select id="altclock_offset_hour" class="form-control">
   <option data-setting="-12">UTC−12:00 (Baker Island)</option>
   <option data-setting="-11">UTC−11:00 (American Samoa)</option>
   <option data-setting="-10">UTC−10:00 (Hawaii, Tahiti)</option>
-  <option data-setting="-9.5">UTC−09:30 (Marquesas Islands)</option>
+  <!-- <option data-setting="-9.5">UTC−09:30 (Marquesas Islands)</option> -->
   <option data-setting="-9">UTC−09:00 (Alaska)</option>
   <option data-setting="-8">UTC−08:00 (Los Angeles, Vancouver)</option>
   <option data-setting="-7">UTC−07:00 (Denver, Phoenix)</option>
