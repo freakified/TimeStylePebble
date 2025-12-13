@@ -40,6 +40,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     weatherDataUpdated = true;
   }
 
+  if(dynamicSettings.enableApparentTemperature) {
+    Tuple *weatherAppTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherApparentTemperature);
+    if(weatherAppTemp_tuple != NULL) {
+      Weather_weatherInfo.currentTemp = (int)weatherAppTemp_tuple->value->int32;
+      weatherDataUpdated = true;
+    }
+  }
+
   Tuple *weatherConditions_tuple = dict_find(iterator, MESSAGE_KEY_WeatherCondition);
   if(weatherConditions_tuple != NULL) {
     Weather_setCurrentCondition(weatherConditions_tuple->value->int32);

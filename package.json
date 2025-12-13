@@ -38,6 +38,7 @@
       "WeatherForecastHighTemp",
       "WeatherForecastLowTemp",
       "WeatherUVIndex",
+      "WeatherApparentTemperature",
       "SettingAltClockName",
       "SettingAltClockOffset",
       "SettingDisableAutobattery",
