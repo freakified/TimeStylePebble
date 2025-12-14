@@ -40,7 +40,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     weatherDataUpdated = true;
   }
 
-  if(dynamicSettings.enableApparentTemperature) {
+  if(settings.useApparentTemperature) {
     Tuple *weatherAppTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherApparentTemperature);
     if(weatherAppTemp_tuple != NULL) {
       Weather_weatherInfo.currentTemp = (int)weatherAppTemp_tuple->value->int32;
@@ -97,6 +97,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
+  Tuple *useApparentTemperature_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseApparentTemperature);
 
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
@@ -112,7 +113,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
 
   Tuple *activateDisconnectIcon_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisconnectIcon);
-
 
   if(timeColor_tuple != NULL) {
     settings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -161,6 +161,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(useLargeFonts_tuple != NULL) {
     settings.useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
+  }
+
+  if(useApparentTemperature_tuple != NULL) {
+    settings.useApparentTemperature = (bool)useApparentTemperature_tuple->value->int8;
   }
 
   if(hourlyVibe_tuple != NULL) {

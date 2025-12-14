@@ -1,7 +1,7 @@
 
 var weather = require('./weather');
 
-var CONFIG_VERSION = 10;
+var CONFIG_VERSION = 9;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 
@@ -183,6 +183,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
       window.localStorage.setItem('weather_loc', configData.weather_loc);
       window.localStorage.setItem('weather_loc_lat', configData.weather_loc_lat);
       window.localStorage.setItem('weather_loc_lng', configData.weather_loc_lng);
+    }
+
+    if(configData.apparent_temperature_setting) {
+      if(configData.apparent_temperature_setting == 'off') {
+        dict.SettingUseApparentTemperature = 0;
+      } else if(configData.apparent_temperature_setting == 'on') {
+        dict.SettingUseApparentTemperature = 1;
+      }
     }
 
     if(configData.weather_datasource) {
