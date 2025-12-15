@@ -35,6 +35,12 @@ void Settings_loadFromStorage() {
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
 
+  #ifdef PBL_ROUND
+  settings.autoReplaceIndex = 0;
+  #else
+  settings.autoReplaceIndex = 1;
+  #endif
+
   // to correct settings migration bug (settings key v6), we must do another migration (nooooooooooo)
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     int version = 0;

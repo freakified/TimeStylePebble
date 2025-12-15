@@ -14,6 +14,7 @@ GDrawCommandImage* dateImage;
 GDrawCommandImage* disconnectImage;
 GDrawCommandImage* batteryImage;
 GDrawCommandImage* batteryChargeImage;
+GDrawCommandImage* quietTimeImage;
 
 // fonts
 GFont smSidebarFont;
@@ -76,6 +77,10 @@ SidebarWidget uvIndexWidget;
 int UVIndex_getHeight();
 void UVIndex_draw(GContext* ctx, int yPosition);
 
+SidebarWidget quietTimeWidget;
+int QuietTime_getHeight();
+void QuietTime_draw(GContext* ctx, int yPosition);
+
 #ifdef PBL_HEALTH
   GDrawCommandImage* sleepImage;
   GDrawCommandImage* stepsImage;
@@ -105,6 +110,7 @@ void SidebarWidgets_init() {
   disconnectImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
   batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
   batteryChargeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
+  quietTimeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_QUIET_TIME);
 
   #ifdef PBL_HEALTH
     sleepImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_SLEEP);
@@ -156,6 +162,9 @@ void SidebarWidgets_init() {
 
   beatsWidget.getHeight = Beats_getHeight;
   beatsWidget.draw      = Beats_draw;
+
+  quietTimeWidget.getHeight = QuietTime_getHeight;
+  quietTimeWidget.draw      = QuietTime_draw;
 }
 
 void SidebarWidgets_deinit() {
@@ -163,6 +172,7 @@ void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(disconnectImage);
   gdraw_command_image_destroy(batteryImage);
   gdraw_command_image_destroy(batteryChargeImage);
+  gdraw_command_image_destroy(quietTimeImage);
 
   #ifdef PBL_HEALTH
     gdraw_command_image_destroy(stepsImage);
@@ -249,25 +259,18 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
   switch(type) {
     case BATTERY_METER:
       return batteryMeterWidget;
-      break;
     case BLUETOOTH_DISCONNECT:
       return btDisconnectWidget;
-      break;
     case DATE:
       return dateWidget;
-      break;
     case ALT_TIME_ZONE:
       return altTimeWidget;
-      break;
     case SECONDS:
       return secondsWidget;
-      break;
     case WEATHER_CURRENT:
       return currentWeatherWidget;
-      break;
     case WEATHER_FORECAST_TODAY:
       return weatherForecastWidget;
-      break;
     case WEEK_NUMBER:
       return weekNumberWidget;
     case WEATHER_UV_INDEX:
@@ -282,9 +285,10 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     #endif
     case BEATS:
       return beatsWidget;
+    case QUIET_TIME:
+      return quietTimeWidget;
     default:
       return emptyWidget;
-      break;
   }
 }
 
@@ -521,8 +525,6 @@ int BTDisconnect_getHeight() {
 void BTDisconnect_draw(GContext* ctx, int yPosition) {
   if(disconnectImage) {
     gdraw_command_image_recolor(disconnectImage, dynamicSettings.iconFillColor, dynamicSettings.iconStrokeColor);
-
-
     gdraw_command_image_draw(ctx, disconnectImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
   }
 }
@@ -888,7 +890,7 @@ void SleepTimer_draw(GContext* ctx, int yPosition) {
 
 }
 
-
+/***** Heart Rate Widget *****/
 
 int HeartRate_getHeight() {
   if(settings.useLargeFonts) {
@@ -950,4 +952,17 @@ void Beats_draw(GContext* ctx, int yPosition) {
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);
+}
+
+/***** Quiet Time Widget *****/
+
+int QuietTime_getHeight() {
+  return 26;
+}
+
+void QuietTime_draw(GContext* ctx, int yPosition) {
+  if(quietTimeImage) {
+    gdraw_command_image_recolor(quietTimeImage, dynamicSettings.iconFillColor, dynamicSettings.iconStrokeColor);
+    gdraw_command_image_draw(ctx, quietTimeImage, GPoint(2 + SidebarWidgets_xOffset, yPosition));
+  }
 }

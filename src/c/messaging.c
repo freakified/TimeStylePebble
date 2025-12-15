@@ -102,9 +102,11 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
 
   Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
+  Tuple *autoQuietTime_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutoQuietTime);
 
   Tuple *activateDisconnectIcon_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisconnectIcon);
 
+  Tuple *autoReplaceIndex_tuple = dict_find(iterator, MESSAGE_KEY_SettingAutoReplaceIndex);
 
   if(timeColor_tuple != NULL) {
     settings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -145,6 +147,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(autobattery_tuple != NULL) {
     settings.disableAutobattery = (bool)autobattery_tuple->value->int8;
+  }
+
+  if(autoQuietTime_tuple != NULL) {
+    settings.disableAutoQuietTime = (bool)autoQuietTime_tuple->value->int8;
   }
 
   if(clockFont_tuple != NULL) {
@@ -197,6 +203,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(activateDisconnectIcon_tuple != NULL) {
     settings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
+  }
+
+  if(autoReplaceIndex_tuple != NULL) {
+    settings.autoReplaceIndex = autoReplaceIndex_tuple->value->int8;
   }
 
   // save the new settings to persistent storage
