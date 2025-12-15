@@ -114,7 +114,7 @@ bool isAutoBatteryShown() {
 }
 
 bool isAutoQuietTimeShown() {
-  return return !settings.disableAutoQuietTime && quiet_time_is_active();
+  return !settings.disableAutoQuietTime && quiet_time_is_active();
 }
 
 #ifdef PBL_ROUND
