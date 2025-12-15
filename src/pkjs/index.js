@@ -136,6 +136,17 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
+    // TODO can't handle PBL_ROUND here to have different default
+    if(configData.auto_replace_index_setting) {
+      if(configData.auto_replace_index_setting == '0') {
+        dict.SettingAutoReplaceIndex = 0;
+      } else if (configData.auto_replace_index_setting == '2') {
+        dict.SettingAutoReplaceIndex = 2;
+      } else {
+        dict.SettingAutoReplaceIndex = 1;
+      }
+    }
+
     // notification settings
     if(configData.hourly_vibe_setting) {
       if(configData.hourly_vibe_setting == 'yes') {

@@ -113,33 +113,39 @@ bool isAutoBatteryShown() {
   return false;
 }
 
+bool isAutoQuietTimeShown() {
+  return return !settings.disableAutoQuietTime && quiet_time_is_active();
+}
 
 #ifdef PBL_ROUND
 
-// returns the best candidate widget for replacement by the auto battery
-// or the disconnection icon
-int getReplacableWidget() {
+// returns the best candidate widget for replacement by auto widgets
+int getReplacableWidget(bool isDisconnect) {
+  // if any widgets are empty, it's an obvious choice
   if(settings.widgets[0] == EMPTY) {
     return 0;
   } else if(settings.widgets[2] == EMPTY) {
     return 2;
   }
 
-  if(settings.widgets[0] == WEATHER_CURRENT || settings.widgets[0] == WEATHER_FORECAST_TODAY) {
-    return 0;
-  } else if(settings.widgets[2] == WEATHER_CURRENT || settings.widgets[2] == WEATHER_FORECAST_TODAY) {
-    return 2;
+  // are there any bluetooth-enabled widgets? if so, they're the second-best
+  // candidates for disconnection
+  if(isDisconnect) {
+    if(settings.widgets[0] == WEATHER_CURRENT || settings.widgets[0] == WEATHER_FORECAST_TODAY) {
+      return 0;
+    } else if(settings.widgets[2] == WEATHER_CURRENT || settings.widgets[2] == WEATHER_FORECAST_TODAY) {
+      return 2;
+    }
   }
 
-  // if we don't have any of those things, just replace the left widget
-  return 0;
+  // if we don't have any of those things, replace the preferred widget
+  return settings.autoReplaceIndex; // TODO does PBL_ROUND only have two slots? Can't let them set 1 as auto replace index?
 }
 
 #else
 
-// returns the best candidate widget for replacement by the auto battery
-// or the disconnection icon
-int getReplacableWidget() {
+// returns the best candidate widget for replacement by auto widgets
+int getReplacableWidget(bool isDisconnect) {
   // if any widgets are empty, it's an obvious choice
   for(int i = 0; i < 3; i++) {
     if(settings.widgets[i] == EMPTY) {
@@ -148,15 +154,17 @@ int getReplacableWidget() {
   }
 
   // are there any bluetooth-enabled widgets? if so, they're the second-best
-  // candidates
-  for(int i = 0; i < 3; i++) {
-    if(settings.widgets[i] == WEATHER_CURRENT || settings.widgets[i] == WEATHER_FORECAST_TODAY) {
-      return i;
+  // candidates for disconnection
+  if(isDisconnect) {
+    for(int i = 0; i < 3; i++) {
+      if(settings.widgets[i] == WEATHER_CURRENT || settings.widgets[i] == WEATHER_FORECAST_TODAY) {
+        return i;
+      }
     }
   }
 
-  // if we don't have any of those things, just replace the middle widget
-  return 1;
+  // if we don't have any of those things, replace the preferred widget
+  return settings.autoReplaceIndex;
 }
 
 #endif
@@ -169,14 +177,17 @@ void updateRoundSidebarRight(Layer *l, GContext* ctx) {
 
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
+  bool showAutoQuietTime = isAutoQuietTimeShown();
 
   SidebarWidgetType displayWidget = settings.widgets[2];
 
-  if((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 2) {
+  if((showAutoBattery || showDisconnectIcon || showAutoQuietTime) && getReplacableWidget(showDisconnectIcon) == 2) {
     if(showAutoBattery) {
       displayWidget = BATTERY_METER;
     } else if(showDisconnectIcon) {
       displayWidget = BLUETOOTH_DISCONNECT;
+    } else if(showAutoQuietTime) {
+      displayWidget = QUIET_TIME;
     }
   }
 
@@ -189,13 +200,17 @@ void updateRoundSidebarLeft(Layer *l, GContext* ctx) {
 
   bool showDisconnectIcon = !bluetooth_connection_service_peek();
   bool showAutoBattery = isAutoBatteryShown();
+  bool showAutoQuietTime = isAutoQuietTimeShown();
+
   SidebarWidgetType displayWidget = settings.widgets[0];
 
-  if((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 0) {
+  if((showAutoBattery || showDisconnectIcon || showAutoQuietTime) && getReplacableWidget(showDisconnectIcon) == 0) {
     if(showAutoBattery) {
       displayWidget = BATTERY_METER;
     } else if(showDisconnectIcon) {
       displayWidget = BLUETOOTH_DISCONNECT;
+    } else if(showAutoQuietTime) {
+      displayWidget = QUIET_TIME;
     }
   }
 
@@ -239,6 +254,7 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   bool showDisconnectIcon = false;
   bool showAutoBattery = isAutoBatteryShown();
+  bool showAutoQuietTime = isAutoQuietTimeShown();
 
   // if the pebble is disconnected and activated, show the disconnect icon
   if(settings.activateDisconnectIcon) {
@@ -253,13 +269,15 @@ void updateRectSidebar(Layer *l, GContext* ctx) {
 
   // do we need to replace a widget?
   // if so, determine which widget should be replaced
-  if(showAutoBattery || showDisconnectIcon) {
-    int widget_to_replace = getReplacableWidget();
+  if(showAutoBattery || showDisconnectIcon || showAutoQuietTime) {
+    int widget_to_replace = getReplacableWidget(showDisconnectIcon);
 
     if(showAutoBattery) {
       displayWidgets[widget_to_replace] = getSidebarWidgetByType(BATTERY_METER);
     } else if(showDisconnectIcon) {
       displayWidgets[widget_to_replace] = getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
+    } else if(showAutoQuietTime) {
+      displayWidgets[widget_to_replace] = getSidebarWidgetByType(QUIET_TIME);
     }
   }
 

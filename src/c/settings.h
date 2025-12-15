@@ -58,6 +58,12 @@ typedef struct {
   bool healthUseDistance;
   bool healthUseRestfulSleep;
   char decimalSeparator;
+
+  // quiet time widget settings
+  bool disableAutoQuietTime; // TODO only works with certain versions?
+
+  // auto replace index preference
+  uint8_t autoReplaceIndex;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
