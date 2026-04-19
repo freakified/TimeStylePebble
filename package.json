@@ -1,13 +1,13 @@
 {
   "name": "timestyle-pebble",
   "author": "Freakified",
-  "version": "7.7.0",
+  "version": "7.8.0",
   "keywords": [
     "pebble-watchface"
   ],
   "private": true,
   "dependencies": {
-    "pebble-fctx": "^1.4.0"
+    "pebble-fctx": "^1.6.5"
   },
   "pebble": {
     "displayName": "TimeStyle",
@@ -19,7 +19,9 @@
       "basalt",
       "chalk",
       "diorite",
-      "emery"
+      "emery",
+      "flint",
+      "gabbro"
     ],
     "capabilities": [
       "location",
@@ -79,7 +81,9 @@
             "basalt",
             "chalk",
             "diorite",
-            "emery"
+            "emery",
+            "flint",
+            "gabbro"
           ]
         },
         {
@@ -90,7 +94,9 @@
             "basalt",
             "chalk",
             "diorite",
-            "emery"
+            "emery",
+            "flint",
+            "gabbro"
           ]
         },
         {
@@ -101,7 +107,9 @@
             "basalt",
             "chalk",
             "diorite",
-            "emery"
+            "emery",
+            "flint",
+            "gabbro"
           ]
         },
         {
