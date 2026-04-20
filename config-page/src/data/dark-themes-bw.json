@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Midnight",
+    "settings": {
+      "color_bg": "000000",
+      "color_time": "AAAAAA",
+      "color_sidebar": "AAAAAA",
+      "sidebar_text_color": "000000"
+    }
+  },
+  {
+    "name": "Clean",
+    "settings": {
+      "color_bg": "FFFFFF",
+      "color_time": "AAAAAA",
+      "color_sidebar": "000000",
+      "sidebar_text_color": "FFFFFF"
+    }
+  }
+]

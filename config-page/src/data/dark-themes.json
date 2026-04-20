@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Dark Past",
+    "settings": {
+      "color_bg": "000000",
+      "color_time": "FFFFFF",
+      "color_sidebar": "FFAA00",
+      "sidebar_text_color": "000000"
+    }
+  },
+  {
+    "name": "Dark Future",
+    "settings": {
+      "color_bg": "000000",
+      "color_time": "FFFFFF",
+      "color_sidebar": "00AAFF",
+      "sidebar_text_color": "000000"
+    }
+  },
+  {
+    "name": "Daybreak",
+    "settings": {
+      "color_bg": "FFAA00",
+      "color_time": "FFFFFF",
+      "color_sidebar": "FF5500",
+      "sidebar_text_color": "FFFFFF"
+    }
+  },
+  {
+    "name": "Ocean",
+    "settings": {
+      "color_bg": "0055AA",
+      "color_time": "FFFFFF",
+      "color_sidebar": "00AAFF",
+      "sidebar_text_color": "000000"
+    }
+  },
+  {
+    "name": "Forest",
+    "settings": {
+      "color_bg": "005500",
+      "color_time": "FFFFFF",
+      "color_sidebar": "00AA00",
+      "sidebar_text_color": "000000"
+    }
+  },
+  {
+    "name": "Storm",
+    "settings": {
+      "color_bg": "555555",
+      "color_time": "FFFFFF",
+      "color_sidebar": "AAAAAA",
+      "sidebar_text_color": "000000"
+    }
+  }
+]
