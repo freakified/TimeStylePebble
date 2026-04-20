@@ -185,6 +185,14 @@ Pebble.addEventListener('webviewclosed', function(e) {
       window.localStorage.setItem('weather_loc_lng', configData.weather_loc_lng);
     }
 
+    if(configData.apparent_temperature_setting) {
+      if(configData.apparent_temperature_setting == 'off') {
+        dict.SettingUseApparentTemperature = 0;
+      } else if(configData.apparent_temperature_setting == 'on') {
+        dict.SettingUseApparentTemperature = 1;
+      }
+    }
+
     if(configData.weather_datasource) {
       window.localStorage.setItem('weather_datasource', configData.weather_datasource);
       window.localStorage.setItem('weather_api_key', configData.weather_api_key);

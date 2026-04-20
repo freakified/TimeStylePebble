@@ -12,6 +12,7 @@ function getWeatherFromCoords(pos) {
     '&current_weather=true' +
     '&daily=temperature_2m_max,temperature_2m_min,uv_index_max,weathercode' +
     '&hourly=uv_index' +
+    '&minutely_15=apparent_temperature' +
     '&timezone=auto';
 
   console.log(url);
@@ -38,11 +39,8 @@ function getAndSendWeather(url) {
     var forecastLow = Math.round(json.daily.temperature_2m_min[0]);
     var forecastCode = json.daily.weathercode[0];
 
-    function getCurrentUVFromHourly(json) {
+    function getValueFromArrays(times, values) {
       var now = new Date();
-      var times = json.hourly.time;
-      var uvValues = json.hourly.uv_index;
-
       var closestIndex = 0;
       var smallestDiff = Infinity;
 
@@ -54,10 +52,11 @@ function getAndSendWeather(url) {
           closestIndex = i;
         }
       }
-      return Math.round(uvValues[closestIndex]);
+      return Math.round(values[closestIndex]);
     }
 
-    var uvIndex = getCurrentUVFromHourly(json);
+    var uvIndex = getValueFromArrays(json.hourly.time, json.hourly.uv_index);
+    var apparentTemperature = getValueFromArrays(json.minutely_15.time, json.minutely_15.apparent_temperature);
 
     console.log('Forecast high/low: ' + forecastHigh + '/' + forecastLow);
     console.log('Forecast condition code: ' + forecastCode);
@@ -72,7 +71,8 @@ function getAndSendWeather(url) {
       'WeatherForecastHighTemp': forecastHigh,
       'WeatherForecastLowTemp': forecastLow,
       'WeatherForecastCondition': forecastIcon,
-      'WeatherUVIndex': uvIndex
+      'WeatherUVIndex': uvIndex,
+      'WeatherApparentTemperature': apparentTemperature
     };
 
     console.log(JSON.stringify(dictionary));

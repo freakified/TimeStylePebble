@@ -58,6 +58,9 @@ typedef struct {
   bool healthUseDistance;
   bool healthUseRestfulSleep;
   char decimalSeparator;
+  
+  // apparent temperature option
+  bool useApparentTemperature;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
