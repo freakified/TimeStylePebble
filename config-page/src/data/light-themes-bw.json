@@ -2,28 +2,28 @@
   {
     "name": "Classic",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "FFFFFF",
-      "color_sidebar": "FFFFFF",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Inverse",
     "settings": {
-      "color_bg": "FFFFFF",
-      "color_time": "000000",
-      "color_sidebar": "000000",
-      "sidebar_text_color": "FFFFFF"
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF"
     }
   },
   {
     "name": "Slate",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "FFFFFF",
-      "color_sidebar": "AAAAAA",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000"
     }
   }
 ]

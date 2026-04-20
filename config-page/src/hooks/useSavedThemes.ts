@@ -12,18 +12,18 @@ const NIGHT_STORAGE_KEY = 'timestyle-saved-themes-night';
 
 /** The color setting keys used by day themes */
 const DAY_THEME_KEYS: (keyof Settings)[] = [
-    'color_bg',
-    'color_time',
-    'color_sidebar',
-    'sidebar_text_color',
+    'colorBackground',
+    'colorTime',
+    'colorSidebar',
+    'colorSidebarText',
 ];
 
 /** The color setting keys used by night themes (mirrors day for now; expand when night theme support is added) */
 const NIGHT_THEME_KEYS: (keyof Settings)[] = [
-    'color_bg',
-    'color_time',
-    'color_sidebar',
-    'sidebar_text_color',
+    'colorBackground',
+    'colorTime',
+    'colorSidebar',
+    'colorSidebarText',
 ];
 
 function loadFromStorage(key: string): SavedTheme[] {

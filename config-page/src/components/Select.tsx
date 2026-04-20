@@ -33,7 +33,7 @@ export const Select: React.FC<{
     <FormItem label={label} description={description} className="halite-select" htmlFor={selectId}>
       <select
         id={selectId}
-        value={value}
+        value={value as string | number}
         onChange={(e) => {
           const val = e.target.value;
           const num = parseInt(val, 10);

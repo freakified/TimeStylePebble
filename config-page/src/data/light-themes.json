@@ -2,91 +2,91 @@
   {
     "name": "Orange Dreams",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "FF5500",
-      "color_sidebar": "FF5500",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "FF5500",
+      "colorSidebar": "FF5500",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Blue Screen",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "00FFFF",
-      "color_sidebar": "00FFFF",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "00FFFF",
+      "colorSidebar": "00FFFF",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Terminal Green",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "00FF00",
-      "color_sidebar": "00FF00",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "00FF00",
+      "colorSidebar": "00FF00",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Ultra Violet",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "AA00FF",
-      "color_sidebar": "AA00FF",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "AA00FF",
+      "colorSidebar": "AA00FF",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Pretty in Pink",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "FF00AA",
-      "color_sidebar": "FF00AA",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "FF00AA",
+      "colorSidebar": "FF00AA",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Red Alert",
     "settings": {
-      "color_bg": "000000",
-      "color_time": "FF0000",
-      "color_sidebar": "FF0000",
-      "sidebar_text_color": "000000"
+      "colorBackground": "000000",
+      "colorTime": "FF0000",
+      "colorSidebar": "FF0000",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Timeline Past",
     "settings": {
-      "color_bg": "FFFFFF",
-      "color_time": "000000",
-      "color_sidebar": "FFAA00",
-      "sidebar_text_color": "000000"
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "FFAA00",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Timeline Future",
     "settings": {
-      "color_bg": "FFFFFF",
-      "color_time": "000000",
-      "color_sidebar": "00AAFF",
-      "sidebar_text_color": "000000"
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "00AAFF",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Lime",
     "settings": {
-      "color_bg": "FFFFFF",
-      "color_time": "000000",
-      "color_sidebar": "00FF00",
-      "sidebar_text_color": "000000"
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "00FF00",
+      "colorSidebarText": "000000"
     }
   },
   {
     "name": "Sangria",
     "settings": {
-      "color_bg": "FFFFFF",
-      "color_time": "000000",
-      "color_sidebar": "AA0000",
-      "sidebar_text_color": "FFFFFF"
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "AA0000",
+      "colorSidebarText": "FFFFFF"
     }
   }
 ]

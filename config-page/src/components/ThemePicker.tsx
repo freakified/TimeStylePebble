@@ -1,5 +1,5 @@
 import React from 'react';
-import { useConfig } from '../context/PebbleConfigContext';
+import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
 import { FormItem } from './FormItem';
 import { GridList, GridListItem, Text } from 'react-aria-components';
@@ -15,6 +15,7 @@ export const ThemePicker: React.FC<{
   savedThemes?: SavedTheme[];
 }> = ({ label, messageKey, themes, watchPreviewProps, savedThemes = [] }) => {
   const { settings, updateSetting } = useConfig();
+  const capabilities = useCapabilities();
   const currentValue = settings[messageKey];
 
   const handleThemeChange = (themeId: string) => {
@@ -26,7 +27,7 @@ export const ThemePicker: React.FC<{
     const saved = savedThemes.find((t) => t.id === themeId);
     if (saved) {
       Object.entries(saved.settings).forEach(([key, value]) => {
-        updateSetting(key, value);
+        updateSetting(key as keyof Settings, value);
       });
       return;
     }
@@ -34,7 +35,7 @@ export const ThemePicker: React.FC<{
     const theme = themes[parseInt(themeId, 10)];
     if (theme) {
       Object.entries(theme.settings).forEach(([key, value]) => {
-        updateSetting(key, value);
+        updateSetting(key as keyof Settings, value);
       });
     }
   };
@@ -60,7 +61,7 @@ export const ThemePicker: React.FC<{
       <GridList
         items={themeList}
         selectionMode="single"
-        selectedKeys={[currentValue]}
+        selectedKeys={[currentValue as string]}
         onSelectionChange={(keys) => {
           const selected = Array.from(keys)[0] as string;
           if (selected) handleThemeChange(selected);
@@ -73,7 +74,7 @@ export const ThemePicker: React.FC<{
           <GridListItem id={item.id} className="halite-theme-card" textValue={item.name}>
             <div className="halite-theme-card-preview">
               {item.id === 'custom' ? (
-                <div className="halite-custom-icon">
+                <div className={`halite-custom-icon${capabilities.ROUND ? ' halite-custom-icon--round' : ''}`}>
                   <img src={customIconUrl} alt="" width={40} height={38} />
                 </div>
               ) : (

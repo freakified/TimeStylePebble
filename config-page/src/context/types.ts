@@ -37,52 +37,52 @@ export interface Settings {
   SETTING_USE_NIGHT_THEME: number;  // kept for future night theme support
 
   // Colors (hex strings without '#') — day theme
-  color_bg: string;
-  color_time: string;
-  color_sidebar: string;
-  sidebar_text_color: string;
+  colorBackground: string;
+  colorTime: string;
+  colorSidebar: string;
+  colorSidebarText: string;
 
   // Widget slots (integer IDs)
   // 0=Empty, 2=Battery, 3=Alt TZ, 4=Date, 5=Seconds, 6=Week Number,
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
   // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index
-  widget_0_id: number;  // top slot (rect) or left slot (round)
-  widget_1_id: number;  // middle slot (rect only)
-  widget_2_id: number;  // bottom slot (rect) or right slot (round)
+  widget0Id: number;  // top slot (rect) or left slot (round)
+  widget1Id: number;  // middle slot (rect only)
+  widget2Id: number;  // bottom slot (rect) or right slot (round)
 
   // General display
-  language_id: number;
-  leading_zero_setting: boolean;
-  clock_font_setting: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
-  sidebar_position: 'left' | 'right';
-  use_large_sidebar_font_setting: boolean;
-  decimal_separator: '.' | ',';
+  languageId: number;
+  leadingZero: boolean;
+  clockFont: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
+  sidebarPosition: 'left' | 'right';
+  largeSidebarFont: boolean;
+  decimalSeparator: '.' | ',';
 
   // Bluetooth
-  disconnect_icon_setting: boolean;
-  bluetooth_vibe_setting: boolean;
+  disconnectIcon: boolean;
+  bluetoothVibe: boolean;
 
   // Notifications
-  hourly_vibe_setting: 'none' | 'everyHour' | 'everyHalfHour';
+  hourlyVibe: 'none' | 'everyHour' | 'everyHalfHour';
 
   // Weather
-  units: 'f' | 'c';
-  weather_loc: string;
-  weather_loc_lat: string;
-  weather_loc_lng: string;
-  weather_setting: 'auto' | 'manual';
-  weather_datasource: string;
-  weather_api_key: string;
+  weatherUnits: 'f' | 'c';
+  weatherLocation: string;
+  weatherLocationLat: string;
+  weatherLocationLng: string;
+  weatherMode: 'auto' | 'manual';
+  weatherDataSource: string;
+  weatherApiKey: string;
 
   // Battery
-  battery_meter_setting: 'icon-and-percent' | 'icon-only';
-  autobattery_setting: 'on' | 'off';
+  batteryMeter: 'icon-and-percent' | 'icon-only';
+  autoBattery: 'on' | 'off';
 
   // Alternate time zone
-  altclock_name: string;    // max 4 chars
-  altclock_offset: number;  // -12 to +14
+  altClockName: string;    // max 4 chars
+  altClockOffset: number;  // -12 to +14
 
   // Health
-  health_use_distance: 'steps' | 'distance';
-  health_use_restful_sleep: 'total' | 'restful';
+  healthActivityMetric: 'steps' | 'distance';
+  healthSleepType: 'total' | 'restful';
 }

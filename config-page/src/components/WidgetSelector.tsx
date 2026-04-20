@@ -10,7 +10,7 @@ export const WidgetSelector: React.FC = () => {
 
     const selectClass = 'halite-item halite-select';
 
-    const renderSlot = (label: string, settingKey: 'widget_0_id' | 'widget_1_id' | 'widget_2_id') => (
+    const renderSlot = (label: string, settingKey: 'widget0Id' | 'widget1Id' | 'widget2Id') => (
         <div className={selectClass}>
             <label className="halite-item-label">{label}</label>
             <select
@@ -35,14 +35,14 @@ export const WidgetSelector: React.FC = () => {
             <div className="widget-selector-controls">
                 {capabilities.ROUND ? (
                     <>
-                        {renderSlot('Left slot', 'widget_0_id')}
-                        {renderSlot('Right slot', 'widget_2_id')}
+                        {renderSlot('Left slot', 'widget0Id')}
+                        {renderSlot('Right slot', 'widget2Id')}
                     </>
                 ) : (
                     <>
-                        {renderSlot('Top slot', 'widget_0_id')}
-                        {renderSlot('Middle slot', 'widget_1_id')}
-                        {renderSlot('Bottom slot', 'widget_2_id')}
+                        {renderSlot('Top slot', 'widget0Id')}
+                        {renderSlot('Middle slot', 'widget1Id')}
+                        {renderSlot('Bottom slot', 'widget2Id')}
                     </>
                 )}
             </div>

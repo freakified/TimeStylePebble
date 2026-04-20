@@ -95,15 +95,15 @@ export const SettingsPage: React.FC = () => {
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
   const showWeatherSection =
-    settings.widget_0_id === 7 || settings.widget_0_id === 8 || settings.widget_0_id === 13 ||
-    settings.widget_1_id === 7 || settings.widget_1_id === 8 || settings.widget_1_id === 13 ||
-    settings.widget_2_id === 7 || settings.widget_2_id === 8 || settings.widget_2_id === 13;
+    settings.widget0Id === 7 || settings.widget0Id === 8 || settings.widget0Id === 13 ||
+    settings.widget1Id === 7 || settings.widget1Id === 8 || settings.widget1Id === 13 ||
+    settings.widget2Id === 7 || settings.widget2Id === 8 || settings.widget2Id === 13;
 
   const showAltClockSection =
-    settings.widget_0_id === 3 || settings.widget_1_id === 3 || settings.widget_2_id === 3;
+    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
 
   const showBatterySection =
-    settings.widget_0_id === 2 || settings.widget_1_id === 2 || settings.widget_2_id === 2;
+    settings.widget0Id === 2 || settings.widget1Id === 2 || settings.widget2Id === 2;
 
   return (
     <Page title="TimeStyle Settings">
@@ -128,21 +128,21 @@ export const SettingsPage: React.FC = () => {
           <>
             <ColorPicker
               label="Background color"
-              messageKey="color_bg"
+              messageKey="colorBackground"
             />
             <ColorPicker
               label="Time color"
-              messageKey="color_time"
+              messageKey="colorTime"
               bwAllowGrey={false}
             />
             <ColorPicker
               label="Sidebar color"
-              messageKey="color_sidebar"
+              messageKey="colorSidebar"
               bwAllowGrey={false}
             />
             <ColorPicker
               label="Sidebar text color"
-              messageKey="sidebar_text_color"
+              messageKey="colorSidebarText"
               bwAllowGrey={false}
             />
           </>
@@ -190,21 +190,21 @@ export const SettingsPage: React.FC = () => {
         {capabilities.RECT && (
           <SelectCards
             label="Position"
-            messageKey="sidebar_position"
+            messageKey="sidebarPosition"
             options={[
               { label: 'Left', value: 'left' },
               { label: 'Right', value: 'right' },
             ]}
             optionSettings={{
-              right: { sidebar_position: 'right' },
-              left: { sidebar_position: 'left' },
+              right: { sidebarPosition: 'right' },
+              left: { sidebarPosition: 'left' },
             }}
           />
         )}
         <Toggle
           label="Use large sidebar text"
           description="Increases the size of widget text in the sidebar"
-          messageKey="use_large_sidebar_font_setting"
+          messageKey="largeSidebarFont"
         />
       </Section>
 
@@ -213,11 +213,11 @@ export const SettingsPage: React.FC = () => {
         <Toggle
           label="Show leading zero"
           description="Display time as 09:30 instead of 9:30"
-          messageKey="leading_zero_setting"
+          messageKey="leadingZero"
         />
         <SelectCards
           label="Clock font"
-          messageKey="clock_font_setting"
+          messageKey="clockFont"
           options={[
             { label: 'Default', value: 'default' },
             { label: 'Bold', value: 'bold' },
@@ -226,11 +226,11 @@ export const SettingsPage: React.FC = () => {
             { label: 'LECO', value: 'leco' },
           ]}
           optionSettings={{
-            default: { clock_font_setting: 'default' },
-            bold: { clock_font_setting: 'bold' },
-            'bold-h': { clock_font_setting: 'bold-h' },
-            'bold-m': { clock_font_setting: 'bold-m' },
-            leco: { clock_font_setting: 'leco' },
+            default: { clockFont: 'default' },
+            bold: { clockFont: 'bold' },
+            'bold-h': { clockFont: 'bold-h' },
+            'bold-m': { clockFont: 'bold-m' },
+            leco: { clockFont: 'leco' },
           }}
         />
       </Section>
@@ -240,11 +240,11 @@ export const SettingsPage: React.FC = () => {
         <Toggle
           label="Show disconnection icon"
           description="Display an icon when the watch is disconnected from your phone"
-          messageKey="disconnect_icon_setting"
+          messageKey="disconnectIcon"
         />
         <Toggle
           label="Vibrate on disconnect"
-          messageKey="bluetooth_vibe_setting"
+          messageKey="bluetoothVibe"
         />
       </Section>
 
@@ -252,7 +252,7 @@ export const SettingsPage: React.FC = () => {
       <Section title="Notifications">
         <Select
           label="Hourly vibration"
-          messageKey="hourly_vibe_setting"
+          messageKey="hourlyVibe"
           options={[
             { label: 'None', value: 'none' },
             { label: 'Every 30 minutes', value: 'everyHalfHour' },
@@ -266,25 +266,25 @@ export const SettingsPage: React.FC = () => {
         <Section title="Weather">
           <Select
             label="Location mode"
-            messageKey="weather_setting"
+            messageKey="weatherMode"
             options={[
               { label: 'Automatic (GPS)', value: 'auto' },
               { label: 'Manual', value: 'manual' },
             ]}
           />
-          {settings.weather_setting === 'manual' && (
+          {settings.weatherMode === 'manual' && (
             <WeatherLocationPicker
-              currentLoc={settings.weather_loc}
+              currentLoc={settings.weatherLocation}
               onSelect={(loc, lat, lng) => {
-                updateSetting('weather_loc', loc);
-                updateSetting('weather_loc_lat', lat);
-                updateSetting('weather_loc_lng', lng);
+                updateSetting('weatherLocation', loc);
+                updateSetting('weatherLocationLat', lat);
+                updateSetting('weatherLocationLng', lng);
               }}
             />
           )}
           <Select
             label="Temperature units"
-            messageKey="units"
+            messageKey="weatherUnits"
             options={[
               { label: 'Fahrenheit (°F)', value: 'f' },
               { label: 'Celsius (°C)', value: 'c' },
@@ -301,7 +301,7 @@ export const SettingsPage: React.FC = () => {
         <Section title="Battery">
           <Select
             label="Auto battery display"
-            messageKey="autobattery_setting"
+            messageKey="autoBattery"
             description="Automatically show battery in the sidebar when it drops to 10%"
             options={[
               { label: 'Show automatically at 10%', value: 'on' },
@@ -310,7 +310,7 @@ export const SettingsPage: React.FC = () => {
           />
           <Select
             label="Battery meter style"
-            messageKey="battery_meter_setting"
+            messageKey="batteryMeter"
             options={[
               { label: 'Icon & percent', value: 'icon-and-percent' },
               { label: 'Icon only', value: 'icon-only' },
@@ -324,7 +324,7 @@ export const SettingsPage: React.FC = () => {
         <Section title="Alternate Time Zone">
           <Select
             label="Time zone offset"
-            messageKey="altclock_offset"
+            messageKey="altClockOffset"
             description="Note: does not account for Daylight Saving Time"
             options={ALT_CLOCK_OFFSETS}
           />
@@ -332,9 +332,9 @@ export const SettingsPage: React.FC = () => {
             <input
               type="text"
               className="halite-text-input"
-              value={settings.altclock_name}
+              value={settings.altClockName}
               maxLength={4}
-              onChange={(e) => updateSetting('altclock_name', e.target.value.toUpperCase())}
+              onChange={(e) => updateSetting('altClockName', e.target.value.toUpperCase())}
             />
           </FormItem>
         </Section>
@@ -345,7 +345,7 @@ export const SettingsPage: React.FC = () => {
         <Section title="Health">
           <Select
             label="Steps widget displays"
-            messageKey="health_use_distance"
+            messageKey="healthActivityMetric"
             options={[
               { label: 'Number of steps', value: 'steps' },
               { label: 'Distance walked', value: 'distance' },
@@ -353,7 +353,7 @@ export const SettingsPage: React.FC = () => {
           />
           <Select
             label="Sleep widget uses"
-            messageKey="health_use_restful_sleep"
+            messageKey="healthSleepType"
             options={[
               { label: 'Total sleep time', value: 'total' },
               { label: 'Restful sleep only', value: 'restful' },
@@ -366,12 +366,12 @@ export const SettingsPage: React.FC = () => {
       <Section title="Regional">
         <Select
           label="Language"
-          messageKey="language_id"
+          messageKey="languageId"
           options={LANGUAGE_OPTIONS}
         />
         <Select
           label="Decimal separator"
-          messageKey="decimal_separator"
+          messageKey="decimalSeparator"
           options={[
             { label: 'Period  (1,234.5)', value: '.' },
             { label: 'Comma  (1.234,5)', value: ',' },

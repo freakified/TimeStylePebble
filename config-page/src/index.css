@@ -497,6 +497,17 @@ input[type='checkbox'] {
   overflow: hidden;
 }
 
+.halite-watch-face--round {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+}
+
+.halite-watch-face--round .halite-watch-preview {
+  width: 180px;
+  height: 180px;
+}
+
 .halite-watch-preview-content {
   position: absolute;
   inset: 0;
@@ -565,7 +576,9 @@ input[type='checkbox'] {
   border-radius: 3px;
 }
 
-.halite-theme-card {
+/* Shared styles for ThemePicker cards and SelectCards cards */
+.halite-theme-card,
+.halite-select-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -577,34 +590,55 @@ input[type='checkbox'] {
   flex-shrink: 0;
   width: 92px;
   border-radius: 12px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
-.halite-theme-card[data-selected="true"] .halite-theme-card-preview {
+.halite-theme-card:has(.halite-watch-face--round),
+.halite-theme-card:has(.halite-custom-icon--round),
+.halite-select-card:has(.halite-watch-face--round) {
+  width: 100px;
+}
+
+.halite-theme-card[data-selected="true"] .halite-theme-card-preview,
+.halite-select-card[data-selected="true"] .halite-select-card-preview {
   box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--halite-orange);
 }
 
-.halite-theme-card[data-focus-visible="true"] .halite-theme-card-preview {
+.halite-theme-card[data-focus-visible="true"] .halite-theme-card-preview,
+.halite-select-card[data-focus-visible="true"] .halite-select-card-preview {
   box-shadow: 0 0 0 3px var(--border-focus);
 }
 
-.halite-theme-card-preview {
+.halite-theme-card-preview,
+.halite-select-card-preview {
   border-radius: 6px;
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease;
   display: flex;
   justify-content: center;
   pointer-events: none;
-  /* border: 2px solid var(--text-main); */
   border: 2px solid black;
 }
 
-.halite-theme-card-preview .halite-watch-face {
+.halite-theme-card-preview .halite-watch-face,
+.halite-select-card-preview .halite-watch-face {
   transform: scale(0.5);
   margin: -42px -36px;
 }
 
-.halite-theme-card-label {
+.halite-theme-card-preview .halite-watch-face--round,
+.halite-select-card-preview .halite-watch-face--round {
+  margin: -45px;
+}
+
+.halite-theme-card-preview:has(.halite-watch-face--round),
+.halite-theme-card-preview:has(.halite-custom-icon--round),
+.halite-select-card-preview:has(.halite-watch-face--round) {
+  border-radius: 50%;
+}
+
+.halite-theme-card-label,
+.halite-select-card-label {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
@@ -612,7 +646,8 @@ input[type='checkbox'] {
   text-align: center;
 }
 
-.halite-theme-card[data-selected="true"] .halite-theme-card-label {
+.halite-theme-card[data-selected="true"] .halite-theme-card-label,
+.halite-select-card[data-selected="true"] .halite-select-card-label {
   color: var(--halite-orange);
 }
 
@@ -625,6 +660,12 @@ input[type='checkbox'] {
   background-color: var(--bg-surface-elevated);
   border-radius: 4px;
   color: var(--text-muted);
+}
+
+.halite-custom-icon--round {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
 }
 
 /* SelectCards Component Styles */
@@ -661,55 +702,6 @@ input[type='checkbox'] {
   border-radius: 3px;
 }
 
-.halite-select-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  cursor: pointer;
-  outline: none;
-  position: relative;
-  flex-shrink: 0;
-  width: 92px;
-  border-radius: 12px;
-  transition: background-color 0.2s ease;
-}
-
-.halite-select-card-preview {
-  border-radius: 6px;
-  overflow: hidden;
-  transition: box-shadow 0.2s ease;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-  border: 2px solid black;
-}
-
-.halite-select-card-preview .halite-watch-face {
-  transform: scale(0.5);
-  margin: -42px -36px;
-}
-
-.halite-select-card[data-selected="true"] .halite-select-card-preview {
-  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--halite-orange);
-}
-
-.halite-select-card[data-focus-visible="true"] .halite-select-card-preview {
-  box-shadow: 0 0 0 3px var(--border-focus);
-}
-
-.halite-select-card-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
-  text-align: center;
-}
-
-.halite-select-card[data-selected="true"] .halite-select-card-label {
-  color: var(--halite-orange);
-}
 
 .halite-custom-panel {
   display: flex;
@@ -728,6 +720,11 @@ input[type='checkbox'] {
   overflow: hidden;
   border: 4px solid black;
   box-shadow: var(--shadow-md);
+}
+
+.halite-custom-panel-preview:has(.halite-watch-face--round),
+.widget-selector-preview:has(.halite-watch-face--round) {
+  border-radius: 50%;
 }
 
 .halite-custom-actions {
