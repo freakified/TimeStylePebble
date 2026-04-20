@@ -91,9 +91,9 @@ function locationError(err) {
     // reset cache time
     window.localStorage.setItem('weather_loc_cache_time', (new Date().getTime() / 1000));
 
+    currentFailures++;
     // try again
     updateWeather();
-    currentFailures++;
   } else {
     // until we get too many failures, at which point give up
     currentFailures = 0;
