@@ -6,6 +6,7 @@ import {
   Toggle,
   ColorPicker,
   Select,
+  SelectCards,
   ThemePicker,
   CustomThemePanel,
   WidgetSelector,
@@ -187,20 +188,23 @@ export const SettingsPage: React.FC = () => {
       {/* ── Sidebar Display ── */}
       <Section title="Sidebar Display">
         {capabilities.RECT && (
-          <Select
-            label="Sidebar position"
+          <SelectCards
+            label="Position"
             messageKey="sidebar_position"
             options={[
-              { label: 'Right', value: 'right' },
               { label: 'Left', value: 'left' },
+              { label: 'Right', value: 'right' },
             ]}
+            optionSettings={{
+              right: { sidebar_position: 'right' },
+              left: { sidebar_position: 'left' },
+            }}
           />
         )}
         <Toggle
           label="Use large sidebar text"
           description="Increases the size of widget text in the sidebar"
           messageKey="use_large_sidebar_font_setting"
-          valueType="yesno"
         />
       </Section>
 
@@ -210,9 +214,8 @@ export const SettingsPage: React.FC = () => {
           label="Show leading zero"
           description="Display time as 09:30 instead of 9:30"
           messageKey="leading_zero_setting"
-          valueType="yesno"
         />
-        <Select
+        <SelectCards
           label="Clock font"
           messageKey="clock_font_setting"
           options={[
@@ -222,6 +225,13 @@ export const SettingsPage: React.FC = () => {
             { label: 'Bold (minutes only)', value: 'bold-m' },
             { label: 'LECO', value: 'leco' },
           ]}
+          optionSettings={{
+            default: { clock_font_setting: 'default' },
+            bold: { clock_font_setting: 'bold' },
+            'bold-h': { clock_font_setting: 'bold-h' },
+            'bold-m': { clock_font_setting: 'bold-m' },
+            leco: { clock_font_setting: 'leco' },
+          }}
         />
       </Section>
 
@@ -231,12 +241,10 @@ export const SettingsPage: React.FC = () => {
           label="Show disconnection icon"
           description="Display an icon when the watch is disconnected from your phone"
           messageKey="disconnect_icon_setting"
-          valueType="yesno"
         />
         <Toggle
           label="Vibrate on disconnect"
           messageKey="bluetooth_vibe_setting"
-          valueType="yesno"
         />
       </Section>
 
@@ -246,9 +254,9 @@ export const SettingsPage: React.FC = () => {
           label="Hourly vibration"
           messageKey="hourly_vibe_setting"
           options={[
-            { label: 'None', value: 'no' },
-            { label: 'Every 30 minutes', value: 'half' },
-            { label: 'Every hour', value: 'yes' },
+            { label: 'None', value: 'none' },
+            { label: 'Every 30 minutes', value: 'everyHalfHour' },
+            { label: 'Every hour', value: 'everyHour' },
           ]}
         />
       </Section>
@@ -339,16 +347,16 @@ export const SettingsPage: React.FC = () => {
             label="Steps widget displays"
             messageKey="health_use_distance"
             options={[
-              { label: 'Number of steps', value: 'no' },
-              { label: 'Distance walked', value: 'yes' },
+              { label: 'Number of steps', value: 'steps' },
+              { label: 'Distance walked', value: 'distance' },
             ]}
           />
           <Select
             label="Sleep widget uses"
             messageKey="health_use_restful_sleep"
             options={[
-              { label: 'Total sleep time', value: 'no' },
-              { label: 'Restful sleep only', value: 'yes' },
+              { label: 'Total sleep time', value: 'total' },
+              { label: 'Restful sleep only', value: 'restful' },
             ]}
           />
         </Section>

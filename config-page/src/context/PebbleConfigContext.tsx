@@ -5,7 +5,7 @@ import { getDefaultSettings } from '../utils/defaultSettings';
 
 interface ConfigContextType {
   settings: Settings;
-  updateSetting: (key: string, value: any) => void;
+  updateSetting: (key: keyof Settings, value: Settings[keyof Settings]) => void;
   save: () => void;
 }
 
@@ -62,7 +62,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   });
 
-  const updateSetting = (key: string, value: any) => {
+  const updateSetting = (key: keyof Settings, value: Settings[keyof Settings]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 

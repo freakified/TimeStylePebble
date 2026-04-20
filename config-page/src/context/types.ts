@@ -51,38 +51,38 @@ export interface Settings {
   widget_2_id: number;  // bottom slot (rect) or right slot (round)
 
   // General display
-  language_id: number;                    // 0–36
-  leading_zero_setting: string;           // 'yes' | 'no'
-  clock_font_setting: string;             // 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco'
-  sidebar_position: string;               // 'left' | 'right'
-  use_large_sidebar_font_setting: string; // 'yes' | 'no'
-  decimal_separator: string;              // '.' | ','
+  language_id: number;
+  leading_zero_setting: boolean;
+  clock_font_setting: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
+  sidebar_position: 'left' | 'right';
+  use_large_sidebar_font_setting: boolean;
+  decimal_separator: '.' | ',';
 
   // Bluetooth
-  disconnect_icon_setting: string;  // 'yes' | 'no'
-  bluetooth_vibe_setting: string;   // 'yes' | 'no'
+  disconnect_icon_setting: boolean;
+  bluetooth_vibe_setting: boolean;
 
   // Notifications
-  hourly_vibe_setting: string;  // 'no' | 'half' | 'yes'
+  hourly_vibe_setting: 'none' | 'everyHour' | 'everyHalfHour';
 
   // Weather
-  units: string;            // 'f' | 'c'
+  units: 'f' | 'c';
   weather_loc: string;
   weather_loc_lat: string;
   weather_loc_lng: string;
-  weather_setting: string;  // 'auto' | 'manual'
+  weather_setting: 'auto' | 'manual';
   weather_datasource: string;
   weather_api_key: string;
 
   // Battery
-  battery_meter_setting: string;  // 'icon-and-percent' | 'icon-only'
-  autobattery_setting: string;    // 'on' | 'off'
+  battery_meter_setting: 'icon-and-percent' | 'icon-only';
+  autobattery_setting: 'on' | 'off';
 
   // Alternate time zone
   altclock_name: string;    // max 4 chars
   altclock_offset: number;  // -12 to +14
 
   // Health
-  health_use_distance: string;      // 'yes' | 'no'
-  health_use_restful_sleep: string; // 'yes' | 'no'
+  health_use_distance: 'steps' | 'distance';
+  health_use_restful_sleep: 'total' | 'restful';
 }

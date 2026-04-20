@@ -152,6 +152,7 @@ button {
   gap: 4px;
   flex-grow: 1;
   padding-right: 16px;
+  font-weight: 600;
 }
 
 .halite-description {
@@ -624,6 +625,90 @@ input[type='checkbox'] {
   background-color: var(--bg-surface-elevated);
   border-radius: 4px;
   color: var(--text-muted);
+}
+
+/* SelectCards Component Styles */
+.halite-select-cards {
+  padding-inline: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.halite-select-cards .halite-label-group {
+  padding-left: 16px;
+}
+
+.halite-select-cards-grid {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  outline: none;
+  width: 100%;
+  padding: 0px 8px 4px;
+  gap: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.halite-select-cards-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.halite-select-cards-grid::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  border-radius: 3px;
+}
+
+.halite-select-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 92px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.halite-select-card-preview {
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  border: 2px solid black;
+}
+
+.halite-select-card-preview .halite-watch-face {
+  transform: scale(0.5);
+  margin: -42px -36px;
+}
+
+.halite-select-card[data-selected="true"] .halite-select-card-preview {
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--halite-orange);
+}
+
+.halite-select-card[data-focus-visible="true"] .halite-select-card-preview {
+  box-shadow: 0 0 0 3px var(--border-focus);
+}
+
+.halite-select-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+  text-align: center;
+}
+
+.halite-select-card[data-selected="true"] .halite-select-card-label {
+  color: var(--halite-orange);
 }
 
 .halite-custom-panel {

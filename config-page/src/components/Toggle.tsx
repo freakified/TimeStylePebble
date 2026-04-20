@@ -8,21 +8,15 @@ export const Toggle: React.FC<{
   label: string;
   description?: string;
   messageKey: keyof Settings;
-  /** 'bool' emits 0/1 (default); 'yesno' emits 'yes'/'no' */
-  valueType?: 'bool' | 'yesno';
-}> = ({ label, description, messageKey, valueType = 'bool' }) => {
+}> = ({ label, description, messageKey }) => {
   const { settings, updateSetting } = useConfig();
 
-  const isSelected = valueType === 'yesno'
-    ? settings[messageKey] === 'yes'
-    : !!settings[messageKey];
+  const isSelected = !!settings[messageKey];
 
   return (
     <Switch
       isSelected={isSelected}
-      onChange={(selected) =>
-        updateSetting(messageKey, valueType === 'yesno' ? (selected ? 'yes' : 'no') : (selected ? 1 : 0))
-      }
+      onChange={(selected) => updateSetting(messageKey, selected)}
       className="halite-item halite-toggle"
     >
       <FormItemLabel label={label} description={description} />

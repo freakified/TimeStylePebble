@@ -19,18 +19,18 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // General
   language_id: 0,
-  leading_zero_setting: 'no',
+  leading_zero_setting: false,
   clock_font_setting: 'default',
   sidebar_position: 'right',
-  use_large_sidebar_font_setting: 'no',
+  use_large_sidebar_font_setting: false,
   decimal_separator: '.',
 
   // Bluetooth
-  disconnect_icon_setting: 'no',
-  bluetooth_vibe_setting: 'no',
+  disconnect_icon_setting: false,
+  bluetooth_vibe_setting: false,
 
   // Notifications
-  hourly_vibe_setting: 'no',
+  hourly_vibe_setting: 'none',
 
   // Weather
   units: 'f',
@@ -50,6 +50,6 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   altclock_offset: 0,
 
   // Health
-  health_use_distance: 'no',
-  health_use_restful_sleep: 'no',
+  health_use_distance: 'steps',
+  health_use_restful_sleep: 'total',
 });
