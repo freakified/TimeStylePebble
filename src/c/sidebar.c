@@ -7,7 +7,11 @@
 #include "sidebar.h"
 #include "sidebar_widgets.h"
 
-#define V_PADDING_DEFAULT 8
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  #define V_PADDING_DEFAULT 9
+#else
+  #define V_PADDING_DEFAULT 8
+#endif
 #define V_PADDING_COMPACT 4
 
 GRect screen_rect;

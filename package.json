@@ -168,6 +168,15 @@
           "type": "raw"
         },
         {
+          "file": "data/DATE_BG_LG.pdc",
+          "name": "DATE_BG_LG",
+          "type": "raw",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
           "file": "data/CLOUDY_DAY.pdc",
           "name": "WEATHER_CLOUDY",
           "type": "raw"
