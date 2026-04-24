@@ -36,7 +36,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function (e) {
-  var availabileConfigPlatforms = ['aplite', 'basalt', 'chalk', 'diorite', 'emery'];
+  var availabileConfigPlatforms = ['aplite', 'basalt', 'chalk', 'diorite', 'emery', 'flint', 'gabbro'];
 
   var watchInfo;
 
@@ -54,7 +54,15 @@ Pebble.addEventListener('showConfiguration', function (e) {
     };
   }
 
-  // if the reported platform isn't one of the 5 known platforms, just assume it's basalt
+  // map newer platforms to the closest equivalent config page
+  // TODO: create real config pages for these platforms
+  if (watchInfo.platform === 'flint') {
+    watchInfo = { platform: 'diorite' };
+  } else if (watchInfo.platform === 'gabbro') {
+    watchInfo = { platform: 'chalk' };
+  }
+
+  // if the reported platform isn't one of the known platforms, just assume it's basalt
   if (availabileConfigPlatforms.indexOf(watchInfo.platform) === -1) {
     watchInfo = {
       platform: "basalt"
