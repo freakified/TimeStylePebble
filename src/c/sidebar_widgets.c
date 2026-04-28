@@ -615,7 +615,7 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
   yPosition -= layout.dateTopCorrection;
 
   // first draw the day name
-  graphics_draw_text(ctx, "SAT", currentSidebarFont,
+  graphics_draw_text(ctx, currentDayName, currentSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition,
                            layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
