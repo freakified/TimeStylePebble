@@ -47,10 +47,10 @@ void Sidebar_init(Window *window) {
   bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
 #else
   if (!settings.sidebarOnLeft) {
-    bounds = GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0, ACTION_BAR_WIDTH,
+    bounds = GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH,
                    screen_rect.size.h);
   } else {
-    bounds = GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h);
+    bounds = GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h);
   }
 #endif
 
@@ -88,11 +88,11 @@ void Sidebar_redraw() {
   // reposition the sidebar if needed
   if (!settings.sidebarOnLeft) {
     layer_set_frame(sidebarLayer,
-                    GRect(screen_rect.size.w - ACTION_BAR_WIDTH, 0,
-                          ACTION_BAR_WIDTH, screen_rect.size.h));
+                    GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0,
+                          SIDEBAR_WIDTH, screen_rect.size.h));
   } else {
     layer_set_frame(sidebarLayer,
-                    GRect(0, 0, ACTION_BAR_WIDTH, screen_rect.size.h));
+                    GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h));
   }
 #endif
 
@@ -239,7 +239,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
 
   // this ends up being zero on every rectangular platform besides emery
-  SidebarWidgets_xOffset = (ACTION_BAR_WIDTH - 30) / 2;
+  SidebarWidgets_xOffset = (SIDEBAR_WIDTH - 30) / 2;
 
   SidebarWidgets_updateFonts();
 

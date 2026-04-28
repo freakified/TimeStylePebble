@@ -38,7 +38,8 @@ typedef struct {
   // current weather
   int weatherHeight;
   int weatherTempY;
-  // common text rect width for main data display
+  // common text rect x offset and width for main data display
+  int textRectX;
   int textRectWidth;
   // weather forecast
   int weatherForecastHeight;
@@ -260,6 +261,7 @@ void SidebarWidgets_updateFonts() {
         .dateBgRectHeight = 22,
         .weatherHeight = 44,
         .weatherTempY = 20,
+        .textRectX = -5,
         .textRectWidth = 40,
         .weatherForecastHeight = 63,
         .forecastHighY = 20,
@@ -299,6 +301,7 @@ void SidebarWidgets_updateFonts() {
         .dateBgRectHeight = 22,
         .weatherHeight = 42,
         .weatherTempY = 24,
+        .textRectX = -5,
         .textRectWidth = 40,
         .weatherForecastHeight = 60,
         .forecastHighY = 24,
@@ -342,7 +345,8 @@ void SidebarWidgets_updateFonts() {
     layout.dateBgRectHeight = 26;
     layout.weatherHeight = 49;
     layout.weatherTempY = 21;
-    layout.textRectWidth = 40;
+    layout.textRectX = -9;
+    layout.textRectWidth = 48;
     layout.weatherForecastHeight = 76;
     layout.forecastHighY = 21;
     layout.forecastDividerY = 45;
@@ -378,7 +382,8 @@ void SidebarWidgets_updateFonts() {
     layout.dateBgRectHeight = 26;
     layout.weatherHeight = 46;
     layout.weatherTempY = 22;
-    layout.textRectWidth = 40;
+    layout.textRectX = -9;
+    layout.textRectWidth = 48;
     layout.weatherForecastHeight = 69;
     layout.forecastHighY = 22;
     layout.forecastDividerY = 42;
@@ -589,7 +594,7 @@ void BatteryMeter_draw(GContext *ctx, int yPosition) {
       snprintf(batteryString, sizeof(batteryString), "%d", battery_percent);
     }
     graphics_draw_text(ctx, batteryString, batteryFont,
-                       GRect(-5 + SidebarWidgets_xOffset,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
                              layout.batteryTextY + batteryPositionY,
                              layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -611,8 +616,8 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
 
   // first draw the day name
   graphics_draw_text(
-      ctx, currentDayName, currentSidebarFont,
-      GRect(-5 + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
+      ctx, "WED", currentSidebarFont,
+      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   // next, draw the date background
@@ -654,7 +659,7 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
   int yOffset = layout.dateDayNumY;
 
   graphics_draw_text(ctx, currentDayNum, currentSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
                            layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
@@ -666,7 +671,7 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
     yOffset = layout.dateMonthY;
 
     graphics_draw_text(ctx, currentMonth, currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
                              layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
@@ -705,7 +710,7 @@ void CurrentWeather_draw(GContext *ctx, int yPosition) {
       snprintf(tempString, sizeof(tempString), "%d", currentTemp);
     }
     graphics_draw_text(ctx, tempString, currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
                              yPosition + layout.weatherTempY,
                              layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -713,7 +718,7 @@ void CurrentWeather_draw(GContext *ctx, int yPosition) {
     // if the weather data isn't set, draw a loading indication
     graphics_draw_text(
         ctx, "...", currentSidebarFont,
-        GRect(-5 + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
+        GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
         GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -735,12 +740,12 @@ void BTDisconnect_draw(GContext *ctx, int yPosition) {
 static void draw_basic_widget(GContext *ctx, int yPosition, const char *label,
                               const char *value, int valueYOffset) {
   graphics_draw_text(ctx, label, smSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.basicWidgetLabelY,
                            layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   graphics_draw_text(ctx, value, currentSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + valueYOffset, layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
@@ -763,7 +768,7 @@ void Seconds_draw(GContext *ctx, int yPosition) {
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
 
   graphics_draw_text(ctx, currentSecondsNum, lgSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.secondsY, layout.textRectWidth,
                            20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -807,7 +812,7 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
       snprintf(tempString, sizeof(tempString), "%d", todaysHighTemp);
     }
     graphics_draw_text(ctx, tempString, currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
                              yPosition + layout.forecastHighY,
                              layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -824,7 +829,7 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
       snprintf(tempString, sizeof(tempString), "%d", todaysLowTemp);
     }
     graphics_draw_text(ctx, tempString, currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
                              yPosition + layout.forecastLowY,
                              layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -832,7 +837,7 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
     // if the weather data isn't set, draw a loading indication
     graphics_draw_text(
         ctx, "...", currentSidebarFont,
-        GRect(-5 + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
+        GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
         GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -946,7 +951,7 @@ void StepCounter_draw(GContext *ctx, int yPosition) {
 
   graphics_draw_text(
       ctx, steps_text, (use_small_font) ? smSidebarFont : mdSidebarFont,
-      GRect(-5 + SidebarWidgets_xOffset, yPosition + layout.stepsTextY,
+      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + layout.stepsTextY,
             layout.textRectWidth, 20),
       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
@@ -989,7 +994,7 @@ void SleepTimer_draw(GContext *ctx, int yPosition) {
 
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
   graphics_draw_text(ctx, sleep_text, mdSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.sleepHoursY, layout.textRectWidth,
                            20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -997,7 +1002,7 @@ void SleepTimer_draw(GContext *ctx, int yPosition) {
   snprintf(sleep_text, sizeof(sleep_text), "%im", sleep_minutes);
 
   graphics_draw_text(ctx, sleep_text, smSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.sleepMinutesY,
                            layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -1023,7 +1028,7 @@ void HeartRate_draw(GContext *ctx, int yPosition) {
 
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
   graphics_draw_text(ctx, heart_rate_text, currentSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
                            layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }

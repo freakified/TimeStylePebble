@@ -3,6 +3,7 @@
 
 #include "clock_area.h"
 #include "settings.h"
+#include "sidebar.h"
 
 #include <pebble-fctx/fctx.h>
 #include <pebble-fctx/fpath.h>
@@ -102,9 +103,9 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #else
     // for rectangular watches, adjust X position based on sidebar position
     if(settings.sidebarOnLeft) {
-      h_adjust += ACTION_BAR_WIDTH / 2;
+      h_adjust += SIDEBAR_WIDTH / 2;
     } else {
-      h_adjust -= ACTION_BAR_WIDTH / 2 + 1;
+      h_adjust -= SIDEBAR_WIDTH / 2 + 1;
     }
   #endif
 
