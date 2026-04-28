@@ -15,6 +15,15 @@
 #define V_PADDING_COMPACT 4
 
 GRect screen_rect;
+int sidebarWidth;
+
+static void update_sidebar_width() {
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  sidebarWidth = settings.useLargeFonts ? 39 : 34;
+#else
+  sidebarWidth = 30;
+#endif
+}
 
 // "private" functions
 // layer update callbacks
@@ -37,6 +46,7 @@ Layer *sidebarLayer2;
 #endif
 
 void Sidebar_init(Window *window) {
+  update_sidebar_width();
   // init the sidebar layer
   screen_rect = layer_get_bounds(window_get_root_layer(window));
   GRect bounds;
@@ -47,10 +57,10 @@ void Sidebar_init(Window *window) {
   bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
 #else
   if (!settings.sidebarOnLeft) {
-    bounds = GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0, SIDEBAR_WIDTH,
+    bounds = GRect(screen_rect.size.w - sidebarWidth, 0, sidebarWidth,
                    screen_rect.size.h);
   } else {
-    bounds = GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h);
+    bounds = GRect(0, 0, sidebarWidth, screen_rect.size.h);
   }
 #endif
 
@@ -84,15 +94,15 @@ void Sidebar_deinit() {
 }
 
 void Sidebar_redraw() {
+  update_sidebar_width();
 #ifndef PBL_ROUND
   // reposition the sidebar if needed
   if (!settings.sidebarOnLeft) {
-    layer_set_frame(sidebarLayer,
-                    GRect(screen_rect.size.w - SIDEBAR_WIDTH, 0,
-                          SIDEBAR_WIDTH, screen_rect.size.h));
+    layer_set_frame(sidebarLayer, GRect(screen_rect.size.w - sidebarWidth, 0,
+                                        sidebarWidth, screen_rect.size.h));
   } else {
     layer_set_frame(sidebarLayer,
-                    GRect(0, 0, SIDEBAR_WIDTH, screen_rect.size.h));
+                    GRect(0, 0, sidebarWidth, screen_rect.size.h));
   }
 #endif
 
@@ -239,7 +249,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
 
   // this ends up being zero on every rectangular platform besides emery
-  SidebarWidgets_xOffset = (SIDEBAR_WIDTH - 30) / 2;
+  SidebarWidgets_xOffset = (sidebarWidth - 30) / 2;
 
   SidebarWidgets_updateFonts();
 

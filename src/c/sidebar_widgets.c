@@ -143,7 +143,7 @@ void SidebarWidgets_init() {
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
   smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   mdSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
-  lgSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_28);
+  lgSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 #else
   smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   mdSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
@@ -345,8 +345,8 @@ void SidebarWidgets_updateFonts() {
     layout.dateBgRectHeight = 26;
     layout.weatherHeight = 49;
     layout.weatherTempY = 21;
-    layout.textRectX = -9;
-    layout.textRectWidth = 48;
+    layout.textRectX = -10;
+    layout.textRectWidth = 50;
     layout.weatherForecastHeight = 76;
     layout.forecastHighY = 21;
     layout.forecastDividerY = 45;
@@ -615,10 +615,10 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
   yPosition -= layout.dateTopCorrection;
 
   // first draw the day name
-  graphics_draw_text(
-      ctx, "WED", currentSidebarFont,
-      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
-      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, "SAT", currentSidebarFont,
+                     GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition,
+                           layout.textRectWidth, 20),
+                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   // next, draw the date background
   // (an image in normal mode, a rectangle in large font mode)
@@ -659,8 +659,8 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
   int yOffset = layout.dateDayNumY;
 
   graphics_draw_text(ctx, currentDayNum, currentSidebarFont,
-                     GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
-                           layout.textRectWidth, 20),
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
+                           yPosition + yOffset, layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   // switch back to normal color for the rest
@@ -671,8 +671,8 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
     yOffset = layout.dateMonthY;
 
     graphics_draw_text(ctx, currentMonth, currentSidebarFont,
-                       GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
-                             layout.textRectWidth, 20),
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
+                             yPosition + yOffset, layout.textRectWidth, 20),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -716,10 +716,10 @@ void CurrentWeather_draw(GContext *ctx, int yPosition) {
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   } else {
     // if the weather data isn't set, draw a loading indication
-    graphics_draw_text(
-        ctx, "...", currentSidebarFont,
-        GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
-        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "...", currentSidebarFont,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
+                             yPosition, layout.textRectWidth, 20),
+                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
 
@@ -835,10 +835,10 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   } else {
     // if the weather data isn't set, draw a loading indication
-    graphics_draw_text(
-        ctx, "...", currentSidebarFont,
-        GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition, layout.textRectWidth, 20),
-        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, "...", currentSidebarFont,
+                       GRect(layout.textRectX + SidebarWidgets_xOffset,
+                             yPosition, layout.textRectWidth, 20),
+                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
 
@@ -951,8 +951,8 @@ void StepCounter_draw(GContext *ctx, int yPosition) {
 
   graphics_draw_text(
       ctx, steps_text, (use_small_font) ? smSidebarFont : mdSidebarFont,
-      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + layout.stepsTextY,
-            layout.textRectWidth, 20),
+      GRect(layout.textRectX + SidebarWidgets_xOffset,
+            yPosition + layout.stepsTextY, layout.textRectWidth, 20),
       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
@@ -1028,8 +1028,8 @@ void HeartRate_draw(GContext *ctx, int yPosition) {
 
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
   graphics_draw_text(ctx, heart_rate_text, currentSidebarFont,
-                     GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition + yOffset,
-                           layout.textRectWidth, 20),
+                     GRect(layout.textRectX + SidebarWidgets_xOffset,
+                           yPosition + yOffset, layout.textRectWidth, 20),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 

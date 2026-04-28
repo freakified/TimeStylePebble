@@ -103,9 +103,9 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #else
     // for rectangular watches, adjust X position based on sidebar position
     if(settings.sidebarOnLeft) {
-      h_adjust += SIDEBAR_WIDTH / 2;
+      h_adjust += sidebarWidth / 2;
     } else {
-      h_adjust -= SIDEBAR_WIDTH / 2 + 1;
+      h_adjust -= sidebarWidth / 2 + 1;
     }
   #endif
 
