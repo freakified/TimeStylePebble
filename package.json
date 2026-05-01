@@ -1,7 +1,7 @@
 {
   "name": "timestyle-pebble",
   "author": "Freakified",
-  "version": "7.8.0",
+  "version": "7.11.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -166,6 +166,15 @@
           "file": "data/DATE_BG.pdc",
           "name": "DATE_BG",
           "type": "raw"
+        },
+        {
+          "file": "data/DATE_BG_LG.pdc",
+          "name": "DATE_BG_LG",
+          "type": "raw",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
         },
         {
           "file": "data/CLOUDY_DAY.pdc",

@@ -1,6 +1,8 @@
 #pragma once
 #include <pebble.h>
 
+extern int sidebarWidth;
+
 // "public" functions
 void Sidebar_init(Window* window);
 void Sidebar_deinit();

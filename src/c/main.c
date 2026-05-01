@@ -29,8 +29,21 @@ void update_clock() {
   time_t rawTime;
   struct tm* timeInfo;
 
+#ifdef USE_FAKE_TIME
+  struct tm fakeTime = {
+    .tm_hour = 6,
+    .tm_min  = 23,
+    .tm_sec  = 0,
+    .tm_mday = 24,
+    .tm_mon  = 3,
+    .tm_year = 126,
+    .tm_wday = 5,
+  };
+  timeInfo = &fakeTime;
+#else
   time(&rawTime);
   timeInfo = localtime(&rawTime);
+#endif
 
   ClockArea_update_time(timeInfo);
   Sidebar_updateTime(timeInfo);
