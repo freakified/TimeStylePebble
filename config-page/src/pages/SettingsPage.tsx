@@ -102,8 +102,6 @@ export const SettingsPage: React.FC = () => {
   const showAltClockSection =
     settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
 
-  const showBatterySection =
-    settings.widget0Id === 2 || settings.widget1Id === 2 || settings.widget2Id === 2;
 
   return (
     <Page title="TimeStyle Settings">
@@ -297,27 +295,25 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* ── Battery ── */}
-      {showBatterySection && (
-        <Section title="Battery">
-          <Select
-            label="Auto battery display"
-            messageKey="autoBattery"
-            description="Automatically show battery in the sidebar when it drops to 10%"
-            options={[
-              { label: 'Show automatically at 10%', value: 'on' },
-              { label: 'Never show automatically', value: 'off' },
-            ]}
-          />
-          <Select
-            label="Battery meter style"
-            messageKey="batteryMeter"
-            options={[
-              { label: 'Icon & percent', value: 'icon-and-percent' },
-              { label: 'Icon only', value: 'icon-only' },
-            ]}
-          />
-        </Section>
-      )}
+      <Section title="Battery">
+        <Select
+          label="Auto battery display"
+          messageKey="autoBattery"
+          description="Automatically show battery in the sidebar when it drops to 10%"
+          options={[
+            { label: 'Show automatically at 10%', value: 'on' },
+            { label: 'Never show automatically', value: 'off' },
+          ]}
+        />
+        <Select
+          label="Battery meter style"
+          messageKey="batteryMeter"
+          options={[
+            { label: 'Icon & percent', value: 'icon-and-percent' },
+            { label: 'Icon only', value: 'icon-only' },
+          ]}
+        />
+      </Section>
 
       {/* ── Alternate Time Zone ── */}
       {showAltClockSection && (
