@@ -51,7 +51,7 @@ jobs:
           
           # Add battery sync section to config_common_options.html
           if [ -f "main-repo/config/_includes/config_common_options.html" ]; then
-            cat >> main-repo/config/_includes/config_common_options.html << 'EOF'
+            cat >> main-repo/config/_includes/config_common_options.html << 'ENDOFFILE'
 <hr>
 <label>Remote Battery Sync</label><br />
 <div class="alert alert-info" role="alert">
@@ -62,7 +62,7 @@ jobs:
 <br>
 <label class="subtle">Bearer Token (optional)</label>
 <input type="text" class="form-control" id="remote_endpoint_token" placeholder='Optional authentication token'>
-EOF
+ENDOFFILE
           fi
 
       - name: Update BASE_CONFIG_URL in index.js
