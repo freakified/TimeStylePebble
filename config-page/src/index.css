@@ -4,6 +4,8 @@
   /* Brand Colors */
   --halite-orange: #FF5500;
   --halite-orange-active: #e03e00;
+  --halite-donation-green: #17633f;
+  --halite-donation-green-active: #0f4d30;
 
   /* Light Theme Variables */
   --bg-color: #f0f2f5;
@@ -95,6 +97,12 @@ button {
   font-weight: 600;
 }
 
+.halite-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .halite-content {
   flex: 1;
   display: flex;
@@ -175,6 +183,106 @@ button {
 
 .halite-save-button:active {
   background-color: var(--halite-orange-active);
+}
+
+.halite-reset-button {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.halite-reset-button:active {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-main);
+}
+
+.halite-donation {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 23rem;
+  margin: 0 auto;
+  padding: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.halite-donation-copy {
+  min-width: 0;
+}
+
+.halite-donation h2 {
+  margin: 0 0 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.halite-donation p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.halite-donation-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.halite-donation-button,
+.halite-donation-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.halite-donation-button {
+  background-color: var(--halite-donation-green);
+  color: white;
+  border: 1px solid var(--halite-donation-green);
+}
+
+.halite-donation-button:hover,
+.halite-donation-button:active {
+  background-color: var(--halite-donation-green-active);
+  border-color: var(--halite-donation-green-active);
+}
+
+.halite-donation-dismiss {
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-muted);
+}
+
+.halite-donation-dismiss:hover,
+.halite-donation-dismiss:active {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+.halite-donation-button:focus-visible,
+.halite-donation-dismiss:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--border-focus);
 }
 
 /* Color Trigger Components */

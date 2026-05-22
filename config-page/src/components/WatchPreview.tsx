@@ -1,6 +1,15 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
+import widgetAltTz from '../assets/preview/widget_previews/widget_alttz.svg?raw';
+import widgetBeats from '../assets/preview/widget_previews/widget_beats.svg?raw';
+import widgetDate from '../assets/preview/widget_previews/widget_date.svg?raw';
+import widgetForecast from '../assets/preview/widget_previews/widget_forecast.svg?raw';
+import widgetHrm from '../assets/preview/widget_previews/widget_hrm.svg?raw';
+import widgetSeconds from '../assets/preview/widget_previews/widget_seconds.svg?raw';
+import widgetSteps from '../assets/preview/widget_previews/widget_steps.svg?raw';
+import widgetUvi from '../assets/preview/widget_previews/widget_uvi.svg?raw';
+import widgetWeather from '../assets/preview/widget_previews/widget_weather.svg?raw';
 
 export interface WatchPreviewProps {
     overrideSettings?: Partial<Settings>;
@@ -44,10 +53,127 @@ const WIDGET_LABELS: Record<number, string> = {
     13: 'UV',
 };
 
+interface WidgetPreviewAsset {
+    svg: string;
+    width: number;
+    height: number;
+}
+
+const WIDGET_PREVIEWS: Record<number, WidgetPreviewAsset> = {
+    3:  { svg: widgetAltTz,   width: 29, height: 35 },
+    4:  { svg: widgetDate,    width: 29, height: 63 },
+    5:  { svg: widgetSeconds, width: 29, height: 35 },
+    7:  { svg: widgetWeather, width: 29, height: 47 },
+    8:  { svg: widgetForecast, width: 29, height: 65 },
+    10: { svg: widgetSteps,   width: 29, height: 35 },
+    11: { svg: widgetBeats,   width: 29, height: 35 },
+    12: { svg: widgetHrm,     width: 29, height: 47 },
+    13: { svg: widgetUvi,     width: 29, height: 35 },
+};
+
+const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
+
+const isBlack = (color: string) => {
+    const normalized = color.toLowerCase();
+    return normalized === '#000' || normalized === '#000000';
+};
+
+const getTintedSvgDataUri = (svg: string, sidebarColor: string, textColor: string) => {
+    const fillColor = isBlack(sidebarColor) ? '#000000' : '#ffffff';
+    const strokeColor = isBlack(sidebarColor) ? textColor : '#000000';
+
+    const svgWithSidebarBackground = svg.replace(
+        /(<(?:path|rect)\b[^>]*\bfill=")#fff(")/i,
+        `$1${sidebarColor}$2`
+    );
+
+    const tintedSvg = svgWithSidebarBackground
+        .replace(/#fff/gi, fillColor)
+        .replace(/stroke="#000"/gi, `stroke="${strokeColor}"`)
+        .replace(/stroke:#000/gi, `stroke:${strokeColor}`)
+        .replace(/fill="#000"/gi, `fill="${textColor}"`)
+        .replace(/fill:#000/gi, `fill:${textColor}`);
+
+    return `data:image/svg+xml;utf8,${encodeURIComponent(tintedSvg)}`;
+};
+
+const renderFallbackWidgetLabel = (
+    widgetId: number,
+    centerX: number,
+    centerY: number,
+    textColor: string
+) => {
+    const label = WIDGET_LABELS[widgetId] ?? '';
+    if (!label) return null;
+
+    const lines = label.split('\n');
+    const lineHeight = 10;
+    const startY = centerY - ((lines.length - 1) * lineHeight) / 2 + 2;
+
+    return lines.map((line, i) => (
+        <text
+            key={i}
+            x={centerX}
+            y={startY + i * lineHeight}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={textColor}
+            fontSize="7"
+            fontFamily="monospace"
+            fontWeight="bold"
+        >
+            {line}
+        </text>
+    ));
+};
+
+const getWidgetPreviewSize = (widgetId: number, maxWidth: number, scaleMultiplier = 1) => {
+    const asset = WIDGET_PREVIEWS[widgetId];
+
+    if (!asset) {
+        return { width: maxWidth, height: 20 * scaleMultiplier };
+    }
+
+    const scale = Math.min(maxWidth / asset.width, 1) * scaleMultiplier;
+    return {
+        width: asset.width * scale,
+        height: asset.height * scale,
+    };
+};
+
+const renderWidgetPreview = (
+    widgetId: number,
+    centerX: number,
+    centerY: number,
+    maxWidth: number,
+    backgroundColor: string,
+    foregroundColor: string,
+    scaleMultiplier = 1
+) => {
+    const asset = WIDGET_PREVIEWS[widgetId];
+
+    if (!asset) {
+        return renderFallbackWidgetLabel(widgetId, centerX, centerY, foregroundColor);
+    }
+
+    const scale = Math.min(maxWidth / asset.width, 1) * scaleMultiplier;
+    const width = asset.width * scale;
+    const height = asset.height * scale;
+
+    return (
+        <image
+            href={getTintedSvgDataUri(asset.svg, backgroundColor, foregroundColor)}
+            x={centerX - width / 2}
+            y={centerY - height / 2}
+            width={width}
+            height={height}
+            preserveAspectRatio="xMidYMid meet"
+        />
+    );
+};
+
 /** Render a rectangular (basalt/aplite/diorite/emery) TimeStyle face */
 const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings }) => {
-    const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
-
     const bg = getHex(effectiveSettings.colorBackground);
     const timeColor = getHex(effectiveSettings.colorTime);
     const sidebarColor = getHex(effectiveSettings.colorSidebar);
@@ -63,30 +189,22 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
 
     const { hourPath, minutePath } = getTimePaths(effectiveSettings.clockFont);
 
-    // Widget slot Y positions within the sidebar
-    const slot0Y = 20;   // top
-    const slot1Y = 76;   // middle
-    const slot2Y = 132;  // bottom
-
-    const renderWidgetLabel = (widgetId: number, y: number) => {
-        const label = WIDGET_LABELS[widgetId] ?? '';
-        if (!label) return null;
-        const lines = label.split('\n');
-        return lines.map((line, i) => (
-            <text
-                key={i}
-                x={sidebarX + SIDEBAR_W / 2}
-                y={y + i * 10}
-                textAnchor="middle"
-                fill={textColor}
-                fontSize="7"
-                fontFamily="monospace"
-                fontWeight="bold"
-            >
-                {line}
-            </text>
-        ));
-    };
+    const widgetIds = [
+        effectiveSettings.widget0Id,
+        effectiveSettings.widget1Id,
+        effectiveSettings.widget2Id,
+    ].filter((widgetId) => widgetId !== 0);
+    const widgetMaxWidth = SIDEBAR_W - 1;
+    const baseWidgetSizes = widgetIds.map((widgetId) => getWidgetPreviewSize(widgetId, widgetMaxWidth));
+    const totalWidgetHeight = baseWidgetSizes.reduce((sum, size) => sum + size.height, 0);
+    const widgetScale = totalWidgetHeight > H ? H / totalWidgetHeight : 1;
+    const widgetSizes = widgetIds.map((widgetId) => getWidgetPreviewSize(widgetId, widgetMaxWidth, widgetScale));
+    const totalScaledWidgetHeight = widgetSizes.reduce((sum, size) => sum + size.height, 0);
+    const widgetGap = widgetIds.length > 1
+        ? (H - totalScaledWidgetHeight) / (widgetIds.length - 1)
+        : 0;
+    const slotCenterX = sidebarX + SIDEBAR_W / 2;
+    let nextWidgetY = 0;
 
     return (
         <div className="halite-watch-preview-container">
@@ -105,14 +223,17 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
                     {/* Sidebar */}
                     <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={sidebarColor} />
 
-                    {/* Sidebar divider lines */}
-                    <line x1={sidebarX} y1={H / 3} x2={sidebarX + SIDEBAR_W} y2={H / 3} stroke={bg} strokeWidth="1" opacity="0.3" />
-                    <line x1={sidebarX} y1={(H / 3) * 2} x2={sidebarX + SIDEBAR_W} y2={(H / 3) * 2} stroke={bg} strokeWidth="1" opacity="0.3" />
-
-                    {/* Widget labels */}
-                    {renderWidgetLabel(effectiveSettings.widget0Id, slot0Y)}
-                    {renderWidgetLabel(effectiveSettings.widget1Id, slot1Y)}
-                    {renderWidgetLabel(effectiveSettings.widget2Id, slot2Y)}
+                    {/* Widgets */}
+                    {widgetIds.map((widgetId, index) => {
+                        const { height } = widgetSizes[index];
+                        const centerY = nextWidgetY + height / 2;
+                        nextWidgetY += height + widgetGap;
+                        return (
+                            <React.Fragment key={`${widgetId}-${index}`}>
+                                {renderWidgetPreview(widgetId, slotCenterX, centerY, widgetMaxWidth, sidebarColor, textColor, widgetScale)}
+                            </React.Fragment>
+                        );
+                    })}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
@@ -142,8 +263,6 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
 
 /** Render a round (chalk) TimeStyle face */
 const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings }) => {
-    const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
-
     const bg = getHex(effectiveSettings.colorBackground);
     const timeColor = getHex(effectiveSettings.colorTime);
     const sidebarColor = getHex(effectiveSettings.colorSidebar);
@@ -171,35 +290,9 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                     <circle cx={-50} cy={CY} r={R} fill={sidebarColor} />
                     <circle cx={230} cy={CY} r={R} fill={sidebarColor} />
 
-                    {/* Left widget label */}
-                    {WIDGET_LABELS[effectiveSettings.widget0Id] && (
-                        <text
-                            x={20}
-                            y={90}
-                            textAnchor="middle"
-                            fill={textColor}
-                            fontSize="7"
-                            fontFamily="monospace"
-                            fontWeight="bold"
-                        >
-                            {WIDGET_LABELS[effectiveSettings.widget0Id]}
-                        </text>
-                    )}
-
-                    {/* Right widget label */}
-                    {WIDGET_LABELS[effectiveSettings.widget2Id] && (
-                        <text
-                            x={160}
-                            y={90}
-                            textAnchor="middle"
-                            fill={textColor}
-                            fontSize="7"
-                            fontFamily="monospace"
-                            fontWeight="bold"
-                        >
-                            {WIDGET_LABELS[effectiveSettings.widget2Id]}
-                        </text>
-                    )}
+                    {/* Widgets */}
+                    {renderWidgetPreview(effectiveSettings.widget0Id, 20, 90, 28, sidebarColor, textColor)}
+                    {renderWidgetPreview(effectiveSettings.widget2Id, 160, 90, 28, sidebarColor, textColor)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {

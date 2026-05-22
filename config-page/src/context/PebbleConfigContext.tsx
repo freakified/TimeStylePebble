@@ -6,6 +6,7 @@ import { getDefaultSettings } from '../utils/defaultSettings';
 interface ConfigContextType {
   settings: Settings;
   updateSetting: (key: keyof Settings, value: Settings[keyof Settings]) => void;
+  resetToDefaults: () => void;
   save: () => void;
 }
 
@@ -66,6 +67,10 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const resetToDefaults = () => {
+    setSettings(getDefaultSettings(capabilities));
+  };
+
   const save = () => {
     const params = new URLSearchParams(window.location.search);
     const returnTo = params.get('return_to') || 'pebblejs://close#';
@@ -76,7 +81,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   return (
     <WatchInfoContext.Provider value={{ watchInfo, capabilities }}>
-      <ConfigContext.Provider value={{ settings, updateSetting, save }}>
+      <ConfigContext.Provider value={{ settings, updateSetting, resetToDefaults, save }}>
         {children}
       </ConfigContext.Provider>
     </WatchInfoContext.Provider>

@@ -22,21 +22,22 @@ const CAPABILITY_MAP: Record<keyof Capabilities, string[]> = {
   HEALTH: ['basalt', 'chalk', 'diorite', 'emery', 'flint', 'gabbro'],
 };
 
-export const evaluateCapabilities = (watchInfo: WatchInfo | null): Capabilities => {
+const getCapabilitiesForPlatform = (platform: string): Capabilities => {
   const capabilities = {} as Capabilities;
-
-  if (!watchInfo) {
-    Object.keys(CAPABILITY_MAP).forEach((key) => {
-      capabilities[key as keyof Capabilities] = true;
-    });
-    return capabilities;
-  }
-
-  const { platform } = watchInfo;
 
   Object.entries(CAPABILITY_MAP).forEach(([key, platforms]) => {
     capabilities[key as keyof Capabilities] = platforms.includes(platform);
   });
 
   return capabilities;
+};
+
+export const DEFAULT_CAPABILITIES: Capabilities = getCapabilitiesForPlatform('emery');
+
+export const evaluateCapabilities = (watchInfo: WatchInfo | null): Capabilities => {
+  if (!watchInfo) {
+    return { ...DEFAULT_CAPABILITIES };
+  }
+
+  return getCapabilitiesForPlatform(watchInfo.platform);
 };
