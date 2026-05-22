@@ -79,6 +79,10 @@ function loadPreviousSettings() {
       health_use_restful_sleep: 'no',
       decimal_separator: '.',
 
+      // battery reporting settings
+      remote_endpoint_url: '',
+      remote_endpoint_token: '',
+
       // version key used for migrations
       settings_version: CURRENT_SETTINGS_VERSION
     };
@@ -147,6 +151,14 @@ function loadPreviousSettings() {
   $('#altclock_offset_hour option[data-setting="' + savedSettings.altclock_offset + '"]').prop('selected', true);
   $('#altclock_offset_hour option[data-setting="' + savedSettings.altclock_offset + '"]').prop('selected', true);
 
+  // load battery reporting settings
+  if(savedSettings.remote_endpoint_url) {
+    $('#remote_endpoint_url').val(savedSettings.remote_endpoint_url);
+  }
+  if(savedSettings.remote_endpoint_token) {
+    $('#remote_endpoint_token').val(savedSettings.remote_endpoint_token);
+  }
+
   // update the widget settings sections to only show ones that are relevant
   showOnlySelectedWidgetSettings();
 }
@@ -182,6 +194,8 @@ $('select').on('change', setFormHasChanges);
 $('#weather_loc').on('input', setFormHasChanges);
 $('#weather_api_key').on('input', setFormHasChanges);
 $('#altclock_name').on('input', setFormHasChanges);
+$('#remote_endpoint_url').on('input', setFormHasChanges);
+$('#remote_endpoint_token').on('input', setFormHasChanges);
 
 $('#use_large_sidebar_font_setting').on('change', updateSidebarPreview);
 $('#battery_meter_setting').on('change', updateSidebarPreview);
@@ -578,6 +592,10 @@ function sendSettingsToWatch() {
   // alt clock widgets
   config.altclock_name = $('#altclock_name').val();
   config.altclock_offset = $('#altclock_offset_hour option:selected').data('setting');
+
+  // battery reporting settings
+  config.remote_endpoint_url = $('#remote_endpoint_url').val();
+  config.remote_endpoint_token = $('#remote_endpoint_token').val();
 
   // add the version, in case we need to do more migrations
   config.settings_version = CURRENT_SETTINGS_VERSION;
