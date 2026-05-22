@@ -1,0 +1,17 @@
+<hr>
+<div id="battery_reporting_settings">
+  <label>Battery Reporting</label>
+  <br>
+  <div class="alert alert-info" role="alert">
+    Send battery status updates to a remote HTTP endpoint. The watch will POST battery percentage and charging status to the configured URL.
+  </div>
+  <label class="subtle">Remote Endpoint URL</label>
+  <div class="form-group">
+    <input type="text" class="form-control" id="remote_endpoint_url" placeholder='https://your-endpoint.com/battery'>
+  </div>
+  <label class="subtle">Bearer Token (optional)</label>
+  <div class="form-group">
+    <input type="text" class="form-control" id="remote_endpoint_token" placeholder='your-auth-token'>
+  </div>
+  <hr>
+</div>
