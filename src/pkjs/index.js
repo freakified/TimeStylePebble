@@ -1,9 +1,11 @@
 
 var weather = require('./weather');
 
-var CONFIG_VERSION = 9;
+var CONFIG_VERSION = 10;
 // var BASE_CONFIG_URL = 'http://localhost:3001/';
-var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+// var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+// Update this URL to point to your hosted config files (see /config/ directory)
+var BASE_CONFIG_URL = 'http://YOUR_CONFIG_HOST_HERE/';
 
 // Remote battery endpoint configuration
 var remoteEndpointUrl = '';

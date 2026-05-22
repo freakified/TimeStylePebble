@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TimeStyle Settings</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { margin-top: 10px; }
+    .subtle { color: #777; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h2>TimeStyle Settings</h2>
+  <form>
+    <h3>Remote Battery Sync</h3>
+    <div class="alert alert-info">
+      Send battery status updates to a remote HTTP endpoint (e.g., Home Assistant webhook). Leave empty to disable.
+    </div>
+    
+    <label>Endpoint URL</label>
+    <input type="text" class="form-control" id="remote_endpoint_url" placeholder='https://ha.home.ruinelli.ch/api/webhook/pebble_battery'>
+    
+    <label>Bearer Token (optional)</label>
+    <input type="text" class="form-control" id="remote_endpoint_token" placeholder='Optional authentication token'>
+    
+    <hr>
+    
+    <h3>Other Settings</h3>
+    <p class="text-muted">For full configuration options, please use the official config page at freakified.github.io</p>
+  </form>
+  
+  <button id="save_button" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;">Save</button>
+  
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script>
+    document.getElementById('save_button').addEventListener('click', function() {
+      var configData = {
+        remote_endpoint_url: document.getElementById('remote_endpoint_url').value,
+        remote_endpoint_token: document.getElementById('remote_endpoint_token').value
+      };
+      
+      // Send to Pebble
+      var location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(configData));
+      document.location = location;
+    });
+    
+    // Load current settings
+    var config = JSON.parse(decodeURIComponent(location.hash.substring(1)));
+    if (config.remote_endpoint_url) {
+      document.getElementById('remote_endpoint_url').value = config.remote_endpoint_url;
+    }
+    if (config.remote_endpoint_token) {
+      document.getElementById('remote_endpoint_token').value = config.remote_endpoint_token;
+    }
+  </script>
+</body>
+</html>
