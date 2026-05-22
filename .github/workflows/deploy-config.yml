@@ -51,18 +51,16 @@ jobs:
           
           # Add battery sync section to config_common_options.html
           if [ -f "main-repo/config/_includes/config_common_options.html" ]; then
-            cat >> main-repo/config/_includes/config_common_options.html << 'ENDOFFILE'
-<hr>
-<label>Remote Battery Sync</label><br />
-<div class="alert alert-info" role="alert">
-  Send battery status updates to a remote HTTP endpoint (e.g., Home Assistant webhook). Leave empty to disable.
-</div>
-<label class="subtle">Endpoint URL</label>
-<input type="text" class="form-control" id="remote_endpoint_url" placeholder='https://ha.home.ruinelli.ch/api/webhook/pebble_battery'>
-<br>
-<label class="subtle">Bearer Token (optional)</label>
-<input type="text" class="form-control" id="remote_endpoint_token" placeholder='Optional authentication token'>
-ENDOFFILE
+            echo '<hr>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label>Remote Battery Sync</label><br />' >> main-repo/config/_includes/config_common_options.html
+            echo '<div class="alert alert-info" role="alert">' >> main-repo/config/_includes/config_common_options.html
+            echo '  Send battery status updates to a remote HTTP endpoint (e.g., Home Assistant webhook). Leave empty to disable.' >> main-repo/config/_includes/config_common_options.html
+            echo '</div>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label class="subtle">Endpoint URL</label>' >> main-repo/config/_includes/config_common_options.html
+            echo '<input type="text" class="form-control" id="remote_endpoint_url" placeholder="https://ha.home.ruinelli.ch/api/webhook/pebble_battery">' >> main-repo/config/_includes/config_common_options.html
+            echo '<br>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label class="subtle">Bearer Token (optional)</label>' >> main-repo/config/_includes/config_common_options.html
+            echo '<input type="text" class="form-control" id="remote_endpoint_token" placeholder="Optional authentication token">' >> main-repo/config/_includes/config_common_options.html
           fi
 
       - name: Update BASE_CONFIG_URL in index.js
