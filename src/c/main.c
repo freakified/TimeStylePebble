@@ -148,6 +148,8 @@ void bluetoothStateChanged(bool newConnectionState) {
 
 // force the sidebar to redraw any time the battery state changes
 void batteryStateChanged(BatteryChargeState charge_state) {
+  // Send battery data to phone for remote reporting
+  messaging_sendBatteryData(charge_state.charge_percent, charge_state.is_charging);
   Sidebar_redraw();
 }
 
