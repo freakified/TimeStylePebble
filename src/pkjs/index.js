@@ -4,7 +4,7 @@ var weather = require('./weather');
 var CONFIG_VERSION = 10;
 // var BASE_CONFIG_URL = 'http://localhost:3001/';
 // var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
-// Config files are deployed to GitHub Pages by workflow
+// Config files are on gh-pages branch
 var BASE_CONFIG_URL = 'https://caco3.github.io/TimeStylePebble/';
 
 // Remote battery endpoint configuration
