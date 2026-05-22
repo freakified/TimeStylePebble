@@ -63,7 +63,9 @@
       "WeatherUseNightIcon",
       "SettingWidget0ID",
       "SettingWidget1ID",
-      "SettingWidget2ID"
+      "SettingWidget2ID",
+      "BatteryPercent",
+      "IsCharging"
     ],
     "resources": {
       "media": [
