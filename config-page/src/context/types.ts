@@ -70,13 +70,13 @@ export interface Settings {
   weatherLocation: string;
   weatherLocationLat: string;
   weatherLocationLng: string;
-  weatherMode: 'auto' | 'manual';
+  weatherMode: boolean;
   weatherDataSource: string;
   weatherApiKey: string;
 
   // Battery
   batteryMeter: 'icon-and-percent' | 'icon-only';
-  autoBattery: 'on' | 'off';
+  autoBattery: boolean;
 
   // Alternate time zone
   altClockName: string;    // max 4 chars

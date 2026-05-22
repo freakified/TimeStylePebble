@@ -262,21 +262,22 @@ export const SettingsPage: React.FC = () => {
       {/* ── Weather ── */}
       {showWeatherSection && (
         <Section title="Weather">
-          <Select
-            label="Location mode"
+          <Toggle
+            label="Determine location automatically"
             messageKey="weatherMode"
-            options={[
-              { label: 'Automatic (GPS)', value: 'auto' },
-              { label: 'Manual', value: 'manual' },
-            ]}
           />
-          {settings.weatherMode === 'manual' && (
+          {!settings.weatherMode && (
             <WeatherLocationPicker
               currentLoc={settings.weatherLocation}
               onSelect={(loc, lat, lng) => {
                 updateSetting('weatherLocation', loc);
                 updateSetting('weatherLocationLat', lat);
                 updateSetting('weatherLocationLng', lng);
+              }}
+              onClear={() => {
+                updateSetting('weatherLocation', '');
+                updateSetting('weatherLocationLat', '');
+                updateSetting('weatherLocationLng', '');
               }}
             />
           )}
@@ -296,14 +297,10 @@ export const SettingsPage: React.FC = () => {
 
       {/* ── Battery ── */}
       <Section title="Battery">
-        <Select
+        <Toggle
           label="Auto battery display"
           messageKey="autoBattery"
           description="Automatically show battery in the sidebar when it drops to 10%"
-          options={[
-            { label: 'Show automatically at 10%', value: 'on' },
-            { label: 'Never show automatically', value: 'off' },
-          ]}
         />
         <Select
           label="Battery meter style"

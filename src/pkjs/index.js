@@ -158,7 +158,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
     // weather location/source configs are not the watch's concern
 
-    if (configData.weatherLocation !== undefined) {
+    if (configData.weatherMode) {
+      window.localStorage.removeItem('weather_loc');
+      window.localStorage.removeItem('weather_loc_lat');
+      window.localStorage.removeItem('weather_loc_lng');
+    } else if (configData.weatherLocation !== undefined) {
       window.localStorage.setItem('weather_loc', configData.weatherLocation);
       window.localStorage.setItem('weather_loc_lat', configData.weatherLocationLat);
       window.localStorage.setItem('weather_loc_lng', configData.weatherLocationLng);
@@ -178,12 +182,8 @@ Pebble.addEventListener('webviewclosed', function (e) {
       }
     }
 
-    if (configData.autoBattery) {
-      if (configData.autoBattery == 'on') {
-        dict.SettingDisableAutobattery = 0;
-      } else if (configData.autoBattery == 'off') {
-        dict.SettingDisableAutobattery = 1;
-      }
+    if (configData.autoBattery !== undefined) {
+      dict.SettingDisableAutobattery = configData.autoBattery ? 0 : 1;
     }
 
     if (configData.altClockName) {

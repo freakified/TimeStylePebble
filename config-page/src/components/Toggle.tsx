@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch } from 'react-aria-components';
 import { useConfig } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
-import { FormItem, FormItemLabel } from './FormItem';
+import { FormItemLabel } from './FormItem';
 
 export const Toggle: React.FC<{
   label: string;

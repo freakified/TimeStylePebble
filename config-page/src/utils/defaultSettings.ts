@@ -37,13 +37,13 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   weatherLocation: '',
   weatherLocationLat: '',
   weatherLocationLng: '',
-  weatherMode: 'auto',
+  weatherMode: true,
   weatherDataSource: 'openmeteo',
   weatherApiKey: '',
 
   // Battery
   batteryMeter: 'icon-and-percent',
-  autoBattery: 'on',
+  autoBattery: true,
 
   // Alternate time zone
   altClockName: 'ALT',
