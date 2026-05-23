@@ -2,14 +2,18 @@ import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
 import widgetAltTz from '../assets/preview/widget_previews/widget_alttz.svg?raw';
+import widgetBattery from '../assets/preview/widget_previews/widget_battery.svg?raw';
+import widgetBatteryNoText from '../assets/preview/widget_previews/widget_battery_notext.svg?raw';
 import widgetBeats from '../assets/preview/widget_previews/widget_beats.svg?raw';
 import widgetDate from '../assets/preview/widget_previews/widget_date.svg?raw';
 import widgetForecast from '../assets/preview/widget_previews/widget_forecast.svg?raw';
 import widgetHrm from '../assets/preview/widget_previews/widget_hrm.svg?raw';
 import widgetSeconds from '../assets/preview/widget_previews/widget_seconds.svg?raw';
+import widgetSleep from '../assets/preview/widget_previews/widget_sleep.svg?raw';
 import widgetSteps from '../assets/preview/widget_previews/widget_steps.svg?raw';
 import widgetUvi from '../assets/preview/widget_previews/widget_uvi.svg?raw';
 import widgetWeather from '../assets/preview/widget_previews/widget_weather.svg?raw';
+import widgetWeek from '../assets/preview/widget_previews/widget_week.svg?raw';
 
 export interface WatchPreviewProps {
     overrideSettings?: Partial<Settings>;
@@ -63,12 +67,27 @@ const WIDGET_PREVIEWS: Record<number, WidgetPreviewAsset> = {
     3:  { svg: widgetAltTz,   width: 29, height: 35 },
     4:  { svg: widgetDate,    width: 29, height: 63 },
     5:  { svg: widgetSeconds, width: 29, height: 35 },
+    6:  { svg: widgetWeek,    width: 29, height: 35 },
     7:  { svg: widgetWeather, width: 29, height: 47 },
     8:  { svg: widgetForecast, width: 29, height: 65 },
+    9:  { svg: widgetSleep,   width: 29, height: 52 },
     10: { svg: widgetSteps,   width: 29, height: 35 },
     11: { svg: widgetBeats,   width: 29, height: 35 },
     12: { svg: widgetHrm,     width: 29, height: 47 },
     13: { svg: widgetUvi,     width: 29, height: 35 },
+};
+
+const BATTERY_PREVIEWS: Record<Settings['batteryMeter'], WidgetPreviewAsset> = {
+    'icon-and-percent': { svg: widgetBattery, width: 29, height: 33 },
+    'icon-only': { svg: widgetBatteryNoText, width: 29, height: 20 },
+};
+
+const getWidgetPreviewAsset = (widgetId: number, settings: Settings) => {
+    if (widgetId === 2) {
+        return BATTERY_PREVIEWS[settings.batteryMeter];
+    }
+
+    return WIDGET_PREVIEWS[widgetId];
 };
 
 const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
@@ -127,8 +146,13 @@ const renderFallbackWidgetLabel = (
     ));
 };
 
-const getWidgetPreviewSize = (widgetId: number, maxWidth: number, scaleMultiplier = 1) => {
-    const asset = WIDGET_PREVIEWS[widgetId];
+const getWidgetPreviewSize = (
+    widgetId: number,
+    settings: Settings,
+    maxWidth: number,
+    scaleMultiplier = 1
+) => {
+    const asset = getWidgetPreviewAsset(widgetId, settings);
 
     if (!asset) {
         return { width: maxWidth, height: 20 * scaleMultiplier };
@@ -143,6 +167,7 @@ const getWidgetPreviewSize = (widgetId: number, maxWidth: number, scaleMultiplie
 
 const renderWidgetPreview = (
     widgetId: number,
+    settings: Settings,
     centerX: number,
     centerY: number,
     maxWidth: number,
@@ -150,7 +175,7 @@ const renderWidgetPreview = (
     foregroundColor: string,
     scaleMultiplier = 1
 ) => {
-    const asset = WIDGET_PREVIEWS[widgetId];
+    const asset = getWidgetPreviewAsset(widgetId, settings);
 
     if (!asset) {
         return renderFallbackWidgetLabel(widgetId, centerX, centerY, foregroundColor);
@@ -189,22 +214,24 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
 
     const { hourPath, minutePath } = getTimePaths(effectiveSettings.clockFont);
 
-    const widgetIds = [
+    const widgetSlots = [
         effectiveSettings.widget0Id,
         effectiveSettings.widget1Id,
         effectiveSettings.widget2Id,
-    ].filter((widgetId) => widgetId !== 0);
+    ];
     const widgetMaxWidth = SIDEBAR_W - 1;
-    const baseWidgetSizes = widgetIds.map((widgetId) => getWidgetPreviewSize(widgetId, widgetMaxWidth));
-    const totalWidgetHeight = baseWidgetSizes.reduce((sum, size) => sum + size.height, 0);
-    const widgetScale = totalWidgetHeight > H ? H / totalWidgetHeight : 1;
-    const widgetSizes = widgetIds.map((widgetId) => getWidgetPreviewSize(widgetId, widgetMaxWidth, widgetScale));
-    const totalScaledWidgetHeight = widgetSizes.reduce((sum, size) => sum + size.height, 0);
-    const widgetGap = widgetIds.length > 1
-        ? (H - totalScaledWidgetHeight) / (widgetIds.length - 1)
-        : 0;
+    const sidebarPaddingY = 2;
+    const slotHeight = (H - sidebarPaddingY * 2) / widgetSlots.length;
+    const widgetScale = Math.min(
+        ...widgetSlots
+            .filter((widgetId) => widgetId !== 0)
+            .map((widgetId) => {
+                const { height } = getWidgetPreviewSize(widgetId, effectiveSettings, widgetMaxWidth);
+                return Math.min(slotHeight / height, 1);
+            }),
+        1
+    );
     const slotCenterX = sidebarX + SIDEBAR_W / 2;
-    let nextWidgetY = 0;
 
     return (
         <div className="halite-watch-preview-container">
@@ -224,13 +251,15 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
                     <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={sidebarColor} />
 
                     {/* Widgets */}
-                    {widgetIds.map((widgetId, index) => {
-                        const { height } = widgetSizes[index];
-                        const centerY = nextWidgetY + height / 2;
-                        nextWidgetY += height + widgetGap;
+                    {widgetSlots.map((widgetId, index) => {
+                        if (widgetId === 0) {
+                            return null;
+                        }
+
+                        const centerY = sidebarPaddingY + slotHeight * index + slotHeight / 2;
                         return (
                             <React.Fragment key={`${widgetId}-${index}`}>
-                                {renderWidgetPreview(widgetId, slotCenterX, centerY, widgetMaxWidth, sidebarColor, textColor, widgetScale)}
+                                {renderWidgetPreview(widgetId, effectiveSettings, slotCenterX, centerY, widgetMaxWidth, sidebarColor, textColor, widgetScale)}
                             </React.Fragment>
                         );
                     })}
@@ -291,8 +320,8 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                     <circle cx={230} cy={CY} r={R} fill={sidebarColor} />
 
                     {/* Widgets */}
-                    {renderWidgetPreview(effectiveSettings.widget0Id, 20, 90, 28, sidebarColor, textColor)}
-                    {renderWidgetPreview(effectiveSettings.widget2Id, 160, 90, 28, sidebarColor, textColor)}
+                    {renderWidgetPreview(effectiveSettings.widget0Id, effectiveSettings, 20, 90, 28, sidebarColor, textColor)}
+                    {renderWidgetPreview(effectiveSettings.widget2Id, effectiveSettings, 160, 90, 28, sidebarColor, textColor)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {

@@ -1110,7 +1110,8 @@ input[type='checkbox'] {
 }
 
 /* hide the labels visually, but not to screen readers */
-.widget-selector-controls .halite-label-group {
+.widget-selector-controls .halite-label-group,
+.widget-selector-controls .halite-item-label {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   height: 1px;
