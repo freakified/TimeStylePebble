@@ -104,6 +104,9 @@ export const SettingsPage: React.FC = () => {
   const showAltClockSection =
     settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
 
+  const showHealthSection =
+    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
+
 
   return (
     <Page title="TimeStyle Settings">
@@ -236,11 +239,15 @@ export const SettingsPage: React.FC = () => {
         />
       </Section>
 
+
+
+
       {/* ── Weather ── */}
       {showWeatherSection && (
         <Section title="Weather">
           <Toggle
             label="Determine location automatically"
+            description="Use GPS location for weather data"
             messageKey="weatherMode"
           />
           {!settings.weatherMode && (
@@ -266,9 +273,7 @@ export const SettingsPage: React.FC = () => {
               { label: 'Celsius (°C)', value: 'c' },
             ]}
           />
-          <FormItem label="" description="Weather data provided by Open-Meteo (open-meteo.com)" className="halite-info">
-            <span />
-          </FormItem>
+          Weather data provided by Open-Meteo (open-meteo.com)
         </Section>
       )}
 
