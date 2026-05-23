@@ -5,6 +5,7 @@ export * from './Toggle';
 export * from './ColorPicker';
 export * from './Select';
 export * from './SelectCards';
+export * from './TextField';
 export * from './ThemePicker';
 export * from './WidgetSelector';
 export * from './WatchPreview';

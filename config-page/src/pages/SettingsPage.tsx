@@ -13,6 +13,7 @@ import {
   WeatherLocationPicker,
   FormItem,
   DonationLink,
+  TextField,
 } from '../components';
 import { useSavedThemes } from '../hooks/useSavedThemes';
 import lightThemes from '../data/light-themes.json';
@@ -322,15 +323,13 @@ export const SettingsPage: React.FC = () => {
             description="Note: does not account for Daylight Saving Time"
             options={ALT_CLOCK_OFFSETS}
           />
-          <FormItem label="Display name" description="Up to 4 characters shown above the time (e.g. NYC, LON)" className="halite-select">
-            <input
-              type="text"
-              className="halite-text-input"
-              value={settings.altClockName}
-              maxLength={4}
-              onChange={(e) => updateSetting('altClockName', e.target.value.toUpperCase())}
-            />
-          </FormItem>
+          <TextField
+            label="Display name"
+            description="Up to 4 characters shown above the time (e.g. NYC, LON)"
+            messageKey="altClockName"
+            maxLength={4}
+            transformValue={(value) => value.toUpperCase()}
+          />
         </Section>
       )}
 

@@ -527,6 +527,12 @@ select:disabled {
   box-shadow: 0 0 0 3px var(--border-focus);
 }
 
+.halite-text-field .halite-input {
+  width: 120px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
 input[type='checkbox'] {
   width: 20px;
   height: 20px;
