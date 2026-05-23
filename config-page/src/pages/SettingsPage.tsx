@@ -185,8 +185,36 @@ export const SettingsPage: React.FC = () => {
         <WidgetSelector />
       </Section>
 
+
+      {/* ── Time Display ── */}
+      <Section title="Time Display">
+        <SelectCards
+          label="Font"
+          messageKey="clockFont"
+          options={[
+            { label: 'Default', value: 'default' },
+            { label: 'Bold', value: 'bold' },
+            { label: 'Bold (hours only)', value: 'bold-h' },
+            { label: 'Bold (minutes only)', value: 'bold-m' },
+            { label: 'LECO', value: 'leco' },
+          ]}
+          optionSettings={{
+            default: { clockFont: 'default' },
+            bold: { clockFont: 'bold' },
+            'bold-h': { clockFont: 'bold-h' },
+            'bold-m': { clockFont: 'bold-m' },
+            leco: { clockFont: 'leco' },
+          }}
+        />
+        <Toggle
+          label="Show leading zero"
+          description="Display time as 09:30 instead of 9:30"
+          messageKey="leadingZero"
+        />
+      </Section>
+
       {/* ── Sidebar Display ── */}
-      <Section title="Sidebar Display">
+      <Section title="Sidebar">
         {capabilities.RECT && (
           <SelectCards
             label="Position"
@@ -205,59 +233,6 @@ export const SettingsPage: React.FC = () => {
           label="Use large sidebar text"
           description="Increases the size of widget text in the sidebar"
           messageKey="largeSidebarFont"
-        />
-      </Section>
-
-      {/* ── Time Display ── */}
-      <Section title="Time Display">
-        <Toggle
-          label="Show leading zero"
-          description="Display time as 09:30 instead of 9:30"
-          messageKey="leadingZero"
-        />
-        <SelectCards
-          label="Clock font"
-          messageKey="clockFont"
-          options={[
-            { label: 'Default', value: 'default' },
-            { label: 'Bold', value: 'bold' },
-            { label: 'Bold (hours only)', value: 'bold-h' },
-            { label: 'Bold (minutes only)', value: 'bold-m' },
-            { label: 'LECO', value: 'leco' },
-          ]}
-          optionSettings={{
-            default: { clockFont: 'default' },
-            bold: { clockFont: 'bold' },
-            'bold-h': { clockFont: 'bold-h' },
-            'bold-m': { clockFont: 'bold-m' },
-            leco: { clockFont: 'leco' },
-          }}
-        />
-      </Section>
-
-      {/* ── Bluetooth ── */}
-      <Section title="Bluetooth">
-        <Toggle
-          label="Show disconnection icon"
-          description="Display an icon when the watch is disconnected from your phone"
-          messageKey="disconnectIcon"
-        />
-        <Toggle
-          label="Vibrate on disconnect"
-          messageKey="bluetoothVibe"
-        />
-      </Section>
-
-      {/* ── Notifications ── */}
-      <Section title="Notifications">
-        <Select
-          label="Hourly vibration"
-          messageKey="hourlyVibe"
-          options={[
-            { label: 'None', value: 'none' },
-            { label: 'Every 30 minutes', value: 'everyHalfHour' },
-            { label: 'Every hour', value: 'everyHour' },
-          ]}
         />
       </Section>
 
@@ -296,23 +271,6 @@ export const SettingsPage: React.FC = () => {
           </FormItem>
         </Section>
       )}
-
-      {/* ── Battery ── */}
-      <Section title="Battery">
-        <Toggle
-          label="Auto battery display"
-          messageKey="autoBattery"
-          description="Automatically show battery in the sidebar when it drops to 10%"
-        />
-        <Select
-          label="Battery meter style"
-          messageKey="batteryMeter"
-          options={[
-            { label: 'Icon & percent', value: 'icon-and-percent' },
-            { label: 'Icon only', value: 'icon-only' },
-          ]}
-        />
-      </Section>
 
       {/* ── Alternate Time Zone ── */}
       {showAltClockSection && (
@@ -355,10 +313,53 @@ export const SettingsPage: React.FC = () => {
         </Section>
       )}
 
+      {/* ── Battery ── */}
+      <Section title="Battery">
+        <Select
+          label="Battery meter style"
+          messageKey="batteryMeter"
+          options={[
+            { label: 'Icon & percent', value: 'icon-and-percent' },
+            { label: 'Icon only', value: 'icon-only' },
+          ]}
+        />
+      </Section>
+      <Section title="Status">
+        <Toggle
+          label="Low battery indicator"
+          messageKey="autoBattery"
+          description="Show icon when battery drops below 10%"
+        />
+        <Toggle
+          label="Bluetooth disconnection indicator"
+          description="Show icon when the watch is disconnected from your phone"
+          messageKey="disconnectIcon"
+        />
+      </Section>
+
+      <Section title="Vibration">
+        <Toggle
+          label="Vibrate on bluetooth disconnection"
+          description="Vibrate if the watch loses its connection to your phone"
+          messageKey="bluetoothVibe"
+        />
+        <Select
+          label="Vibrate periodically"
+          description="Vibrate every hour or half hour"
+          messageKey="hourlyVibe"
+          options={[
+            { label: 'None', value: 'none' },
+            { label: 'Every 30 minutes', value: 'everyHalfHour' },
+            { label: 'Every hour', value: 'everyHour' },
+          ]}
+        />
+      </Section>
+
       {/* ── Regional ── */}
       <Section title="Regional">
         <Select
           label="Language"
+          description="Controls the language used in widgets"
           messageKey="languageId"
           options={LANGUAGE_OPTIONS}
         />
