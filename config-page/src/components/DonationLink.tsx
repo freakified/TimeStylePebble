@@ -35,7 +35,7 @@ export const DonationLink: React.FC = () => {
     <aside className="halite-donation" aria-labelledby="halite-donation-title">
       <div className="halite-donation-copy">
         <h2 id="halite-donation-title">Created by Freakified</h2>
-        <p>Like this watchface? Please consider supporting my various development efforts!</p>
+        <p>Like TimeStyle? Please consider supporting its development!</p>
       </div>
       <div className="halite-donation-actions">
         <a className="halite-donation-button" href={DONATION_URL} target="_blank" rel="noreferrer">
