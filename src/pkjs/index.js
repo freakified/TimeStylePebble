@@ -1,9 +1,59 @@
 
 var weather = require('./weather');
 
-var CONFIG_VERSION = 9;
+var CONFIG_VERSION = 10;
 // var BASE_CONFIG_URL = 'http://localhost:3001/';
-var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
+var BASE_CONFIG_URL = 'https://caco3.github.io/TimeStylePebble/';
+
+// Remote battery endpoint configuration
+var remoteEndpointUrl = '';
+var remoteEndpointToken = '';
+
+// Check if remote endpoint is configured
+function isEndpointConfigured() {
+  return remoteEndpointUrl && remoteEndpointUrl.trim() !== '';
+}
+
+// Send battery data to remote endpoint via HTTP POST with Bearer token
+function sendBatteryToEndpoint(batteryPercent, isCharging) {
+  if (!isEndpointConfigured()) {
+    console.log('Remote endpoint not configured, skipping battery sync');
+    return;
+  }
+
+  console.log('Sending battery data to remote endpoint: ' + batteryPercent + '% (charging: ' + isCharging + ')');
+
+  var req = new XMLHttpRequest();
+  req.open('POST', remoteEndpointUrl, true);
+  req.setRequestHeader('Content-Type', 'application/json');
+
+  // Add Bearer token authorization if provided
+  if (remoteEndpointToken && remoteEndpointToken.trim() !== '') {
+    req.setRequestHeader('Authorization', 'Bearer ' + remoteEndpointToken.trim());
+  }
+
+  req.onload = function() {
+    if (req.readyState === 4) {
+      if (req.status >= 200 && req.status < 300) {
+        console.log('Battery data sent successfully to remote endpoint');
+      } else {
+        console.log('Failed to send battery data to remote endpoint. Status: ' + req.status);
+      }
+    }
+  };
+
+  req.onerror = function() {
+    console.log('Network error sending battery data to remote endpoint');
+  };
+
+  var payload = JSON.stringify({
+    battery_percent: batteryPercent,
+    is_charging: isCharging,
+    timestamp: new Date().toISOString()
+  });
+
+  req.send(payload);
+}
 
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready',
@@ -13,6 +63,14 @@ Pebble.addEventListener('ready',
     // if it has never been started, set the weather to enabled
     if (window.localStorage.getItem('disable_weather') === null) {
       window.localStorage.setItem('disable_weather', 'no');
+    }
+
+    // Load remote endpoint configuration from localStorage
+    if (window.localStorage.getItem('remote_endpoint_url')) {
+      remoteEndpointUrl = window.localStorage.getItem('remote_endpoint_url');
+    }
+    if (window.localStorage.getItem('remote_endpoint_token')) {
+      remoteEndpointToken = window.localStorage.getItem('remote_endpoint_token');
     }
 
     console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');
@@ -28,6 +86,11 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function (msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
+
+    // Check if this is a battery status update
+    if (msg.payload.battery_percent !== undefined && msg.payload.is_charging !== undefined) {
+      sendBatteryToEndpoint(msg.payload.battery_percent, msg.payload.is_charging);
+    }
 
     // in the case of recieving this, we assume the watch does, in fact, need weather data
     window.localStorage.setItem('disable_weather', 'no');
@@ -242,6 +305,17 @@ Pebble.addEventListener('webviewclosed', function (e) {
       } else {
         dict.SettingHealthUseRestfulSleep = 0;
       }
+    }
+
+    // remote battery endpoint settings
+    if (configData.remote_endpoint_url) {
+      remoteEndpointUrl = configData.remote_endpoint_url;
+      window.localStorage.setItem('remote_endpoint_url', configData.remote_endpoint_url);
+    }
+
+    if (configData.remote_endpoint_token) {
+      remoteEndpointToken = configData.remote_endpoint_token;
+      window.localStorage.setItem('remote_endpoint_token', configData.remote_endpoint_token);
     }
 
     // determine whether or not the weather checking should be enabled

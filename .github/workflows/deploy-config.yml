@@ -1,0 +1,81 @@
+name: Deploy Config UI
+
+on:
+  push:
+    branches: [ battery-reporting ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          path: main-repo
+
+      - name: Checkout freakified config
+        uses: actions/checkout@v4
+        with:
+          repository: freakified/TimeStylePebble
+          ref: gh-pages
+          path: config-source
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Copy and modify config files
+        run: |
+          mkdir -p main-repo/config
+          
+          # Copy all config files
+          cp config-source/config_*.html main-repo/config/
+          cp -r config-source/_includes main-repo/config/
+          cp -r config-source/_layouts main-repo/config/
+          cp -r config-source/images main-repo/config/
+          cp config-source/*.html main-repo/config/ 2>/dev/null || true
+          
+          # Add battery sync section to config_common_options.html
+          if [ -f "main-repo/config/_includes/config_common_options.html" ]; then
+            echo '<hr>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label>Remote Battery Sync</label><br />' >> main-repo/config/_includes/config_common_options.html
+            echo '<div class="alert alert-info" role="alert">' >> main-repo/config/_includes/config_common_options.html
+            echo '  Send battery status updates to a remote HTTP endpoint (e.g., Home Assistant webhook). Leave empty to disable.' >> main-repo/config/_includes/config_common_options.html
+            echo '</div>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label class="subtle">Endpoint URL</label>' >> main-repo/config/_includes/config_common_options.html
+            echo '<input type="text" class="form-control" id="remote_endpoint_url" placeholder="https://ha.home.ruinelli.ch/api/webhook/pebble_battery">' >> main-repo/config/_includes/config_common_options.html
+            echo '<br>' >> main-repo/config/_includes/config_common_options.html
+            echo '<label class="subtle">Bearer Token (optional)</label>' >> main-repo/config/_includes/config_common_options.html
+            echo '<input type="text" class="form-control" id="remote_endpoint_token" placeholder="Optional authentication token">' >> main-repo/config/_includes/config_common_options.html
+          fi
+
+      - name: Update BASE_CONFIG_URL in index.js
+        run: |
+          # Update BASE_CONFIG_URL to point to this repo's GitHub Pages
+          sed -i "s|http://YOUR_CONFIG_HOST_HERE/|https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/|g" main-repo/src/pkjs/index.js
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: main-repo/config
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
