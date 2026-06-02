@@ -63,7 +63,8 @@
       "WeatherUseNightIcon",
       "SettingWidget0ID",
       "SettingWidget1ID",
-      "SettingWidget2ID"
+      "SettingWidget2ID",
+      "ConfigSnapshotRequest"
     ],
     "resources": {
       "media": [

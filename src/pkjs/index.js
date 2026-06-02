@@ -5,6 +5,153 @@ var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
 var LOCAL_CONFIG_URL = 'http://localhost:3000/';
+var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
+var pendingConfigSnapshot = null;
+
+function getWatchInfo() {
+  if (Pebble.getActiveWatchInfo) {
+    try {
+      return Pebble.getActiveWatchInfo();
+    } catch (err) {
+      return { platform: 'basalt' };
+    }
+  }
+
+  return { platform: 'aplite' };
+}
+
+function padHex(value) {
+  var hex = Number(value || 0).toString(16).toUpperCase();
+  while (hex.length < 6) {
+    hex = '0' + hex;
+  }
+  return hex;
+}
+
+function getNumber(value, fallback) {
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+  return Number(value);
+}
+
+function getBoolean(value) {
+  return getNumber(value, 0) !== 0;
+}
+
+function fontFromId(id) {
+  if (id === 1) {
+    return 'leco';
+  } else if (id === 2) {
+    return 'bold';
+  } else if (id === 3) {
+    return 'bold-h';
+  } else if (id === 4) {
+    return 'bold-m';
+  }
+
+  return 'default';
+}
+
+function hourlyVibeFromId(id) {
+  if (id === 1) {
+    return 'everyHour';
+  } else if (id === 2) {
+    return 'everyHalfHour';
+  }
+
+  return 'none';
+}
+
+function decimalSeparatorFromPayload(value) {
+  if (value === ',') {
+    return ',';
+  }
+
+  if (Number(value) === 44) {
+    return ',';
+  }
+
+  return '.';
+}
+
+function settingsFromWatchPayload(payload) {
+  return {
+    colorBackground: padHex(payload.SettingColorBG),
+    colorTime: padHex(payload.SettingColorTime),
+    colorSidebar: padHex(payload.SettingColorSidebar),
+    colorSidebarText: padHex(payload.SettingSidebarTextColor),
+
+    widget0Id: getNumber(payload.SettingWidget0ID, 7),
+    widget1Id: getNumber(payload.SettingWidget1ID, 0),
+    widget2Id: getNumber(payload.SettingWidget2ID, 4),
+
+    languageId: getNumber(payload.SettingLanguageID, 0),
+    leadingZero: getBoolean(payload.SettingShowLeadingZero),
+    clockFont: fontFromId(getNumber(payload.SettingClockFontId, 0)),
+    sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
+    largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
+    decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
+
+    disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
+    bluetoothVibe: getBoolean(payload.SettingBluetoothVibe),
+
+    hourlyVibe: hourlyVibeFromId(getNumber(payload.SettingHourlyVibe, 0)),
+
+    weatherUnits: getBoolean(payload.SettingUseMetric) ? 'c' : 'f',
+
+    batteryMeter: getBoolean(payload.SettingShowBatteryPct) ? 'icon-and-percent' : 'icon-only',
+    autoBattery: !getBoolean(payload.SettingDisableAutobattery),
+
+    altClockName: payload.SettingAltClockName || 'ALT',
+    altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
+
+    healthActivityMetric: getBoolean(payload.SettingHealthUseDistance) ? 'distance' : 'steps',
+    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
+  };
+}
+
+function isConfigSnapshot(payload) {
+  return payload && (
+    payload.SettingColorBG !== undefined ||
+    payload.SettingWidget0ID !== undefined ||
+    payload.SettingClockFontId !== undefined
+  );
+}
+
+function openConfigPage(watchInfo, settings) {
+  var configUrl = USE_LOCAL_CONFIG ? LOCAL_CONFIG_URL : BASE_CONFIG_URL;
+  var url = configUrl
+    + '?watchInfo=' + encodeURIComponent(JSON.stringify(watchInfo))
+    + '&settings=' + encodeURIComponent(JSON.stringify(settings || {}));
+
+  Pebble.openURL(url);
+}
+
+function requestConfigSnapshot(watchInfo) {
+  if (pendingConfigSnapshot && pendingConfigSnapshot.timeoutId) {
+    clearTimeout(pendingConfigSnapshot.timeoutId);
+  }
+
+  pendingConfigSnapshot = {
+    watchInfo: watchInfo,
+    timeoutId: setTimeout(function () {
+      pendingConfigSnapshot = null;
+      openConfigPage(watchInfo, {});
+    }, CONFIG_SNAPSHOT_TIMEOUT_MS)
+  };
+
+  Pebble.sendAppMessage({ ConfigSnapshotRequest: 1 }, function () {
+    console.log('Requested config snapshot from watch.');
+  }, function () {
+    console.log('Failed to request config snapshot from watch.');
+    if (pendingConfigSnapshot && pendingConfigSnapshot.timeoutId) {
+      clearTimeout(pendingConfigSnapshot.timeoutId);
+    }
+    pendingConfigSnapshot = null;
+    openConfigPage(watchInfo, {});
+  });
+}
 
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready',
@@ -25,10 +172,18 @@ Pebble.addEventListener('ready',
 );
 
 // Listen for incoming messages
-// when one is received, we simply assume that it is a request for new weather data
 Pebble.addEventListener('appmessage',
   function (msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
+
+    if (isConfigSnapshot(msg.payload)) {
+      if (pendingConfigSnapshot) {
+        clearTimeout(pendingConfigSnapshot.timeoutId);
+        openConfigPage(pendingConfigSnapshot.watchInfo, settingsFromWatchPayload(msg.payload));
+        pendingConfigSnapshot = null;
+      }
+      return;
+    }
 
     // in the case of recieving this, we assume the watch does, in fact, need weather data
     window.localStorage.setItem('disable_weather', 'no');
@@ -37,25 +192,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function (e) {
-  var watchInfo;
-
-  if (Pebble.getActiveWatchInfo) {
-    try {
-      watchInfo = Pebble.getActiveWatchInfo();
-    } catch (err) {
-      watchInfo = { platform: 'basalt' };
-    }
-  } else {
-    watchInfo = { platform: 'aplite' };
-  }
-
-  var savedSettings = JSON.parse(window.localStorage.getItem('savedSettings') || '{}');
-  var configUrl = USE_LOCAL_CONFIG ? LOCAL_CONFIG_URL : BASE_CONFIG_URL;
-  var url = configUrl
-    + '?watchInfo=' + encodeURIComponent(JSON.stringify(watchInfo))
-    + '&settings=' + encodeURIComponent(JSON.stringify(savedSettings));
-
-  Pebble.openURL(url);
+  requestConfigSnapshot(getWatchInfo());
 });
 
 Pebble.addEventListener('webviewclosed', function (e) {
@@ -63,9 +200,6 @@ Pebble.addEventListener('webviewclosed', function (e) {
     var configData = JSON.parse(decodeURIComponent(e.response));
 
     console.log("Config data recieved!" + JSON.stringify(configData));
-
-    // persist settings so they're pre-filled next time the config page opens
-    window.localStorage.setItem('savedSettings', JSON.stringify(configData));
 
     // prepare a structure to hold everything we'll send to the watch
     var dict = {};

@@ -13,6 +13,49 @@ void messaging_requestNewWeatherData() {
   app_message_outbox_send();
 }
 
+static uint32_t color_to_hex(GColor color) {
+  uint8_t r = color.r * 85;
+  uint8_t g = color.g * 85;
+  uint8_t b = color.b * 85;
+
+  return (r << 16) | (g << 8) | b;
+}
+
+void messaging_sendConfigSnapshot() {
+  DictionaryIterator *iter;
+  AppMessageResult result = app_message_outbox_begin(&iter);
+
+  if (result != APP_MSG_OK || iter == NULL) {
+    return;
+  }
+
+  dict_write_uint32(iter, MESSAGE_KEY_SettingColorTime, color_to_hex(settings.timeColor));
+  dict_write_uint32(iter, MESSAGE_KEY_SettingColorBG, color_to_hex(settings.timeBgColor));
+  dict_write_uint32(iter, MESSAGE_KEY_SettingColorSidebar, color_to_hex(settings.sidebarColor));
+  dict_write_uint32(iter, MESSAGE_KEY_SettingSidebarTextColor, color_to_hex(settings.sidebarTextColor));
+  dict_write_uint8(iter, MESSAGE_KEY_SettingLanguageID, settings.languageId);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingShowLeadingZero, settings.showLeadingZero ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingClockFontId, settings.clockFontId);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBluetoothVibe, settings.btVibe ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingHourlyVibe, settings.hourlyVibe);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget0ID, settings.widgets[0]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget1ID, settings.widgets[1]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget2ID, settings.widgets[2]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.sidebarOnLeft ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingDisableAutobattery, settings.disableAutobattery ? 1 : 0);
+  dict_write_cstring(iter, MESSAGE_KEY_SettingAltClockName, settings.altclockName);
+  dict_write_int32(iter, MESSAGE_KEY_SettingAltClockOffset, settings.altclockOffset);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseDistance, settings.healthUseDistance ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseRestfulSleep, settings.healthUseRestfulSleep ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingDecimalSep, settings.decimalSeparator);
+
+  app_message_outbox_send();
+}
+
 void messaging_init(void (*processed_callback)(void)) {
   // register my custom callback
   message_processed_callback = processed_callback;
@@ -24,7 +67,7 @@ void messaging_init(void (*processed_callback)(void)) {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
-  app_message_open(512, 8);
+  app_message_open(512, 512);
 
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
   app_message_register_inbox_received(inbox_received_callback);
@@ -32,6 +75,12 @@ void messaging_init(void (*processed_callback)(void)) {
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   bool weatherDataUpdated = false;
+
+  Tuple *configSnapshotRequest_tuple = dict_find(iterator, MESSAGE_KEY_ConfigSnapshotRequest);
+  if(configSnapshotRequest_tuple != NULL) {
+    messaging_sendConfigSnapshot();
+    return;
+  }
 
   // does this message contain current weather conditions?
   Tuple *weatherTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherTemperature);
