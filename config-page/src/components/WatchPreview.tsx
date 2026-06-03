@@ -175,6 +175,44 @@ const renderWidgetPreview = (
     foregroundColor: string,
     scaleMultiplier = 1
 ) => {
+    if (widgetId === 10) {
+        const value = settings.wideSidebar ? '2700' : '2.7k';
+        const scale = Math.min(maxWidth / 29, 1) * scaleMultiplier;
+        const iconY = centerY - 16 * scale;
+        const textY = centerY + 11 * scale;
+
+        return (
+            <g transform={`translate(${centerX - 13 * scale} ${iconY}) scale(${scale})`}>
+                <path
+                    d="M3 5.8v12.4h22.4l-.5-4-6-3.4-1.6-.5-5.3-5-3.6 3.2z"
+                    fill={isBlack(backgroundColor) ? '#000000' : '#ffffff'}
+                    stroke={isBlack(backgroundColor) ? foregroundColor : '#000000'}
+                    strokeWidth="2"
+                    strokeMiterlimit="10"
+                />
+                <path
+                    d="M16.9 18.6l1.7-7.1M3.5 13.8h5.1l1 1h7.9M12.5 9.6l2.1-2.1M14.8 11.6l2.1-2.1"
+                    fill="none"
+                    stroke={isBlack(backgroundColor) ? foregroundColor : '#000000'}
+                    strokeWidth="2"
+                    strokeMiterlimit="10"
+                />
+                <text
+                    x="13"
+                    y={(textY - iconY) / scale}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill={foregroundColor}
+                    fontSize={settings.wideSidebar ? '8' : '7'}
+                    fontFamily="monospace"
+                    fontWeight="bold"
+                >
+                    {value}
+                </text>
+            </g>
+        );
+    }
+
     const asset = getWidgetPreviewAsset(widgetId, settings);
 
     if (!asset) {
@@ -207,7 +245,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
 
     // Face dimensions
     const W = 144, H = 168;
-    const SIDEBAR_W = 30;
+    const SIDEBAR_W = effectiveSettings.wideSidebar ? 46 : 30;
     const mainX = sidebarOnLeft ? SIDEBAR_W : 0;
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
     const mainW = W - SIDEBAR_W;
@@ -266,7 +304,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
-                        const SVG_W = 108;
+                        const SVG_W = Math.min(108, mainW - 6);
                         const SVG_H = Math.round(SVG_W * 81 / 109);
                         const timeX = mainX + (mainW - SVG_W) / 2;
                         const timeY = (H - SVG_H * 2) / 2;

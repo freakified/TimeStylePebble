@@ -56,6 +56,7 @@ export interface Settings {
   clockFont: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
   sidebarPosition: 'left' | 'right';
   largeSidebarFont: boolean;
+  wideSidebar: boolean;
   decimalSeparator: '.' | ',';
 
   // Bluetooth

@@ -232,6 +232,20 @@ export const SettingsPage: React.FC = () => {
             }}
           />
         )}
+        {capabilities.RECT && (
+          <SelectCards
+            label="Width"
+            messageKey="wideSidebar"
+            options={[
+              { label: 'Compact', value: false },
+              { label: 'Wide', value: true },
+            ]}
+            optionSettings={{
+              false: { wideSidebar: false, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
+              true: { wideSidebar: true, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
+            }}
+          />
+        )}
         <Toggle
           label="Use large sidebar text"
           description="Increases the size of widget text in the sidebar"

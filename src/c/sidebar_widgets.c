@@ -8,6 +8,7 @@
 
 bool SidebarWidgets_useCompactMode = false;
 int SidebarWidgets_xOffset;
+int SidebarWidgets_contentWidth = 30;
 
 // sidebar icons
 GDrawCommandImage *dateImage;
@@ -65,6 +66,25 @@ typedef struct {
 } SidebarWidgetLayout;
 
 static SidebarWidgetLayout layout;
+
+#ifdef PBL_HEALTH
+typedef struct {
+  GDrawCommandImage *icon;
+  char full[16];
+  char compact[16];
+  char tiny[16];
+  bool available;
+} StandardWidgetData;
+
+typedef struct {
+  GRect textRect;
+  int iconX;
+  int iconY;
+  GFont primaryFont;
+  GFont fallbackFont;
+  bool preferFullText;
+} StandardWidgetRenderContext;
+#endif
 
 // the date, time and weather strings
 char currentDayName[8];
@@ -518,6 +538,68 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
   }
 }
 
+#ifdef PBL_HEALTH
+static bool text_fits(const char *text, GFont font, GRect rect) {
+  GSize size = graphics_text_layout_get_content_size(
+      text, font, rect, GTextOverflowModeFill, GTextAlignmentCenter);
+
+  return size.w <= rect.size.w;
+}
+
+static const char *pick_standard_widget_text(StandardWidgetData *data,
+                                             StandardWidgetRenderContext *ctx,
+                                             GFont *selectedFont) {
+  const char *preferred = ctx->preferFullText ? data->full : data->compact;
+  const char *fallback = ctx->preferFullText ? data->compact : data->full;
+
+  GFont fonts[2] = {ctx->primaryFont, ctx->fallbackFont};
+
+  for (int fontIndex = 0; fontIndex < 2; fontIndex++) {
+    if (text_fits(preferred, fonts[fontIndex], ctx->textRect)) {
+      *selectedFont = fonts[fontIndex];
+      return preferred;
+    }
+
+    if (text_fits(fallback, fonts[fontIndex], ctx->textRect)) {
+      *selectedFont = fonts[fontIndex];
+      return fallback;
+    }
+
+    if (text_fits(data->tiny, fonts[fontIndex], ctx->textRect)) {
+      *selectedFont = fonts[fontIndex];
+      return data->tiny;
+    }
+  }
+
+  *selectedFont = ctx->fallbackFont;
+  return data->tiny;
+}
+
+static void draw_standard_widget(GContext *ctx, StandardWidgetData *data,
+                                 StandardWidgetRenderContext renderCtx) {
+  if (data->icon) {
+    gdraw_command_image_recolor(data->icon, dynamicSettings.iconFillColor,
+                                dynamicSettings.iconStrokeColor);
+    gdraw_command_image_draw(ctx, data->icon,
+                             GPoint(renderCtx.iconX, renderCtx.iconY));
+  }
+
+  if (!data->available) {
+    graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+    graphics_draw_text(ctx, "...", renderCtx.fallbackFont, renderCtx.textRect,
+                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    return;
+  }
+
+  GFont selectedFont = renderCtx.primaryFont;
+  const char *text = pick_standard_widget_text(data, &renderCtx, &selectedFont);
+
+  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  graphics_draw_text(ctx, text, selectedFont, renderCtx.textRect,
+                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+}
+#endif
+
 /********** functions for the empty widget **********/
 int EmptyWidget_getHeight() { return 0; }
 
@@ -874,16 +956,74 @@ void UVIndex_draw(GContext *ctx, int yPosition) {
 
 int StepCounter_getHeight() { return layout.stepCounterHeight; }
 
-void StepCounter_draw(GContext *ctx, int yPosition) {
-  if (stepsImage) {
-    gdraw_command_image_recolor(stepsImage, dynamicSettings.iconFillColor,
-                                dynamicSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, stepsImage,
-                             GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
+static void format_step_candidates(int steps, StandardWidgetData *data) {
+  snprintf(data->full, sizeof(data->full), "%i", steps);
+
+  if (steps < 1000) {
+    snprintf(data->compact, sizeof(data->compact), "%i", steps);
+    snprintf(data->tiny, sizeof(data->tiny), "%i", steps);
+    return;
   }
 
-  char steps_text[8];
-  bool use_small_font = false;
+  int steps_thousands = steps / 1000;
+  int steps_hundreds = steps / 100 % 10;
+
+  if (steps < 10000) {
+    snprintf(data->compact, sizeof(data->compact), "%i%c%ik", steps_thousands,
+             settings.decimalSeparator, steps_hundreds);
+  } else {
+    snprintf(data->compact, sizeof(data->compact), "%ik", steps_thousands);
+  }
+
+  int rounded_thousands = (steps + 500) / 1000;
+  snprintf(data->tiny, sizeof(data->tiny), "%ik", rounded_thousands);
+}
+
+static void format_distance_candidates(int distance, StandardWidgetData *data) {
+  MeasurementSystem unit_system =
+      health_service_get_measurement_system_for_display(
+          HealthMetricWalkedDistanceMeters);
+
+  if (unit_system == MeasurementSystemMetric) {
+    if (distance < 1000) {
+      snprintf(data->full, sizeof(data->full), "%im", distance);
+      snprintf(data->compact, sizeof(data->compact), "%im", distance);
+      snprintf(data->tiny, sizeof(data->tiny), "%im", distance);
+    } else {
+      int km_whole = distance / 1000;
+      int km_tenths = distance / 100 % 10;
+      snprintf(data->full, sizeof(data->full), "%i%c%ikm", km_whole,
+               settings.decimalSeparator, km_tenths);
+      snprintf(data->compact, sizeof(data->compact), "%ikm", km_whole);
+      snprintf(data->tiny, sizeof(data->tiny), "%ik", km_whole);
+    }
+    return;
+  }
+
+  int miles_tenths_total = distance * 10 / 1609;
+  int miles_whole = miles_tenths_total / 10;
+  int miles_tenths = miles_tenths_total % 10;
+
+  if (miles_whole > 0) {
+    snprintf(data->full, sizeof(data->full), "%i%c%imi", miles_whole,
+             settings.decimalSeparator, miles_tenths);
+    snprintf(data->compact, sizeof(data->compact), "%imi", miles_whole);
+    snprintf(data->tiny, sizeof(data->tiny), "%imi", miles_whole);
+  } else {
+    snprintf(data->full, sizeof(data->full), "%c%imi",
+             settings.decimalSeparator, miles_tenths);
+    snprintf(data->compact, sizeof(data->compact), "%c%imi",
+             settings.decimalSeparator, miles_tenths);
+    snprintf(data->tiny, sizeof(data->tiny), "%c%imi",
+             settings.decimalSeparator, miles_tenths);
+  }
+}
+
+static StandardWidgetData StepCounter_getStandardData() {
+  StandardWidgetData data = (StandardWidgetData){
+      .icon = stepsImage,
+      .available = true,
+  };
 
   if (settings.healthUseDistance) {
     int distance = 0;
@@ -893,67 +1033,35 @@ void StepCounter_draw(GContext *ctx, int yPosition) {
           (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
     }
 
-    MeasurementSystem unit_system =
-        health_service_get_measurement_system_for_display(
-            HealthMetricWalkedDistanceMeters);
-
-    // format distance string
-    if (unit_system == MeasurementSystemMetric) {
-      if (distance < 100) {
-        snprintf(steps_text, sizeof(steps_text), "%im", distance);
-      } else if (distance < 1000) {
-        distance /= 100; // convert to tenths of km
-        snprintf(steps_text, sizeof(steps_text), ".%ikm", distance);
-      } else {
-        distance /= 1000; // convert to km
-
-        if (distance > 9) {
-          use_small_font = true;
-        }
-
-        snprintf(steps_text, sizeof(steps_text), "%ikm", distance);
-      }
-    } else {
-      int miles_tenths = distance * 10 / 1609 % 10;
-      int miles_whole = (int)roundf(distance / 1609.0f);
-
-      if (miles_whole > 0) {
-        snprintf(steps_text, sizeof(steps_text), "%imi", miles_whole);
-      } else {
-        snprintf(steps_text, sizeof(steps_text), "%c%imi",
-                 settings.decimalSeparator, miles_tenths);
-      }
-    }
+    format_distance_candidates(distance, &data);
   } else {
-    int steps = (int)health_service_sum_today(HealthMetricStepCount);
+    int steps = 0;
 
     if (is_health_metric_accessible(HealthMetricStepCount)) {
       steps = (int)health_service_sum_today(HealthMetricStepCount);
     }
 
-    // format step string
-    if (steps < 1000) {
-      snprintf(steps_text, sizeof(steps_text), "%i", steps);
-    } else {
-      int steps_thousands = steps / 1000;
-      int steps_hundreds = steps / 100 % 10;
-
-      if (steps < 10000) {
-        snprintf(steps_text, sizeof(steps_text), "%i%c%ik", steps_thousands,
-                 settings.decimalSeparator, steps_hundreds);
-      } else {
-        snprintf(steps_text, sizeof(steps_text), "%ik", steps_thousands);
-      }
-    }
+    format_step_candidates(steps, &data);
   }
 
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  return data;
+}
 
-  graphics_draw_text(
-      ctx, steps_text, (use_small_font) ? smSidebarFont : mdSidebarFont,
-      GRect(layout.textRectX + SidebarWidgets_xOffset,
-            yPosition + layout.stepsTextY, layout.textRectWidth, 20),
-      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+void StepCounter_draw(GContext *ctx, int yPosition) {
+  StandardWidgetData data = StepCounter_getStandardData();
+  int textWidth = SidebarWidgets_contentWidth;
+  int textX = SidebarWidgets_xOffset - (textWidth - 30) / 2;
+
+  StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
+      .textRect = GRect(textX, yPosition + layout.stepsTextY, textWidth, 20),
+      .iconX = 3 + SidebarWidgets_xOffset,
+      .iconY = yPosition - 7,
+      .primaryFont = currentSidebarFont,
+      .fallbackFont = smSidebarFont,
+      .preferFullText = settings.useWideSidebar,
+  };
+
+  draw_standard_widget(ctx, &data, renderCtx);
 }
 
 /***** Sleep Time Widget *****/

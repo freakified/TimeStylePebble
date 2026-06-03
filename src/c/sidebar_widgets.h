@@ -15,6 +15,12 @@ extern bool SidebarWidgets_useCompactMode;
 extern int SidebarWidgets_xOffset;
 
 /*
+ * The active widget drawing width. Rectangular watches set this to the
+ * sidebar width; round watches keep using the historical narrow width.
+ */
+extern int SidebarWidgets_contentWidth;
+
+/*
  * The different types of sidebar widgets:
  * we'll give them numbers so that we can index them in settings
  */

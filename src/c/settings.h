@@ -59,6 +59,9 @@ typedef struct {
   bool healthUseDistance;
   bool healthUseRestfulSleep;
   char decimalSeparator;
+
+  // sidebar layout settings
+  bool useWideSidebar;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
@@ -72,48 +75,6 @@ typedef struct {
   GColor iconFillColor;
   GColor iconStrokeColor;
 } DynamicSettings;
-
-// Legacy packed settings struct
-// this is now deprecated, and will be removed in the next version
-typedef struct {
-  GColor timeColor;
-  GColor timeBgColor;
-  GColor sidebarColor;
-  GColor sidebarTextColor;
-
-  // general settings
-  uint8_t languageId;
-  uint8_t showLeadingZero:1;
-  uint8_t clockFontId:7;
-
-  // vibration settings
-  uint8_t btVibe:1;
-  int8_t hourlyVibe:7;
-
-  // sidebar settings
-  uint8_t widgets[3];
-  uint8_t sidebarOnLeft:1;
-  uint8_t useLargeFonts:1;
-
-  // weather widget settings
-  uint8_t useMetric:1;
-
-  // battery meter widget settings
-  uint8_t showBatteryPct:1;
-  uint8_t disableAutobattery:1;
-
-  // health widget Settings
-  uint8_t healthUseDistance:1;
-  uint8_t healthUseRestfulSleep:1;
-  char decimalSeparator;
-
-  // alt tz widget settings
-  char altclockName[8];
-  int8_t altclockOffset;
-
-  // bluetooth disconnection icon
-  int8_t activateDisconnectIcon:1;
-} LegacyStoredSettings;
 
 extern Settings settings;
 extern DynamicSettings dynamicSettings;

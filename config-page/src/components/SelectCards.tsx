@@ -9,8 +9,8 @@ export const SelectCards: React.FC<{
   label: string;
   description?: string;
   messageKey: keyof Settings;
-  options: { label: string; value: string | number }[];
-  optionSettings?: Record<string | number, Partial<Settings>>;
+  options: { label: string; value: string | number | boolean }[];
+  optionSettings?: Record<string, Partial<Settings>>;
   watchPreviewProps?: Partial<WatchPreviewProps>;
 }> = ({ label, description, messageKey, options, optionSettings, watchPreviewProps }) => {
   const { settings, updateSetting } = useConfig();
@@ -31,7 +31,10 @@ export const SelectCards: React.FC<{
           const selected = Array.from(keys)[0] as string;
           if (!selected) return;
           const num = parseInt(selected, 10);
-          updateSetting(messageKey, isNaN(num) ? selected : num);
+          const value = selected === 'true' ? true
+                      : selected === 'false' ? false
+                      : isNaN(num) ? selected : num;
+          updateSetting(messageKey, value);
         }}
         layout="grid"
         aria-label={label}
@@ -44,7 +47,7 @@ export const SelectCards: React.FC<{
             textValue={item.label}
           >
             <div className="halite-select-card-preview">
-              <WatchPreview overrideSettings={optionSettings?.[item.value]} {...watchPreviewProps} />
+              <WatchPreview overrideSettings={optionSettings?.[String(item.value)]} {...watchPreviewProps} />
             </div>
             <Text className="halite-select-card-label">{item.label}</Text>
           </GridListItem>

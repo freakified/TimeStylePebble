@@ -13,15 +13,21 @@
 #define V_PADDING_DEFAULT 8
 #endif
 #define V_PADDING_COMPACT 4
+#define SIDEBAR_WIDTH_DEFAULT 30
+#define SIDEBAR_WIDTH_WIDE 46
 
 GRect screen_rect;
 int sidebarWidth;
 
 static void update_sidebar_width() {
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  sidebarWidth = settings.useLargeFonts ? 43 : 34;
+  if (settings.useWideSidebar) {
+    sidebarWidth = settings.useLargeFonts ? 58 : 52;
+  } else {
+    sidebarWidth = settings.useLargeFonts ? 43 : 34;
+  }
 #else
-  sidebarWidth = 30;
+  sidebarWidth = settings.useWideSidebar ? SIDEBAR_WIDTH_WIDE : SIDEBAR_WIDTH_DEFAULT;
 #endif
 }
 
@@ -236,6 +242,7 @@ void drawRoundSidebar(GContext *ctx, GRect bgBounds,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
 
   SidebarWidgets_xOffset = widgetXOffset;
+  SidebarWidgets_contentWidth = 30;
   SidebarWidget widget = getSidebarWidgetByType(widgetType);
 
   // calculate center position of the widget
@@ -250,6 +257,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
 
   // this ends up being zero on every rectangular platform besides emery
   SidebarWidgets_xOffset = (sidebarWidth - 30) / 2;
+  SidebarWidgets_contentWidth = sidebarWidth;
 
   SidebarWidgets_updateFonts();
 

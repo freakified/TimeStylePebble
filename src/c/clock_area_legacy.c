@@ -2,6 +2,7 @@
 #include <pebble.h>
 #include "clock_area.h"
 #include "settings.h"
+#include "sidebar.h"
 #include "clock_digit_legacy.h"
 
 #define DIGIT_COUNT 4
@@ -28,7 +29,7 @@ void ClockArea_update_time(struct tm* time_info) {
 void ClockArea_redraw() {
   GColor fg = settings.timeColor;
   GColor bg = settings.timeBgColor;
-  int offset = settings.sidebarOnLeft ? 30 : 0;
+  int offset = settings.sidebarOnLeft ? sidebarWidth : 0;
 
   int h_font = settings.clockFontId;
   int m_font = settings.clockFontId;
