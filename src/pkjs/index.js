@@ -1,5 +1,6 @@
 
 var weather = require('./weather');
+var settingsMapper = require('./settings');
 
 var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
@@ -18,105 +19,6 @@ function getWatchInfo() {
   }
 
   return { platform: 'aplite' };
-}
-
-function padHex(value) {
-  var hex = Number(value || 0).toString(16).toUpperCase();
-  while (hex.length < 6) {
-    hex = '0' + hex;
-  }
-  return hex;
-}
-
-function getNumber(value, fallback) {
-  if (value === undefined || value === null) {
-    return fallback;
-  }
-  return Number(value);
-}
-
-function getBoolean(value) {
-  return getNumber(value, 0) !== 0;
-}
-
-function fontFromId(id) {
-  if (id === 1) {
-    return 'leco';
-  } else if (id === 2) {
-    return 'bold';
-  } else if (id === 3) {
-    return 'bold-h';
-  } else if (id === 4) {
-    return 'bold-m';
-  }
-
-  return 'default';
-}
-
-function hourlyVibeFromId(id) {
-  if (id === 1) {
-    return 'everyHour';
-  } else if (id === 2) {
-    return 'everyHalfHour';
-  }
-
-  return 'none';
-}
-
-function decimalSeparatorFromPayload(value) {
-  if (value === ',') {
-    return ',';
-  }
-
-  if (Number(value) === 44) {
-    return ',';
-  }
-
-  return '.';
-}
-
-function settingsFromWatchPayload(payload) {
-  return {
-    colorBackground: padHex(payload.SettingColorBG),
-    colorTime: padHex(payload.SettingColorTime),
-    colorSidebar: padHex(payload.SettingColorSidebar),
-    colorSidebarText: padHex(payload.SettingSidebarTextColor),
-
-    widget0Id: getNumber(payload.SettingWidget0ID, 7),
-    widget1Id: getNumber(payload.SettingWidget1ID, 0),
-    widget2Id: getNumber(payload.SettingWidget2ID, 4),
-
-    languageId: getNumber(payload.SettingLanguageID, 0),
-    leadingZero: getBoolean(payload.SettingShowLeadingZero),
-    clockFont: fontFromId(getNumber(payload.SettingClockFontId, 0)),
-    sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
-    largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
-    decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
-
-    disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
-    bluetoothVibe: getBoolean(payload.SettingBluetoothVibe),
-
-    hourlyVibe: hourlyVibeFromId(getNumber(payload.SettingHourlyVibe, 0)),
-
-    weatherUnits: getBoolean(payload.SettingUseMetric) ? 'c' : 'f',
-
-    batteryMeter: getBoolean(payload.SettingShowBatteryPct) ? 'icon-and-percent' : 'icon-only',
-    autoBattery: !getBoolean(payload.SettingDisableAutobattery),
-
-    altClockName: payload.SettingAltClockName || 'ALT',
-    altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
-
-    healthActivityMetric: getBoolean(payload.SettingHealthUseDistance) ? 'distance' : 'steps',
-    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
-  };
-}
-
-function isConfigSnapshot(payload) {
-  return payload && (
-    payload.SettingColorBG !== undefined ||
-    payload.SettingWidget0ID !== undefined ||
-    payload.SettingClockFontId !== undefined
-  );
 }
 
 function openConfigPage(watchInfo, settings) {
@@ -176,10 +78,10 @@ Pebble.addEventListener('appmessage',
   function (msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
 
-    if (isConfigSnapshot(msg.payload)) {
+    if (settingsMapper.isConfigSnapshot(msg.payload)) {
       if (pendingConfigSnapshot) {
         clearTimeout(pendingConfigSnapshot.timeoutId);
-        openConfigPage(pendingConfigSnapshot.watchInfo, settingsFromWatchPayload(msg.payload));
+        openConfigPage(pendingConfigSnapshot.watchInfo, settingsMapper.settingsFromWatchPayload(msg.payload));
         pendingConfigSnapshot = null;
       }
       return;
@@ -201,97 +103,9 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
     console.log("Config data recieved!" + JSON.stringify(configData));
 
-    // prepare a structure to hold everything we'll send to the watch
-    var dict = {};
-
-    // color settings
-    if (configData.colorBackground) {
-      dict.SettingColorBG = parseInt(configData.colorBackground, 16);
-    }
-
-    if (configData.colorSidebar) {
-      dict.SettingColorSidebar = parseInt(configData.colorSidebar, 16);
-    }
-
-    if (configData.colorTime) {
-      dict.SettingColorTime = parseInt(configData.colorTime, 16);
-    }
-
-    if (configData.colorSidebarText) {
-      dict.SettingSidebarTextColor = parseInt(configData.colorSidebarText, 16);
-    }
-
-    // general options
-    if (configData.languageId !== undefined) {
-      dict.SettingLanguageID = configData.languageId;
-    }
-
-    if (configData.leadingZero !== undefined) {
-      dict.SettingShowLeadingZero = configData.leadingZero ? 1 : 0;
-    }
-
-    if (configData.clockFont) {
-      if (configData.clockFont == 'default') {
-        dict.SettingClockFontId = 0;
-      } else if (configData.clockFont == 'leco') {
-        dict.SettingClockFontId = 1;
-      } else if (configData.clockFont == 'bold') {
-        dict.SettingClockFontId = 2;
-      } else if (configData.clockFont == 'bold-h') {
-        dict.SettingClockFontId = 3;
-      } else if (configData.clockFont == 'bold-m') {
-        dict.SettingClockFontId = 4;
-      }
-    }
-
-    // bluetooth settings
-    if (configData.disconnectIcon !== undefined) {
-      dict.SettingDisconnectIcon = configData.disconnectIcon ? 1 : 0;
-    }
-
-    if (configData.bluetoothVibe !== undefined) {
-      dict.SettingBluetoothVibe = configData.bluetoothVibe ? 1 : 0;
-    }
-
-    // notification settings
-    if (configData.hourlyVibe !== undefined) {
-      if (configData.hourlyVibe == 'everyHour') {
-        dict.SettingHourlyVibe = 1;
-      } else if (configData.hourlyVibe == 'everyHalfHour') {
-        dict.SettingHourlyVibe = 2;
-      } else {
-        dict.SettingHourlyVibe = 0;
-      }
-    }
-
-    // sidebar settings
-    dict.SettingWidget0ID = configData.widget0Id;
-    dict.SettingWidget1ID = configData.widget1Id;
-    dict.SettingWidget2ID = configData.widget2Id;
-
-    if (configData.sidebarPosition) {
-      if (configData.sidebarPosition == 'right') {
-        dict.SettingSidebarOnLeft = 0;
-      } else {
-        dict.SettingSidebarOnLeft = 1;
-      }
-    }
-
-    if (configData.largeSidebarFont !== undefined) {
-      dict.SettingUseLargeFonts = configData.largeSidebarFont ? 1 : 0;
-    }
-
-    // weather widget settings
-    if (configData.weatherUnits) {
-      if (configData.weatherUnits == 'c') {
-        dict.SettingUseMetric = 1;
-      } else {
-        dict.SettingUseMetric = 0;
-      }
-    }
+    var dict = settingsMapper.settingsToWatchPayload(configData);
 
     // weather location/source configs are not the watch's concern
-
     if (configData.weatherMode) {
       window.localStorage.removeItem('weather_loc');
       window.localStorage.removeItem('weather_loc_lat');
@@ -305,39 +119,6 @@ Pebble.addEventListener('webviewclosed', function (e) {
     if (configData.weatherDataSource) {
       window.localStorage.setItem('weather_datasource', configData.weatherDataSource);
       window.localStorage.setItem('weather_api_key', configData.weatherApiKey);
-    }
-
-    // battery widget settings
-    if (configData.batteryMeter) {
-      if (configData.batteryMeter == 'icon-and-percent') {
-        dict.SettingShowBatteryPct = 1;
-      } else if (configData.batteryMeter == 'icon-only') {
-        dict.SettingShowBatteryPct = 0;
-      }
-    }
-
-    if (configData.autoBattery !== undefined) {
-      dict.SettingDisableAutobattery = configData.autoBattery ? 0 : 1;
-    }
-
-    if (configData.altClockName) {
-      dict.SettingAltClockName = configData.altClockName;
-    }
-
-    if (configData.altClockOffset !== null) {
-      dict.SettingAltClockOffset = parseInt(configData.altClockOffset, 10);
-    }
-
-    if (configData.decimalSeparator) {
-      dict.SettingDecimalSep = configData.decimalSeparator;
-    }
-
-    if (configData.healthActivityMetric !== undefined) {
-      dict.SettingHealthUseDistance = configData.healthActivityMetric == 'distance' ? 1 : 0;
-    }
-
-    if (configData.healthSleepType !== undefined) {
-      dict.SettingHealthUseRestfulSleep = configData.healthSleepType == 'restful' ? 1 : 0;
     }
 
     // determine whether or not the weather checking should be enabled
