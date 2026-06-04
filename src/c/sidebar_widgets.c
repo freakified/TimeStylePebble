@@ -1,6 +1,7 @@
 #include "sidebar_widgets.h"
 #include "languages.h"
 #include "settings.h"
+#include "text_metrics.h"
 #include "util.h"
 #include "weather.h"
 #include <math.h>
@@ -9,6 +10,9 @@
 bool SidebarWidgets_useCompactMode = false;
 int SidebarWidgets_xOffset;
 int SidebarWidgets_contentWidth = 30;
+
+#define STANDARD_WIDGET_TEXT_MARGIN 2
+#define STANDARD_WIDGET_TEXT_OVERFLOW 5
 
 // sidebar icons
 GDrawCommandImage *dateImage;
@@ -24,7 +28,19 @@ GFont smSidebarFont;
 GFont mdSidebarFont;
 GFont lgSidebarFont;
 GFont currentSidebarFont;
-GFont batteryFont;
+GFont fallbackSidebarFont;
+
+typedef struct {
+  int height;
+  int offset;
+} SidebarTextMetrics;
+
+typedef struct {
+  SidebarTextMetrics sm;
+  SidebarTextMetrics md;
+  SidebarTextMetrics lg;
+  SidebarTextMetrics current;
+} SidebarFontMetrics;
 
 typedef struct {
   // battery meter
@@ -42,6 +58,7 @@ typedef struct {
   // common text rect x offset and width for main data display
   int textRectX;
   int textRectWidth;
+  int textRectHeight;
   // weather forecast
   int weatherForecastHeight;
   int forecastHighY, forecastDividerY, forecastLowY;
@@ -66,8 +83,8 @@ typedef struct {
 } SidebarWidgetLayout;
 
 static SidebarWidgetLayout layout;
+static SidebarFontMetrics fontMetrics;
 
-#ifdef PBL_HEALTH
 typedef struct {
   GDrawCommandImage *icon;
   char full[16];
@@ -77,14 +94,50 @@ typedef struct {
 } StandardWidgetData;
 
 typedef struct {
-  GRect textRect;
+  GRect fitRect;
+  GRect drawRect;
   int iconX;
   int iconY;
   GFont primaryFont;
   GFont fallbackFont;
-  bool preferFullText;
 } StandardWidgetRenderContext;
-#endif
+
+typedef struct {
+  const char *label;
+  StandardWidgetData value;
+} BasicWidgetData;
+
+static SidebarTextMetrics gothic_metrics(int fontSize) {
+  switch (fontSize) {
+  case 14:
+    return (SidebarTextMetrics){METRIC_GOTHIC_14_HEIGHT,
+                                METRIC_GOTHIC_14_OFFSET};
+  case 18:
+    return (SidebarTextMetrics){METRIC_GOTHIC_18_HEIGHT,
+                                METRIC_GOTHIC_18_OFFSET};
+  case 24:
+    return (SidebarTextMetrics){METRIC_GOTHIC_24_HEIGHT,
+                                METRIC_GOTHIC_24_OFFSET};
+  case 28:
+    return (SidebarTextMetrics){METRIC_GOTHIC_28_HEIGHT,
+                                METRIC_GOTHIC_28_OFFSET};
+  default:
+    return (SidebarTextMetrics){METRIC_GOTHIC_18_HEIGHT,
+                                METRIC_GOTHIC_18_OFFSET};
+  }
+}
+
+static int text_draw_y(SidebarTextMetrics metrics, int visibleTop) {
+  return visibleTop - metrics.offset;
+}
+
+static int text_draw_y_for_baseline(SidebarTextMetrics metrics, int baselineY) {
+  return baselineY - metrics.offset - metrics.height;
+}
+
+static int text_rect_height(SidebarTextMetrics metrics) {
+  return metrics.offset + metrics.height;
+}
 
 // the date, time and weather strings
 char currentDayName[8];
@@ -255,175 +308,106 @@ void SidebarWidgets_deinit() {
 }
 
 void SidebarWidgets_updateFonts() {
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  fontMetrics.sm = gothic_metrics(18);
+  fontMetrics.md = gothic_metrics(24);
+  fontMetrics.lg = gothic_metrics(28);
+#else
+  fontMetrics.sm = gothic_metrics(14);
+  fontMetrics.md = gothic_metrics(18);
+  fontMetrics.lg = gothic_metrics(24);
+#endif
+
   if (settings.useLargeFonts) {
     currentSidebarFont = lgSidebarFont;
-    batteryFont = lgSidebarFont;
+    fallbackSidebarFont = mdSidebarFont;
+    fontMetrics.current = fontMetrics.lg;
   } else {
     currentSidebarFont = mdSidebarFont;
-    batteryFont = smSidebarFont;
+    fallbackSidebarFont = smSidebarFont;
+    fontMetrics.current = fontMetrics.md;
   }
 
-  if (settings.useLargeFonts) {
-    layout = (SidebarWidgetLayout){
-        .batteryGraphicOnlyHeight = 14,
-        .batteryWithPctHeight = 33,
-        .batteryTextY = 14,
-        .dateHeight = 62,
-        .dateHeightCompact = 42,
-        .dateTopCorrection = 10,
-        .dateDayNumY = 24,
-        .dateMonthY = 48,
-        .dateBgX = 3,
-        .dateBgY = 23,
-        .dateBgRectX = 2,
-        .dateBgRectY = 30,
-        .dateBgRectWidth = 26,
-        .dateBgRectHeight = 22,
-        .weatherHeight = 44,
-        .weatherTempY = 20,
-        .textRectX = -5,
-        .textRectWidth = 40,
-        .weatherForecastHeight = 63,
-        .forecastHighY = 20,
-        .forecastDividerY = 38,
-        .forecastLowY = 39,
-        .forecastDividerX = 3,
-        .forecastDividerWidth = 24,
-        .basicWidgetHeight = 29,
-        .basicWidgetLabelY = -4,
-        .basicWidgetY = 6,
-        .btDisconnectHeight = 22,
-        .heartRateHeight = 40,
-        .heartRateValueY = 17,
-        .stepCounterHeight = 32,
-        .stepsTextY = 13,
-        .sleepTimerHeight = 44,
-        .sleepHoursY = 14,
-        .sleepMinutesY = 30,
-        .secondsHeight = 14,
-        .secondsY = -10,
-    };
-  } else {
-    layout = (SidebarWidgetLayout){
-        .batteryGraphicOnlyHeight = 14,
-        .batteryWithPctHeight = 27,
-        .batteryTextY = 18,
-        .dateHeight = 58,
-        .dateHeightCompact = 41,
-        .dateTopCorrection = 7,
-        .dateDayNumY = 26,
-        .dateMonthY = 47,
-        .dateBgX = 3,
-        .dateBgY = 23,
-        .dateBgRectX = 2,
-        .dateBgRectY = 30,
-        .dateBgRectWidth = 26,
-        .dateBgRectHeight = 22,
-        .weatherHeight = 42,
-        .weatherTempY = 24,
-        .textRectX = -5,
-        .textRectWidth = 40,
-        .weatherForecastHeight = 60,
-        .forecastHighY = 24,
-        .forecastDividerY = 37,
-        .forecastLowY = 42,
-        .forecastDividerX = 3,
-        .forecastDividerWidth = 24,
-        .basicWidgetHeight = 26,
-        .basicWidgetLabelY = -4,
-        .basicWidgetY = 9,
-        .btDisconnectHeight = 22,
-        .heartRateHeight = 38,
-        .heartRateValueY = 21,
-        .stepCounterHeight = 36,
-        .stepsTextY = 13,
-        .sleepTimerHeight = 44,
-        .sleepHoursY = 14,
-        .sleepMinutesY = 30,
-        .secondsHeight = 14,
-        .secondsY = -10,
-    };
-  }
+  const int batteryIconHeight = 14;
+  const int batteryTextTop = 20;
+  const int iconHeight = 22;
+  const int iconTextGap = 9;
+  const int stackedValueGap = 7;
+  const int basicWidgetPaddingTop = 2;
+  const int basicWidgetGap = 6;
+  const int basicWidgetPaddingBottom = 5;
+  const int dateDayTop = 26;
+  const int dateMonthTop = 47;
+  const int dateImageDayInset = 10;
+  const int dateRectDayInset = 6;
+  const int forecastDividerGap = 5;
+  const int secondsBaseline = 18;
+
+  int iconTextTop = iconHeight + iconTextGap;
+  int basicValueTop =
+      basicWidgetPaddingTop + fontMetrics.sm.height + basicWidgetGap;
+  int forecastLowTop =
+      iconTextTop + fontMetrics.current.height + stackedValueGap;
+  int forecastDividerTop =
+      iconTextTop + fontMetrics.current.height + forecastDividerGap;
+
+  layout = (SidebarWidgetLayout){
+      .batteryGraphicOnlyHeight = batteryIconHeight,
+      .batteryWithPctHeight = batteryTextTop + fontMetrics.current.height,
+      .batteryTextY = text_draw_y(fontMetrics.current, batteryTextTop) + 5,
+      .dateHeight = dateMonthTop + fontMetrics.current.height,
+      .dateHeightCompact = dateDayTop + fontMetrics.current.height,
+      .dateTopCorrection = fontMetrics.current.offset,
+      .dateDayNumY = dateDayTop,
+      .dateMonthY = dateMonthTop,
+      .dateBgX = 3,
+      .dateBgY =
+          dateDayTop - dateImageDayInset + fontMetrics.current.offset,
+      .dateBgRectX = 2,
+      .dateBgRectY =
+          dateDayTop - dateRectDayInset + fontMetrics.current.offset,
+      .dateBgRectWidth = 26,
+      .dateBgRectHeight = 22,
+      .weatherHeight = iconTextTop + fontMetrics.current.height,
+      .weatherTempY = text_draw_y(fontMetrics.current, iconTextTop),
+      .textRectX = -5,
+      .textRectWidth = 40,
+      .textRectHeight = text_rect_height(fontMetrics.current),
+      .weatherForecastHeight =
+          forecastLowTop + fontMetrics.current.height + basicWidgetPaddingBottom,
+      .forecastHighY = text_draw_y(fontMetrics.current, iconTextTop),
+      .forecastDividerY = forecastDividerTop - 8,
+      .forecastLowY = text_draw_y(fontMetrics.current, forecastLowTop),
+      .forecastDividerX = 3,
+      .forecastDividerWidth = 24,
+      .basicWidgetHeight =
+          basicValueTop + fontMetrics.current.height + basicWidgetPaddingBottom,
+      .basicWidgetLabelY = text_draw_y(fontMetrics.sm, basicWidgetPaddingTop),
+      .basicWidgetY = text_draw_y(fontMetrics.current, basicValueTop),
+      .btDisconnectHeight = iconHeight,
+      .heartRateHeight = iconTextTop + fontMetrics.current.height,
+      .heartRateValueY = text_draw_y(fontMetrics.current, iconTextTop),
+      .stepCounterHeight = iconTextTop + fontMetrics.current.height,
+      .stepsTextY = text_draw_y(fontMetrics.current, iconTextTop),
+      .sleepTimerHeight = iconTextTop + fontMetrics.md.height +
+                          stackedValueGap + fontMetrics.sm.height,
+      .sleepHoursY = text_draw_y(fontMetrics.md, iconTextTop),
+      .sleepMinutesY = text_draw_y(
+          fontMetrics.sm,
+          iconTextTop + fontMetrics.md.height + stackedValueGap),
+      .secondsHeight = fontMetrics.lg.height,
+      .secondsY = text_draw_y_for_baseline(fontMetrics.lg, secondsBaseline),
+  };
 
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  // Larger fonts on these platforms — override layout values.
-  // These start from the standard large-font values as a baseline; tune as
-  // needed.
-  if (settings.useLargeFonts) {
-    layout.batteryWithPctHeight = 38;
-    layout.batteryTextY = 15;
-    layout.dateHeight = 74;
-    layout.dateHeightCompact = 50;
-    layout.dateTopCorrection = 9;
-    layout.dateDayNumY = 28;
-    layout.dateMonthY = 56;
-    layout.dateBgX = 1;
-    layout.dateBgY = 29;
-    layout.dateBgRectX = 0;
-    layout.dateBgRectY = 34;
-    layout.dateBgRectWidth = 30;
-    layout.dateBgRectHeight = 26;
-    layout.weatherHeight = 49;
-    layout.weatherTempY = 21;
-    layout.textRectX = -10;
-    layout.textRectWidth = 50;
-    layout.weatherForecastHeight = 76;
-    layout.forecastHighY = 21;
-    layout.forecastDividerY = 45;
-    layout.forecastLowY = 48;
-    layout.forecastDividerX = 1;
-    layout.forecastDividerWidth = 28;
-    layout.basicWidgetHeight = 35;
-    layout.basicWidgetLabelY = -6;
-    layout.basicWidgetY = 8;
-    layout.btDisconnectHeight = 22;
-    layout.heartRateHeight = 47;
-    layout.heartRateValueY = 20;
-    layout.stepCounterHeight = 35;
-    layout.stepsTextY = 10;
-    layout.sleepTimerHeight = 52;
-    layout.sleepHoursY = 13;
-    layout.sleepMinutesY = 34;
-    layout.secondsHeight = 18;
-    layout.secondsY = -10;
-  } else {
-    layout.batteryWithPctHeight = 30;
-    layout.batteryTextY = 17;
-    layout.dateHeight = 67;
-    layout.dateHeightCompact = 47;
-    layout.dateTopCorrection = 10;
-    layout.dateDayNumY = 29;
-    layout.dateMonthY = 53;
-    layout.dateBgX = 1;
-    layout.dateBgY = 29;
-    layout.dateBgRectX = 0;
-    layout.dateBgRectY = 35;
-    layout.dateBgRectWidth = 30;
-    layout.dateBgRectHeight = 26;
-    layout.weatherHeight = 46;
-    layout.weatherTempY = 22;
-    layout.textRectX = -9;
-    layout.textRectWidth = 48;
-    layout.weatherForecastHeight = 69;
-    layout.forecastHighY = 22;
-    layout.forecastDividerY = 42;
-    layout.forecastLowY = 45;
-    layout.forecastDividerX = 1;
-    layout.forecastDividerWidth = 28;
-    layout.basicWidgetHeight = 32;
-    layout.basicWidgetLabelY = -4;
-    layout.basicWidgetY = 12;
-    layout.btDisconnectHeight = 22;
-    layout.heartRateHeight = 40;
-    layout.heartRateValueY = 20;
-    layout.stepCounterHeight = 32;
-    layout.stepsTextY = 11;
-    layout.sleepTimerHeight = 52;
-    layout.sleepHoursY = 13;
-    layout.sleepMinutesY = 34;
-    layout.secondsHeight = 18;
-    layout.secondsY = -10;
-  }
+  layout.dateBgX = 1;
+  layout.dateBgRectX = 0;
+  layout.dateBgRectWidth = 30;
+  layout.dateBgRectHeight = 26;
+  layout.textRectX = -10;
+  layout.textRectWidth = 50;
+  layout.forecastDividerX = 1;
+  layout.forecastDividerWidth = 28;
 #endif
 }
 
@@ -538,10 +522,10 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
   }
 }
 
-#ifdef PBL_HEALTH
 static bool text_fits(const char *text, GFont font, GRect rect) {
+  GRect measureRect = GRect(0, 0, 200, rect.size.h);
   GSize size = graphics_text_layout_get_content_size(
-      text, font, rect, GTextOverflowModeFill, GTextAlignmentCenter);
+      text, font, measureRect, GTextOverflowModeFill, GTextAlignmentCenter);
 
   return size.w <= rect.size.w;
 }
@@ -549,25 +533,17 @@ static bool text_fits(const char *text, GFont font, GRect rect) {
 static const char *pick_standard_widget_text(StandardWidgetData *data,
                                              StandardWidgetRenderContext *ctx,
                                              GFont *selectedFont) {
-  const char *preferred = ctx->preferFullText ? data->full : data->compact;
-  const char *fallback = ctx->preferFullText ? data->compact : data->full;
-
   GFont fonts[2] = {ctx->primaryFont, ctx->fallbackFont};
 
   for (int fontIndex = 0; fontIndex < 2; fontIndex++) {
-    if (text_fits(preferred, fonts[fontIndex], ctx->textRect)) {
+    if (text_fits(data->full, fonts[fontIndex], ctx->fitRect)) {
       *selectedFont = fonts[fontIndex];
-      return preferred;
+      return data->full;
     }
 
-    if (text_fits(fallback, fonts[fontIndex], ctx->textRect)) {
+    if (text_fits(data->compact, fonts[fontIndex], ctx->fitRect)) {
       *selectedFont = fonts[fontIndex];
-      return fallback;
-    }
-
-    if (text_fits(data->tiny, fonts[fontIndex], ctx->textRect)) {
-      *selectedFont = fonts[fontIndex];
-      return data->tiny;
+      return data->compact;
     }
   }
 
@@ -586,7 +562,7 @@ static void draw_standard_widget(GContext *ctx, StandardWidgetData *data,
 
   if (!data->available) {
     graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-    graphics_draw_text(ctx, "...", renderCtx.fallbackFont, renderCtx.textRect,
+    graphics_draw_text(ctx, "...", renderCtx.fallbackFont, renderCtx.drawRect,
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
     return;
   }
@@ -595,10 +571,69 @@ static void draw_standard_widget(GContext *ctx, StandardWidgetData *data,
   const char *text = pick_standard_widget_text(data, &renderCtx, &selectedFont);
 
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  graphics_draw_text(ctx, text, selectedFont, renderCtx.textRect,
+  graphics_draw_text(ctx, text, selectedFont, renderCtx.drawRect,
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
-#endif
+
+static int get_standard_widget_text_x(int textWidth) {
+  return SidebarWidgets_xOffset - (textWidth - 30) / 2;
+}
+
+static int get_standard_widget_text_width() {
+  return SidebarWidgets_contentWidth;
+}
+
+static int get_standard_widget_draw_width() {
+  return SidebarWidgets_contentWidth + STANDARD_WIDGET_TEXT_OVERFLOW * 2;
+}
+
+static GRect get_standard_widget_fit_rect(int x, int y, int width) {
+  int margin = width > STANDARD_WIDGET_TEXT_MARGIN * 2
+                   ? STANDARD_WIDGET_TEXT_MARGIN
+                   : 0;
+  return GRect(x + margin, y, width - margin * 2, layout.textRectHeight);
+}
+
+static GRect get_standard_widget_draw_rect(int y) {
+  int width = get_standard_widget_draw_width();
+  int x = get_standard_widget_text_x(width);
+  return GRect(x, y, width, layout.textRectHeight);
+}
+
+static StandardWidgetData get_standard_text_data(const char *text) {
+  StandardWidgetData data = (StandardWidgetData){
+      .available = true,
+  };
+
+  snprintf(data.full, sizeof(data.full), "%s", text);
+  snprintf(data.compact, sizeof(data.compact), "%s", text);
+  snprintf(data.tiny, sizeof(data.tiny), "%s", text);
+
+  return data;
+}
+
+static void draw_basic_standard_widget(GContext *ctx, BasicWidgetData *data,
+                                       int yPosition, int valueYOffset) {
+  int textWidth = get_standard_widget_text_width();
+  int textX = get_standard_widget_text_x(textWidth);
+  GRect labelRect = get_standard_widget_draw_rect(
+      yPosition + layout.basicWidgetLabelY);
+
+  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  graphics_draw_text(ctx, data->label, smSidebarFont,
+                     labelRect, GTextOverflowModeFill, GTextAlignmentCenter,
+                     NULL);
+
+  StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
+      .fitRect = get_standard_widget_fit_rect(textX, yPosition + valueYOffset,
+                                              textWidth),
+      .drawRect = get_standard_widget_draw_rect(yPosition + valueYOffset),
+      .primaryFont = currentSidebarFont,
+      .fallbackFont = fallbackSidebarFont,
+  };
+
+  draw_standard_widget(ctx, &data->value, renderCtx);
+}
 
 /********** functions for the empty widget **********/
 int EmptyWidget_getHeight() { return 0; }
@@ -617,6 +652,23 @@ int BatteryMeter_getHeight() {
   }
 }
 
+static StandardWidgetData BatteryMeter_getStandardData(uint8_t batteryPercent) {
+  StandardWidgetData data = (StandardWidgetData){
+      .available = true,
+  };
+
+  if (settings.languageId == LANGUAGE_TR) {
+    snprintf(data.full, sizeof(data.full), "%%%d", batteryPercent);
+  } else {
+    snprintf(data.full, sizeof(data.full), "%d%%", batteryPercent);
+  }
+
+  snprintf(data.compact, sizeof(data.compact), "%d", batteryPercent);
+  snprintf(data.tiny, sizeof(data.tiny), "%d", batteryPercent);
+
+  return data;
+}
+
 void BatteryMeter_draw(GContext *ctx, int yPosition) {
 
   BatteryChargeState chargeState = battery_state_service_peek();
@@ -625,7 +677,6 @@ void BatteryMeter_draw(GContext *ctx, int yPosition) {
 
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
 
-  char batteryString[6];
   int batteryPositionY =
       yPosition - 5; // correct for vertical empty space on battery icon
 
@@ -667,19 +718,22 @@ void BatteryMeter_draw(GContext *ctx, int yPosition) {
   // never show battery % while charging, because of this issue:
   // https://github.com/freakified/TimeStylePebble/issues/11
   if (settings.showBatteryPct && !chargeState.is_charging) {
-    if (!settings.useLargeFonts) {
-      // put the percent sign on the opposite side if turkish
-      snprintf(batteryString, sizeof(batteryString),
-               (settings.languageId == LANGUAGE_TR) ? "%%%d" : "%d%%",
-               battery_percent);
-    } else {
-      snprintf(batteryString, sizeof(batteryString), "%d", battery_percent);
-    }
-    graphics_draw_text(ctx, batteryString, batteryFont,
-                       GRect(layout.textRectX + SidebarWidgets_xOffset,
-                             layout.batteryTextY + batteryPositionY,
-                             layout.textRectWidth, 20),
-                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    StandardWidgetData data = BatteryMeter_getStandardData(battery_percent);
+    int textWidth = get_standard_widget_text_width();
+    int textX = get_standard_widget_text_x(textWidth);
+
+    StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
+        .fitRect =
+            get_standard_widget_fit_rect(textX,
+                                         layout.batteryTextY + batteryPositionY,
+                                         textWidth),
+        .drawRect =
+            get_standard_widget_draw_rect(layout.batteryTextY + batteryPositionY),
+        .primaryFont = currentSidebarFont,
+        .fallbackFont = fallbackSidebarFont,
+    };
+
+    draw_standard_widget(ctx, &data, renderCtx);
   }
 }
 
@@ -699,7 +753,7 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
   // first draw the day name
   graphics_draw_text(ctx, currentDayName, currentSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset, yPosition,
-                           layout.textRectWidth, 20),
+                           layout.textRectWidth, layout.textRectHeight),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   // next, draw the date background
@@ -742,7 +796,8 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
 
   graphics_draw_text(ctx, currentDayNum, currentSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset,
-                           yPosition + yOffset, layout.textRectWidth, 20),
+                           yPosition + yOffset, layout.textRectWidth,
+                           layout.textRectHeight),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   // switch back to normal color for the rest
@@ -754,7 +809,8 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
 
     graphics_draw_text(ctx, currentMonth, currentSidebarFont,
                        GRect(layout.textRectX + SidebarWidgets_xOffset,
-                             yPosition + yOffset, layout.textRectWidth, 20),
+                             yPosition + yOffset, layout.textRectWidth,
+                             layout.textRectHeight),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -763,46 +819,44 @@ void DateWidget_draw(GContext *ctx, int yPosition) {
 
 int CurrentWeather_getHeight() { return layout.weatherHeight; }
 
+static StandardWidgetData CurrentWeather_getStandardData() {
+  StandardWidgetData data = (StandardWidgetData){
+      .icon = Weather_currentWeatherIcon,
+      .available = Weather_weatherInfo.currentTemp != INT32_MIN,
+  };
+
+  if (!data.available) {
+    return data;
+  }
+
+  int currentTemp = Weather_weatherInfo.currentTemp;
+
+  if (!settings.useMetric) {
+    currentTemp = roundf(currentTemp * 1.8f + 32);
+  }
+
+  snprintf(data.full, sizeof(data.full), "%d°", currentTemp);
+  snprintf(data.compact, sizeof(data.compact), "%d", currentTemp);
+  snprintf(data.tiny, sizeof(data.tiny), "%d", currentTemp);
+  return data;
+}
+
 void CurrentWeather_draw(GContext *ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  StandardWidgetData data = CurrentWeather_getStandardData();
+  int textWidth = get_standard_widget_text_width();
+  int textX = get_standard_widget_text_x(textWidth);
+  int textY = data.available ? yPosition + layout.weatherTempY : yPosition;
 
-  if (Weather_currentWeatherIcon) {
-    gdraw_command_image_recolor(Weather_currentWeatherIcon,
-                                dynamicSettings.iconFillColor,
-                                dynamicSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, Weather_currentWeatherIcon,
-                             GPoint(3 + SidebarWidgets_xOffset, yPosition));
-  }
+  StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
+      .fitRect = get_standard_widget_fit_rect(textX, textY, textWidth),
+      .drawRect = get_standard_widget_draw_rect(textY),
+      .iconX = 3 + SidebarWidgets_xOffset,
+      .iconY = yPosition,
+      .primaryFont = currentSidebarFont,
+      .fallbackFont = fallbackSidebarFont,
+  };
 
-  // draw weather data only if it has been set
-  if (Weather_weatherInfo.currentTemp != INT32_MIN) {
-
-    int currentTemp = Weather_weatherInfo.currentTemp;
-
-    if (!settings.useMetric) {
-      currentTemp = roundf(currentTemp * 1.8f + 32);
-    }
-
-    char tempString[8];
-
-    // in large font mode, omit the degree symbol and move the text
-    if (!settings.useLargeFonts) {
-      snprintf(tempString, sizeof(tempString), "%d°", currentTemp);
-    } else {
-      snprintf(tempString, sizeof(tempString), "%d", currentTemp);
-    }
-    graphics_draw_text(ctx, tempString, currentSidebarFont,
-                       GRect(layout.textRectX + SidebarWidgets_xOffset,
-                             yPosition + layout.weatherTempY,
-                             layout.textRectWidth, 20),
-                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
-  } else {
-    // if the weather data isn't set, draw a loading indication
-    graphics_draw_text(ctx, "...", currentSidebarFont,
-                       GRect(layout.textRectX + SidebarWidgets_xOffset,
-                             yPosition, layout.textRectWidth, 20),
-                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
-  }
+  draw_standard_widget(ctx, &data, renderCtx);
 }
 
 /***** Bluetooth Disconnection Widget *****/
@@ -819,27 +873,20 @@ void BTDisconnect_draw(GContext *ctx, int yPosition) {
   }
 }
 
-static void draw_basic_widget(GContext *ctx, int yPosition, const char *label,
-                              const char *value, int valueYOffset) {
-  graphics_draw_text(ctx, label, smSidebarFont,
-                     GRect(layout.textRectX + SidebarWidgets_xOffset,
-                           yPosition + layout.basicWidgetLabelY,
-                           layout.textRectWidth, 20),
-                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, value, currentSidebarFont,
-                     GRect(layout.textRectX + SidebarWidgets_xOffset,
-                           yPosition + valueYOffset, layout.textRectWidth, 20),
-                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
-}
-
 /***** Week Number Widget *****/
 
 int WeekNumber_getHeight() { return layout.basicWidgetHeight; }
 
+static BasicWidgetData WeekNumber_getBasicData() {
+  return (BasicWidgetData){
+      .label = wordForWeek[settings.languageId],
+      .value = get_standard_text_data(currentWeekNum),
+  };
+}
+
 void WeekNumber_draw(GContext *ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  draw_basic_widget(ctx, yPosition, wordForWeek[settings.languageId],
-                    currentWeekNum, layout.basicWidgetY);
+  BasicWidgetData data = WeekNumber_getBasicData();
+  draw_basic_standard_widget(ctx, &data, yPosition, layout.basicWidgetY);
 }
 
 /***** Seconds Widget *****/
@@ -852,7 +899,7 @@ void Seconds_draw(GContext *ctx, int yPosition) {
   graphics_draw_text(ctx, currentSecondsNum, lgSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.secondsY, layout.textRectWidth,
-                           20),
+                           text_rect_height(fontMetrics.lg)),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
@@ -896,7 +943,7 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
     graphics_draw_text(ctx, tempString, currentSidebarFont,
                        GRect(layout.textRectX + SidebarWidgets_xOffset,
                              yPosition + layout.forecastHighY,
-                             layout.textRectWidth, 20),
+                             layout.textRectWidth, layout.textRectHeight),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
     graphics_fill_rect(ctx,
@@ -913,13 +960,14 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
     graphics_draw_text(ctx, tempString, currentSidebarFont,
                        GRect(layout.textRectX + SidebarWidgets_xOffset,
                              yPosition + layout.forecastLowY,
-                             layout.textRectWidth, 20),
+                             layout.textRectWidth, layout.textRectHeight),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   } else {
     // if the weather data isn't set, draw a loading indication
     graphics_draw_text(ctx, "...", currentSidebarFont,
                        GRect(layout.textRectX + SidebarWidgets_xOffset,
-                             yPosition, layout.textRectWidth, 20),
+                             yPosition, layout.textRectWidth,
+                             layout.textRectHeight),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -928,26 +976,48 @@ void WeatherForecast_draw(GContext *ctx, int yPosition) {
 
 int AltTime_getHeight() { return layout.basicWidgetHeight; }
 
+static BasicWidgetData AltTime_getBasicData() {
+  return (BasicWidgetData){
+      .label = settings.altclockName,
+      .value = get_standard_text_data(altClock),
+  };
+}
+
 void AltTime_draw(GContext *ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  draw_basic_widget(ctx, yPosition, settings.altclockName, altClock,
-                    layout.basicWidgetY - 1);
+  BasicWidgetData data = AltTime_getBasicData();
+  draw_basic_standard_widget(ctx, &data, yPosition, layout.basicWidgetY - 1);
 }
 
 /********** UV Index Widget **********/
 
 int UVIndex_getHeight() { return layout.basicWidgetHeight; }
 
-void UVIndex_draw(GContext *ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  char uvString[5];
+static BasicWidgetData UVIndex_getBasicData() {
+  BasicWidgetData data = (BasicWidgetData){
+      .label = "UV",
+      .value = (StandardWidgetData){
+          .available = true,
+      },
+  };
+
   if (Weather_weatherInfo.currentUVIndex != INT32_MIN) {
-    snprintf(uvString, sizeof(uvString), "%d",
+    snprintf(data.value.full, sizeof(data.value.full), "%d",
              (int)Weather_weatherInfo.currentUVIndex);
+    snprintf(data.value.compact, sizeof(data.value.compact), "%s",
+             data.value.full);
+    snprintf(data.value.tiny, sizeof(data.value.tiny), "%s", data.value.full);
   } else {
-    snprintf(uvString, sizeof(uvString), "...");
+    snprintf(data.value.full, sizeof(data.value.full), "...");
+    snprintf(data.value.compact, sizeof(data.value.compact), "...");
+    snprintf(data.value.tiny, sizeof(data.value.tiny), "...");
   }
-  draw_basic_widget(ctx, yPosition, "UV", uvString, layout.basicWidgetY);
+
+  return data;
+}
+
+void UVIndex_draw(GContext *ctx, int yPosition) {
+  BasicWidgetData data = UVIndex_getBasicData();
+  draw_basic_standard_widget(ctx, &data, yPosition, layout.basicWidgetY);
 }
 
 #ifdef PBL_HEALTH
@@ -1050,15 +1120,17 @@ static StandardWidgetData StepCounter_getStandardData() {
 void StepCounter_draw(GContext *ctx, int yPosition) {
   StandardWidgetData data = StepCounter_getStandardData();
   int textWidth = SidebarWidgets_contentWidth;
-  int textX = SidebarWidgets_xOffset - (textWidth - 30) / 2;
+  int textX = get_standard_widget_text_x(textWidth);
 
   StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
-      .textRect = GRect(textX, yPosition + layout.stepsTextY, textWidth, 20),
+      .fitRect =
+          get_standard_widget_fit_rect(textX, yPosition + layout.stepsTextY,
+                                       textWidth),
+      .drawRect = get_standard_widget_draw_rect(yPosition + layout.stepsTextY),
       .iconX = 3 + SidebarWidgets_xOffset,
       .iconY = yPosition - 7,
       .primaryFont = currentSidebarFont,
-      .fallbackFont = smSidebarFont,
-      .preferFullText = settings.useWideSidebar,
+      .fallbackFont = fallbackSidebarFont,
   };
 
   draw_standard_widget(ctx, &data, renderCtx);
@@ -1104,7 +1176,7 @@ void SleepTimer_draw(GContext *ctx, int yPosition) {
   graphics_draw_text(ctx, sleep_text, mdSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.sleepHoursY, layout.textRectWidth,
-                           20),
+                           text_rect_height(fontMetrics.md)),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 
   snprintf(sleep_text, sizeof(sleep_text), "%im", sleep_minutes);
@@ -1112,33 +1184,54 @@ void SleepTimer_draw(GContext *ctx, int yPosition) {
   graphics_draw_text(ctx, sleep_text, smSidebarFont,
                      GRect(layout.textRectX + SidebarWidgets_xOffset,
                            yPosition + layout.sleepMinutesY,
-                           layout.textRectWidth, 20),
+                           layout.textRectWidth, text_rect_height(fontMetrics.sm)),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
 int HeartRate_getHeight() { return layout.heartRateHeight; }
 
-void HeartRate_draw(GContext *ctx, int yPosition) {
-  if (heartImage) {
-    gdraw_command_image_recolor(heartImage, dynamicSettings.iconFillColor,
-                                dynamicSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, heartImage,
-                             GPoint(3 + SidebarWidgets_xOffset, yPosition));
+static StandardWidgetData HeartRate_getStandardData() {
+  StandardWidgetData data = (StandardWidgetData){
+      .icon = heartImage,
+      .available = is_health_metric_accessible(HealthMetricHeartRateBPM),
+  };
+
+  if (!data.available) {
+    return data;
   }
 
-  int yOffset = layout.heartRateValueY;
-
-  // TODO: accessibility check?
   int heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
-  char heart_rate_text[8];
 
-  snprintf(heart_rate_text, sizeof(heart_rate_text), "%i", heart_rate);
+  if (heart_rate <= 0) {
+    data.available = false;
+    return data;
+  }
 
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  graphics_draw_text(ctx, heart_rate_text, currentSidebarFont,
-                     GRect(layout.textRectX + SidebarWidgets_xOffset,
-                           yPosition + yOffset, layout.textRectWidth, 20),
-                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  snprintf(data.full, sizeof(data.full), "%i", heart_rate);
+  snprintf(data.compact, sizeof(data.compact), "%i", heart_rate);
+  snprintf(data.tiny, sizeof(data.tiny), "%i", heart_rate);
+
+  return data;
+}
+
+void HeartRate_draw(GContext *ctx, int yPosition) {
+  StandardWidgetData data = HeartRate_getStandardData();
+  int textWidth = get_standard_widget_text_width();
+  int textX = get_standard_widget_text_x(textWidth);
+
+  StandardWidgetRenderContext renderCtx = (StandardWidgetRenderContext){
+      .fitRect =
+          get_standard_widget_fit_rect(textX, yPosition + layout.heartRateValueY,
+                                       textWidth),
+      .drawRect =
+          get_standard_widget_draw_rect(yPosition + layout.heartRateValueY),
+      .iconX = 3 + SidebarWidgets_xOffset,
+      .iconY = yPosition,
+      .primaryFont = currentSidebarFont,
+      .fallbackFont = fallbackSidebarFont,
+  };
+
+  draw_standard_widget(ctx, &data, renderCtx);
 }
 
 #endif
@@ -1147,7 +1240,14 @@ void HeartRate_draw(GContext *ctx, int yPosition) {
 
 int Beats_getHeight() { return layout.basicWidgetHeight; }
 
+static BasicWidgetData Beats_getBasicData() {
+  return (BasicWidgetData){
+      .label = "@",
+      .value = get_standard_text_data(currentBeats),
+  };
+}
+
 void Beats_draw(GContext *ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-  draw_basic_widget(ctx, yPosition, "@", currentBeats, layout.basicWidgetY - 1);
+  BasicWidgetData data = Beats_getBasicData();
+  draw_basic_standard_widget(ctx, &data, yPosition, layout.basicWidgetY - 1);
 }
