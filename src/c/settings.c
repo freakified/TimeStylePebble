@@ -70,7 +70,7 @@ void Settings_saveToStorage() {
 }
 
 void Settings_updateDynamicSettings() {
-  dynamicSettings.disableWeather = false;
+  dynamicSettings.disableWeather = true;
   dynamicSettings.updateScreenEverySecond = false;
   dynamicSettings.enableAutoBatteryWidget = true;
   dynamicSettings.enableBeats = false;
