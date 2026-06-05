@@ -8,13 +8,20 @@
 #include <pebble.h>
 
 #define SIDEBAR_ICON_SIZE 25
-#define SIDEBAR_ICON_TEXT_GAP 0
-#define SIDEBAR_STACKED_VALUE_GAP 0
+#define SIDEBAR_ICON_TEXT_GAP 5
+#define SIDEBAR_STACKED_VALUE_GAP 5
 #define SIDEBAR_BASIC_LABEL_GAP 0
 #define SIDEBAR_BASIC_PADDING_TOP 0
 #define SIDEBAR_BASIC_PADDING_BOTTOM 0
 #define SIDEBAR_TEXT_MARGIN 0
 #define SIDEBAR_TEXT_OVERFLOW 5
+#define SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT 1
+#define SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN 2
+
+#define DATE_CALENDAR_DAY_TOP_PADDING 10
+#define DATE_CALENDAR_DAY_BOTTOM_PADDING 4
+#define DATE_CALENDAR_DAY_TOP_PADDING_LARGE 6
+#define DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE 2
 
 GDrawCommandImage *dateImage;
 GDrawCommandImage *disconnectImage;
@@ -49,13 +56,15 @@ typedef struct {
 } SidebarFontMetrics;
 
 typedef struct {
-  int dateHeight, dateHeightCompact;
-  int dateDayNumY, dateMonthY;
-  int dateBgX, dateBgY;
-  int dateBgRectX, dateBgRectY, dateBgRectWidth, dateBgRectHeight;
-} SidebarWidgetLayout;
+  int calendarTop;
+  int calendarHeight;
+  int calendarWidth;
+  int dayNumTop;
+  int monthTop;
+  int height;
+  int compactHeight;
+} DateLayout;
 
-static SidebarWidgetLayout layout;
 static SidebarFontMetrics fontMetrics;
 
 char currentDayName[8];
@@ -210,31 +219,6 @@ void SidebarWidgets_updateFonts() {
     fallbackSidebarFont = smSidebarFont;
     fontMetrics.current = fontMetrics.md;
   }
-
-  const int dateDayTop = 26;
-  const int dateMonthTop = 47;
-  const int dateImageDayInset = 10;
-  const int dateRectDayInset = 6;
-
-  layout = (SidebarWidgetLayout){
-      .dateHeight = dateMonthTop + fontMetrics.current.height,
-      .dateHeightCompact = dateDayTop + fontMetrics.current.height,
-      .dateDayNumY = dateDayTop,
-      .dateMonthY = dateMonthTop,
-      .dateBgX = 3,
-      .dateBgY = dateDayTop - dateImageDayInset,
-      .dateBgRectX = 2,
-      .dateBgRectY = dateDayTop - dateRectDayInset,
-      .dateBgRectWidth = 26,
-      .dateBgRectHeight = 22,
-  };
-
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  layout.dateBgX = 1;
-  layout.dateBgRectX = 0;
-  layout.dateBgRectWidth = 30;
-  layout.dateBgRectHeight = 26;
-#endif
 }
 
 int mod(int a, int b) {
@@ -493,7 +477,19 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     height = basic_padding_top(spec) + small_text_height() +
              basic_label_gap(spec) + textHeight + basic_padding_bottom(spec);
     break;
-  case SIDEBAR_CONTENT_ICON_STACKED_VALUES:
+  case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
+    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+      int pairHeight = single_text_height() + stacked_value_gap(spec) +
+                       SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+                       stacked_value_gap(spec) + single_text_height();
+      height = SIDEBAR_ICON_SIZE > pairHeight ? SIDEBAR_ICON_SIZE : pairHeight;
+    } else {
+      height = SIDEBAR_ICON_SIZE + icon_text_gap(spec) + single_text_height() +
+               stacked_value_gap(spec) + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+               stacked_value_gap(spec) + single_text_height();
+    }
+    break;
+  case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT:
     if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
       int stackHeight =
           medium_text_height() + stacked_value_gap(spec) + small_text_height();
@@ -574,30 +570,88 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
                            fontMetrics.current, fallback_current_metrics());
 }
 
-static void draw_icon_stacked_values(GContext *ctx, SidebarContent *content,
-                                     GRect frame, SidebarRenderSpec *spec) {
+static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
+                                  int stackHeight, GRect *iconFrame, int *textX,
+                                  int *textWidth, int *textTop) {
+  int renderTextWidth = render_width(spec);
+
+  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    *iconFrame = GRect(frame.origin.x,
+                       frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
+                       SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    *textTop = frame.origin.y + (frame.size.h - stackHeight) / 2;
+    *textX = frame.origin.x + SIDEBAR_ICON_SIZE + 3;
+    *textWidth = frame.size.w - SIDEBAR_ICON_SIZE - 3;
+  } else {
+    *iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
+                       SIDEBAR_ICON_SIZE);
+    *textTop = frame.origin.y + SIDEBAR_ICON_SIZE + icon_text_gap(spec);
+    *textX = text_x(frame, renderTextWidth);
+    *textWidth = renderTextWidth;
+  }
+}
+
+static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
+                                         GRect frame, SidebarRenderSpec *spec) {
+  GRect iconFrame;
+  int textXPos;
+  int textWidth;
+  int textTop;
+  int dividerY;
+  int dividerWidth;
+  int dividerX;
+  int pairHeight = single_text_height() + stacked_value_gap(spec) +
+                   SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT + stacked_value_gap(spec) +
+                   single_text_height();
+
+  get_icon_stack_layout(frame, spec, pairHeight, &iconFrame, &textXPos,
+                        &textWidth, &textTop);
+  draw_icon(ctx, content, iconFrame);
+
+  if (!content->available) {
+    draw_unavailable_text(ctx, textXPos, textTop, textWidth, currentSidebarFont,
+                          fontMetrics.current);
+    return;
+  }
+
+  draw_text_at_visible_top(ctx, &content->primary, textXPos, textTop, textWidth,
+                           currentSidebarFont, fallbackSidebarFont,
+                           fontMetrics.current, fallback_current_metrics());
+
+  dividerY = textTop + fontMetrics.current.height + stacked_value_gap(spec);
+  dividerWidth = spec->contentWidth - SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN * 2;
+  if (dividerWidth < 1) {
+    dividerWidth = 1;
+  }
+  dividerX = frame.origin.x + (frame.size.w - spec->contentWidth) / 2 +
+             SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN;
+
+  graphics_context_set_fill_color(ctx, settings.sidebarTextColor);
+  graphics_fill_rect(ctx,
+                     GRect(dividerX, dividerY, dividerWidth,
+                           SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT),
+                     0, GCornerNone);
+
+  draw_text_at_visible_top(ctx, &content->secondary, textXPos,
+                           dividerY + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+                               stacked_value_gap(spec),
+                           textWidth, currentSidebarFont, fallbackSidebarFont,
+                           fontMetrics.current, fallback_current_metrics());
+}
+
+static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
+                                         GRect frame, SidebarRenderSpec *spec) {
   int textWidth = render_width(spec);
   GRect iconFrame;
   int primaryX;
   int primaryWidth;
   int textTop;
+  int stackHeight =
+      medium_text_height() + stacked_value_gap(spec) + small_text_height();
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
-    iconFrame = GRect(frame.origin.x,
-                      frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
-                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
-    textTop = frame.origin.y + (frame.size.h - medium_text_height() -
-                                stacked_value_gap(spec) - small_text_height()) /
-                                   2;
-    primaryX = frame.origin.x + SIDEBAR_ICON_SIZE + 3;
-    primaryWidth = frame.size.w - SIDEBAR_ICON_SIZE - 3;
-  } else {
-    iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
-                      SIDEBAR_ICON_SIZE);
-    textTop = frame.origin.y + SIDEBAR_ICON_SIZE + icon_text_gap(spec);
-    primaryX = text_x(frame, textWidth);
-    primaryWidth = textWidth;
-  }
+  get_icon_stack_layout(frame, spec, stackHeight, &iconFrame, &primaryX,
+                        &primaryWidth, &textTop);
+  (void)textWidth;
 
   draw_icon(ctx, content, iconFrame);
 
@@ -640,8 +694,11 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
   case SIDEBAR_CONTENT_LABEL_VALUE:
     draw_label_value(ctx, content, frame, spec);
     return;
-  case SIDEBAR_CONTENT_ICON_STACKED_VALUES:
-    draw_icon_stacked_values(ctx, content, frame, spec);
+  case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
+    draw_icon_value_pair_divided(ctx, content, frame, spec);
+    return;
+  case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT:
+    draw_icon_value_with_subtext(ctx, content, frame, spec);
     return;
   default:
     return;
@@ -703,15 +760,63 @@ static SidebarContent Date_getContent() {
   return empty_content(SIDEBAR_CONTENT_DATE);
 }
 
+static int date_day_top_padding() {
+  return settings.useLargeFonts ? DATE_CALENDAR_DAY_TOP_PADDING_LARGE
+                                : DATE_CALENDAR_DAY_TOP_PADDING;
+}
+
+static int date_day_bottom_padding() {
+  if (settings.useLargeFonts) {
+    return DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE;
+  }
+
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  return DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE;
+#else
+  return DATE_CALENDAR_DAY_BOTTOM_PADDING;
+#endif
+}
+
+static int date_calendar_width() {
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  return 30;
+#else
+  return settings.useLargeFonts ? 26 : SIDEBAR_ICON_SIZE;
+#endif
+}
+
+static DateLayout date_layout(SidebarRenderSpec *spec) {
+  int weekdayToCalendarGap = icon_text_gap(spec);
+  int calendarToMonthGap = icon_text_gap(spec);
+  int calendarTop = fontMetrics.current.height + weekdayToCalendarGap;
+  int calendarHeight = date_day_top_padding() + fontMetrics.current.height +
+                       date_day_bottom_padding();
+  int monthTop = calendarTop + calendarHeight + calendarToMonthGap;
+
+  return (DateLayout){
+      .calendarTop = calendarTop,
+      .calendarHeight = calendarHeight,
+      .calendarWidth = date_calendar_width(),
+      .dayNumTop = calendarTop + date_day_top_padding(),
+      .monthTop = monthTop,
+      .height = monthTop + fontMetrics.current.height,
+      .compactHeight = calendarTop + calendarHeight,
+  };
+}
+
 static SidebarMeasure Date_measure(SidebarRenderSpec *spec) {
+  DateLayout metrics = date_layout(spec);
   return (SidebarMeasure){spec->contentWidth, spec->compact
-                                                  ? layout.dateHeightCompact
-                                                  : layout.dateHeight};
+                                                  ? metrics.compactHeight
+                                                  : metrics.height};
 }
 
 static void Date_draw(GContext *ctx, GRect frame, SidebarRenderSpec *spec) {
+  DateLayout metrics = date_layout(spec);
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);
+  int calendarX = frame.origin.x + (frame.size.w - metrics.calendarWidth) / 2;
+  int calendarY = frame.origin.y + metrics.calendarTop;
 
   draw_literal_text_at_visible_top(
       ctx, currentDayName, textXPos, frame.origin.y, textWidth,
@@ -727,35 +832,32 @@ static void Date_draw(GContext *ctx, GRect frame, SidebarRenderSpec *spec) {
       gdraw_command_image_recolor(activeDateImage,
                                   dynamicSettings.iconFillColor,
                                   dynamicSettings.iconStrokeColor);
-      gdraw_command_image_draw(
-          ctx, activeDateImage,
-          GPoint(frame.origin.x + (frame.size.w - 30) / 2 + layout.dateBgX,
-                 frame.origin.y + layout.dateBgY));
+      gdraw_command_image_draw(ctx, activeDateImage,
+                               GPoint(calendarX, calendarY));
     }
   } else {
-    int bgX = frame.origin.x + (frame.size.w - layout.dateBgRectWidth) / 2;
     graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
     graphics_fill_rect(ctx,
-                       GRect(bgX, frame.origin.y + layout.dateBgRectY,
-                             layout.dateBgRectWidth, layout.dateBgRectHeight),
+                       GRect(calendarX, calendarY, metrics.calendarWidth,
+                             metrics.calendarHeight),
                        2, GCornersAll);
 
     graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
     graphics_fill_rect(ctx,
-                       GRect(bgX + 2, frame.origin.y + layout.dateBgRectY + 2,
-                             layout.dateBgRectWidth - 4,
-                             layout.dateBgRectHeight - 4),
+                       GRect(calendarX + 2, calendarY + 2,
+                             metrics.calendarWidth - 4,
+                             metrics.calendarHeight - 4),
                        0, GCornersAll);
   }
 
   draw_literal_text_at_visible_top(
-      ctx, currentDayNum, textXPos, frame.origin.y + layout.dateDayNumY,
+      ctx, currentDayNum, textXPos, frame.origin.y + metrics.dayNumTop,
       textWidth, currentSidebarFont, fontMetrics.current,
       dynamicSettings.iconStrokeColor);
 
   if (!spec->compact) {
     draw_literal_text_at_visible_top(
-        ctx, currentMonth, textXPos, frame.origin.y + layout.dateMonthY,
+        ctx, currentMonth, textXPos, frame.origin.y + metrics.monthTop,
         textWidth, currentSidebarFont, fontMetrics.current,
         settings.sidebarTextColor);
   }
@@ -786,7 +888,8 @@ static SidebarContent CurrentWeather_getContent() {
 }
 
 static SidebarContent WeatherForecast_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_STACKED_VALUES);
+  SidebarContent content =
+      empty_content(SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = Weather_forecastWeatherIcon;
   content.available = Weather_weatherInfo.todaysHighTemp != INT32_MIN;
@@ -963,7 +1066,8 @@ static SidebarContent StepCounter_getContent() {
 }
 
 static SidebarContent SleepTimer_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_STACKED_VALUES);
+  SidebarContent content =
+      empty_content(SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = sleepImage;
 
@@ -1033,7 +1137,7 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
                                      CurrentWeather_getContent, NULL, NULL};
   case WEATHER_FORECAST_TODAY:
     return (SidebarWidgetDefinition){WEATHER_FORECAST_TODAY,
-                                     SIDEBAR_CONTENT_ICON_STACKED_VALUES,
+                                     SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED,
                                      WeatherForecast_getContent, NULL, NULL};
   case WEEK_NUMBER:
     return (SidebarWidgetDefinition){WEEK_NUMBER, SIDEBAR_CONTENT_LABEL_VALUE,
@@ -1048,7 +1152,7 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
                                      StepCounter_getContent, NULL, NULL};
   case SLEEP_TIMER:
     return (SidebarWidgetDefinition){SLEEP_TIMER,
-                                     SIDEBAR_CONTENT_ICON_STACKED_VALUES,
+                                     SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT,
                                      SleepTimer_getContent, NULL, NULL};
   case HEARTRATE:
     return (SidebarWidgetDefinition){HEARTRATE, SIDEBAR_CONTENT_ICON_VALUE,
