@@ -1,24 +1,28 @@
 #pragma once
 #include <pebble.h>
 
-/*
- * "Compact Mode" is a global setting shared by all widgets, which determines
- * whether they should try to reduce their padding. Intended to allow larger
- * widgets to fit when vertical screen space is lacking
- */
-extern bool SidebarWidgets_useCompactMode;
+typedef enum {
+  SIDEBAR_LAYOUT_VERTICAL_NARROW = 0,
+  SIDEBAR_LAYOUT_VERTICAL_WIDE = 1,
+  SIDEBAR_LAYOUT_HORIZONTAL = 2
+} SidebarLayoutMode;
 
-/*
- * A global x offset used for nudging the widgets left and right
- * Included for round support
- */
-extern int SidebarWidgets_xOffset;
+typedef enum {
+  SIDEBAR_CONTENT_EMPTY = 0,
+  SIDEBAR_CONTENT_TEXT,
+  SIDEBAR_CONTENT_ICON,
+  SIDEBAR_CONTENT_ICON_VALUE,
+  SIDEBAR_CONTENT_LABEL_VALUE,
+  SIDEBAR_CONTENT_ICON_STACKED_VALUES,
+  SIDEBAR_CONTENT_DATE,
+  SIDEBAR_CONTENT_CUSTOM
+} SidebarContentKind;
 
-/*
- * The active widget drawing width. Rectangular watches set this to the
- * sidebar width; round watches keep using the historical narrow width.
- */
-extern int SidebarWidgets_contentWidth;
+typedef enum {
+  SIDEBAR_ICON_NONE = 0,
+  SIDEBAR_ICON_IMAGE,
+  SIDEBAR_ICON_BATTERY
+} SidebarIconKind;
 
 /*
  * The different types of sidebar widgets:
@@ -42,20 +46,54 @@ typedef enum {
 } SidebarWidgetType;
 
 typedef struct {
-  /*
-   * Returns the pixel height of the widget, taking into account all current
-   * settings that would affect this, such as font size
-   */
-  int (*getHeight)();
+  char full[16];
+  char compact[16];
+  char tiny[16];
+} SidebarTextCandidates;
 
-  /*
-   * Draws the widget using the provided graphics context
-   */
-  void (*draw)(GContext* ctx, int yPosition);
-} SidebarWidget;
+typedef struct {
+  SidebarContentKind kind;
+  SidebarIconKind iconKind;
+  GDrawCommandImage *icon;
+  const char *label;
+  SidebarTextCandidates primary;
+  SidebarTextCandidates secondary;
+  bool available;
+  uint8_t batteryPercent;
+  bool batteryCharging;
+} SidebarContent;
+
+typedef struct {
+  SidebarLayoutMode mode;
+  int contentWidth;
+  bool compact;
+} SidebarRenderSpec;
+
+typedef struct {
+  int w;
+  int h;
+} SidebarMeasure;
+
+typedef struct SidebarWidgetDefinition SidebarWidgetDefinition;
+
+struct SidebarWidgetDefinition {
+  SidebarWidgetType type;
+  SidebarContentKind kind;
+  SidebarContent (*getContent)();
+  SidebarMeasure (*measureSpecial)(SidebarRenderSpec *spec);
+  void (*drawSpecial)(GContext *ctx, GRect frame, SidebarRenderSpec *spec);
+};
 
 void SidebarWidgets_init();
 void SidebarWidgets_deinit();
-SidebarWidget getSidebarWidgetByType(SidebarWidgetType type);
 void SidebarWidgets_updateFonts();
 void SidebarWidgets_updateTime(struct tm* timeInfo);
+
+SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
+                                                int contentWidth,
+                                                bool compact);
+SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type);
+SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,
+                                      SidebarRenderSpec *spec);
+void SidebarWidgets_draw(GContext *ctx, SidebarWidgetDefinition *widget,
+                         GRect frame, SidebarRenderSpec *spec);

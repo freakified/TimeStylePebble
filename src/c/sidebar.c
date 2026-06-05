@@ -234,32 +234,29 @@ void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
 
 void drawRoundSidebar(GContext *ctx, GRect bgBounds,
                       SidebarWidgetType widgetType, int widgetXOffset) {
-  SidebarWidgets_updateFonts();
-
   graphics_context_set_fill_color(ctx, settings.sidebarColor);
 
   graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
 
-  SidebarWidgets_xOffset = widgetXOffset;
-  SidebarWidgets_contentWidth = 30;
-  SidebarWidget widget = getSidebarWidgetByType(widgetType);
+  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(
+      SIDEBAR_LAYOUT_VERTICAL_NARROW, 30, false);
+  SidebarWidgetDefinition widget = getSidebarWidgetByType(widgetType);
+  SidebarMeasure widgetSize = SidebarWidgets_measure(&widget, &spec);
 
   // calculate center position of the widget
-  int widgetPosition = bgBounds.size.h / 4 - widget.getHeight() / 2;
-  widget.draw(ctx, widgetPosition);
+  int widgetPosition = bgBounds.size.h / 4 - widgetSize.h / 2;
+  SidebarWidgets_draw(ctx, &widget,
+                      GRect(widgetXOffset, widgetPosition, 30, widgetSize.h),
+                      &spec);
 }
 
 #else
 
 void updateRectSidebar(Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
-
-  // this ends up being zero on every rectangular platform besides emery
-  SidebarWidgets_xOffset = (sidebarWidth - 30) / 2;
-  SidebarWidgets_contentWidth = sidebarWidth;
-
-  SidebarWidgets_updateFonts();
+  SidebarLayoutMode mode = settings.useWideSidebar ? SIDEBAR_LAYOUT_VERTICAL_WIDE
+                                                   : SIDEBAR_LAYOUT_VERTICAL_NARROW;
 
   graphics_context_set_fill_color(ctx, settings.sidebarColor);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
@@ -274,7 +271,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
     showDisconnectIcon = !bluetooth_connection_service_peek();
   }
 
-  SidebarWidget displayWidgets[3];
+  SidebarWidgetDefinition displayWidgets[3];
 
   displayWidgets[0] = getSidebarWidgetByType(settings.widgets[0]);
   displayWidgets[1] = getSidebarWidgetByType(settings.widgets[1]);
@@ -296,26 +293,29 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   // if the widgets are too tall, enable "compact mode"
   int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2 - 3;
   int v_padding = V_PADDING_DEFAULT;
+  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(mode, sidebarWidth, false);
+  SidebarMeasure widgetSizes[3];
 
-  SidebarWidgets_useCompactMode =
-      false; // ensure that we compare the non-compacted heights
-  int totalHeight = displayWidgets[0].getHeight() +
-                    displayWidgets[1].getHeight() +
-                    displayWidgets[2].getHeight();
-  SidebarWidgets_useCompactMode = (totalHeight > compact_mode_threshold);
+  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
+  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
+  widgetSizes[2] = SidebarWidgets_measure(&displayWidgets[2], &spec);
+  int totalHeight = widgetSizes[0].h + widgetSizes[1].h + widgetSizes[2].h;
+  spec.compact = (totalHeight > compact_mode_threshold);
   // printf("Total Height: %i, Threshold: %i", totalHeight,
   // compact_mode_threshold);
 
   // now that they have been compacted, check if they fit a second time,
-  // if they still don't fit, our only choice is MURDER (of the middle widget)
-  totalHeight = displayWidgets[0].getHeight() + displayWidgets[1].getHeight() +
-                displayWidgets[2].getHeight();
+  // if they still don't fit, hide the middle widget.
+  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
+  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
+  widgetSizes[2] = SidebarWidgets_measure(&displayWidgets[2], &spec);
+  totalHeight = widgetSizes[0].h + widgetSizes[1].h + widgetSizes[2].h;
   bool hide_middle_widget = (totalHeight > compact_mode_threshold);
   // printf("Compact Mode Enabled. Total Height: %i, Threshold: %i",
   // totalHeight, compact_mode_threshold);
 
   // still doesn't fit? try compacting the vertical padding
-  totalHeight = displayWidgets[0].getHeight() + displayWidgets[2].getHeight();
+  totalHeight = widgetSizes[0].h + widgetSizes[2].h;
   if (totalHeight > compact_mode_threshold) {
     v_padding = V_PADDING_COMPACT;
   }
@@ -323,19 +323,26 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   // calculate the three widget positions
   int topWidgetPos = v_padding;
   int lowerWidgetPos =
-      bounds.size.h - v_padding - displayWidgets[2].getHeight();
+      bounds.size.h - v_padding - widgetSizes[2].h;
 
   // vertically center the middle widget using MATH
-  int middleWidgetPos = ((lowerWidgetPos - displayWidgets[1].getHeight()) +
-                         (topWidgetPos + displayWidgets[0].getHeight())) /
+  int middleWidgetPos = ((lowerWidgetPos - widgetSizes[1].h) +
+                         (topWidgetPos + widgetSizes[0].h)) /
                         2;
 
   // draw the widgets
-  displayWidgets[0].draw(ctx, topWidgetPos);
+  SidebarWidgets_draw(ctx, &displayWidgets[0],
+                      GRect(0, topWidgetPos, sidebarWidth, widgetSizes[0].h),
+                      &spec);
   if (!hide_middle_widget) {
-    displayWidgets[1].draw(ctx, middleWidgetPos);
+    SidebarWidgets_draw(ctx, &displayWidgets[1],
+                        GRect(0, middleWidgetPos, sidebarWidth,
+                              widgetSizes[1].h),
+                        &spec);
   }
-  displayWidgets[2].draw(ctx, lowerWidgetPos);
+  SidebarWidgets_draw(ctx, &displayWidgets[2],
+                      GRect(0, lowerWidgetPos, sidebarWidth, widgetSizes[2].h),
+                      &spec);
 }
 
 #endif
