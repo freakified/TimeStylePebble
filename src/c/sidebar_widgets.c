@@ -829,19 +829,19 @@ static int date_calendar_width() {
 }
 
 static int date_calendar_height() {
-  if (settings.dateBackgroundStyle == DATE_BACKGROUND_CALENDAR) {
-    return date_day_top_padding() + fontMetrics.current.height +
-           date_day_bottom_padding();
+  if (settings.usePlainDateBG) {
+    return fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2;
   }
 
-  return fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2;
+  return date_day_top_padding() + fontMetrics.current.height +
+         date_day_bottom_padding();
 }
 
 static int date_day_visible_top(int calendarHeight) {
   int textAreaTop = 0;
   int textAreaHeight = calendarHeight;
 
-  if (settings.dateBackgroundStyle == DATE_BACKGROUND_CALENDAR) {
+  if (!settings.usePlainDateBG) {
     textAreaTop = DATE_CALENDAR_HEADER_HEIGHT;
     textAreaHeight = calendarHeight - DATE_CALENDAR_HEADER_HEIGHT;
   }
@@ -972,7 +972,7 @@ static void draw_date_calendar_background(GContext *ctx, GRect frame) {
                                                  frame.origin.y));
 }
 
-static void draw_date_outline_background(GContext *ctx, GRect frame) {
+static void draw_date_plain_background(GContext *ctx, GRect frame) {
   graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
   graphics_fill_rect(ctx, frame, 2, GCornersAll);
 
@@ -983,24 +983,13 @@ static void draw_date_outline_background(GContext *ctx, GRect frame) {
                      0, GCornersAll);
 }
 
-static void draw_date_simple_background(GContext *ctx, GRect frame) {
-  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
-  graphics_fill_rect(ctx, frame, 2, GCornersAll);
-}
-
 static void draw_date_background(GContext *ctx, GRect frame) {
-  switch (settings.dateBackgroundStyle) {
-  case DATE_BACKGROUND_OUTLINE:
-    draw_date_outline_background(ctx, frame);
-    return;
-  case DATE_BACKGROUND_FILLED:
-    draw_date_simple_background(ctx, frame);
-    return;
-  case DATE_BACKGROUND_CALENDAR:
-  default:
-    draw_date_calendar_background(ctx, frame);
+  if (settings.usePlainDateBG) {
+    draw_date_plain_background(ctx, frame);
     return;
   }
+
+  draw_date_calendar_background(ctx, frame);
 }
 
 static void date_content_draw(GContext *ctx, GRect frame,

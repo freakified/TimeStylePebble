@@ -44,7 +44,7 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.sidebarOnLeft ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingDateBackgroundStyle, settings.dateBackgroundStyle);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUsePlainDateBG, settings.usePlainDateBG ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
@@ -141,7 +141,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
   Tuple *useWideSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseWideSidebar);
-  Tuple *dateBackgroundStyle_tuple = dict_find(iterator, MESSAGE_KEY_SettingDateBackgroundStyle);
+  Tuple *usePlainDateBG_tuple = dict_find(iterator, MESSAGE_KEY_SettingUsePlainDateBG);
 
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
@@ -212,12 +212,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.useWideSidebar = (bool)useWideSidebar_tuple->value->int8;
   }
 
-  if(dateBackgroundStyle_tuple != NULL) {
-    DateBackgroundStyle style =
-        (DateBackgroundStyle)dateBackgroundStyle_tuple->value->int8;
-    if (style <= DATE_BACKGROUND_FILLED) {
-      settings.dateBackgroundStyle = style;
-    }
+  if(usePlainDateBG_tuple != NULL) {
+    settings.usePlainDateBG = (bool)usePlainDateBG_tuple->value->int8;
   }
 
   if(hourlyVibe_tuple != NULL) {

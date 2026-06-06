@@ -251,14 +251,10 @@ export const SettingsPage: React.FC = () => {
           description="Increases the size of widget text in the sidebar"
           messageKey="largeSidebarFont"
         />
-        <Select
-          label="Date background"
-          messageKey="dateBackgroundStyle"
-          options={[
-            { label: 'Calendar', value: 'calendar' },
-            { label: 'Outline', value: 'outline' },
-            { label: 'Simple', value: 'simple' },
-          ]}
+        <Toggle
+          label="Use plain date background"
+          description="Draws the date number inside a simple outlined box"
+          messageKey="usePlainDateBG"
         />
       </Section>
 

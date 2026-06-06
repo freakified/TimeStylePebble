@@ -21,12 +21,6 @@ typedef enum {
   VIBE_EVERY_HALF_HOUR = 2
 } VibeIntervalType;
 
-typedef enum {
-  DATE_BACKGROUND_CALENDAR = 0,
-  DATE_BACKGROUND_OUTLINE = 1,
-  DATE_BACKGROUND_FILLED = 2
-} DateBackgroundStyle;
-
 // Settings struct -- note, all new settings should ALWAYS be added to the bottom
 typedef struct {
   // color settings
@@ -70,7 +64,7 @@ typedef struct {
   bool useWideSidebar;
 
   // date widget settings
-  DateBackgroundStyle dateBackgroundStyle;
+  bool usePlainDateBG;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
