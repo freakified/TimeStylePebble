@@ -80,8 +80,9 @@ static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec);
 static void BatteryMeter_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec);
 static SidebarContent Date_getContent();
-static SidebarMeasure Date_measure(SidebarRenderSpec *spec);
-static void Date_draw(GContext *ctx, GRect frame, SidebarRenderSpec *spec);
+static SidebarMeasure date_content_measure(SidebarRenderSpec *spec);
+static void date_content_draw(GContext *ctx, GRect frame,
+                              SidebarRenderSpec *spec);
 static SidebarContent CurrentWeather_getContent();
 static SidebarContent WeatherForecast_getContent();
 static SidebarContent BTDisconnect_getContent();
@@ -495,6 +496,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
                stacked_value_gap(spec) + small_text_height();
     }
     break;
+  case SIDEBAR_CONTENT_DATE:
+    return date_content_measure(spec);
   default:
     height = 0;
     break;
@@ -690,6 +693,9 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT:
     draw_icon_value_with_subtext(ctx, content, frame, spec);
     return;
+  case SIDEBAR_CONTENT_DATE:
+    date_content_draw(ctx, frame, spec);
+    return;
   default:
     return;
   }
@@ -836,14 +842,15 @@ static DateLayout date_layout(SidebarRenderSpec *spec) {
   };
 }
 
-static SidebarMeasure Date_measure(SidebarRenderSpec *spec) {
+static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
   DateLayout metrics = date_layout(spec);
   return (SidebarMeasure){spec->contentWidth, spec->compact
                                                   ? metrics.compactHeight
                                                   : metrics.height};
 }
 
-static void Date_draw(GContext *ctx, GRect frame, SidebarRenderSpec *spec) {
+static void date_content_draw(GContext *ctx, GRect frame,
+                              SidebarRenderSpec *spec) {
   DateLayout metrics = date_layout(spec);
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);
@@ -1157,7 +1164,7 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
                                      BTDisconnect_getContent, NULL, NULL};
   case DATE:
     return (SidebarWidgetDefinition){DATE, SIDEBAR_CONTENT_DATE,
-                                     Date_getContent, Date_measure, Date_draw};
+                                     Date_getContent, NULL, NULL};
   case ALT_TIME_ZONE:
     return (SidebarWidgetDefinition){ALT_TIME_ZONE, SIDEBAR_CONTENT_LABEL_VALUE,
                                      AltTime_getContent, NULL, NULL};
