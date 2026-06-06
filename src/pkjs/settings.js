@@ -81,7 +81,6 @@ function settingsFromWatchPayload(payload) {
     sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
-    usePlainDateBG: getBoolean(payload.SettingUsePlainDateBG),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -162,10 +161,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.wideSidebar !== undefined) {
     dict.SettingUseWideSidebar = configData.wideSidebar ? 1 : 0;
-  }
-
-  if (configData.usePlainDateBG !== undefined) {
-    dict.SettingUsePlainDateBG = configData.usePlainDateBG ? 1 : 0;
   }
 
   if (configData.weatherUnits) {

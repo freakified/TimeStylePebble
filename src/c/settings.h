@@ -2,7 +2,7 @@
 #include <pebble.h>
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 8
+#define CURRENT_SETTINGS_VERSION 9
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -62,9 +62,6 @@ typedef struct {
 
   // sidebar layout settings
   bool useWideSidebar;
-
-  // date widget settings
-  bool usePlainDateBG;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

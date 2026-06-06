@@ -828,7 +828,7 @@ static int date_calendar_width() {
 }
 
 static int date_calendar_height() {
-  if (settings.usePlainDateBG) {
+  if (settings.useLargeFonts) {
     return fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2;
   }
 
@@ -837,7 +837,7 @@ static int date_calendar_height() {
 }
 
 static int date_day_visible_top(int calendarHeight) {
-  if (!settings.usePlainDateBG) {
+  if (!settings.useLargeFonts) {
     return date_day_top_padding();
   }
 
@@ -982,7 +982,7 @@ static void draw_date_plain_background(GContext *ctx, GRect frame) {
 }
 
 static void draw_date_background(GContext *ctx, GRect frame) {
-  if (settings.usePlainDateBG) {
+  if (settings.useLargeFonts) {
     draw_date_plain_background(ctx, frame);
     return;
   }

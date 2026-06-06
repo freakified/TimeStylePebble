@@ -57,7 +57,6 @@ export interface Settings {
   sidebarPosition: 'left' | 'right';
   largeSidebarFont: boolean;
   wideSidebar: boolean;
-  usePlainDateBG: boolean;
   decimalSeparator: '.' | ',';
 
   // Bluetooth
