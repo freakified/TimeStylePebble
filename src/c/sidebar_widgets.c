@@ -21,8 +21,7 @@
 #define DATE_CALENDAR_DAY_TOP_PADDING 10
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING 4
 #define DATE_CALENDAR_DAY_TOP_PADDING_LARGE 6
-#define DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE 2
-#define DATE_CALENDAR_HEADER_HEIGHT 8
+#define DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE 4
 #define DATE_PLAIN_VERTICAL_PADDING 4
 
 GDrawCommandImage *dateImage;
@@ -838,13 +837,12 @@ static int date_calendar_height() {
 }
 
 static int date_day_visible_top(int calendarHeight) {
+  if (!settings.usePlainDateBG) {
+    return date_day_top_padding();
+  }
+
   int textAreaTop = 0;
   int textAreaHeight = calendarHeight;
-
-  if (!settings.usePlainDateBG) {
-    textAreaTop = DATE_CALENDAR_HEADER_HEIGHT;
-    textAreaHeight = calendarHeight - DATE_CALENDAR_HEADER_HEIGHT;
-  }
 
   if (textAreaHeight < fontMetrics.current.height) {
     textAreaHeight = fontMetrics.current.height;
