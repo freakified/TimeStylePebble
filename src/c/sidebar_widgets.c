@@ -280,6 +280,11 @@ static int render_width(SidebarRenderSpec *spec) {
   return spec->contentWidth + SIDEBAR_TEXT_OVERFLOW * 2;
 }
 
+static int text_fit_width(SidebarRenderSpec *spec, int textWidth) {
+  return spec->mode == SIDEBAR_LAYOUT_HORIZONTAL ? textWidth
+                                                 : spec->contentWidth;
+}
+
 static int text_x(GRect frame, int width) {
   return frame.origin.x + (frame.size.w - width) / 2;
 }
@@ -352,11 +357,11 @@ static GRect text_rect_at_visible_top(int x, int visibleTop, int width,
 
 static void draw_text_at_visible_top(GContext *ctx,
                                      SidebarTextCandidates *candidates, int x,
-                                     int visibleTop, int width,
+                                     int visibleTop, int width, int fitWidth,
                                      GFont primaryFont, GFont fallbackFont,
                                      SidebarTextMetrics primaryMetrics,
                                      SidebarTextMetrics fallbackMetrics) {
-  GRect fitRect = GRect(x, visibleTop, width, primaryMetrics.height);
+  GRect fitRect = GRect(x, visibleTop, fitWidth, primaryMetrics.height);
   GFont selectedFont = primaryFont;
   const char *text = pick_text(candidates, primaryFont, fallbackFont,
                                fit_rect(fitRect), &selectedFont);
@@ -534,7 +539,8 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
   }
 
   draw_text_at_visible_top(ctx, &content->primary, textXPos, textTop, textWidth,
-                           currentSidebarFont, fallbackSidebarFont,
+                           text_fit_width(spec, textWidth), currentSidebarFont,
+                           fallbackSidebarFont,
                            fontMetrics.current, fallback_current_metrics());
 }
 
@@ -549,7 +555,8 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
                                    textWidth, smSidebarFont, fontMetrics.sm,
                                    settings.sidebarTextColor);
   draw_text_at_visible_top(ctx, &content->primary, textXPos, valueTop,
-                           textWidth, currentSidebarFont, fallbackSidebarFont,
+                           textWidth, text_fit_width(spec, textWidth),
+                           currentSidebarFont, fallbackSidebarFont,
                            fontMetrics.current, fallback_current_metrics());
 }
 
@@ -598,7 +605,8 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
   }
 
   draw_text_at_visible_top(ctx, &content->primary, textXPos, textTop, textWidth,
-                           currentSidebarFont, fallbackSidebarFont,
+                           text_fit_width(spec, textWidth), currentSidebarFont,
+                           fallbackSidebarFont,
                            fontMetrics.current, fallback_current_metrics());
 
   dividerY = textTop + fontMetrics.current.height + stacked_value_gap(spec);
@@ -618,7 +626,8 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
   draw_text_at_visible_top(ctx, &content->secondary, textXPos,
                            dividerY + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
                                stacked_value_gap(spec),
-                           textWidth, currentSidebarFont, fallbackSidebarFont,
+                           textWidth, text_fit_width(spec, textWidth),
+                           currentSidebarFont, fallbackSidebarFont,
                            fontMetrics.current, fallback_current_metrics());
 }
 
@@ -645,12 +654,14 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
   }
 
   draw_text_at_visible_top(ctx, &content->primary, primaryX, textTop,
-                           primaryWidth, mdSidebarFont, fallbackSidebarFont,
+                           primaryWidth, text_fit_width(spec, primaryWidth),
+                           mdSidebarFont, fallbackSidebarFont,
                            fontMetrics.md, fallback_current_metrics());
   draw_text_at_visible_top(
       ctx, &content->secondary, primaryX,
       textTop + fontMetrics.md.height + stacked_value_gap(spec), primaryWidth,
-      smSidebarFont, smSidebarFont, fontMetrics.sm, fontMetrics.sm);
+      text_fit_width(spec, primaryWidth), smSidebarFont, smSidebarFont,
+      fontMetrics.sm, fontMetrics.sm);
 }
 
 static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
@@ -661,7 +672,8 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
   case SIDEBAR_CONTENT_TEXT: {
     int width = render_width(spec);
     draw_text_at_visible_top(ctx, &content->primary, text_x(frame, width),
-                             frame.origin.y, width, lgSidebarFont,
+                             frame.origin.y, width,
+                             text_fit_width(spec, width), lgSidebarFont,
                              fallbackSidebarFont, fontMetrics.lg,
                              fallback_current_metrics());
     return;
@@ -780,7 +792,8 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
 
   battery_text_candidates(batteryPercent, &batteryText);
   draw_text_at_visible_top(ctx, &batteryText, textXPos, textTop, textWidth,
-                           currentSidebarFont, fallbackSidebarFont,
+                           text_fit_width(spec, textWidth), currentSidebarFont,
+                           fallbackSidebarFont,
                            fontMetrics.current, fallback_current_metrics());
 }
 
