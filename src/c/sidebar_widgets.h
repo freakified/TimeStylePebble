@@ -21,8 +21,7 @@ typedef enum {
 
 typedef enum {
   SIDEBAR_ICON_NONE = 0,
-  SIDEBAR_ICON_IMAGE,
-  SIDEBAR_ICON_BATTERY
+  SIDEBAR_ICON_IMAGE
 } SidebarIconKind;
 
 /*
@@ -59,9 +58,7 @@ typedef struct {
   const char *label;
   SidebarTextCandidates primary;
   SidebarTextCandidates secondary;
-  bool available;
-  uint8_t batteryPercent;
-  bool batteryCharging;
+  bool isLoading;
 } SidebarContent;
 
 typedef struct {

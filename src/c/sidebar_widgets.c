@@ -76,7 +76,9 @@ char altClock[8];
 char currentBeats[5];
 
 static SidebarContent Empty_getContent();
-static SidebarContent BatteryMeter_getContent();
+static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec);
+static void BatteryMeter_draw(GContext *ctx, GRect frame,
+                              SidebarRenderSpec *spec);
 static SidebarContent Date_getContent();
 static SidebarMeasure Date_measure(SidebarRenderSpec *spec);
 static void Date_draw(GContext *ctx, GRect frame, SidebarRenderSpec *spec);
@@ -144,9 +146,7 @@ static SidebarContent empty_content(SidebarContentKind kind) {
       .label = NULL,
       .primary = same_text_candidates(""),
       .secondary = same_text_candidates(""),
-      .available = true,
-      .batteryPercent = 0,
-      .batteryCharging = false,
+      .isLoading = false,
   };
 }
 
@@ -391,15 +391,19 @@ static void draw_literal_text_at_visible_top(GContext *ctx, const char *text,
 }
 
 static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
-  if (content->iconKind == SIDEBAR_ICON_IMAGE && content->icon) {
-    gdraw_command_image_recolor(content->icon, dynamicSettings.iconFillColor,
-                                dynamicSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, content->icon,
-                             GPoint(iconFrame.origin.x, iconFrame.origin.y));
+  if (content->iconKind != SIDEBAR_ICON_IMAGE || !content->icon) {
     return;
   }
 
-  if (content->iconKind != SIDEBAR_ICON_BATTERY || !batteryImage) {
+  gdraw_command_image_recolor(content->icon, dynamicSettings.iconFillColor,
+                              dynamicSettings.iconStrokeColor);
+  gdraw_command_image_draw(ctx, content->icon,
+                           GPoint(iconFrame.origin.x, iconFrame.origin.y));
+}
+
+static void draw_battery_icon(GContext *ctx, GRect iconFrame,
+                              uint8_t batteryPercent, bool batteryCharging) {
+  if (!batteryImage) {
     return;
   }
 
@@ -409,7 +413,7 @@ static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
   gdraw_command_image_draw(ctx, batteryImage,
                            GPoint(iconFrame.origin.x, batteryY));
 
-  if (content->batteryCharging) {
+  if (batteryCharging) {
     if (batteryChargeImage) {
       gdraw_command_image_recolor(batteryChargeImage,
                                   dynamicSettings.iconStrokeColor,
@@ -420,11 +424,11 @@ static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
     return;
   }
 
-  int width = roundf(18 * content->batteryPercent / 100.0f);
+  int width = roundf(18 * batteryPercent / 100.0f);
   graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
 
 #ifdef PBL_COLOR
-  if (content->batteryPercent <= 20) {
+  if (batteryPercent <= 20) {
     graphics_context_set_fill_color(ctx, GColorRed);
   }
 #endif
@@ -440,10 +444,6 @@ static int large_text_height() { return fontMetrics.lg.height; }
 
 static SidebarTextMetrics fallback_current_metrics() {
   return settings.useLargeFonts ? fontMetrics.md : fontMetrics.sm;
-}
-
-static int icon_value_icon_height(SidebarContent *content) {
-  return content->iconKind == SIDEBAR_ICON_BATTERY ? 14 : SIDEBAR_ICON_SIZE;
 }
 
 static SidebarMeasure generic_measure(SidebarContent *content,
@@ -462,15 +462,10 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     height = SIDEBAR_ICON_SIZE;
     break;
   case SIDEBAR_CONTENT_ICON_VALUE:
-    if (content->iconKind == SIDEBAR_ICON_BATTERY &&
-        (content->batteryCharging || !settings.showBatteryPct)) {
-      height = 14;
-    } else if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
-      int iconHeight = icon_value_icon_height(content);
-      height = iconHeight > textHeight ? iconHeight : textHeight;
+    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+      height = SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE : textHeight;
     } else {
-      height =
-          icon_value_icon_height(content) + icon_text_gap(spec) + textHeight;
+      height = SIDEBAR_ICON_SIZE + icon_text_gap(spec) + textHeight;
     }
     break;
   case SIDEBAR_CONTENT_LABEL_VALUE:
@@ -508,9 +503,9 @@ static SidebarMeasure generic_measure(SidebarContent *content,
   return (SidebarMeasure){spec->contentWidth, height};
 }
 
-static void draw_unavailable_text(GContext *ctx, int x, int visibleTop,
-                                  int width, GFont font,
-                                  SidebarTextMetrics metrics) {
+static void draw_loading_text(GContext *ctx, int x, int visibleTop,
+                              int width, GFont font,
+                              SidebarTextMetrics metrics) {
   draw_literal_text_at_visible_top(ctx, "...", x, visibleTop, width, font,
                                    metrics, settings.sidebarTextColor);
 }
@@ -521,11 +516,11 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
   int textXPos;
   int textTop;
   GRect iconFrame;
-  int iconHeight = icon_value_icon_height(content);
 
   if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
     iconFrame =
-        GRect(frame.origin.x, frame.origin.y + (frame.size.h - iconHeight) / 2,
+        GRect(frame.origin.x,
+              frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
               SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = frame.origin.x + SIDEBAR_ICON_SIZE + 3;
     textWidth = frame.size.w - SIDEBAR_ICON_SIZE - 3;
@@ -534,19 +529,14 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
     iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
                       SIDEBAR_ICON_SIZE);
     textXPos = text_x(frame, textWidth);
-    textTop = frame.origin.y + iconHeight + icon_text_gap(spec);
+    textTop = frame.origin.y + SIDEBAR_ICON_SIZE + icon_text_gap(spec);
   }
 
   draw_icon(ctx, content, iconFrame);
 
-  if (content->iconKind == SIDEBAR_ICON_BATTERY &&
-      (content->batteryCharging || !settings.showBatteryPct)) {
-    return;
-  }
-
-  if (!content->available) {
-    draw_unavailable_text(ctx, textXPos, textTop, textWidth,
-                          fallbackSidebarFont, fallback_current_metrics());
+  if (content->isLoading) {
+    draw_loading_text(ctx, textXPos, textTop, textWidth, fallbackSidebarFont,
+                      fallback_current_metrics());
     return;
   }
 
@@ -608,9 +598,9 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
                         &textWidth, &textTop);
   draw_icon(ctx, content, iconFrame);
 
-  if (!content->available) {
-    draw_unavailable_text(ctx, textXPos, textTop, textWidth, currentSidebarFont,
-                          fontMetrics.current);
+  if (content->isLoading) {
+    draw_loading_text(ctx, textXPos, textTop, textWidth, currentSidebarFont,
+                      fontMetrics.current);
     return;
   }
 
@@ -655,9 +645,9 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
 
   draw_icon(ctx, content, iconFrame);
 
-  if (!content->available) {
-    draw_unavailable_text(ctx, primaryX, textTop, primaryWidth,
-                          currentSidebarFont, fontMetrics.current);
+  if (content->isLoading) {
+    draw_loading_text(ctx, primaryX, textTop, primaryWidth, currentSidebarFont,
+                      fontMetrics.current);
     return;
   }
 
@@ -730,30 +720,72 @@ static SidebarContent Empty_getContent() {
   return empty_content(SIDEBAR_CONTENT_EMPTY);
 }
 
-static SidebarContent BatteryMeter_getContent() {
+static void battery_text_candidates(uint8_t batteryPercent,
+                                    SidebarTextCandidates *candidates) {
+  if (settings.languageId == LANGUAGE_TR) {
+    snprintf(candidates->full, sizeof(candidates->full), "%%%d",
+             batteryPercent);
+  } else {
+    snprintf(candidates->full, sizeof(candidates->full), "%d%%",
+             batteryPercent);
+  }
+  snprintf(candidates->compact, sizeof(candidates->compact), "%d",
+           batteryPercent);
+  snprintf(candidates->tiny, sizeof(candidates->tiny), "%d", batteryPercent);
+}
+
+static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
+  BatteryChargeState chargeState = battery_state_service_peek();
+
+  if (chargeState.is_charging || !settings.showBatteryPct) {
+    return (SidebarMeasure){spec->contentWidth, 14};
+  }
+
+  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    int textHeight = single_text_height();
+    return (SidebarMeasure){spec->contentWidth,
+                            14 > textHeight ? 14 : textHeight};
+  }
+
+  return (SidebarMeasure){spec->contentWidth,
+                          14 + icon_text_gap(spec) + single_text_height()};
+}
+
+static void BatteryMeter_draw(GContext *ctx, GRect frame,
+                              SidebarRenderSpec *spec) {
   BatteryChargeState chargeState = battery_state_service_peek();
   uint8_t batteryPercent =
       (chargeState.charge_percent > 0) ? chargeState.charge_percent : 5;
+  bool batteryCharging = chargeState.is_charging;
+  SidebarTextCandidates batteryText;
+  GRect iconFrame;
+  int textWidth = render_width(spec);
+  int textXPos;
+  int textTop;
 
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
-  content.iconKind = SIDEBAR_ICON_BATTERY;
-  content.available = true;
-  content.batteryPercent = batteryPercent;
-  content.batteryCharging = chargeState.is_charging;
-
-  if (settings.languageId == LANGUAGE_TR) {
-    snprintf(content.primary.full, sizeof(content.primary.full), "%%%d",
-             batteryPercent);
+  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    iconFrame = GRect(frame.origin.x, frame.origin.y + (frame.size.h - 14) / 2,
+                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    textXPos = frame.origin.x + SIDEBAR_ICON_SIZE + 3;
+    textWidth = frame.size.w - SIDEBAR_ICON_SIZE - 3;
+    textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
   } else {
-    snprintf(content.primary.full, sizeof(content.primary.full), "%d%%",
-             batteryPercent);
+    iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
+                      SIDEBAR_ICON_SIZE);
+    textXPos = text_x(frame, textWidth);
+    textTop = frame.origin.y + 14 + icon_text_gap(spec);
   }
-  snprintf(content.primary.compact, sizeof(content.primary.compact), "%d",
-           batteryPercent);
-  snprintf(content.primary.tiny, sizeof(content.primary.tiny), "%d",
-           batteryPercent);
 
-  return content;
+  draw_battery_icon(ctx, iconFrame, batteryPercent, batteryCharging);
+
+  if (batteryCharging || !settings.showBatteryPct) {
+    return;
+  }
+
+  battery_text_candidates(batteryPercent, &batteryText);
+  draw_text_at_visible_top(ctx, &batteryText, textXPos, textTop, textWidth,
+                           currentSidebarFont, fallbackSidebarFont,
+                           fontMetrics.current, fallback_current_metrics());
 }
 
 static SidebarContent Date_getContent() {
@@ -867,9 +899,9 @@ static SidebarContent CurrentWeather_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = Weather_currentWeatherIcon;
-  content.available = Weather_weatherInfo.currentTemp != INT32_MIN;
+  content.isLoading = Weather_weatherInfo.currentTemp == INT32_MIN;
 
-  if (!content.available) {
+  if (content.isLoading) {
     return content;
   }
 
@@ -892,9 +924,9 @@ static SidebarContent WeatherForecast_getContent() {
       empty_content(SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = Weather_forecastWeatherIcon;
-  content.available = Weather_weatherInfo.todaysHighTemp != INT32_MIN;
+  content.isLoading = Weather_weatherInfo.todaysHighTemp == INT32_MIN;
 
-  if (!content.available) {
+  if (content.isLoading) {
     return content;
   }
 
@@ -1094,15 +1126,15 @@ static SidebarContent HeartRate_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = heartImage;
-  content.available = is_health_metric_accessible(HealthMetricHeartRateBPM);
+  content.isLoading = !is_health_metric_accessible(HealthMetricHeartRateBPM);
 
-  if (!content.available) {
+  if (content.isLoading) {
     return content;
   }
 
   int heartRate = health_service_peek_current_value(HealthMetricHeartRateBPM);
   if (heartRate <= 0) {
-    content.available = false;
+    content.isLoading = true;
     return content;
   }
 
@@ -1117,8 +1149,9 @@ static SidebarContent HeartRate_getContent() {
 SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
   switch (type) {
   case BATTERY_METER:
-    return (SidebarWidgetDefinition){BATTERY_METER, SIDEBAR_CONTENT_ICON_VALUE,
-                                     BatteryMeter_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){BATTERY_METER, SIDEBAR_CONTENT_CUSTOM,
+                                     NULL, BatteryMeter_measure,
+                                     BatteryMeter_draw};
   case BLUETOOTH_DISCONNECT:
     return (SidebarWidgetDefinition){BLUETOOTH_DISCONNECT, SIDEBAR_CONTENT_ICON,
                                      BTDisconnect_getContent, NULL, NULL};
