@@ -22,6 +22,8 @@
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING 4
 #define DATE_CALENDAR_DAY_TOP_PADDING_LARGE 6
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE 2
+#define DATE_CALENDAR_HEADER_HEIGHT 8
+#define DATE_PLAIN_VERTICAL_PADDING 4
 
 GDrawCommandImage *dateImage;
 GDrawCommandImage *disconnectImage;
@@ -820,25 +822,50 @@ static int date_day_bottom_padding() {
 
 static int date_calendar_width() {
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  return 30;
+  return 28;
 #else
   return settings.useLargeFonts ? 26 : SIDEBAR_ICON_SIZE;
 #endif
+}
+
+static int date_calendar_height() {
+  if (settings.dateBackgroundStyle == DATE_BACKGROUND_CALENDAR) {
+    return date_day_top_padding() + fontMetrics.current.height +
+           date_day_bottom_padding();
+  }
+
+  return fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2;
+}
+
+static int date_day_visible_top(int calendarHeight) {
+  int textAreaTop = 0;
+  int textAreaHeight = calendarHeight;
+
+  if (settings.dateBackgroundStyle == DATE_BACKGROUND_CALENDAR) {
+    textAreaTop = DATE_CALENDAR_HEADER_HEIGHT;
+    textAreaHeight = calendarHeight - DATE_CALENDAR_HEADER_HEIGHT;
+  }
+
+  if (textAreaHeight < fontMetrics.current.height) {
+    textAreaHeight = fontMetrics.current.height;
+  }
+
+  return textAreaTop + (textAreaHeight - fontMetrics.current.height) / 2;
 }
 
 static DateLayout date_layout(SidebarRenderSpec *spec) {
   int weekdayToCalendarGap = icon_text_gap(spec);
   int calendarToMonthGap = icon_text_gap(spec);
   int calendarTop = fontMetrics.current.height + weekdayToCalendarGap;
-  int calendarHeight = date_day_top_padding() + fontMetrics.current.height +
-                       date_day_bottom_padding();
+  int calendarHeight = date_calendar_height();
+  int calendarWidth = date_calendar_width();
   int monthTop = calendarTop + calendarHeight + calendarToMonthGap;
 
   return (DateLayout){
       .calendarTop = calendarTop,
       .calendarHeight = calendarHeight,
-      .calendarWidth = date_calendar_width(),
-      .dayNumTop = calendarTop + date_day_top_padding(),
+      .calendarWidth = calendarWidth,
+      .dayNumTop = calendarTop + date_day_visible_top(calendarHeight),
       .monthTop = monthTop,
       .height = monthTop + fontMetrics.current.height,
       .compactHeight = calendarTop + calendarHeight,
