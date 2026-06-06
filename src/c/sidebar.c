@@ -246,9 +246,8 @@ void drawRoundSidebar(GContext *ctx, GRect bgBounds,
 
   // calculate center position of the widget
   int widgetPosition = bgBounds.size.h / 4 - widgetSize.h / 2;
-  SidebarWidgets_draw(ctx, &widget,
-                      GRect(widgetXOffset, widgetPosition, 30, widgetSize.h),
-                      &spec);
+  GRect widgetFrame = GRect(widgetXOffset, widgetPosition, 30, widgetSize.h);
+  SidebarWidgets_draw(ctx, &widget, widgetFrame, &spec);
 }
 
 #else
@@ -291,7 +290,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   }
 
   // if the widgets are too tall, enable "compact mode"
-  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2 - 3;
+  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2;
   int v_padding = V_PADDING_DEFAULT;
   SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(mode, sidebarWidth, false);
   SidebarMeasure widgetSizes[3];
@@ -331,18 +330,16 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
                         2;
 
   // draw the widgets
-  SidebarWidgets_draw(ctx, &displayWidgets[0],
-                      GRect(0, topWidgetPos, sidebarWidth, widgetSizes[0].h),
-                      &spec);
+  GRect topWidgetFrame = GRect(0, topWidgetPos, sidebarWidth, widgetSizes[0].h);
+  SidebarWidgets_draw(ctx, &displayWidgets[0], topWidgetFrame, &spec);
   if (!hide_middle_widget) {
-    SidebarWidgets_draw(ctx, &displayWidgets[1],
-                        GRect(0, middleWidgetPos, sidebarWidth,
-                              widgetSizes[1].h),
-                        &spec);
+    GRect middleWidgetFrame =
+        GRect(0, middleWidgetPos, sidebarWidth, widgetSizes[1].h);
+    SidebarWidgets_draw(ctx, &displayWidgets[1], middleWidgetFrame, &spec);
   }
-  SidebarWidgets_draw(ctx, &displayWidgets[2],
-                      GRect(0, lowerWidgetPos, sidebarWidth, widgetSizes[2].h),
-                      &spec);
+  GRect lowerWidgetFrame =
+      GRect(0, lowerWidgetPos, sidebarWidth, widgetSizes[2].h);
+  SidebarWidgets_draw(ctx, &displayWidgets[2], lowerWidgetFrame, &spec);
 }
 
 #endif
