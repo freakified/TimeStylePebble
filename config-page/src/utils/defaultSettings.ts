@@ -24,6 +24,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   sidebarPosition: 'right',
   largeSidebarFont: false,
   wideSidebar: false,
+  dateBackgroundStyle: 'calendar',
   decimalSeparator: '.',
 
   // Bluetooth

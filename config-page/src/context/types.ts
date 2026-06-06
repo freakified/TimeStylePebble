@@ -57,6 +57,7 @@ export interface Settings {
   sidebarPosition: 'left' | 'right';
   largeSidebarFont: boolean;
   wideSidebar: boolean;
+  dateBackgroundStyle: 'calendar' | 'outline' | 'simple';
   decimalSeparator: '.' | ',';
 
   // Bluetooth

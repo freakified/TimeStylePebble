@@ -27,9 +27,6 @@ GDrawCommandImage *dateImage;
 GDrawCommandImage *disconnectImage;
 GDrawCommandImage *batteryImage;
 GDrawCommandImage *batteryChargeImage;
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-GDrawCommandImage *dateLgImage;
-#endif
 
 #ifdef PBL_HEALTH
 GDrawCommandImage *sleepImage;
@@ -163,10 +160,6 @@ void SidebarWidgets_init() {
 #endif
 
   dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  dateLgImage =
-      gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG_LG);
-#endif
   disconnectImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
   batteryImage =
@@ -186,9 +179,6 @@ void SidebarWidgets_init() {
 
 void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(dateImage);
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  gdraw_command_image_destroy(dateLgImage);
-#endif
   gdraw_command_image_destroy(disconnectImage);
   gdraw_command_image_destroy(batteryImage);
   gdraw_command_image_destroy(batteryChargeImage);
@@ -295,7 +285,7 @@ static int text_x(GRect frame, int width) {
 }
 
 static int icon_x(GRect frame) {
-  return frame.origin.x + (frame.size.w - SIDEBAR_ICON_SIZE) / 2;
+  return frame.origin.x + (frame.size.w - SIDEBAR_ICON_SIZE + 1) / 2;
 }
 
 static int icon_text_gap(SidebarRenderSpec *spec) {
@@ -849,50 +839,150 @@ static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
                                                   : metrics.height};
 }
 
+static GPoint precise_point(int x, int y) { return GPoint(x, y); }
+
+static void set_command_point(GDrawCommand *command, uint16_t pointIndex,
+                              int x, int y) {
+  if (command && pointIndex < gdraw_command_get_num_points(command)) {
+    gdraw_command_set_point(command, pointIndex, precise_point(x, y));
+  }
+}
+
+static void resize_date_calendar_image(GRect frame) {
+  GDrawCommandList *commandList = gdraw_command_image_get_command_list(dateImage);
+  if (!commandList || gdraw_command_list_get_num_commands(commandList) < 5) {
+    return;
+  }
+
+  int left = 4;
+  int top = 20;
+  int right = frame.size.w * 8 - 12;
+  int bottom = frame.size.h * 8 - 12;
+  int bindingTop = 4;
+  int bindingBottom = 52;
+  int leftBindingX = (frame.size.w / 3) * 8 - 4;
+  int rightBindingX = (frame.size.w * 2 / 3) * 8 + 4;
+  int footHalfWidth = 16;
+
+  GDrawCommand *body = gdraw_command_list_get_command(commandList, 0);
+  set_command_point(body, 0, left, top);
+  set_command_point(body, 1, right, top);
+  set_command_point(body, 2, right, bottom);
+  set_command_point(body, 3, left, bottom);
+
+  GDrawCommand *leftBinding = gdraw_command_list_get_command(commandList, 1);
+  set_command_point(leftBinding, 0, leftBindingX, bindingTop);
+  set_command_point(leftBinding, 1, leftBindingX, bindingBottom);
+
+  GDrawCommand *rightBinding = gdraw_command_list_get_command(commandList, 2);
+  set_command_point(rightBinding, 0, rightBindingX, bindingTop);
+  set_command_point(rightBinding, 1, rightBindingX, bindingBottom);
+
+  GDrawCommand *leftFoot = gdraw_command_list_get_command(commandList, 3);
+  set_command_point(leftFoot, 0, leftBindingX + footHalfWidth, bindingBottom);
+  set_command_point(leftFoot, 1, leftBindingX - footHalfWidth, bindingBottom);
+
+  GDrawCommand *rightFoot = gdraw_command_list_get_command(commandList, 4);
+  set_command_point(rightFoot, 0, rightBindingX - footHalfWidth, bindingBottom);
+  set_command_point(rightFoot, 1, rightBindingX + footHalfWidth, bindingBottom);
+
+  gdraw_command_image_set_bounds_size(dateImage, GSize(frame.size.w,
+                                                       frame.size.h));
+}
+
+static void draw_date_calendar_background_fallback(GContext *ctx, GRect frame) {
+  int bodyTop = frame.origin.y + 2;
+  int bodyHeight = frame.size.h - 2;
+  int bindingY = frame.origin.y;
+  int bindingBottom = frame.origin.y + 6;
+  int leftBindingX = frame.origin.x + frame.size.w / 3;
+  int rightBindingX = frame.origin.x + frame.size.w * 2 / 3;
+
+  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
+  graphics_fill_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
+                                bodyHeight),
+                     0, GCornerNone);
+
+  graphics_context_set_stroke_color(ctx, dynamicSettings.iconStrokeColor);
+  graphics_context_set_stroke_width(ctx, 2);
+  graphics_draw_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
+                                bodyHeight));
+
+  graphics_draw_line(ctx, GPoint(leftBindingX, bindingY),
+                     GPoint(leftBindingX, bindingBottom));
+  graphics_draw_line(ctx, GPoint(rightBindingX, bindingY),
+                     GPoint(rightBindingX, bindingBottom));
+  graphics_draw_line(ctx, GPoint(leftBindingX - 2, bindingBottom),
+                     GPoint(leftBindingX + 2, bindingBottom));
+  graphics_draw_line(ctx, GPoint(rightBindingX - 2, bindingBottom),
+                     GPoint(rightBindingX + 2, bindingBottom));
+  graphics_context_set_stroke_width(ctx, 1);
+}
+
+static void draw_date_calendar_background(GContext *ctx, GRect frame) {
+  if (!dateImage) {
+    draw_date_calendar_background_fallback(ctx, frame);
+    return;
+  }
+
+  resize_date_calendar_image(frame);
+  gdraw_command_image_recolor(dateImage, dynamicSettings.iconFillColor,
+                              dynamicSettings.iconStrokeColor);
+  gdraw_command_image_draw(ctx, dateImage, GPoint(frame.origin.x,
+                                                 frame.origin.y));
+}
+
+static void draw_date_outline_background(GContext *ctx, GRect frame) {
+  graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
+  graphics_fill_rect(ctx, frame, 2, GCornersAll);
+
+  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
+  graphics_fill_rect(ctx,
+                     GRect(frame.origin.x + 2, frame.origin.y + 2,
+                           frame.size.w - 4, frame.size.h - 4),
+                     0, GCornersAll);
+}
+
+static void draw_date_simple_background(GContext *ctx, GRect frame) {
+  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
+  graphics_fill_rect(ctx, frame, 2, GCornersAll);
+}
+
+static void draw_date_background(GContext *ctx, GRect frame) {
+  switch (settings.dateBackgroundStyle) {
+  case DATE_BACKGROUND_OUTLINE:
+    draw_date_outline_background(ctx, frame);
+    return;
+  case DATE_BACKGROUND_FILLED:
+    draw_date_simple_background(ctx, frame);
+    return;
+  case DATE_BACKGROUND_CALENDAR:
+  default:
+    draw_date_calendar_background(ctx, frame);
+    return;
+  }
+}
+
 static void date_content_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec) {
   DateLayout metrics = date_layout(spec);
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);
-  int calendarX = frame.origin.x + (frame.size.w - metrics.calendarWidth) / 2;
+  int calendarX =
+      frame.origin.x + (frame.size.w - metrics.calendarWidth + 1) / 2;
   int calendarY = frame.origin.y + metrics.calendarTop;
+  GColor dayTextColor = dynamicSettings.iconStrokeColor;
 
   draw_literal_text_at_visible_top(
       ctx, currentDayName, textXPos, frame.origin.y, textWidth,
       currentSidebarFont, fontMetrics.current, settings.sidebarTextColor);
 
-  if (!settings.useLargeFonts) {
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-    GDrawCommandImage *activeDateImage = dateLgImage;
-#else
-    GDrawCommandImage *activeDateImage = dateImage;
-#endif
-    if (activeDateImage) {
-      gdraw_command_image_recolor(activeDateImage,
-                                  dynamicSettings.iconFillColor,
-                                  dynamicSettings.iconStrokeColor);
-      gdraw_command_image_draw(ctx, activeDateImage,
-                               GPoint(calendarX, calendarY));
-    }
-  } else {
-    graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
-    graphics_fill_rect(ctx,
-                       GRect(calendarX, calendarY, metrics.calendarWidth,
-                             metrics.calendarHeight),
-                       2, GCornersAll);
-
-    graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
-    graphics_fill_rect(ctx,
-                       GRect(calendarX + 2, calendarY + 2,
-                             metrics.calendarWidth - 4,
-                             metrics.calendarHeight - 4),
-                       0, GCornersAll);
-  }
+  draw_date_background(ctx, GRect(calendarX, calendarY, metrics.calendarWidth,
+                                  metrics.calendarHeight));
 
   draw_literal_text_at_visible_top(
       ctx, currentDayNum, textXPos, frame.origin.y + metrics.dayNumTop,
-      textWidth, currentSidebarFont, fontMetrics.current,
-      dynamicSettings.iconStrokeColor);
+      textWidth, currentSidebarFont, fontMetrics.current, dayTextColor);
 
   if (!spec->compact) {
     draw_literal_text_at_visible_top(

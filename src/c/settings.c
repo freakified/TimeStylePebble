@@ -47,10 +47,19 @@ void Settings_loadFromStorage() {
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
   settings.useWideSidebar = false;
+  settings.dateBackgroundStyle = DATE_BACKGROUND_CALENDAR;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
+  }
+
+  int settingsVersion = persist_exists(SETTINGS_VERSION_PERSIST_KEY)
+                            ? persist_read_int(SETTINGS_VERSION_PERSIST_KEY)
+                            : 0;
+  if (settingsVersion < 8 ||
+      settings.dateBackgroundStyle > DATE_BACKGROUND_FILLED) {
+    settings.dateBackgroundStyle = DATE_BACKGROUND_CALENDAR;
   }
 
   Settings_updateDynamicSettings();

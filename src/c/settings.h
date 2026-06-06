@@ -2,7 +2,7 @@
 #include <pebble.h>
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 7
+#define CURRENT_SETTINGS_VERSION 8
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -20,6 +20,12 @@ typedef enum {
   VIBE_EVERY_HOUR = 1,
   VIBE_EVERY_HALF_HOUR = 2
 } VibeIntervalType;
+
+typedef enum {
+  DATE_BACKGROUND_CALENDAR = 0,
+  DATE_BACKGROUND_OUTLINE = 1,
+  DATE_BACKGROUND_FILLED = 2
+} DateBackgroundStyle;
 
 // Settings struct -- note, all new settings should ALWAYS be added to the bottom
 typedef struct {
@@ -62,6 +68,9 @@ typedef struct {
 
   // sidebar layout settings
   bool useWideSidebar;
+
+  // date widget settings
+  DateBackgroundStyle dateBackgroundStyle;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

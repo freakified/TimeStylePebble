@@ -59,6 +59,7 @@
       "SettingSidebarOnLeft",
       "SettingSidebarTextColor",
       "SettingUseLargeFonts",
+      "SettingDateBackgroundStyle",
       "SettingUseMetric",
       "WeatherUseNightIcon",
       "SettingWidget0ID",
@@ -168,15 +169,6 @@
           "file": "data/DATE_BG.pdc",
           "name": "DATE_BG",
           "type": "raw"
-        },
-        {
-          "file": "data/DATE_BG_LG.pdc",
-          "name": "DATE_BG_LG",
-          "type": "raw",
-          "targetPlatforms": [
-            "emery",
-            "gabbro"
-          ]
         },
         {
           "file": "data/CLOUDY_DAY.pdc",

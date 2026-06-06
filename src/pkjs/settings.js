@@ -26,6 +26,18 @@ var HOURLY_VIBE_ID_BY_NAME = {
   'everyHalfHour': 2
 };
 
+var DATE_BACKGROUND_BY_ID = {
+  0: 'calendar',
+  1: 'outline',
+  2: 'simple'
+};
+
+var DATE_BACKGROUND_ID_BY_NAME = {
+  'calendar': 0,
+  'outline': 1,
+  'simple': 2
+};
+
 function padHex(value) {
   var hex = Number(value || 0).toString(16).toUpperCase();
   while (hex.length < 6) {
@@ -81,6 +93,7 @@ function settingsFromWatchPayload(payload) {
     sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
+    dateBackgroundStyle: getMappedValue(DATE_BACKGROUND_BY_ID, getNumber(payload.SettingDateBackgroundStyle, 0), 'calendar'),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -161,6 +174,10 @@ function settingsToWatchPayload(configData) {
 
   if (configData.wideSidebar !== undefined) {
     dict.SettingUseWideSidebar = configData.wideSidebar ? 1 : 0;
+  }
+
+  if (configData.dateBackgroundStyle !== undefined) {
+    dict.SettingDateBackgroundStyle = getMappedValue(DATE_BACKGROUND_ID_BY_NAME, configData.dateBackgroundStyle, 0);
   }
 
   if (configData.weatherUnits) {
