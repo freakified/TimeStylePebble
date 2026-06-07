@@ -58,6 +58,10 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   #ifdef PBL_ROUND
     bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, screen_rect.size.h - ROUND_VERTICAL_PADDING * 2);
+  #else
+    if (settings.useBottomBar) {
+      bounds = GRect(0, 0, screen_rect.size.w, screen_rect.size.h - sidebarHeight);
+    }
   #endif
 
   // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use

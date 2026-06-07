@@ -47,6 +47,9 @@ void Settings_loadFromStorage() {
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
   settings.useWideSidebar = false;
+  settings.useBottomBar = false;
+  settings.bottomBarWidgets[0] = BATTERY_METER;
+  settings.bottomBarWidgets[1] = SECONDS;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
@@ -76,31 +79,36 @@ void Settings_updateDynamicSettings() {
   dynamicSettings.enableBeats = false;
   dynamicSettings.enableAltTimeZone = false;
 
-  for (int i = 0; i < 3; i++) {
+  int widgetCount = settings.useBottomBar ? 5 : 3;
+
+  for (int i = 0; i < widgetCount; i++) {
+    SidebarWidgetType widget = i < 3 ? settings.widgets[i]
+                                     : settings.bottomBarWidgets[i - 3];
+
     // if there are any weather widgets, enable weather checking
-    if (settings.widgets[i] == WEATHER_CURRENT ||
-        settings.widgets[i] == WEATHER_FORECAST_TODAY ||
-        settings.widgets[i] == WEATHER_UV_INDEX) {
+    if (widget == WEATHER_CURRENT ||
+        widget == WEATHER_FORECAST_TODAY ||
+        widget == WEATHER_UV_INDEX) {
       dynamicSettings.disableWeather = false;
     }
 
     // if any widget is "seconds", we'll need to update the sidebar every second
-    if (settings.widgets[i] == SECONDS) {
+    if (widget == SECONDS) {
       dynamicSettings.updateScreenEverySecond = true;
     }
 
     // if any widget is "battery", disable the automatic battery indication
-    if (settings.widgets[i] == BATTERY_METER) {
+    if (widget == BATTERY_METER) {
       dynamicSettings.enableAutoBatteryWidget = false;
     }
 
     // if any widget is "beats", enable the beats calculation
-    if (settings.widgets[i] == BEATS) {
+    if (widget == BEATS) {
       dynamicSettings.enableBeats = true;
     }
 
     // if any widget is "alt_time_zone", enable the alternative time calculation
-    if (settings.widgets[i] == ALT_TIME_ZONE) {
+    if (widget == ALT_TIME_ZONE) {
       dynamicSettings.enableAltTimeZone = true;
     }
   }

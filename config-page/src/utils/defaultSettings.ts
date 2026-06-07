@@ -16,6 +16,8 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   widget0Id: 7,  // Current Weather
   widget1Id: 0,  // Empty
   widget2Id: 4,  // Today's Date
+  bottomBarWidget0Id: 2,  // Battery
+  bottomBarWidget1Id: 5,  // Seconds
 
   // General
   languageId: 0,
@@ -24,6 +26,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   sidebarPosition: 'right',
   largeSidebarFont: false,
   wideSidebar: false,
+  bottomBar: false,
   decimalSeparator: '.',
 
   // Bluetooth

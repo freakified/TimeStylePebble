@@ -99,10 +99,15 @@ export const SettingsPage: React.FC = () => {
   const showWeatherSection =
     settings.widget0Id === 7 || settings.widget0Id === 8 || settings.widget0Id === 13 ||
     settings.widget1Id === 7 || settings.widget1Id === 8 || settings.widget1Id === 13 ||
-    settings.widget2Id === 7 || settings.widget2Id === 8 || settings.widget2Id === 13;
+    settings.widget2Id === 7 || settings.widget2Id === 8 || settings.widget2Id === 13 ||
+    (settings.bottomBar && (
+      settings.bottomBarWidget0Id === 7 || settings.bottomBarWidget0Id === 8 || settings.bottomBarWidget0Id === 13 ||
+      settings.bottomBarWidget1Id === 7 || settings.bottomBarWidget1Id === 8 || settings.bottomBarWidget1Id === 13
+    ));
 
   const showAltClockSection =
-    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
+    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3 ||
+    (settings.bottomBar && (settings.bottomBarWidget0Id === 3 || settings.bottomBarWidget1Id === 3));
 
   const showHealthSection =
     settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
@@ -218,6 +223,13 @@ export const SettingsPage: React.FC = () => {
 
       {/* ── Sidebar Display ── */}
       <Section title="Sidebar">
+        {capabilities.RECT && (
+          <Toggle
+            label="Use bottom bar"
+            description="Show two horizontal widgets along the bottom of the screen"
+            messageKey="bottomBar"
+          />
+        )}
         {capabilities.RECT && (
           <SelectCards
             label="Position"

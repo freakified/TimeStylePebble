@@ -49,6 +49,8 @@ export interface Settings {
   widget0Id: number;  // top slot (rect) or left slot (round)
   widget1Id: number;  // middle slot (rect only)
   widget2Id: number;  // bottom slot (rect) or right slot (round)
+  bottomBarWidget0Id: number;  // bottom bar left slot (rect only)
+  bottomBarWidget1Id: number;  // bottom bar right slot (rect only)
 
   // General display
   languageId: number;
@@ -57,6 +59,7 @@ export interface Settings {
   sidebarPosition: 'left' | 'right';
   largeSidebarFont: boolean;
   wideSidebar: boolean;
+  bottomBar: boolean;
   decimalSeparator: '.' | ',';
 
   // Bluetooth

@@ -41,9 +41,12 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget0ID, settings.widgets[0]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget1ID, settings.widgets[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget2ID, settings.widgets[2]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget0ID, settings.bottomBarWidgets[0]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.bottomBarWidgets[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.sidebarOnLeft ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUseBottomBar, settings.useBottomBar ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
@@ -140,10 +143,13 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
   Tuple *useWideSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseWideSidebar);
+  Tuple *useBottomBar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseBottomBar);
 
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
   Tuple *widget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget2ID);
+  Tuple *bottomBarWidget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget0ID);
+  Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
@@ -210,6 +216,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.useWideSidebar = (bool)useWideSidebar_tuple->value->int8;
   }
 
+  if(useBottomBar_tuple != NULL) {
+    settings.useBottomBar = (bool)useBottomBar_tuple->value->int8;
+  }
+
   if(hourlyVibe_tuple != NULL) {
     settings.hourlyVibe = hourlyVibe_tuple->value->int8;
   }
@@ -228,6 +238,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(widget2Id_tuple != NULL) {
     settings.widgets[2] = widget2Id_tuple->value->int8;
+  }
+
+  if(bottomBarWidget0Id_tuple != NULL) {
+    settings.bottomBarWidgets[0] = bottomBarWidget0Id_tuple->value->int8;
+  }
+
+  if(bottomBarWidget1Id_tuple != NULL) {
+    settings.bottomBarWidgets[1] = bottomBarWidget1Id_tuple->value->int8;
   }
 
   if(altclockName_tuple != NULL) {

@@ -871,6 +871,13 @@ static DateLayout date_layout(SidebarRenderSpec *spec) {
 }
 
 static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
+  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    int textHeight = single_text_height();
+    return (SidebarMeasure){spec->contentWidth,
+                            SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE
+                                                            : textHeight};
+  }
+
   DateLayout metrics = date_layout(spec);
   return (SidebarMeasure){spec->contentWidth, spec->compact
                                                   ? metrics.compactHeight
@@ -992,6 +999,29 @@ static void draw_date_background(GContext *ctx, GRect frame) {
 
 static void date_content_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec) {
+  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    GRect calendarFrame =
+        GRect(frame.origin.x,
+              frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
+              SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    int textX = frame.origin.x + SIDEBAR_ICON_SIZE + 3;
+    int textWidth = frame.size.w - SIDEBAR_ICON_SIZE - 3;
+    int textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
+    int dayTop = calendarFrame.origin.y +
+                 (calendarFrame.size.h - fontMetrics.current.height) / 2;
+
+    draw_date_background(ctx, calendarFrame);
+    draw_literal_text_at_visible_top(ctx, currentDayNum, calendarFrame.origin.x,
+                                     dayTop, calendarFrame.size.w,
+                                     currentSidebarFont, fontMetrics.current,
+                                     dynamicSettings.iconStrokeColor);
+    draw_literal_text_at_visible_top(ctx, currentDayName, textX, textTop,
+                                     textWidth, currentSidebarFont,
+                                     fontMetrics.current,
+                                     settings.sidebarTextColor);
+    return;
+  }
+
   DateLayout metrics = date_layout(spec);
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);

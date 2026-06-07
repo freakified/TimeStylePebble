@@ -74,6 +74,8 @@ function settingsFromWatchPayload(payload) {
     widget0Id: getNumber(payload.SettingWidget0ID, 7),
     widget1Id: getNumber(payload.SettingWidget1ID, 0),
     widget2Id: getNumber(payload.SettingWidget2ID, 4),
+    bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 2),
+    bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 5),
 
     languageId: getNumber(payload.SettingLanguageID, 0),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
@@ -81,6 +83,7 @@ function settingsFromWatchPayload(payload) {
     sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
+    bottomBar: getBoolean(payload.SettingUseBottomBar),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -150,6 +153,8 @@ function settingsToWatchPayload(configData) {
   dict.SettingWidget0ID = configData.widget0Id;
   dict.SettingWidget1ID = configData.widget1Id;
   dict.SettingWidget2ID = configData.widget2Id;
+  dict.SettingBottomBarWidget0ID = configData.bottomBarWidget0Id;
+  dict.SettingBottomBarWidget1ID = configData.bottomBarWidget1Id;
 
   if (configData.sidebarPosition) {
     dict.SettingSidebarOnLeft = configData.sidebarPosition == 'right' ? 0 : 1;
@@ -161,6 +166,10 @@ function settingsToWatchPayload(configData) {
 
   if (configData.wideSidebar !== undefined) {
     dict.SettingUseWideSidebar = configData.wideSidebar ? 1 : 0;
+  }
+
+  if (configData.bottomBar !== undefined) {
+    dict.SettingUseBottomBar = configData.bottomBar ? 1 : 0;
   }
 
   if (configData.weatherUnits) {

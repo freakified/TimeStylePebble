@@ -122,7 +122,14 @@ Pebble.addEventListener('webviewclosed', function (e) {
     // determine whether or not the weather checking should be enabled
     var disableWeather;
 
-    var widgetIDs = [configData.widget0Id, configData.widget1Id, configData.widget2Id];
+    var widgetIDs = [
+      configData.widget0Id,
+      configData.widget1Id,
+      configData.widget2Id
+    ];
+    if (configData.bottomBar) {
+      widgetIDs.push(configData.bottomBarWidget0Id, configData.bottomBarWidget1Id);
+    }
 
     // if none of the weather widgets are present, disable the weather
     if (widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1 || widgetIDs.indexOf(13) != -1) {

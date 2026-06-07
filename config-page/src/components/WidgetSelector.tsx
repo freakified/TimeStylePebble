@@ -3,7 +3,13 @@ import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
 
-const WIDGET_SETTING_KEYS = ['widget0Id', 'widget1Id', 'widget2Id'] as const;
+const WIDGET_SETTING_KEYS = [
+    'widget0Id',
+    'widget1Id',
+    'widget2Id',
+    'bottomBarWidget0Id',
+    'bottomBarWidget1Id',
+] as const;
 const WIDGET_CATEGORY_ORDER = ['General', 'Time & Date', 'Weather', 'Health'] as const;
 
 export const WidgetSelector: React.FC = () => {
@@ -74,6 +80,12 @@ export const WidgetSelector: React.FC = () => {
                         {renderSlot('Top slot', 'widget0Id')}
                         {renderSlot('Middle slot', 'widget1Id')}
                         {renderSlot('Bottom slot', 'widget2Id')}
+                        {settings.bottomBar && (
+                            <>
+                                {renderSlot('Bottom left', 'bottomBarWidget0Id')}
+                                {renderSlot('Bottom right', 'bottomBarWidget1Id')}
+                            </>
+                        )}
                     </>
                 )}
             </div>

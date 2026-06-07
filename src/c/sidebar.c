@@ -15,9 +15,13 @@
 #define V_PADDING_COMPACT 4
 #define SIDEBAR_WIDTH_DEFAULT 30
 #define SIDEBAR_WIDTH_WIDE 46
+#define BOTTOM_BAR_HEIGHT 30
+#define BOTTOM_BAR_SIDEBAR_GAP 2
+#define BOTTOM_BAR_SLOT_PADDING_X 4
 
 GRect screen_rect;
 int sidebarWidth;
+int sidebarHeight;
 
 static void update_sidebar_width() {
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
@@ -29,12 +33,27 @@ static void update_sidebar_width() {
 #else
   sidebarWidth = settings.useWideSidebar ? SIDEBAR_WIDTH_WIDE : SIDEBAR_WIDTH_DEFAULT;
 #endif
+  sidebarHeight = BOTTOM_BAR_HEIGHT;
 }
+
+#ifndef PBL_ROUND
+static GRect bottom_bar_frame() {
+  int x = settings.sidebarOnLeft ? sidebarWidth + BOTTOM_BAR_SIDEBAR_GAP : 0;
+  int width = screen_rect.size.w - sidebarWidth - BOTTOM_BAR_SIDEBAR_GAP;
+
+  if (width < 0) {
+    width = 0;
+  }
+
+  return GRect(x, screen_rect.size.h - sidebarHeight, width, sidebarHeight);
+}
+#endif
 
 // "private" functions
 // layer update callbacks
 #ifndef PBL_ROUND
 void updateRectSidebar(Layer *l, GContext *ctx);
+void updateRectBottomBar(Layer *l, GContext *ctx);
 #else
 
 void updateRoundSidebarLeft(Layer *l, GContext *ctx);
@@ -49,6 +68,8 @@ Layer *sidebarLayer;
 
 #ifdef PBL_ROUND
 Layer *sidebarLayer2;
+#else
+Layer *bottomBarLayer;
 #endif
 
 void Sidebar_init(Window *window) {
@@ -80,6 +101,10 @@ void Sidebar_init(Window *window) {
   layer_set_update_proc(sidebarLayer, updateRoundSidebarLeft);
 #else
   layer_set_update_proc(sidebarLayer, updateRectSidebar);
+  bottomBarLayer = layer_create(bottom_bar_frame());
+  layer_add_child(window_get_root_layer(window), bottomBarLayer);
+  layer_set_update_proc(bottomBarLayer, updateRectBottomBar);
+  layer_set_hidden(bottomBarLayer, !settings.useBottomBar);
 #endif
 
 #ifdef PBL_ROUND
@@ -94,6 +119,8 @@ void Sidebar_deinit() {
 
 #ifdef PBL_ROUND
   layer_destroy(sidebarLayer2);
+#else
+  layer_destroy(bottomBarLayer);
 #endif
 
   SidebarWidgets_deinit();
@@ -110,6 +137,8 @@ void Sidebar_redraw() {
     layer_set_frame(sidebarLayer,
                     GRect(0, 0, sidebarWidth, screen_rect.size.h));
   }
+  layer_set_frame(bottomBarLayer, bottom_bar_frame());
+  layer_set_hidden(bottomBarLayer, !settings.useBottomBar);
 #endif
 
   // redraw the layer
@@ -117,6 +146,10 @@ void Sidebar_redraw() {
 
 #ifdef PBL_ROUND
   layer_mark_dirty(sidebarLayer2);
+#else
+  if (settings.useBottomBar) {
+    layer_mark_dirty(bottomBarLayer);
+  }
 #endif
 }
 
@@ -340,6 +373,33 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
   GRect lowerWidgetFrame =
       GRect(0, lowerWidgetPos, sidebarWidth, widgetSizes[2].h);
   SidebarWidgets_draw(ctx, &displayWidgets[2], lowerWidgetFrame, &spec);
+}
+
+void updateRectBottomBar(Layer *l, GContext *ctx) {
+  GRect bounds = layer_get_unobstructed_bounds(l);
+  int slotWidth = bounds.size.w / 2;
+  int contentWidth = slotWidth - BOTTOM_BAR_SLOT_PADDING_X * 2;
+
+  SidebarWidgetDefinition displayWidgets[2];
+  displayWidgets[0] = getSidebarWidgetByType(settings.bottomBarWidgets[0]);
+  displayWidgets[1] = getSidebarWidgetByType(settings.bottomBarWidgets[1]);
+
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(SIDEBAR_LAYOUT_HORIZONTAL, contentWidth,
+                                    true);
+
+  graphics_context_set_fill_color(ctx, settings.sidebarColor);
+  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+
+  GRect leftWidgetFrame =
+      GRect(BOTTOM_BAR_SLOT_PADDING_X, 0, contentWidth, bounds.size.h);
+  GRect rightWidgetFrame =
+      GRect(slotWidth + BOTTOM_BAR_SLOT_PADDING_X, 0, contentWidth,
+            bounds.size.h);
+
+  SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
+  SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
 }
 
 #endif

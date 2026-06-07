@@ -2,6 +2,7 @@
 #include <pebble.h>
 
 extern int sidebarWidth;
+extern int sidebarHeight;
 
 // "public" functions
 void Sidebar_init(Window* window);

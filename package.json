@@ -64,8 +64,11 @@
       "SettingWidget0ID",
       "SettingWidget1ID",
       "SettingWidget2ID",
+      "SettingBottomBarWidget0ID",
+      "SettingBottomBarWidget1ID",
       "ConfigSnapshotRequest",
-      "SettingUseWideSidebar"
+      "SettingUseWideSidebar",
+      "SettingUseBottomBar"
     ],
     "resources": {
       "media": [
