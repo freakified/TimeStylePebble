@@ -15,7 +15,7 @@
 #define V_PADDING_COMPACT 4
 #define SIDEBAR_WIDTH_DEFAULT 30
 #define SIDEBAR_WIDTH_WIDE 46
-#define BOTTOM_BAR_HEIGHT 30
+#define BOTTOM_BAR_HEIGHT_DEFAULT 30
 #define BOTTOM_BAR_SIDEBAR_GAP 2
 #define BOTTOM_BAR_SLOT_PADDING_X 4
 #define BOTTOM_BAR_WIDGET_GAP 4
@@ -31,10 +31,11 @@ static void update_sidebar_width() {
   } else {
     sidebarWidth = settings.useLargeFonts ? 43 : 34;
   }
+  sidebarHeight = settings.useLargeFonts ? 43 : 34;
 #else
   sidebarWidth = settings.useWideSidebar ? SIDEBAR_WIDTH_WIDE : SIDEBAR_WIDTH_DEFAULT;
+  sidebarHeight = BOTTOM_BAR_HEIGHT_DEFAULT;
 #endif
-  sidebarHeight = BOTTOM_BAR_HEIGHT;
 }
 
 #ifndef PBL_ROUND
