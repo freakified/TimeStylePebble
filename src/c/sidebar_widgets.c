@@ -20,6 +20,7 @@
 #define SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN 2
 #define SIDEBAR_HORIZONTAL_STACKED_VALUE_GAP 2
 #define SIDEBAR_HORIZONTAL_STACKED_LOWER_VALUE_GAP 3
+#define SIDEBAR_TEXT_FIT_ALLOWANCE 1
 
 #define DATE_CALENDAR_DAY_TOP_PADDING 10
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING 4
@@ -406,10 +407,11 @@ static void draw_text_at_visible_top(GContext *ctx,
                                      GFont primaryFont, GFont fallbackFont,
                                      SidebarTextMetrics primaryMetrics,
                                      SidebarTextMetrics fallbackMetrics) {
-  GRect fitRect = GRect(x, visibleTop, fitWidth, primaryMetrics.height);
   GFont selectedFont = primaryFont;
   const char *text = pick_text(candidates, primaryFont, fallbackFont,
-                               fit_rect(fitRect), &selectedFont);
+                               fit_rect(GRect(x, visibleTop, fitWidth,
+                                              text_rect_height(primaryMetrics))),
+                               &selectedFont);
   SidebarTextMetrics selectedMetrics =
       (selectedFont == primaryFont) ? primaryMetrics : fallbackMetrics;
   GRect drawRect =
@@ -425,10 +427,11 @@ static void draw_text_at_visible_top_aligned(
     int width, int fitWidth, GFont primaryFont, GFont fallbackFont,
     SidebarTextMetrics primaryMetrics, SidebarTextMetrics fallbackMetrics,
     GTextAlignment alignment) {
-  GRect fitRect = GRect(x, visibleTop, fitWidth, primaryMetrics.height);
   GFont selectedFont = primaryFont;
   const char *text = pick_text(candidates, primaryFont, fallbackFont,
-                               fit_rect(fitRect), &selectedFont);
+                               fit_rect(GRect(x, visibleTop, fitWidth,
+                                              text_rect_height(primaryMetrics))),
+                               &selectedFont);
   SidebarTextMetrics selectedMetrics =
       (selectedFont == primaryFont) ? primaryMetrics : fallbackMetrics;
   GRect drawRect =
@@ -520,6 +523,27 @@ static int candidates_content_width(SidebarTextCandidates *candidates,
   return text_content_width(candidates->full, font, metrics);
 }
 
+static int candidates_fit_width(SidebarTextCandidates *candidates,
+                                GFont primaryFont,
+                                SidebarTextMetrics primaryMetrics,
+                                int maxWidth) {
+  int width = text_content_width(candidates->full, primaryFont,
+                                 primaryMetrics);
+  int fitWidth = width + SIDEBAR_TEXT_FIT_ALLOWANCE;
+  if (fitWidth <= maxWidth) {
+    return fitWidth;
+  }
+
+  width = text_content_width(candidates->compact, primaryFont,
+                             primaryMetrics);
+  fitWidth = width + SIDEBAR_TEXT_FIT_ALLOWANCE;
+  if (fitWidth <= maxWidth) {
+    return fitWidth;
+  }
+
+  return text_content_width(candidates->tiny, primaryFont, primaryMetrics);
+}
+
 static int horizontal_pair_stack_height() {
   return fontMetrics.sm.height + SIDEBAR_HORIZONTAL_STACKED_VALUE_GAP +
          SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
@@ -562,8 +586,8 @@ static int horizontal_content_width(SidebarContent *content,
     return 0;
   case SIDEBAR_CONTENT_TEXT:
     return clamp_horizontal_width(
-        candidates_content_width(&content->primary, lgSidebarFont,
-                                 fontMetrics.lg),
+        candidates_fit_width(&content->primary, lgSidebarFont, fontMetrics.lg,
+                             spec->contentWidth),
         spec);
   case SIDEBAR_CONTENT_ICON:
     return SIDEBAR_ICON_SIZE;
@@ -573,17 +597,23 @@ static int horizontal_content_width(SidebarContent *content,
             (content->isLoading
                  ? text_content_width("...", fallbackSidebarFont,
                                       fallback_current_metrics())
-                 : candidates_content_width(&content->primary,
-                                            currentSidebarFont,
-                                            fontMetrics.current)),
+                 : candidates_fit_width(
+                       &content->primary, currentSidebarFont,
+                       fontMetrics.current, spec->contentWidth -
+                                                SIDEBAR_ICON_SIZE -
+                                                horizontal_item_gap())),
         spec);
   case SIDEBAR_CONTENT_LABEL_VALUE:
     return clamp_horizontal_width(
         text_content_width(content->label, currentSidebarFont,
                            fontMetrics.current) +
             horizontal_item_gap() +
-            candidates_content_width(&content->primary, currentSidebarFont,
-                                     fontMetrics.current),
+            candidates_fit_width(
+                &content->primary, currentSidebarFont, fontMetrics.current,
+                spec->contentWidth -
+                    text_content_width(content->label, currentSidebarFont,
+                                       fontMetrics.current) -
+                    horizontal_item_gap()),
         spec);
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT: {
@@ -592,13 +622,21 @@ static int horizontal_content_width(SidebarContent *content,
     int textWidth = content->isLoading
                         ? text_content_width("...", currentSidebarFont,
                                              fontMetrics.current)
-                        : candidates_content_width(&pairText,
-                                                   currentSidebarFont,
-                                                   fontMetrics.current);
+                        : candidates_fit_width(
+                              &pairText, currentSidebarFont,
+                              fontMetrics.current,
+                              spec->contentWidth - SIDEBAR_ICON_SIZE -
+                                  horizontal_item_gap());
+    int pairTextWidth = spec->contentWidth - SIDEBAR_ICON_SIZE -
+                        horizontal_item_gap();
+    if (spec->compact) {
+      pairTextWidth = spec->contentWidth / 2 - SIDEBAR_ICON_SIZE -
+                      horizontal_item_gap();
+    }
+
     if (content->kind == SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED &&
         !content->isLoading &&
-        textWidth > spec->contentWidth - SIDEBAR_ICON_SIZE -
-                        horizontal_item_gap()) {
+        textWidth > pairTextWidth) {
       return clamp_horizontal_width(horizontal_pair_stack_width(content), spec);
     }
 
