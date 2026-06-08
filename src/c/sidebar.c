@@ -18,6 +18,7 @@
 #define BOTTOM_BAR_HEIGHT 30
 #define BOTTOM_BAR_SIDEBAR_GAP 2
 #define BOTTOM_BAR_SLOT_PADDING_X 4
+#define BOTTOM_BAR_WIDGET_GAP 4
 
 GRect screen_rect;
 int sidebarWidth;
@@ -377,8 +378,7 @@ void updateRectSidebar(Layer *l, GContext *ctx) {
 
 void updateRectBottomBar(Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
-  int slotWidth = bounds.size.w / 2;
-  int contentWidth = slotWidth - BOTTOM_BAR_SLOT_PADDING_X * 2;
+  int contentWidth = bounds.size.w - BOTTOM_BAR_SLOT_PADDING_X * 2;
 
   SidebarWidgetDefinition displayWidgets[2];
   displayWidgets[0] = getSidebarWidgetByType(settings.bottomBarWidgets[0]);
@@ -392,10 +392,40 @@ void updateRectBottomBar(Layer *l, GContext *ctx) {
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
 
+  SidebarMeasure widgetSizes[2];
+  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
+  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
+
+  int availableWidth = contentWidth;
+  int availableWidgetWidth = availableWidth - BOTTOM_BAR_WIDGET_GAP;
+  if (availableWidgetWidth < 0) {
+    availableWidgetWidth = 0;
+  }
+
+  if (widgetSizes[0].w + widgetSizes[1].w > availableWidgetWidth) {
+    int leftWidth = availableWidgetWidth / 2;
+    int rightWidth = availableWidgetWidth - leftWidth;
+
+    if (widgetSizes[0].w < leftWidth) {
+      leftWidth = widgetSizes[0].w;
+      rightWidth = availableWidgetWidth - leftWidth;
+    } else if (widgetSizes[1].w < rightWidth) {
+      rightWidth = widgetSizes[1].w;
+      leftWidth = availableWidgetWidth - rightWidth;
+    }
+
+    widgetSizes[0].w = leftWidth;
+    widgetSizes[1].w = rightWidth;
+  }
+
+  int groupWidth = widgetSizes[0].w + BOTTOM_BAR_WIDGET_GAP + widgetSizes[1].w;
+  int groupX = BOTTOM_BAR_SLOT_PADDING_X + (availableWidth - groupWidth) / 2;
+
   GRect leftWidgetFrame =
-      GRect(BOTTOM_BAR_SLOT_PADDING_X, 0, contentWidth, bounds.size.h);
+      GRect(groupX, 0, widgetSizes[0].w, bounds.size.h);
   GRect rightWidgetFrame =
-      GRect(slotWidth + BOTTOM_BAR_SLOT_PADDING_X, 0, contentWidth,
+      GRect(groupX + widgetSizes[0].w + BOTTOM_BAR_WIDGET_GAP, 0,
+            widgetSizes[1].w,
             bounds.size.h);
 
   SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
