@@ -18,6 +18,8 @@
 #define SIDEBAR_TEXT_OVERFLOW 5
 #define SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT 1
 #define SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN 2
+#define SIDEBAR_HORIZONTAL_STACKED_VALUE_GAP 1
+#define SIDEBAR_HORIZONTAL_STACKED_LOWER_VALUE_GAP 2
 
 #define DATE_CALENDAR_DAY_TOP_PADDING 10
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING 4
@@ -518,6 +520,41 @@ static int candidates_content_width(SidebarTextCandidates *candidates,
   return text_content_width(candidates->full, font, metrics);
 }
 
+static int horizontal_pair_stack_height() {
+  return fontMetrics.sm.height + SIDEBAR_HORIZONTAL_STACKED_VALUE_GAP +
+         SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+         SIDEBAR_HORIZONTAL_STACKED_LOWER_VALUE_GAP + fontMetrics.sm.height;
+}
+
+static int horizontal_pair_stack_width(SidebarContent *content) {
+  int primaryWidth =
+      text_content_width(content->primary.tiny, smSidebarFont, fontMetrics.sm);
+  int secondaryWidth =
+      text_content_width(content->secondary.tiny, smSidebarFont, fontMetrics.sm);
+  int textWidth = primaryWidth > secondaryWidth ? primaryWidth : secondaryWidth;
+  int dividerWidth = textWidth > SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN * 2
+                         ? textWidth
+                         : SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN * 2;
+
+  return SIDEBAR_ICON_SIZE + horizontal_item_gap() +
+         (textWidth > dividerWidth ? textWidth : dividerWidth);
+}
+
+static bool should_stack_horizontal_pair(SidebarContent *content, GRect frame,
+                                         SidebarRenderSpec *spec,
+                                         int textWidth) {
+  if (spec->mode != SIDEBAR_LAYOUT_HORIZONTAL || content->isLoading ||
+      textWidth < 1 || horizontal_pair_stack_height() > frame.size.h) {
+    return false;
+  }
+
+  SidebarTextCandidates pairText =
+      pair_text_candidates(&content->primary, &content->secondary);
+  GRect fitRect = fit_rect(GRect(0, 0, textWidth, fontMetrics.current.height));
+
+  return !text_fits(pairText.tiny, fallbackSidebarFont, fitRect);
+}
+
 static int horizontal_content_width(SidebarContent *content,
                                     SidebarRenderSpec *spec) {
   switch (content->kind) {
@@ -558,6 +595,13 @@ static int horizontal_content_width(SidebarContent *content,
                         : candidates_content_width(&pairText,
                                                    currentSidebarFont,
                                                    fontMetrics.current);
+    if (content->kind == SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED &&
+        !content->isLoading &&
+        textWidth > spec->contentWidth - SIDEBAR_ICON_SIZE -
+                        horizontal_item_gap()) {
+      return clamp_horizontal_width(horizontal_pair_stack_width(content), spec);
+    }
+
     return clamp_horizontal_width(
         SIDEBAR_ICON_SIZE + horizontal_item_gap() + textWidth, spec);
   }
@@ -747,6 +791,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
   if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
     SidebarTextCandidates pairText =
         pair_text_candidates(&content->primary, &content->secondary);
+    int stackHeight = horizontal_pair_stack_height();
 
     iconFrame =
         GRect(frame.origin.x,
@@ -765,6 +810,37 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
     if (content->isLoading) {
       draw_loading_text(ctx, textXPos, textTop, textWidth, currentSidebarFont,
                         fontMetrics.current);
+      return;
+    }
+
+    if (should_stack_horizontal_pair(content, frame, spec, textWidth)) {
+      int stackTop = frame.origin.y + (frame.size.h - stackHeight) / 2;
+      int dividerY = stackTop + fontMetrics.sm.height +
+                     SIDEBAR_HORIZONTAL_STACKED_VALUE_GAP;
+      int dividerWidth = textWidth - SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN * 2;
+      int dividerX = textXPos + SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN;
+
+      if (dividerWidth < 1) {
+        dividerWidth = 1;
+      }
+
+      draw_text_at_visible_top_aligned(
+          ctx, &content->primary, textXPos, stackTop, textWidth, textWidth,
+          smSidebarFont, smSidebarFont, fontMetrics.sm, fontMetrics.sm,
+          GTextAlignmentCenter);
+
+      graphics_context_set_fill_color(ctx, settings.sidebarTextColor);
+      graphics_fill_rect(ctx,
+                         GRect(dividerX, dividerY, dividerWidth,
+                               SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT),
+                         0, GCornerNone);
+
+      draw_text_at_visible_top_aligned(
+          ctx, &content->secondary, textXPos,
+          dividerY + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+              SIDEBAR_HORIZONTAL_STACKED_LOWER_VALUE_GAP,
+          textWidth, textWidth, smSidebarFont, smSidebarFont, fontMetrics.sm,
+          fontMetrics.sm, GTextAlignmentCenter);
       return;
     }
 
