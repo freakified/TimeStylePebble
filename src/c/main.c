@@ -137,7 +137,7 @@ void bluetoothStateChanged(bool newConnectionState) {
   }
 
   // if the phone was disconnected and isn't anymore, update the data
-  if(!isPhoneConnected && newConnectionState) {
+  if(!isPhoneConnected && newConnectionState && !dynamicSettings.disableWeather) {
     messaging_requestNewWeatherData();
   }
 

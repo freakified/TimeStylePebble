@@ -87,7 +87,7 @@ Pebble.addEventListener('appmessage',
   function (msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
 
-    // Check if this is a battery status update
+// Check if this is a battery status update
     if (msg.payload.battery_percent !== undefined && msg.payload.is_charging !== undefined) {
       sendBatteryToEndpoint(msg.payload.battery_percent, msg.payload.is_charging);
     }

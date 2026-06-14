@@ -19,7 +19,7 @@ int sidebarWidth;
 
 static void update_sidebar_width() {
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  sidebarWidth = settings.useLargeFonts ? 39 : 34;
+  sidebarWidth = settings.useLargeFonts ? 43 : 34;
 #else
   sidebarWidth = 30;
 #endif
