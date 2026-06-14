@@ -397,40 +397,57 @@ void updateRectBottomBar(Layer *l, GContext *ctx) {
   widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
   widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
 
-  int availableWidth = contentWidth;
-  int availableWidgetWidth = availableWidth - BOTTOM_BAR_WIDGET_GAP;
+  bool has_left = (settings.bottomBarWidgets[0] != EMPTY);
+  bool has_right = (settings.bottomBarWidgets[1] != EMPTY);
+
+  int availableWidgetWidth = contentWidth - BOTTOM_BAR_WIDGET_GAP;
   if (availableWidgetWidth < 0) {
     availableWidgetWidth = 0;
   }
 
-  if (widgetSizes[0].w + widgetSizes[1].w > availableWidgetWidth) {
-    int leftWidth = availableWidgetWidth / 2;
-    int rightWidth = availableWidgetWidth - leftWidth;
+  if (has_left && has_right) {
+    if (widgetSizes[0].w + widgetSizes[1].w > availableWidgetWidth) {
+      int leftWidth = availableWidgetWidth / 2;
+      int rightWidth = availableWidgetWidth - leftWidth;
 
-    if (widgetSizes[0].w < leftWidth) {
-      leftWidth = widgetSizes[0].w;
-      rightWidth = availableWidgetWidth - leftWidth;
-    } else if (widgetSizes[1].w < rightWidth) {
-      rightWidth = widgetSizes[1].w;
-      leftWidth = availableWidgetWidth - rightWidth;
+      if (widgetSizes[0].w < leftWidth) {
+        leftWidth = widgetSizes[0].w;
+        rightWidth = availableWidgetWidth - leftWidth;
+      } else if (widgetSizes[1].w < rightWidth) {
+        rightWidth = widgetSizes[1].w;
+        leftWidth = availableWidgetWidth - rightWidth;
+      }
+
+      widgetSizes[0].w = leftWidth;
+      widgetSizes[1].w = rightWidth;
     }
 
-    widgetSizes[0].w = leftWidth;
-    widgetSizes[1].w = rightWidth;
+    int totalSpace = bounds.size.w - widgetSizes[0].w - widgetSizes[1].w;
+    int space0 = totalSpace / 3;
+    int space1 = (totalSpace - space0) / 2;
+    int leftX = space0;
+    int rightX = leftX + widgetSizes[0].w + space1;
+
+    GRect leftWidgetFrame = GRect(leftX, 0, widgetSizes[0].w, bounds.size.h);
+    GRect rightWidgetFrame = GRect(rightX, 0, widgetSizes[1].w, bounds.size.h);
+
+    SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
+    SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
+  } else if (has_left) {
+    if (widgetSizes[0].w > contentWidth) {
+      widgetSizes[0].w = contentWidth;
+    }
+    int leftX = (bounds.size.w - widgetSizes[0].w) / 2;
+    GRect leftWidgetFrame = GRect(leftX, 0, widgetSizes[0].w, bounds.size.h);
+    SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
+  } else if (has_right) {
+    if (widgetSizes[1].w > contentWidth) {
+      widgetSizes[1].w = contentWidth;
+    }
+    int rightX = (bounds.size.w - widgetSizes[1].w) / 2;
+    GRect rightWidgetFrame = GRect(rightX, 0, widgetSizes[1].w, bounds.size.h);
+    SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
   }
-
-  int groupWidth = widgetSizes[0].w + BOTTOM_BAR_WIDGET_GAP + widgetSizes[1].w;
-  int groupX = BOTTOM_BAR_SLOT_PADDING_X + (availableWidth - groupWidth) / 2;
-
-  GRect leftWidgetFrame =
-      GRect(groupX, 0, widgetSizes[0].w, bounds.size.h);
-  GRect rightWidgetFrame =
-      GRect(groupX + widgetSizes[0].w + BOTTOM_BAR_WIDGET_GAP, 0,
-            widgetSizes[1].w,
-            bounds.size.h);
-
-  SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
-  SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
 }
 
 #endif
