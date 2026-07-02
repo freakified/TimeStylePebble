@@ -96,21 +96,21 @@ export const SettingsPage: React.FC = () => {
   const getNightSavedTheme = () =>
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
-  const showWeatherSection =
-    settings.widget0Id === 7 || settings.widget0Id === 8 || settings.widget0Id === 13 ||
-    settings.widget1Id === 7 || settings.widget1Id === 8 || settings.widget1Id === 13 ||
-    settings.widget2Id === 7 || settings.widget2Id === 8 || settings.widget2Id === 13 ||
-    (settings.bottomBar && (
-      settings.bottomBarWidget0Id === 7 || settings.bottomBarWidget0Id === 8 || settings.bottomBarWidget0Id === 13 ||
-      settings.bottomBarWidget1Id === 7 || settings.bottomBarWidget1Id === 8 || settings.bottomBarWidget1Id === 13
-    ));
+  const sidebarWidgetIds = [
+    settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id,
+  ];
+  const activeWidgetIds = settings.bottomBar
+    ? sidebarWidgetIds.concat([
+        settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
+        settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
+      ])
+    : sidebarWidgetIds;
 
-  const showAltClockSection =
-    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3 ||
-    (settings.bottomBar && (settings.bottomBarWidget0Id === 3 || settings.bottomBarWidget1Id === 3));
+  const showWeatherSection = activeWidgetIds.some((id) => id === 7 || id === 8 || id === 13);
 
-  const showHealthSection =
-    settings.widget0Id === 3 || settings.widget1Id === 3 || settings.widget2Id === 3;
+  const showAltClockSection = activeWidgetIds.some((id) => id === 3);
+
+  const showHealthSection = sidebarWidgetIds.some((id) => id === 3);
 
 
   return (

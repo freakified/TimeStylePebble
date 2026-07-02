@@ -37,9 +37,26 @@ void Settings_loadFromStorage() {
   settings.sidebarColor = GColorWhite;
 #endif
 
-  settings.widgets[0] = WEATHER_CURRENT;
-  settings.widgets[1] = EMPTY;
-  settings.widgets[2] = DATE;
+  settings.vRegionEdge = REGION_EDGE_RIGHT;
+  settings.hRegionEdge = REGION_EDGE_NONE;
+  settings.hRegionStyle = HBAR_STYLE_INLINE;
+
+#ifdef PBL_ROUND
+  // round watches render the first two slots, one per arc
+  settings.vRegionSlots[0] = WEATHER_CURRENT;
+  settings.vRegionSlots[1] = DATE;
+  settings.vRegionSlots[2] = EMPTY;
+#else
+  settings.vRegionSlots[0] = WEATHER_CURRENT;
+  settings.vRegionSlots[1] = EMPTY;
+  settings.vRegionSlots[2] = DATE;
+#endif
+  settings.vRegionSlots[3] = EMPTY;
+
+  settings.hRegionSlots[0] = BATTERY_METER;
+  settings.hRegionSlots[1] = SECONDS;
+  settings.hRegionSlots[2] = EMPTY;
+  settings.hRegionSlots[3] = EMPTY;
 
   settings.activateDisconnectIcon = true;
   strncpy(settings.altclockName, "ALT", sizeof(settings.altclockName));
@@ -47,9 +64,6 @@ void Settings_loadFromStorage() {
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
   settings.useWideSidebar = false;
-  settings.useBottomBar = false;
-  settings.bottomBarWidgets[0] = BATTERY_METER;
-  settings.bottomBarWidgets[1] = SECONDS;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
@@ -78,11 +92,25 @@ void Settings_updateDynamicSettings() {
   dynamicSettings.enableBeats = false;
   dynamicSettings.enableAltTimeZone = false;
 
-  int widgetCount = settings.useBottomBar ? 5 : 3;
+  // scan the widget slots that can actually render
+#ifdef PBL_ROUND
+  int vSlotCount = 2;
+#else
+  int vSlotCount = VREGION_SLOT_CAP;
+#endif
+  int hSlotCount = 0;
 
-  for (int i = 0; i < widgetCount; i++) {
-    SidebarWidgetType widget = i < 3 ? settings.widgets[i]
-                                     : settings.bottomBarWidgets[i - 3];
+  if (settings.hRegionEdge != REGION_EDGE_NONE) {
+    hSlotCount = (settings.hRegionStyle == HBAR_STYLE_STACKED)
+                     ? HREGION_SLOT_CAP_STACKED
+                     : HREGION_SLOT_CAP_INLINE;
+  }
+
+  for (int i = 0; i < vSlotCount + hSlotCount; i++) {
+    SidebarWidgetType widget =
+        (SidebarWidgetType)(i < vSlotCount
+                                ? settings.vRegionSlots[i]
+                                : settings.hRegionSlots[i - vSlotCount]);
 
     // if there are any weather widgets, enable weather checking
     if (widget == WEATHER_CURRENT ||

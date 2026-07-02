@@ -7,8 +7,11 @@ const WIDGET_SETTING_KEYS = [
     'widget0Id',
     'widget1Id',
     'widget2Id',
+    'widget3Id',
     'bottomBarWidget0Id',
     'bottomBarWidget1Id',
+    'bottomBarWidget2Id',
+    'bottomBarWidget3Id',
 ] as const;
 const WIDGET_CATEGORY_ORDER = ['General', 'Time & Date', 'Weather', 'Health'] as const;
 
@@ -73,7 +76,7 @@ export const WidgetSelector: React.FC = () => {
                 {capabilities.ROUND ? (
                     <>
                         {renderSlot('Left slot', 'widget0Id')}
-                        {renderSlot('Right slot', 'widget2Id')}
+                        {renderSlot('Right slot', 'widget1Id')}
                     </>
                 ) : (
                     <>

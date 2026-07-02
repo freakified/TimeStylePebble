@@ -15,7 +15,6 @@
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "aplite",
       "basalt",
       "chalk",
       "diorite",
@@ -68,7 +67,12 @@
       "SettingBottomBarWidget1ID",
       "ConfigSnapshotRequest",
       "SettingUseWideSidebar",
-      "SettingUseBottomBar"
+      "SettingUseBottomBar",
+      "SettingWidget3ID",
+      "SettingBottomBarWidget2ID",
+      "SettingBottomBarWidget3ID",
+      "SettingBottomBarStyle",
+      "SettingBottomBarOnTop"
     ],
     "resources": {
       "media": [

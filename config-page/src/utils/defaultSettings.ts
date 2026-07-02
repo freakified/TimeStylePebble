@@ -14,10 +14,13 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // Widget slots
   widget0Id: 7,  // Current Weather
-  widget1Id: 0,  // Empty
-  widget2Id: 4,  // Today's Date
+  widget1Id: capabilities.ROUND ? 4 : 0,  // Date on round arcs, else Empty
+  widget2Id: capabilities.ROUND ? 0 : 4,  // Today's Date (rect)
+  widget3Id: 0,  // Empty
   bottomBarWidget0Id: 2,  // Battery
   bottomBarWidget1Id: 5,  // Seconds
+  bottomBarWidget2Id: 0,  // Empty
+  bottomBarWidget3Id: 0,  // Empty
 
   // General
   languageId: 0,
@@ -27,6 +30,8 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   largeSidebarFont: false,
   wideSidebar: false,
   bottomBar: false,
+  bottomBarStyle: 'inline',
+  bottomBarPosition: 'bottom',
   decimalSeparator: '.',
 
   // Bluetooth

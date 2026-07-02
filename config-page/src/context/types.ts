@@ -46,11 +46,14 @@ export interface Settings {
   // 0=Empty, 2=Battery, 3=Alt TZ, 4=Date, 5=Seconds, 6=Week Number,
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
   // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index
-  widget0Id: number;  // top slot (rect) or left slot (round)
-  widget1Id: number;  // middle slot (rect only)
-  widget2Id: number;  // bottom slot (rect) or right slot (round)
-  bottomBarWidget0Id: number;  // bottom bar left slot (rect only)
-  bottomBarWidget1Id: number;  // bottom bar right slot (rect only)
+  widget0Id: number;  // first sidebar slot (top on rect, left arc on round)
+  widget1Id: number;  // second sidebar slot (right arc on round)
+  widget2Id: number;  // third sidebar slot (rect only)
+  widget3Id: number;  // fourth sidebar slot (emery only)
+  bottomBarWidget0Id: number;  // bar slot 1 (rect only)
+  bottomBarWidget1Id: number;  // bar slot 2 (rect only)
+  bottomBarWidget2Id: number;  // bar slot 3 (stacked bars only)
+  bottomBarWidget3Id: number;  // bar slot 4 (stacked bars only)
 
   // General display
   languageId: number;
@@ -60,6 +63,8 @@ export interface Settings {
   largeSidebarFont: boolean;
   wideSidebar: boolean;
   bottomBar: boolean;
+  bottomBarStyle: 'inline' | 'stacked';
+  bottomBarPosition: 'bottom' | 'top';
   decimalSeparator: '.' | ',';
 
   // Bluetooth

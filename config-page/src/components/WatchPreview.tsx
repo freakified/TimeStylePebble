@@ -359,7 +359,7 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
 
                     {/* Widgets */}
                     {renderWidgetPreview(effectiveSettings.widget0Id, effectiveSettings, 20, 90, 28, sidebarColor, textColor)}
-                    {renderWidgetPreview(effectiveSettings.widget2Id, effectiveSettings, 160, 90, 28, sidebarColor, textColor)}
+                    {renderWidgetPreview(effectiveSettings.widget1Id, effectiveSettings, 160, 90, 28, sidebarColor, textColor)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {

@@ -40,26 +40,33 @@ static void sidebar_buildRegions(void) {
       .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
       .thickness = ROUND_ARC_WIDTH,
       .slotCount = 2,
-      .slots = {settings.widgets[0], settings.widgets[2], EMPTY, EMPTY},
+      .slots = {(SidebarWidgetType)settings.vRegionSlots[0],
+                (SidebarWidgetType)settings.vRegionSlots[1], EMPTY, EMPTY},
   };
 #else
   vRegion = (SidebarRegion){
-      .edge = settings.sidebarOnLeft ? REGION_EDGE_LEFT : REGION_EDGE_RIGHT,
+      .edge = (settings.vRegionEdge == REGION_EDGE_LEFT) ? REGION_EDGE_LEFT
+                                                         : REGION_EDGE_RIGHT,
       .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
       .thickness = settings.useWideSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
+      // NOTE: clamped to 3 until the tall-bar/4-slot feature pass lands
       .slotCount = 3,
-      .slots = {settings.widgets[0], settings.widgets[1], settings.widgets[2],
-                EMPTY},
+      .slots = {(SidebarWidgetType)settings.vRegionSlots[0],
+                (SidebarWidgetType)settings.vRegionSlots[1],
+                (SidebarWidgetType)settings.vRegionSlots[2], EMPTY},
   };
   hRegion = (SidebarRegion){
-      .edge = settings.useBottomBar ? REGION_EDGE_BOTTOM : REGION_EDGE_NONE,
+      // NOTE: TOP and STACKED are clamped to BOTTOM/INLINE until the
+      // tall-bar feature pass lands
+      .edge = (settings.hRegionEdge == REGION_EDGE_NONE) ? REGION_EDGE_NONE
+                                                         : REGION_EDGE_BOTTOM,
       .widgetMode = SIDEBAR_LAYOUT_HORIZONTAL,
       .thickness = HBAR_HEIGHT_INLINE(settings.useLargeFonts),
       .slotCount = 2,
-      .slots = {settings.bottomBarWidgets[0], settings.bottomBarWidgets[1],
-                EMPTY, EMPTY},
+      .slots = {(SidebarWidgetType)settings.hRegionSlots[0],
+                (SidebarWidgetType)settings.hRegionSlots[1], EMPTY, EMPTY},
   };
 #endif
 }

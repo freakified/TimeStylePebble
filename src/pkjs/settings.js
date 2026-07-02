@@ -74,8 +74,11 @@ function settingsFromWatchPayload(payload) {
     widget0Id: getNumber(payload.SettingWidget0ID, 7),
     widget1Id: getNumber(payload.SettingWidget1ID, 0),
     widget2Id: getNumber(payload.SettingWidget2ID, 4),
+    widget3Id: getNumber(payload.SettingWidget3ID, 0),
     bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 2),
     bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 5),
+    bottomBarWidget2Id: getNumber(payload.SettingBottomBarWidget2ID, 0),
+    bottomBarWidget3Id: getNumber(payload.SettingBottomBarWidget3ID, 0),
 
     languageId: getNumber(payload.SettingLanguageID, 0),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
@@ -84,6 +87,8 @@ function settingsFromWatchPayload(payload) {
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
     bottomBar: getBoolean(payload.SettingUseBottomBar),
+    bottomBarStyle: getBoolean(payload.SettingBottomBarStyle) ? 'stacked' : 'inline',
+    bottomBarPosition: getBoolean(payload.SettingBottomBarOnTop) ? 'top' : 'bottom',
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -155,6 +160,26 @@ function settingsToWatchPayload(configData) {
   dict.SettingWidget2ID = configData.widget2Id;
   dict.SettingBottomBarWidget0ID = configData.bottomBarWidget0Id;
   dict.SettingBottomBarWidget1ID = configData.bottomBarWidget1Id;
+
+  if (configData.widget3Id !== undefined) {
+    dict.SettingWidget3ID = configData.widget3Id;
+  }
+
+  if (configData.bottomBarWidget2Id !== undefined) {
+    dict.SettingBottomBarWidget2ID = configData.bottomBarWidget2Id;
+  }
+
+  if (configData.bottomBarWidget3Id !== undefined) {
+    dict.SettingBottomBarWidget3ID = configData.bottomBarWidget3Id;
+  }
+
+  if (configData.bottomBarStyle !== undefined) {
+    dict.SettingBottomBarStyle = configData.bottomBarStyle === 'stacked' ? 1 : 0;
+  }
+
+  if (configData.bottomBarPosition !== undefined) {
+    dict.SettingBottomBarOnTop = configData.bottomBarPosition === 'top' ? 1 : 0;
+  }
 
   if (configData.sidebarPosition) {
     dict.SettingSidebarOnLeft = configData.sidebarPosition == 'right' ? 0 : 1;

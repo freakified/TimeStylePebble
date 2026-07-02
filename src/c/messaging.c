@@ -38,15 +38,20 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingClockFontId, settings.clockFontId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBluetoothVibe, settings.btVibe ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHourlyVibe, settings.hourlyVibe);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget0ID, settings.widgets[0]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget1ID, settings.widgets[1]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget2ID, settings.widgets[2]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget0ID, settings.bottomBarWidgets[0]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.bottomBarWidgets[1]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.sidebarOnLeft ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget0ID, settings.vRegionSlots[0]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget1ID, settings.vRegionSlots[1]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget2ID, settings.vRegionSlots[2]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget3ID, settings.vRegionSlots[3]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget0ID, settings.hRegionSlots[0]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.hRegionSlots[1]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget2ID, settings.hRegionSlots[2]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget3ID, settings.hRegionSlots[3]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.vRegionEdge == REGION_EDGE_LEFT ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingUseBottomBar, settings.useBottomBar ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUseBottomBar, settings.hRegionEdge != REGION_EDGE_NONE ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarOnTop, settings.hRegionEdge == REGION_EDGE_TOP ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarStyle, settings.hRegionStyle);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
@@ -148,8 +153,13 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
   Tuple *widget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget2ID);
+  Tuple *widget3Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget3ID);
   Tuple *bottomBarWidget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget0ID);
   Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
+  Tuple *bottomBarWidget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget2ID);
+  Tuple *bottomBarWidget3Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget3ID);
+  Tuple *bottomBarOnTop_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarOnTop);
+  Tuple *bottomBarStyle_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarStyle);
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
@@ -181,7 +191,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(sidebarPos_tuple != NULL) {
-    settings.sidebarOnLeft = (bool)sidebarPos_tuple->value->int8;
+    settings.vRegionEdge = sidebarPos_tuple->value->int8 ? REGION_EDGE_LEFT
+                                                         : REGION_EDGE_RIGHT;
   }
 
   if(useMetric_tuple != NULL) {
@@ -216,8 +227,31 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.useWideSidebar = (bool)useWideSidebar_tuple->value->int8;
   }
 
-  if(useBottomBar_tuple != NULL) {
-    settings.useBottomBar = (bool)useBottomBar_tuple->value->int8;
+  // the bar's on/off and top/bottom state both live in hRegionEdge, so
+  // resolve the desired edge before applying either tuple
+  {
+    bool barOnTop = (settings.hRegionEdge == REGION_EDGE_TOP);
+    bool barEnabled = (settings.hRegionEdge != REGION_EDGE_NONE);
+
+    if(bottomBarOnTop_tuple != NULL) {
+      barOnTop = (bool)bottomBarOnTop_tuple->value->int8;
+    }
+
+    if(useBottomBar_tuple != NULL) {
+      barEnabled = (bool)useBottomBar_tuple->value->int8;
+    }
+
+    if(useBottomBar_tuple != NULL || bottomBarOnTop_tuple != NULL) {
+      settings.hRegionEdge = !barEnabled ? REGION_EDGE_NONE
+                             : barOnTop  ? REGION_EDGE_TOP
+                                         : REGION_EDGE_BOTTOM;
+    }
+  }
+
+  if(bottomBarStyle_tuple != NULL) {
+    settings.hRegionStyle = bottomBarStyle_tuple->value->int8
+                                ? HBAR_STYLE_STACKED
+                                : HBAR_STYLE_INLINE;
   }
 
   if(hourlyVibe_tuple != NULL) {
@@ -229,23 +263,35 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   }
 
   if(widget0Id_tuple != NULL) {
-    settings.widgets[0] = widget0Id_tuple->value->int8;
+    settings.vRegionSlots[0] = widget0Id_tuple->value->int8;
   }
 
   if(widget1Id_tuple != NULL) {
-    settings.widgets[1] = widget1Id_tuple->value->int8;
+    settings.vRegionSlots[1] = widget1Id_tuple->value->int8;
   }
 
   if(widget2Id_tuple != NULL) {
-    settings.widgets[2] = widget2Id_tuple->value->int8;
+    settings.vRegionSlots[2] = widget2Id_tuple->value->int8;
+  }
+
+  if(widget3Id_tuple != NULL) {
+    settings.vRegionSlots[3] = widget3Id_tuple->value->int8;
   }
 
   if(bottomBarWidget0Id_tuple != NULL) {
-    settings.bottomBarWidgets[0] = bottomBarWidget0Id_tuple->value->int8;
+    settings.hRegionSlots[0] = bottomBarWidget0Id_tuple->value->int8;
   }
 
   if(bottomBarWidget1Id_tuple != NULL) {
-    settings.bottomBarWidgets[1] = bottomBarWidget1Id_tuple->value->int8;
+    settings.hRegionSlots[1] = bottomBarWidget1Id_tuple->value->int8;
+  }
+
+  if(bottomBarWidget2Id_tuple != NULL) {
+    settings.hRegionSlots[2] = bottomBarWidget2Id_tuple->value->int8;
+  }
+
+  if(bottomBarWidget3Id_tuple != NULL) {
+    settings.hRegionSlots[3] = bottomBarWidget3Id_tuple->value->int8;
   }
 
   if(altclockName_tuple != NULL) {

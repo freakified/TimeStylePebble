@@ -125,10 +125,16 @@ Pebble.addEventListener('webviewclosed', function (e) {
     var widgetIDs = [
       configData.widget0Id,
       configData.widget1Id,
-      configData.widget2Id
+      configData.widget2Id,
+      configData.widget3Id
     ];
     if (configData.bottomBar) {
-      widgetIDs.push(configData.bottomBarWidget0Id, configData.bottomBarWidget1Id);
+      widgetIDs.push(
+        configData.bottomBarWidget0Id,
+        configData.bottomBarWidget1Id,
+        configData.bottomBarWidget2Id,
+        configData.bottomBarWidget3Id
+      );
     }
 
     // if none of the weather widgets are present, disable the weather

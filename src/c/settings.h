@@ -1,8 +1,9 @@
 #pragma once
 #include <pebble.h>
+#include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 11
+#define CURRENT_SETTINGS_VERSION 12
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -39,10 +40,8 @@ typedef struct {
   VibeIntervalType hourlyVibe;
 
   // sidebar settings
-  SidebarWidgetType widgets[3];
-  bool sidebarOnLeft;
   bool useLargeFonts;
-  bool activateDisconnectIcon;
+  bool activateDisconnectIcon; // dormant: for the future status widget
   
   // weather widget settings
   bool useMetric;
@@ -60,10 +59,16 @@ typedef struct {
   bool healthUseRestfulSleep;
   char decimalSeparator;
 
-  // sidebar layout settings
+  // sidebar region settings (v12: replaced the legacy widgets[3] /
+  // bottomBarWidgets[2] / sidebarOnLeft / useBottomBar fields; old
+  // persisted blobs are NOT translated yet -- a migration system for
+  // pre-v12 settings comes later)
   bool useWideSidebar;
-  bool useBottomBar;
-  SidebarWidgetType bottomBarWidgets[2];
+  uint8_t vRegionEdge;  // RegionEdge: LEFT or RIGHT
+  uint8_t hRegionEdge;  // RegionEdge: NONE, BOTTOM, or TOP
+  uint8_t hRegionStyle; // HBarStyle
+  uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
+  uint8_t hRegionSlots[MAX_REGION_SLOTS];
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
