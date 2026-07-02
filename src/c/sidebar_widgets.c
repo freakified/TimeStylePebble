@@ -317,7 +317,7 @@ static int render_width(SidebarRenderSpec *spec) {
 }
 
 static int text_fit_width(SidebarRenderSpec *spec, int textWidth) {
-  return spec->mode == SIDEBAR_LAYOUT_HORIZONTAL ? textWidth
+  return spec->mode == SIDEBAR_LAYOUT_INLINE ? textWidth
                                                  : spec->contentWidth;
 }
 
@@ -567,7 +567,7 @@ static int horizontal_pair_stack_width(SidebarContent *content) {
 static bool should_stack_horizontal_pair(SidebarContent *content, GRect frame,
                                          SidebarRenderSpec *spec,
                                          int textWidth) {
-  if (spec->mode != SIDEBAR_LAYOUT_HORIZONTAL || content->isLoading ||
+  if (spec->mode != SIDEBAR_LAYOUT_INLINE || content->isLoading ||
       textWidth < 1 || horizontal_pair_stack_height() > frame.size.h) {
     return false;
   }
@@ -664,14 +664,14 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     height = SIDEBAR_ICON_SIZE;
     break;
   case SIDEBAR_CONTENT_ICON_VALUE:
-    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE : textHeight;
     } else {
       height = SIDEBAR_ICON_SIZE + icon_text_gap(spec) + textHeight;
     }
     break;
   case SIDEBAR_CONTENT_LABEL_VALUE:
-    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = textHeight;
     } else {
       height = basic_padding_top(spec) + small_text_height() +
@@ -679,7 +679,7 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     }
     break;
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
-    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE : textHeight;
     } else {
       height = SIDEBAR_ICON_SIZE + icon_text_gap(spec) + single_text_height() +
@@ -688,7 +688,7 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     }
     break;
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT:
-    if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+    if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE : textHeight;
     } else {
       height = SIDEBAR_ICON_SIZE + icon_text_gap(spec) + medium_text_height() +
@@ -702,7 +702,7 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     break;
   }
 
-  int width = spec->mode == SIDEBAR_LAYOUT_HORIZONTAL
+  int width = spec->mode == SIDEBAR_LAYOUT_INLINE
                   ? horizontal_content_width(content, spec)
                   : spec->contentWidth;
   return (SidebarMeasure){width, height};
@@ -722,7 +722,7 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
   int textTop;
   GRect iconFrame;
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     iconFrame =
         GRect(frame.origin.x,
               frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
@@ -749,7 +749,7 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
       ctx, &content->primary, textXPos, textTop, textWidth,
       text_fit_width(spec, textWidth), currentSidebarFont, fallbackSidebarFont,
       fontMetrics.current, fallback_current_metrics(),
-      spec->mode == SIDEBAR_LAYOUT_HORIZONTAL ? GTextAlignmentLeft
+      spec->mode == SIDEBAR_LAYOUT_INLINE ? GTextAlignmentLeft
                                               : GTextAlignmentCenter);
 }
 
@@ -760,7 +760,7 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
   int labelTop = frame.origin.y + basic_padding_top(spec);
   int valueTop = labelTop + fontMetrics.sm.height + basic_label_gap(spec);
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     int textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
     int labelWidth =
         text_content_width(content->label, currentSidebarFont,
@@ -797,7 +797,7 @@ static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
                                   int *textWidth, int *textTop) {
   int renderTextWidth = render_width(spec);
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     *iconFrame = GRect(frame.origin.x,
                        frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
                        SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
@@ -826,7 +826,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
                    SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT + stacked_value_gap(spec) +
                    single_text_height();
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     SidebarTextCandidates pairText =
         pair_text_candidates(&content->primary, &content->secondary);
     int stackHeight = horizontal_pair_stack_height();
@@ -936,7 +936,7 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
   int stackHeight =
       medium_text_height() + stacked_value_gap(spec) + small_text_height();
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     SidebarTextCandidates pairText =
         pair_text_candidates(&content->primary, &content->secondary);
 
@@ -1072,13 +1072,13 @@ static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
   BatteryChargeState chargeState = battery_state_service_peek();
 
   if (chargeState.is_charging || !settings.showBatteryPct) {
-    return (SidebarMeasure){spec->mode == SIDEBAR_LAYOUT_HORIZONTAL
+    return (SidebarMeasure){spec->mode == SIDEBAR_LAYOUT_INLINE
                                 ? SIDEBAR_ICON_SIZE
                                 : spec->contentWidth,
                             14};
   }
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     int textHeight = single_text_height();
     SidebarTextCandidates batteryText;
     uint8_t batteryPercent =
@@ -1107,7 +1107,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
   int textXPos;
   int textTop;
 
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     iconFrame = GRect(frame.origin.x, frame.origin.y + (frame.size.h - 14) / 2,
                       SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = frame.origin.x + SIDEBAR_ICON_SIZE + horizontal_item_gap();
@@ -1131,7 +1131,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
       ctx, &batteryText, textXPos, textTop, textWidth,
       text_fit_width(spec, textWidth), currentSidebarFont, fallbackSidebarFont,
       fontMetrics.current, fallback_current_metrics(),
-      spec->mode == SIDEBAR_LAYOUT_HORIZONTAL ? GTextAlignmentLeft
+      spec->mode == SIDEBAR_LAYOUT_INLINE ? GTextAlignmentLeft
                                               : GTextAlignmentCenter);
 }
 
@@ -1208,7 +1208,7 @@ static DateLayout date_layout(SidebarRenderSpec *spec) {
 }
 
 static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     int textHeight = single_text_height();
     int width = SIDEBAR_ICON_SIZE + horizontal_item_gap() +
                 text_content_width(currentDayName, currentSidebarFont,
@@ -1339,7 +1339,7 @@ static void draw_date_background(GContext *ctx, GRect frame) {
 
 static void date_content_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec) {
-  if (spec->mode == SIDEBAR_LAYOUT_HORIZONTAL) {
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     GRect calendarFrame =
         GRect(frame.origin.x,
               frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,

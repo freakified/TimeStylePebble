@@ -2,8 +2,8 @@
 #include <pebble.h>
 
 typedef enum {
-  SIDEBAR_LAYOUT_VERTICAL_NARROW = 0,
-  SIDEBAR_LAYOUT_HORIZONTAL = 2
+  SIDEBAR_LAYOUT_STACKED = 0,
+  SIDEBAR_LAYOUT_INLINE = 2
 } SidebarLayoutMode;
 
 typedef enum {

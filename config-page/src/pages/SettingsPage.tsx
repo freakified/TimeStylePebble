@@ -226,8 +226,36 @@ export const SettingsPage: React.FC = () => {
         {capabilities.RECT && (
           <Toggle
             label="Use bottom bar"
-            description="Show two horizontal widgets along the bottom of the screen"
+            description="Show a horizontal widget bar at the edge of the screen"
             messageKey="bottomBar"
+          />
+        )}
+        {capabilities.RECT && settings.bottomBar && (
+          <SelectCards
+            label="Bar style"
+            messageKey="bottomBarStyle"
+            options={[
+              { label: 'Inline', value: 'inline' },
+              { label: 'Tall', value: 'stacked' },
+            ]}
+            optionSettings={{
+              inline: { bottomBarStyle: 'inline' },
+              stacked: { bottomBarStyle: 'stacked' },
+            }}
+          />
+        )}
+        {capabilities.RECT && settings.bottomBar && (
+          <SelectCards
+            label="Bar position"
+            messageKey="bottomBarPosition"
+            options={[
+              { label: 'Top', value: 'top' },
+              { label: 'Bottom', value: 'bottom' },
+            ]}
+            optionSettings={{
+              top: { bottomBarPosition: 'top' },
+              bottom: { bottomBarPosition: 'bottom' },
+            }}
           />
         )}
         {capabilities.RECT && (

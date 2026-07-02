@@ -15,8 +15,8 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   // Widget slots
   widget0Id: 7,  // Current Weather
   widget1Id: capabilities.ROUND ? 4 : 0,  // Date on round arcs, else Empty
-  widget2Id: capabilities.ROUND ? 0 : 4,  // Today's Date (rect)
-  widget3Id: 0,  // Empty
+  widget2Id: capabilities.ROUND || capabilities.EMERY ? 0 : 4,  // Today's Date
+  widget3Id: capabilities.EMERY ? 4 : 0,  // Date pins to emery's 4th slot
   bottomBarWidget0Id: 2,  // Battery
   bottomBarWidget1Id: 5,  // Seconds
   bottomBarWidget2Id: 0,  // Empty

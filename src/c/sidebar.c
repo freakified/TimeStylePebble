@@ -37,7 +37,7 @@ static void sidebar_buildRegions(void) {
   vRegion = (SidebarRegion){
       // arcs draw on top of the clock area, so they reserve no edge
       .edge = REGION_EDGE_NONE,
-      .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
+      .widgetMode = SIDEBAR_LAYOUT_STACKED,
       .thickness = ROUND_ARC_WIDTH,
       .slotCount = 2,
       .slots = {(SidebarWidgetType)settings.vRegionSlots[0],
@@ -47,27 +47,35 @@ static void sidebar_buildRegions(void) {
   vRegion = (SidebarRegion){
       .edge = (settings.vRegionEdge == REGION_EDGE_LEFT) ? REGION_EDGE_LEFT
                                                          : REGION_EDGE_RIGHT,
-      .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
+      .widgetMode = SIDEBAR_LAYOUT_STACKED,
       .thickness = settings.useWideSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
-      // NOTE: clamped to 3 until the tall-bar/4-slot feature pass lands
-      .slotCount = 3,
-      .slots = {(SidebarWidgetType)settings.vRegionSlots[0],
-                (SidebarWidgetType)settings.vRegionSlots[1],
-                (SidebarWidgetType)settings.vRegionSlots[2], EMPTY},
+      .slotCount = VREGION_SLOT_CAP,
   };
+
+  for (int i = 0; i < VREGION_SLOT_CAP; i++) {
+    vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
+  }
+
+  bool stacked = (settings.hRegionStyle == HBAR_STYLE_STACKED);
+  RegionEdge hEdge = (RegionEdge)settings.hRegionEdge;
+
+  if (hEdge != REGION_EDGE_TOP && hEdge != REGION_EDGE_BOTTOM) {
+    hEdge = REGION_EDGE_NONE;
+  }
+
   hRegion = (SidebarRegion){
-      // NOTE: TOP and STACKED are clamped to BOTTOM/INLINE until the
-      // tall-bar feature pass lands
-      .edge = (settings.hRegionEdge == REGION_EDGE_NONE) ? REGION_EDGE_NONE
-                                                         : REGION_EDGE_BOTTOM,
-      .widgetMode = SIDEBAR_LAYOUT_HORIZONTAL,
-      .thickness = HBAR_HEIGHT_INLINE(settings.useLargeFonts),
-      .slotCount = 2,
-      .slots = {(SidebarWidgetType)settings.hRegionSlots[0],
-                (SidebarWidgetType)settings.hRegionSlots[1], EMPTY, EMPTY},
+      .edge = hEdge,
+      .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
+      .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
+                           : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
+      .slotCount = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE,
   };
+
+  for (int i = 0; i < hRegion.slotCount; i++) {
+    hRegion.slots[i] = (SidebarWidgetType)settings.hRegionSlots[i];
+  }
 #endif
 }
 
@@ -292,6 +300,51 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   }
 }
 
+/*
+ * Stacked bar flow: EMPTY slots are dropped, the bar is split into equal
+ * columns, and each widget renders in the stacked (sidebar-style) layout
+ * centered within its column.
+ */
+static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
+                                    GContext *ctx) {
+  GRect bounds = layer_get_unobstructed_bounds(l);
+
+  SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
+  int visibleCount = 0;
+
+  for (int i = 0; i < r->slotCount; i++) {
+    if (r->slots[i] == EMPTY) {
+      continue;
+    }
+    widgets[visibleCount] = getSidebarWidgetByType(r->slots[i]);
+    visibleCount++;
+  }
+
+  if (visibleCount == 0) {
+    return;
+  }
+
+  int usableWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
+  int columnWidth = usableWidth / visibleCount;
+
+  // bars are short, so widgets always render in their compact form
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(r->widgetMode, columnWidth, true);
+
+  SidebarMeasure sizes[MAX_REGION_SLOTS];
+
+  for (int i = 0; i < visibleCount; i++) {
+    sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+  }
+
+  for (int i = 0; i < visibleCount; i++) {
+    int x = HBAR_SLOT_PADDING_X + columnWidth * i;
+    int y = (bounds.size.h - sizes[i].h) / 2;
+    GRect frame = GRect(x, y, columnWidth, sizes[i].h);
+    SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
+  }
+}
+
 static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
   if (r->edge == REGION_EDGE_NONE) {
     return;
@@ -302,7 +355,11 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
   graphics_context_set_text_color(ctx, settings.sidebarTextColor);
 
   if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
-    render_horizontal_flow(r, l, ctx);
+    if (r->widgetMode == SIDEBAR_LAYOUT_STACKED) {
+      render_stacked_bar_flow(r, l, ctx);
+    } else {
+      render_horizontal_flow(r, l, ctx);
+    }
   } else {
     render_vertical_flow(r, l, ctx);
   }

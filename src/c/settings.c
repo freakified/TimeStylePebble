@@ -46,12 +46,19 @@ void Settings_loadFromStorage() {
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
   settings.vRegionSlots[2] = EMPTY;
+  settings.vRegionSlots[3] = EMPTY;
+#elif VREGION_SLOT_CAP == 4
+  // the last rendered slot pins to the bottom of the sidebar
+  settings.vRegionSlots[0] = WEATHER_CURRENT;
+  settings.vRegionSlots[1] = EMPTY;
+  settings.vRegionSlots[2] = EMPTY;
+  settings.vRegionSlots[3] = DATE;
 #else
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = EMPTY;
   settings.vRegionSlots[2] = DATE;
-#endif
   settings.vRegionSlots[3] = EMPTY;
+#endif
 
   settings.hRegionSlots[0] = BATTERY_METER;
   settings.hRegionSlots[1] = SECONDS;

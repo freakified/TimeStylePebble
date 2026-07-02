@@ -128,12 +128,12 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
-  time_pos.y = INT_TO_FIXED(v_padding + v_adjust);
+  time_pos.y = INT_TO_FIXED(bounds.origin.y + v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
 
   //draw minutes
-  time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding + v_adjust);
+  time_pos.y = INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
   fctx_end_fill(&fctx);

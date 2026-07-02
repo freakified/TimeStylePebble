@@ -81,12 +81,28 @@ export const WidgetSelector: React.FC = () => {
                 ) : (
                     <>
                         {renderSlot('Top slot', 'widget0Id')}
-                        {renderSlot('Middle slot', 'widget1Id')}
-                        {renderSlot('Bottom slot', 'widget2Id')}
+                        {capabilities.EMERY ? (
+                            <>
+                                {renderSlot('Upper middle slot', 'widget1Id')}
+                                {renderSlot('Lower middle slot', 'widget2Id')}
+                                {renderSlot('Bottom slot', 'widget3Id')}
+                            </>
+                        ) : (
+                            <>
+                                {renderSlot('Middle slot', 'widget1Id')}
+                                {renderSlot('Bottom slot', 'widget2Id')}
+                            </>
+                        )}
                         {settings.bottomBar && (
                             <>
-                                {renderSlot('Bottom left', 'bottomBarWidget0Id')}
-                                {renderSlot('Bottom right', 'bottomBarWidget1Id')}
+                                {renderSlot('Bar slot 1', 'bottomBarWidget0Id')}
+                                {renderSlot('Bar slot 2', 'bottomBarWidget1Id')}
+                                {settings.bottomBarStyle === 'stacked' && (
+                                    <>
+                                        {renderSlot('Bar slot 3', 'bottomBarWidget2Id')}
+                                        {renderSlot('Bar slot 4', 'bottomBarWidget3Id')}
+                                    </>
+                                )}
                             </>
                         )}
                     </>
