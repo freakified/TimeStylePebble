@@ -59,9 +59,17 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #ifdef PBL_ROUND
     bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, screen_rect.size.h - ROUND_VERTICAL_PADDING * 2);
   #else
-    if (settings.useBottomBar) {
-      bounds = GRect(0, 0, screen_rect.size.w, screen_rect.size.h - sidebarHeight);
+    // reserve space for top/bottom sidebar regions, combining with any
+    // system obstruction (timeline quick view) already in the bounds
+    int top = bounds.origin.y + Sidebar_reservedTop();
+    int bottom = bounds.origin.y + bounds.size.h;
+    int bottomLimit = screen_rect.size.h - Sidebar_reservedBottom();
+
+    if (bottom > bottomLimit) {
+      bottom = bottomLimit;
     }
+
+    bounds = GRect(bounds.origin.x, top, bounds.size.w, bottom - top);
   #endif
 
   // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use
@@ -106,10 +114,10 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     }
   #else
     // for rectangular watches, adjust X position based on sidebar position
-    if(settings.sidebarOnLeft) {
-      h_adjust += sidebarWidth / 2;
+    if(Sidebar_verticalEdge() == REGION_EDGE_LEFT) {
+      h_adjust += Sidebar_verticalThickness() / 2;
     } else {
-      h_adjust -= sidebarWidth / 2 + 1;
+      h_adjust -= Sidebar_verticalThickness() / 2 + 1;
     }
   #endif
 

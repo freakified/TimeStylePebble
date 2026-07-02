@@ -29,7 +29,8 @@ void ClockArea_update_time(struct tm* time_info) {
 void ClockArea_redraw() {
   GColor fg = settings.timeColor;
   GColor bg = settings.timeBgColor;
-  int offset = settings.sidebarOnLeft ? sidebarWidth : 0;
+  int offset = (Sidebar_verticalEdge() == REGION_EDGE_LEFT)
+                   ? Sidebar_verticalThickness() : 0;
 
   int h_font = settings.clockFontId;
   int m_font = settings.clockFontId;

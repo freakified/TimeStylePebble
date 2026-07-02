@@ -75,7 +75,6 @@ void Settings_saveToStorage() {
 void Settings_updateDynamicSettings() {
   dynamicSettings.disableWeather = true;
   dynamicSettings.updateScreenEverySecond = false;
-  dynamicSettings.enableAutoBatteryWidget = true;
   dynamicSettings.enableBeats = false;
   dynamicSettings.enableAltTimeZone = false;
 
@@ -95,11 +94,6 @@ void Settings_updateDynamicSettings() {
     // if any widget is "seconds", we'll need to update the sidebar every second
     if (widget == SECONDS) {
       dynamicSettings.updateScreenEverySecond = true;
-    }
-
-    // if any widget is "battery", disable the automatic battery indication
-    if (widget == BATTERY_METER) {
-      dynamicSettings.enableAutoBatteryWidget = false;
     }
 
     // if any widget is "beats", enable the beats calculation

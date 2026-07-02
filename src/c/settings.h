@@ -70,7 +70,6 @@ typedef struct {
 typedef struct {
   bool disableWeather;
   bool updateScreenEverySecond;
-  bool enableAutoBatteryWidget;
   bool enableBeats;
   bool enableAltTimeZone;
   

@@ -1,156 +1,411 @@
 #include "sidebar.h"
-#include "languages.h"
 #include "settings.h"
+#include "sidebar_layout.h"
 #include "sidebar_widgets.h"
-#include "weather.h"
-#include <ctype.h>
-#include <math.h>
 #include <pebble.h>
 
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-#define V_PADDING_DEFAULT 9
+/*
+ * The sidebar is modeled as up to two edge "regions": a vertical one
+ * (left/right) and a horizontal one (top/bottom). Each region holds a list
+ * of widget slots and a widget presentation mode; a single layout engine
+ * measures, fits, and distributes the widgets along the region's main axis.
+ * Round watches present the vertical region as two arc layers instead.
+ */
+
+typedef struct {
+  RegionEdge edge;                       // NONE = disabled
+  SidebarLayoutMode widgetMode;          // how widgets present themselves
+  int thickness;                         // width (vertical) / height (horizontal)
+  int slotCount;                         // rendered cap already applied
+  SidebarWidgetType slots[MAX_REGION_SLOTS];
+} SidebarRegion;
+
+static GRect screen_rect;
+static SidebarRegion vRegion;
+
+static Layer *vRegionLayer;
+
+#ifdef PBL_ROUND
+static Layer *vRegionLayer2;
 #else
-#define V_PADDING_DEFAULT 8
+static SidebarRegion hRegion;
+static Layer *hRegionLayer;
 #endif
-#define V_PADDING_COMPACT 4
-#define SIDEBAR_WIDTH_DEFAULT 30
-#define SIDEBAR_WIDTH_WIDE 46
-#define BOTTOM_BAR_HEIGHT_DEFAULT 30
-#define BOTTOM_BAR_SIDEBAR_GAP 2
-#define BOTTOM_BAR_SLOT_PADDING_X 4
-#define BOTTOM_BAR_WIDGET_GAP 4
 
-GRect screen_rect;
-int sidebarWidth;
-int sidebarHeight;
-
-static void update_sidebar_width() {
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  if (settings.useWideSidebar) {
-    sidebarWidth = settings.useLargeFonts ? 58 : 52;
-  } else {
-    sidebarWidth = settings.useLargeFonts ? 43 : 34;
-  }
-  sidebarHeight = settings.useLargeFonts ? 43 : 34;
+static void sidebar_buildRegions(void) {
+#ifdef PBL_ROUND
+  vRegion = (SidebarRegion){
+      // arcs draw on top of the clock area, so they reserve no edge
+      .edge = REGION_EDGE_NONE,
+      .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
+      .thickness = ROUND_ARC_WIDTH,
+      .slotCount = 2,
+      .slots = {settings.widgets[0], settings.widgets[2], EMPTY, EMPTY},
+  };
 #else
-  sidebarWidth = settings.useWideSidebar ? SIDEBAR_WIDTH_WIDE : SIDEBAR_WIDTH_DEFAULT;
-  sidebarHeight = BOTTOM_BAR_HEIGHT_DEFAULT;
+  vRegion = (SidebarRegion){
+      .edge = settings.sidebarOnLeft ? REGION_EDGE_LEFT : REGION_EDGE_RIGHT,
+      .widgetMode = SIDEBAR_LAYOUT_VERTICAL_NARROW,
+      .thickness = settings.useWideSidebar
+                       ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
+                       : VBAR_WIDTH_NARROW(settings.useLargeFonts),
+      .slotCount = 3,
+      .slots = {settings.widgets[0], settings.widgets[1], settings.widgets[2],
+                EMPTY},
+  };
+  hRegion = (SidebarRegion){
+      .edge = settings.useBottomBar ? REGION_EDGE_BOTTOM : REGION_EDGE_NONE,
+      .widgetMode = SIDEBAR_LAYOUT_HORIZONTAL,
+      .thickness = HBAR_HEIGHT_INLINE(settings.useLargeFonts),
+      .slotCount = 2,
+      .slots = {settings.bottomBarWidgets[0], settings.bottomBarWidgets[1],
+                EMPTY, EMPTY},
+  };
 #endif
 }
 
+int Sidebar_reservedTop(void) {
 #ifndef PBL_ROUND
-static GRect bottom_bar_frame() {
-  int x = settings.sidebarOnLeft ? sidebarWidth + BOTTOM_BAR_SIDEBAR_GAP : 0;
-  int width = screen_rect.size.w - sidebarWidth - BOTTOM_BAR_SIDEBAR_GAP;
+  if (hRegion.edge == REGION_EDGE_TOP) {
+    return hRegion.thickness;
+  }
+#endif
+  return 0;
+}
+
+int Sidebar_reservedBottom(void) {
+#ifndef PBL_ROUND
+  if (hRegion.edge == REGION_EDGE_BOTTOM) {
+    return hRegion.thickness;
+  }
+#endif
+  return 0;
+}
+
+RegionEdge Sidebar_verticalEdge(void) { return vRegion.edge; }
+
+int Sidebar_verticalThickness(void) {
+  return vRegion.edge == REGION_EDGE_NONE ? 0 : vRegion.thickness;
+}
+
+#ifndef PBL_ROUND
+
+static GRect vregion_frame(void) {
+  int x = (vRegion.edge == REGION_EDGE_LEFT)
+              ? 0
+              : screen_rect.size.w - vRegion.thickness;
+  return GRect(x, 0, vRegion.thickness, screen_rect.size.h);
+}
+
+// the horizontal bar yields its corner to the vertical region
+static GRect hregion_frame(void) {
+  int x = (vRegion.edge == REGION_EDGE_LEFT)
+              ? vRegion.thickness + HBAR_VBAR_GAP
+              : 0;
+  int width = screen_rect.size.w - vRegion.thickness - HBAR_VBAR_GAP;
 
   if (width < 0) {
     width = 0;
   }
 
-  return GRect(x, screen_rect.size.h - sidebarHeight, width, sidebarHeight);
+  int y = (hRegion.edge == REGION_EDGE_TOP)
+              ? 0
+              : screen_rect.size.h - hRegion.thickness;
+  return GRect(x, y, width, hRegion.thickness);
 }
-#endif
 
-// "private" functions
-// layer update callbacks
-#ifndef PBL_ROUND
-void updateRectSidebar(Layer *l, GContext *ctx);
-void updateRectBottomBar(Layer *l, GContext *ctx);
-#else
+/*
+ * Vertical flow: first and last slots pin to the region's ends, interior
+ * slots spread with equal gaps between them. If the widgets don't fit,
+ * fall back in stages: compact widget text, then hide interior widgets
+ * from the middle out, then shrink the end padding.
+ */
+static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
+  GRect bounds = layer_get_unobstructed_bounds(l);
+  int count = r->slotCount;
 
-void updateRoundSidebarLeft(Layer *l, GContext *ctx);
-void updateRoundSidebarRight(Layer *l, GContext *ctx);
+  SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
+  SidebarMeasure sizes[MAX_REGION_SLOTS];
+  bool hidden[MAX_REGION_SLOTS] = {false};
 
-// shared drawing stuff between all layers
-void drawRoundSidebar(GContext *ctx, GRect bgBounds,
-                      SidebarWidgetType widgetType, int widgetXOffset);
-#endif
+  for (int i = 0; i < count; i++) {
+    widgets[i] = getSidebarWidgetByType(r->slots[i]);
+  }
 
-Layer *sidebarLayer;
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness, false);
 
-#ifdef PBL_ROUND
-Layer *sidebarLayer2;
-#else
-Layer *bottomBarLayer;
+  int fit_threshold = bounds.size.h - REGION_V_PADDING_DEFAULT * 2;
+  int v_padding = REGION_V_PADDING_DEFAULT;
+
+  int totalHeight = 0;
+  for (int i = 0; i < count; i++) {
+    sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+    totalHeight += sizes[i].h;
+  }
+
+  // fallback: compact the widget text
+  if (totalHeight > fit_threshold) {
+    spec.compact = true;
+    totalHeight = 0;
+    for (int i = 0; i < count; i++) {
+      sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+      totalHeight += sizes[i].h;
+    }
+  }
+
+  // fallback: hide interior widgets, middle-out
+  for (int step = 0; totalHeight > fit_threshold && step < count - 2; step++) {
+    int mid = count / 2 + ((step % 2 == 0) ? -(step / 2) : (step / 2 + 1));
+    if (count % 2 == 0) {
+      mid -= (step % 2 == 0) ? 1 : 0;
+    }
+    if (mid <= 0 || mid >= count - 1 || hidden[mid]) {
+      continue;
+    }
+    hidden[mid] = true;
+    totalHeight -= sizes[mid].h;
+  }
+
+  // fallback: shrink the end padding
+  if (totalHeight > fit_threshold) {
+    v_padding = REGION_V_PADDING_COMPACT;
+  }
+
+  int topPos = v_padding;
+  int lowerPos = bounds.size.h - v_padding - sizes[count - 1].h;
+
+  GRect topFrame = GRect(0, topPos, r->thickness, sizes[0].h);
+  SidebarWidgets_draw(ctx, &widgets[0], topFrame, &spec);
+
+  if (count > 1) {
+    GRect lowerFrame =
+        GRect(0, lowerPos, r->thickness, sizes[count - 1].h);
+    SidebarWidgets_draw(ctx, &widgets[count - 1], lowerFrame, &spec);
+  }
+
+  // interior widgets spread evenly between the pinned ends
+  int interiorTotal = 0;
+  int gapsLeft = 1;
+
+  for (int i = 1; i < count - 1; i++) {
+    if (!hidden[i]) {
+      interiorTotal += sizes[i].h;
+      gapsLeft++;
+    }
+  }
+
+  int y = topPos + sizes[0].h;
+  int remaining = (lowerPos - y) - interiorTotal;
+
+  for (int i = 1; i < count - 1; i++) {
+    if (hidden[i]) {
+      continue;
+    }
+    int gap = remaining / gapsLeft;
+    remaining -= gap;
+    gapsLeft--;
+    y += gap;
+    GRect frame = GRect(0, y, r->thickness, sizes[i].h);
+    SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
+    y += sizes[i].h;
+  }
+}
+
+/*
+ * Horizontal flow: EMPTY slots are dropped, the rest distribute
+ * space-evenly across the bar. If two widgets contend for space, they
+ * negotiate: each may shrink toward an equal split, but no further than
+ * its natural width.
+ */
+static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
+  GRect bounds = layer_get_unobstructed_bounds(l);
+  int contentWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
+
+  SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
+  SidebarMeasure sizes[MAX_REGION_SLOTS];
+  int visibleCount = 0;
+
+  for (int i = 0; i < r->slotCount; i++) {
+    if (r->slots[i] == EMPTY) {
+      continue;
+    }
+    widgets[visibleCount] = getSidebarWidgetByType(r->slots[i]);
+    visibleCount++;
+  }
+
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth, true);
+
+  int totalWidth = 0;
+  for (int i = 0; i < visibleCount; i++) {
+    sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+    totalWidth += sizes[i].w;
+  }
+
+  if (visibleCount == 1 && sizes[0].w > contentWidth) {
+    totalWidth = sizes[0].w = contentWidth;
+  } else if (visibleCount == 2) {
+    int available = contentWidth - HBAR_WIDGET_GAP;
+
+    if (available < 0) {
+      available = 0;
+    }
+
+    if (sizes[0].w + sizes[1].w > available) {
+      int leftWidth = available / 2;
+      int rightWidth = available - leftWidth;
+
+      if (sizes[0].w < leftWidth) {
+        leftWidth = sizes[0].w;
+        rightWidth = available - leftWidth;
+      } else if (sizes[1].w < rightWidth) {
+        rightWidth = sizes[1].w;
+        leftWidth = available - rightWidth;
+      }
+
+      sizes[0].w = leftWidth;
+      sizes[1].w = rightWidth;
+      totalWidth = leftWidth + rightWidth;
+    }
+  }
+
+  int remaining = bounds.size.w - totalWidth;
+  int gapsLeft = visibleCount + 1;
+  int x = 0;
+
+  for (int i = 0; i < visibleCount; i++) {
+    int gap = remaining / gapsLeft;
+    remaining -= gap;
+    gapsLeft--;
+    x += gap;
+    GRect frame = GRect(x, 0, sizes[i].w, bounds.size.h);
+    SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
+    x += sizes[i].w;
+  }
+}
+
+static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
+  if (r->edge == REGION_EDGE_NONE) {
+    return;
+  }
+
+  graphics_context_set_fill_color(ctx, settings.sidebarColor);
+  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+
+  if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
+    render_horizontal_flow(r, l, ctx);
+  } else {
+    render_vertical_flow(r, l, ctx);
+  }
+}
+
+static void updateVRegionLayer(Layer *l, GContext *ctx) {
+  region_render(&vRegion, l, ctx);
+}
+
+static void updateHRegionLayer(Layer *l, GContext *ctx) {
+  region_render(&hRegion, l, ctx);
+}
+
+#else /* PBL_ROUND */
+
+static void draw_round_arc(GContext *ctx, GRect bgBounds,
+                           SidebarWidgetType widgetType, int widgetXOffset) {
+  graphics_context_set_fill_color(ctx, settings.sidebarColor);
+  graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
+                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
+
+  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(
+      vRegion.widgetMode, ROUND_ARC_CONTENT_WIDTH, false);
+  SidebarWidgetDefinition widget = getSidebarWidgetByType(widgetType);
+  SidebarMeasure widgetSize = SidebarWidgets_measure(&widget, &spec);
+
+  // center the widget vertically within the arc
+  int widgetPosition = bgBounds.size.h / 4 - widgetSize.h / 2;
+  GRect widgetFrame = GRect(widgetXOffset, widgetPosition,
+                            ROUND_ARC_CONTENT_WIDTH, widgetSize.h);
+  SidebarWidgets_draw(ctx, &widget, widgetFrame, &spec);
+}
+
+static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
+  GRect bounds = layer_get_bounds(l);
+  GRect bgBounds =
+      GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w,
+            bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
+
+  draw_round_arc(ctx, bgBounds, vRegion.slots[0], 7);
+}
+
+static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
+  GRect bounds = layer_get_bounds(l);
+  GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2,
+                         bounds.size.h * 2, bounds.size.h * 2);
+
+  draw_round_arc(ctx, bgBounds, vRegion.slots[1], 3);
+}
+
 #endif
 
 void Sidebar_init(Window *window) {
-  update_sidebar_width();
-  // init the sidebar layer
-  screen_rect = layer_get_bounds(window_get_root_layer(window));
-  GRect bounds;
+  Layer *root = window_get_root_layer(window);
+  screen_rect = layer_get_bounds(root);
 
-#ifdef PBL_ROUND
-  GRect bounds2;
-  bounds = GRect(0, 0, 40, screen_rect.size.h);
-  bounds2 = GRect(screen_rect.size.w - 40, 0, 40, screen_rect.size.h);
-#else
-  if (!settings.sidebarOnLeft) {
-    bounds = GRect(screen_rect.size.w - sidebarWidth, 0, sidebarWidth,
-                   screen_rect.size.h);
-  } else {
-    bounds = GRect(0, 0, sidebarWidth, screen_rect.size.h);
-  }
-#endif
-
-  // init the widgets
+  sidebar_buildRegions();
   SidebarWidgets_init();
 
-  sidebarLayer = layer_create(bounds);
-  layer_add_child(window_get_root_layer(window), sidebarLayer);
-
 #ifdef PBL_ROUND
-  layer_set_update_proc(sidebarLayer, updateRoundSidebarLeft);
+  vRegionLayer =
+      layer_create(GRect(0, 0, ROUND_ARC_WIDTH, screen_rect.size.h));
+  layer_set_update_proc(vRegionLayer, updateRoundSidebarLeft);
+  layer_add_child(root, vRegionLayer);
+
+  vRegionLayer2 =
+      layer_create(GRect(screen_rect.size.w - ROUND_ARC_WIDTH, 0,
+                         ROUND_ARC_WIDTH, screen_rect.size.h));
+  layer_set_update_proc(vRegionLayer2, updateRoundSidebarRight);
+  layer_add_child(root, vRegionLayer2);
 #else
-  layer_set_update_proc(sidebarLayer, updateRectSidebar);
-  bottomBarLayer = layer_create(bottom_bar_frame());
-  layer_add_child(window_get_root_layer(window), bottomBarLayer);
-  layer_set_update_proc(bottomBarLayer, updateRectBottomBar);
-  layer_set_hidden(bottomBarLayer, !settings.useBottomBar);
-#endif
+  vRegionLayer = layer_create(vregion_frame());
+  layer_set_update_proc(vRegionLayer, updateVRegionLayer);
+  layer_add_child(root, vRegionLayer);
 
-#ifdef PBL_ROUND
-  sidebarLayer2 = layer_create(bounds2);
-  layer_add_child(window_get_root_layer(window), sidebarLayer2);
-  layer_set_update_proc(sidebarLayer2, updateRoundSidebarRight);
+  hRegionLayer = layer_create(hregion_frame());
+  layer_set_update_proc(hRegionLayer, updateHRegionLayer);
+  layer_add_child(root, hRegionLayer);
+  layer_set_hidden(hRegionLayer, hRegion.edge == REGION_EDGE_NONE);
 #endif
 }
 
 void Sidebar_deinit() {
-  layer_destroy(sidebarLayer);
+  layer_destroy(vRegionLayer);
 
 #ifdef PBL_ROUND
-  layer_destroy(sidebarLayer2);
+  layer_destroy(vRegionLayer2);
 #else
-  layer_destroy(bottomBarLayer);
+  layer_destroy(hRegionLayer);
 #endif
 
   SidebarWidgets_deinit();
 }
 
 void Sidebar_redraw() {
-  update_sidebar_width();
+  sidebar_buildRegions();
+
 #ifndef PBL_ROUND
-  // reposition the sidebar if needed
-  if (!settings.sidebarOnLeft) {
-    layer_set_frame(sidebarLayer, GRect(screen_rect.size.w - sidebarWidth, 0,
-                                        sidebarWidth, screen_rect.size.h));
-  } else {
-    layer_set_frame(sidebarLayer,
-                    GRect(0, 0, sidebarWidth, screen_rect.size.h));
-  }
-  layer_set_frame(bottomBarLayer, bottom_bar_frame());
-  layer_set_hidden(bottomBarLayer, !settings.useBottomBar);
+  layer_set_frame(vRegionLayer, vregion_frame());
+  layer_set_frame(hRegionLayer, hregion_frame());
+  layer_set_hidden(hRegionLayer, hRegion.edge == REGION_EDGE_NONE);
 #endif
 
-  // redraw the layer
-  layer_mark_dirty(sidebarLayer);
+  layer_mark_dirty(vRegionLayer);
 
 #ifdef PBL_ROUND
-  layer_mark_dirty(sidebarLayer2);
+  layer_mark_dirty(vRegionLayer2);
 #else
-  if (settings.useBottomBar) {
-    layer_mark_dirty(bottomBarLayer);
+  if (hRegion.edge != REGION_EDGE_NONE) {
+    layer_mark_dirty(hRegionLayer);
   }
 #endif
 }
@@ -158,296 +413,3 @@ void Sidebar_redraw() {
 void Sidebar_updateTime(struct tm *timeInfo) {
   SidebarWidgets_updateTime(timeInfo);
 }
-
-bool isAutoBatteryShown() {
-  if (!settings.disableAutobattery) {
-    BatteryChargeState chargeState = battery_state_service_peek();
-
-    if (dynamicSettings.enableAutoBatteryWidget) {
-      if (chargeState.charge_percent <= 10 || chargeState.is_charging) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-#ifdef PBL_ROUND
-
-// returns the best candidate widget for replacement by the auto battery
-// or the disconnection icon
-int getReplacableWidget() {
-  if (settings.widgets[0] == EMPTY) {
-    return 0;
-  } else if (settings.widgets[2] == EMPTY) {
-    return 2;
-  }
-
-  if (settings.widgets[0] == WEATHER_CURRENT ||
-      settings.widgets[0] == WEATHER_FORECAST_TODAY) {
-    return 0;
-  } else if (settings.widgets[2] == WEATHER_CURRENT ||
-             settings.widgets[2] == WEATHER_FORECAST_TODAY) {
-    return 2;
-  }
-
-  // if we don't have any of those things, just replace the left widget
-  return 0;
-}
-
-#else
-
-// returns the best candidate widget for replacement by the auto battery
-// or the disconnection icon
-int getReplacableWidget() {
-  // if any widgets are empty, it's an obvious choice
-  for (int i = 0; i < 3; i++) {
-    if (settings.widgets[i] == EMPTY) {
-      return i;
-    }
-  }
-
-  // are there any bluetooth-enabled widgets? if so, they're the second-best
-  // candidates
-  for (int i = 0; i < 3; i++) {
-    if (settings.widgets[i] == WEATHER_CURRENT ||
-        settings.widgets[i] == WEATHER_FORECAST_TODAY) {
-      return i;
-    }
-  }
-
-  // if we don't have any of those things, just replace the middle widget
-  return 1;
-}
-
-#endif
-
-#ifdef PBL_ROUND
-
-void updateRoundSidebarRight(Layer *l, GContext *ctx) {
-  GRect bounds = layer_get_bounds(l);
-  GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2, bounds.size.h * 2,
-                         bounds.size.h * 2);
-
-  bool showDisconnectIcon = !bluetooth_connection_service_peek();
-  bool showAutoBattery = isAutoBatteryShown();
-
-  SidebarWidgetType displayWidget = settings.widgets[2];
-
-  if ((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 2) {
-    if (showAutoBattery) {
-      displayWidget = BATTERY_METER;
-    } else if (showDisconnectIcon) {
-      displayWidget = BLUETOOTH_DISCONNECT;
-    }
-  }
-
-  drawRoundSidebar(ctx, bgBounds, displayWidget, 3);
-}
-
-void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
-  GRect bounds = layer_get_bounds(l);
-  GRect bgBounds =
-      GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w,
-            bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
-
-  bool showDisconnectIcon = !bluetooth_connection_service_peek();
-  bool showAutoBattery = isAutoBatteryShown();
-  SidebarWidgetType displayWidget = settings.widgets[0];
-
-  if ((showAutoBattery || showDisconnectIcon) && getReplacableWidget() == 0) {
-    if (showAutoBattery) {
-      displayWidget = BATTERY_METER;
-    } else if (showDisconnectIcon) {
-      displayWidget = BLUETOOTH_DISCONNECT;
-    }
-  }
-
-  drawRoundSidebar(ctx, bgBounds, displayWidget, 7);
-}
-
-void drawRoundSidebar(GContext *ctx, GRect bgBounds,
-                      SidebarWidgetType widgetType, int widgetXOffset) {
-  graphics_context_set_fill_color(ctx, settings.sidebarColor);
-
-  graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
-                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
-
-  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(
-      SIDEBAR_LAYOUT_VERTICAL_NARROW, 30, false);
-  SidebarWidgetDefinition widget = getSidebarWidgetByType(widgetType);
-  SidebarMeasure widgetSize = SidebarWidgets_measure(&widget, &spec);
-
-  // calculate center position of the widget
-  int widgetPosition = bgBounds.size.h / 4 - widgetSize.h / 2;
-  GRect widgetFrame = GRect(widgetXOffset, widgetPosition, 30, widgetSize.h);
-  SidebarWidgets_draw(ctx, &widget, widgetFrame, &spec);
-}
-
-#else
-
-void updateRectSidebar(Layer *l, GContext *ctx) {
-  GRect bounds = layer_get_unobstructed_bounds(l);
-  SidebarLayoutMode mode = settings.useWideSidebar ? SIDEBAR_LAYOUT_VERTICAL_WIDE
-                                                   : SIDEBAR_LAYOUT_VERTICAL_NARROW;
-
-  graphics_context_set_fill_color(ctx, settings.sidebarColor);
-  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
-
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-
-  bool showDisconnectIcon = false;
-  bool showAutoBattery = isAutoBatteryShown();
-
-  // if the pebble is disconnected and activated, show the disconnect icon
-  if (settings.activateDisconnectIcon) {
-    showDisconnectIcon = !bluetooth_connection_service_peek();
-  }
-
-  SidebarWidgetDefinition displayWidgets[3];
-
-  displayWidgets[0] = getSidebarWidgetByType(settings.widgets[0]);
-  displayWidgets[1] = getSidebarWidgetByType(settings.widgets[1]);
-  displayWidgets[2] = getSidebarWidgetByType(settings.widgets[2]);
-
-  // do we need to replace a widget?
-  // if so, determine which widget should be replaced
-  if (showAutoBattery || showDisconnectIcon) {
-    int widget_to_replace = getReplacableWidget();
-
-    if (showAutoBattery) {
-      displayWidgets[widget_to_replace] = getSidebarWidgetByType(BATTERY_METER);
-    } else if (showDisconnectIcon) {
-      displayWidgets[widget_to_replace] =
-          getSidebarWidgetByType(BLUETOOTH_DISCONNECT);
-    }
-  }
-
-  // if the widgets are too tall, enable "compact mode"
-  int compact_mode_threshold = bounds.size.h - V_PADDING_DEFAULT * 2;
-  int v_padding = V_PADDING_DEFAULT;
-  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(mode, sidebarWidth, false);
-  SidebarMeasure widgetSizes[3];
-
-  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
-  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
-  widgetSizes[2] = SidebarWidgets_measure(&displayWidgets[2], &spec);
-  int totalHeight = widgetSizes[0].h + widgetSizes[1].h + widgetSizes[2].h;
-  spec.compact = (totalHeight > compact_mode_threshold);
-  // printf("Total Height: %i, Threshold: %i", totalHeight,
-  // compact_mode_threshold);
-
-  // now that they have been compacted, check if they fit a second time,
-  // if they still don't fit, hide the middle widget.
-  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
-  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
-  widgetSizes[2] = SidebarWidgets_measure(&displayWidgets[2], &spec);
-  totalHeight = widgetSizes[0].h + widgetSizes[1].h + widgetSizes[2].h;
-  bool hide_middle_widget = (totalHeight > compact_mode_threshold);
-  // printf("Compact Mode Enabled. Total Height: %i, Threshold: %i",
-  // totalHeight, compact_mode_threshold);
-
-  // still doesn't fit? try compacting the vertical padding
-  totalHeight = widgetSizes[0].h + widgetSizes[2].h;
-  if (totalHeight > compact_mode_threshold) {
-    v_padding = V_PADDING_COMPACT;
-  }
-
-  // calculate the three widget positions
-  int topWidgetPos = v_padding;
-  int lowerWidgetPos =
-      bounds.size.h - v_padding - widgetSizes[2].h;
-
-  // vertically center the middle widget using MATH
-  int middleWidgetPos = ((lowerWidgetPos - widgetSizes[1].h) +
-                         (topWidgetPos + widgetSizes[0].h)) /
-                        2;
-
-  // draw the widgets
-  GRect topWidgetFrame = GRect(0, topWidgetPos, sidebarWidth, widgetSizes[0].h);
-  SidebarWidgets_draw(ctx, &displayWidgets[0], topWidgetFrame, &spec);
-  if (!hide_middle_widget) {
-    GRect middleWidgetFrame =
-        GRect(0, middleWidgetPos, sidebarWidth, widgetSizes[1].h);
-    SidebarWidgets_draw(ctx, &displayWidgets[1], middleWidgetFrame, &spec);
-  }
-  GRect lowerWidgetFrame =
-      GRect(0, lowerWidgetPos, sidebarWidth, widgetSizes[2].h);
-  SidebarWidgets_draw(ctx, &displayWidgets[2], lowerWidgetFrame, &spec);
-}
-
-void updateRectBottomBar(Layer *l, GContext *ctx) {
-  GRect bounds = layer_get_unobstructed_bounds(l);
-  int contentWidth = bounds.size.w - BOTTOM_BAR_SLOT_PADDING_X * 2;
-
-  SidebarWidgetDefinition displayWidgets[2];
-  displayWidgets[0] = getSidebarWidgetByType(settings.bottomBarWidgets[0]);
-  displayWidgets[1] = getSidebarWidgetByType(settings.bottomBarWidgets[1]);
-
-  SidebarRenderSpec spec =
-      SidebarWidgets_makeRenderSpec(SIDEBAR_LAYOUT_HORIZONTAL, contentWidth,
-                                    true);
-
-  graphics_context_set_fill_color(ctx, settings.sidebarColor);
-  graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
-
-  SidebarMeasure widgetSizes[2];
-  widgetSizes[0] = SidebarWidgets_measure(&displayWidgets[0], &spec);
-  widgetSizes[1] = SidebarWidgets_measure(&displayWidgets[1], &spec);
-
-  bool has_left = (settings.bottomBarWidgets[0] != EMPTY);
-  bool has_right = (settings.bottomBarWidgets[1] != EMPTY);
-
-  int availableWidgetWidth = contentWidth - BOTTOM_BAR_WIDGET_GAP;
-  if (availableWidgetWidth < 0) {
-    availableWidgetWidth = 0;
-  }
-
-  if (has_left && has_right) {
-    if (widgetSizes[0].w + widgetSizes[1].w > availableWidgetWidth) {
-      int leftWidth = availableWidgetWidth / 2;
-      int rightWidth = availableWidgetWidth - leftWidth;
-
-      if (widgetSizes[0].w < leftWidth) {
-        leftWidth = widgetSizes[0].w;
-        rightWidth = availableWidgetWidth - leftWidth;
-      } else if (widgetSizes[1].w < rightWidth) {
-        rightWidth = widgetSizes[1].w;
-        leftWidth = availableWidgetWidth - rightWidth;
-      }
-
-      widgetSizes[0].w = leftWidth;
-      widgetSizes[1].w = rightWidth;
-    }
-
-    int totalSpace = bounds.size.w - widgetSizes[0].w - widgetSizes[1].w;
-    int space0 = totalSpace / 3;
-    int space1 = (totalSpace - space0) / 2;
-    int leftX = space0;
-    int rightX = leftX + widgetSizes[0].w + space1;
-
-    GRect leftWidgetFrame = GRect(leftX, 0, widgetSizes[0].w, bounds.size.h);
-    GRect rightWidgetFrame = GRect(rightX, 0, widgetSizes[1].w, bounds.size.h);
-
-    SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
-    SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
-  } else if (has_left) {
-    if (widgetSizes[0].w > contentWidth) {
-      widgetSizes[0].w = contentWidth;
-    }
-    int leftX = (bounds.size.w - widgetSizes[0].w) / 2;
-    GRect leftWidgetFrame = GRect(leftX, 0, widgetSizes[0].w, bounds.size.h);
-    SidebarWidgets_draw(ctx, &displayWidgets[0], leftWidgetFrame, &spec);
-  } else if (has_right) {
-    if (widgetSizes[1].w > contentWidth) {
-      widgetSizes[1].w = contentWidth;
-    }
-    int rightX = (bounds.size.w - widgetSizes[1].w) / 2;
-    GRect rightWidgetFrame = GRect(rightX, 0, widgetSizes[1].w, bounds.size.h);
-    SidebarWidgets_draw(ctx, &displayWidgets[1], rightWidgetFrame, &spec);
-  }
-}
-
-#endif
