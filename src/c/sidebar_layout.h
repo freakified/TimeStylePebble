@@ -55,5 +55,12 @@ typedef enum {
 #define HBAR_WIDGET_GAP 4
 
 // round watch arcs
+#if defined(PBL_PLATFORM_GABBRO)
+#define ROUND_ARC_WIDTH 56
+#define ROUND_ARC_CONTENT_WIDTH 42
+#else
 #define ROUND_ARC_WIDTH 40
 #define ROUND_ARC_CONTENT_WIDTH 30
+#endif
+// widgets sit closer to the screen center than to the curved outer edge
+#define ROUND_ARC_INNER_MARGIN 3

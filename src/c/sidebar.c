@@ -399,7 +399,9 @@ static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
       GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w,
             bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, bgBounds, vRegion.slots[0], 7);
+  draw_round_arc(ctx, bgBounds, vRegion.slots[0],
+                 ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH -
+                     ROUND_ARC_INNER_MARGIN);
 }
 
 static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
@@ -407,7 +409,7 @@ static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
   GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2,
                          bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, bgBounds, vRegion.slots[1], 3);
+  draw_round_arc(ctx, bgBounds, vRegion.slots[1], ROUND_ARC_INNER_MARGIN);
 }
 
 #endif
