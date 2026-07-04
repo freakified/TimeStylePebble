@@ -37,9 +37,7 @@ void Settings_loadFromStorage() {
   settings.sidebarColor = GColorWhite;
 #endif
 
-  settings.vRegionEdge = REGION_EDGE_RIGHT;
-  settings.hRegionEdge = REGION_EDGE_NONE;
-  settings.hRegionStyle = HBAR_STYLE_INLINE;
+  settings.layoutId = LAYOUT_SIDEBAR_RIGHT;
 
 #ifdef PBL_ROUND
   // round watches render the first two slots, one per arc
@@ -103,12 +101,15 @@ void Settings_updateDynamicSettings() {
 #ifdef PBL_ROUND
   int vSlotCount = 2;
 #else
-  int vSlotCount = VREGION_SLOT_CAP;
+  int vSlotCount =
+      (SidebarLayout_verticalEdge(settings.layoutId) == REGION_EDGE_NONE)
+          ? 0
+          : VREGION_SLOT_CAP;
 #endif
   int hSlotCount = 0;
 
-  if (settings.hRegionEdge != REGION_EDGE_NONE) {
-    hSlotCount = (settings.hRegionStyle == HBAR_STYLE_STACKED)
+  if (SidebarLayout_horizontalEdge(settings.layoutId) != REGION_EDGE_NONE) {
+    hSlotCount = (SidebarLayout_hBarStyle(settings.layoutId) == HBAR_STYLE_STACKED)
                      ? HREGION_SLOT_CAP_STACKED
                      : HREGION_SLOT_CAP_INLINE;
   }

@@ -30,6 +30,13 @@ export interface Capabilities {
   HEALTH: boolean;
 }
 
+export type Layout =
+  | 'right-sidebar'
+  | 'left-sidebar'
+  | 'right-sidebar-bottom-bar'
+  | 'left-sidebar-bottom-bar'
+  | 'bottom-bar-only';
+
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)
   SETTING_THEME: string;
@@ -59,12 +66,9 @@ export interface Settings {
   languageId: number;
   leadingZero: boolean;
   clockFont: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
-  sidebarPosition: 'left' | 'right';
+  layout: Layout;
   largeSidebarFont: boolean;
   wideSidebar: boolean;
-  bottomBar: boolean;
-  bottomBarStyle: 'inline' | 'stacked';
-  bottomBarPosition: 'bottom' | 'top';
   decimalSeparator: '.' | ',';
 
   // Bluetooth

@@ -55,7 +55,7 @@
       "SettingLanguageID",
       "SettingShowBatteryPct",
       "SettingShowLeadingZero",
-      "SettingSidebarOnLeft",
+      "SettingLayoutId",
       "SettingSidebarTextColor",
       "SettingUseLargeFonts",
       "SettingUseMetric",
@@ -67,12 +67,9 @@
       "SettingBottomBarWidget1ID",
       "ConfigSnapshotRequest",
       "SettingUseWideSidebar",
-      "SettingUseBottomBar",
       "SettingWidget3ID",
       "SettingBottomBarWidget2ID",
-      "SettingBottomBarWidget3ID",
-      "SettingBottomBarStyle",
-      "SettingBottomBarOnTop"
+      "SettingBottomBarWidget3ID"
     ],
     "resources": {
       "media": [

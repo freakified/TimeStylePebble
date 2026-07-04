@@ -21,6 +21,7 @@ import darkThemes from '../data/dark-themes.json';
 import lightThemesBw from '../data/light-themes-bw.json';
 import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
+import { layoutHasSidebar, layoutHasBottomBar } from '../utils/layout';
 
 // Alt-clock offset options: -12 to +14
 const ALT_CLOCK_OFFSETS = Array.from({ length: 27 }, (_, i) => {
@@ -96,10 +97,10 @@ export const SettingsPage: React.FC = () => {
   const getNightSavedTheme = () =>
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
-  const sidebarWidgetIds = [
-    settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id,
-  ];
-  const activeWidgetIds = settings.bottomBar
+  const sidebarWidgetIds = layoutHasSidebar(settings.layout) || capabilities.ROUND
+    ? [settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id]
+    : [];
+  const activeWidgetIds = layoutHasBottomBar(settings.layout)
     ? sidebarWidgetIds.concat([
         settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
         settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
@@ -222,59 +223,30 @@ export const SettingsPage: React.FC = () => {
       </Section>
 
       {/* ── Sidebar Display ── */}
-      <Section title="Sidebar">
+      <Section title="Layout">
         {capabilities.RECT && (
-          <Toggle
-            label="Use bottom bar"
-            description="Show a horizontal widget bar at the edge of the screen"
-            messageKey="bottomBar"
-          />
-        )}
-        {capabilities.RECT && settings.bottomBar && (
           <SelectCards
-            label="Bar style"
-            messageKey="bottomBarStyle"
+            label="Layout"
+            messageKey="layout"
             options={[
-              { label: 'Inline', value: 'inline' },
-              { label: 'Tall', value: 'stacked' },
+              { label: 'Left sidebar', value: 'left-sidebar' },
+              { label: 'Right sidebar', value: 'right-sidebar' },
+              { label: 'Left sidebar + bottom bar', value: 'left-sidebar-bottom-bar' },
+              { label: 'Right sidebar + bottom bar', value: 'right-sidebar-bottom-bar' },
+              { label: 'Bottom bar only', value: 'bottom-bar-only' },
             ]}
             optionSettings={{
-              inline: { bottomBarStyle: 'inline' },
-              stacked: { bottomBarStyle: 'stacked' },
+              'left-sidebar': { layout: 'left-sidebar' },
+              'right-sidebar': { layout: 'right-sidebar' },
+              'left-sidebar-bottom-bar': { layout: 'left-sidebar-bottom-bar' },
+              'right-sidebar-bottom-bar': { layout: 'right-sidebar-bottom-bar' },
+              'bottom-bar-only': { layout: 'bottom-bar-only' },
             }}
           />
         )}
-        {capabilities.RECT && settings.bottomBar && (
+        {capabilities.RECT && layoutHasSidebar(settings.layout) && (
           <SelectCards
-            label="Bar position"
-            messageKey="bottomBarPosition"
-            options={[
-              { label: 'Top', value: 'top' },
-              { label: 'Bottom', value: 'bottom' },
-            ]}
-            optionSettings={{
-              top: { bottomBarPosition: 'top' },
-              bottom: { bottomBarPosition: 'bottom' },
-            }}
-          />
-        )}
-        {capabilities.RECT && (
-          <SelectCards
-            label="Position"
-            messageKey="sidebarPosition"
-            options={[
-              { label: 'Left', value: 'left' },
-              { label: 'Right', value: 'right' },
-            ]}
-            optionSettings={{
-              right: { sidebarPosition: 'right' },
-              left: { sidebarPosition: 'left' },
-            }}
-          />
-        )}
-        {capabilities.RECT && (
-          <SelectCards
-            label="Width"
+            label="Sidebar width"
             messageKey="wideSidebar"
             options={[
               { label: 'Compact', value: false },

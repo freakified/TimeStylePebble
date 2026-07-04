@@ -3,7 +3,7 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 12
+#define CURRENT_SETTINGS_VERSION 13
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -59,14 +59,12 @@ typedef struct {
   bool healthUseRestfulSleep;
   char decimalSeparator;
 
-  // sidebar region settings (v12: replaced the legacy widgets[3] /
-  // bottomBarWidgets[2] / sidebarOnLeft / useBottomBar fields; old
+  // sidebar layout settings (v13: replaced the v12 vRegionEdge /
+  // hRegionEdge / hRegionStyle fields with a single layout preset; old
   // persisted blobs are NOT translated yet -- a migration system for
-  // pre-v12 settings comes later)
+  // pre-v13 settings comes later)
   bool useWideSidebar;
-  uint8_t vRegionEdge;  // RegionEdge: LEFT or RIGHT
-  uint8_t hRegionEdge;  // RegionEdge: NONE, BOTTOM, or TOP
-  uint8_t hRegionStyle; // HBarStyle
+  uint8_t layoutId; // SidebarLayoutId
   uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
   uint8_t hRegionSlots[MAX_REGION_SLOTS];
 } Settings;

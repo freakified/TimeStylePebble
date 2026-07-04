@@ -122,13 +122,18 @@ Pebble.addEventListener('webviewclosed', function (e) {
     // determine whether or not the weather checking should be enabled
     var disableWeather;
 
-    var widgetIDs = [
-      configData.widget0Id,
-      configData.widget1Id,
-      configData.widget2Id,
-      configData.widget3Id
-    ];
-    if (configData.bottomBar) {
+    var widgetIDs = [];
+    if (configData.layout !== 'bottom-bar-only') {
+      widgetIDs.push(
+        configData.widget0Id,
+        configData.widget1Id,
+        configData.widget2Id,
+        configData.widget3Id
+      );
+    }
+    if (configData.layout === 'right-sidebar-bottom-bar'
+        || configData.layout === 'left-sidebar-bottom-bar'
+        || configData.layout === 'bottom-bar-only') {
       widgetIDs.push(
         configData.bottomBarWidget0Id,
         configData.bottomBarWidget1Id,

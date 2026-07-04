@@ -1,6 +1,7 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
+import { layoutSidebarOnLeft } from '../utils/layout';
 import widgetAltTz from '../assets/preview/widget_previews/widget_alttz.svg?raw';
 import widgetBattery from '../assets/preview/widget_previews/widget_battery.svg?raw';
 import widgetBatteryNoText from '../assets/preview/widget_previews/widget_battery_notext.svg?raw';
@@ -241,7 +242,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
     const timeColor = getHex(effectiveSettings.colorTime);
     const sidebarColor = getHex(effectiveSettings.colorSidebar);
     const textColor = getHex(effectiveSettings.colorSidebarText);
-    const sidebarOnLeft = effectiveSettings.sidebarPosition === 'left';
+    const sidebarOnLeft = layoutSidebarOnLeft(effectiveSettings.layout);
 
     // Face dimensions
     const W = 144, H = 168;

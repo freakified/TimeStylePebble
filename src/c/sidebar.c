@@ -44,11 +44,13 @@ static void sidebar_buildRegions(void) {
                 (SidebarWidgetType)settings.vRegionSlots[1], EMPTY, EMPTY},
   };
 #else
+  RegionEdge vEdge = SidebarLayout_verticalEdge(settings.layoutId);
+
   vRegion = (SidebarRegion){
-      .edge = (settings.vRegionEdge == REGION_EDGE_LEFT) ? REGION_EDGE_LEFT
-                                                         : REGION_EDGE_RIGHT,
+      .edge = vEdge,
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
-      .thickness = settings.useWideSidebar
+      .thickness = (vEdge == REGION_EDGE_NONE) ? 0
+                   : settings.useWideSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
       .slotCount = VREGION_SLOT_CAP,
@@ -58,12 +60,8 @@ static void sidebar_buildRegions(void) {
     vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
   }
 
-  bool stacked = (settings.hRegionStyle == HBAR_STYLE_STACKED);
-  RegionEdge hEdge = (RegionEdge)settings.hRegionEdge;
-
-  if (hEdge != REGION_EDGE_TOP && hEdge != REGION_EDGE_BOTTOM) {
-    hEdge = REGION_EDGE_NONE;
-  }
+  bool stacked = (SidebarLayout_hBarStyle(settings.layoutId) == HBAR_STYLE_STACKED);
+  RegionEdge hEdge = SidebarLayout_horizontalEdge(settings.layoutId);
 
   hRegion = (SidebarRegion){
       .edge = hEdge,
@@ -114,10 +112,11 @@ static GRect vregion_frame(void) {
 
 // the horizontal bar yields its corner to the vertical region
 static GRect hregion_frame(void) {
-  int x = (vRegion.edge == REGION_EDGE_LEFT)
-              ? vRegion.thickness + HBAR_VBAR_GAP
-              : 0;
-  int width = screen_rect.size.w - vRegion.thickness - HBAR_VBAR_GAP;
+  int reserved = (vRegion.edge == REGION_EDGE_NONE)
+                     ? 0
+                     : vRegion.thickness + HBAR_VBAR_GAP;
+  int x = (vRegion.edge == REGION_EDGE_LEFT) ? reserved : 0;
+  int width = screen_rect.size.w - reserved;
 
   if (width < 0) {
     width = 0;

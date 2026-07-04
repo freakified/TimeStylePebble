@@ -2,6 +2,7 @@ import React from 'react';
 import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
+import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
 
 const WIDGET_SETTING_KEYS = [
     'widget0Id',
@@ -80,24 +81,28 @@ export const WidgetSelector: React.FC = () => {
                     </>
                 ) : (
                     <>
-                        {renderSlot('Top slot', 'widget0Id')}
-                        {capabilities.EMERY ? (
+                        {layoutHasSidebar(settings.layout) && (
                             <>
-                                {renderSlot('Upper middle slot', 'widget1Id')}
-                                {renderSlot('Lower middle slot', 'widget2Id')}
-                                {renderSlot('Bottom slot', 'widget3Id')}
-                            </>
-                        ) : (
-                            <>
-                                {renderSlot('Middle slot', 'widget1Id')}
-                                {renderSlot('Bottom slot', 'widget2Id')}
+                                {renderSlot('Top slot', 'widget0Id')}
+                                {capabilities.EMERY ? (
+                                    <>
+                                        {renderSlot('Upper middle slot', 'widget1Id')}
+                                        {renderSlot('Lower middle slot', 'widget2Id')}
+                                        {renderSlot('Bottom slot', 'widget3Id')}
+                                    </>
+                                ) : (
+                                    <>
+                                        {renderSlot('Middle slot', 'widget1Id')}
+                                        {renderSlot('Bottom slot', 'widget2Id')}
+                                    </>
+                                )}
                             </>
                         )}
-                        {settings.bottomBar && (
+                        {layoutHasBottomBar(settings.layout) && (
                             <>
                                 {renderSlot('Bar slot 1', 'bottomBarWidget0Id')}
                                 {renderSlot('Bar slot 2', 'bottomBarWidget1Id')}
-                                {settings.bottomBarStyle === 'stacked' && (
+                                {layoutHasStackedBar(settings.layout) && (
                                     <>
                                         {renderSlot('Bar slot 3', 'bottomBarWidget2Id')}
                                         {renderSlot('Bar slot 4', 'bottomBarWidget3Id')}

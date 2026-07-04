@@ -20,6 +20,22 @@ var HOURLY_VIBE_BY_ID = {
   2: 'everyHalfHour'
 };
 
+var LAYOUT_BY_ID = {
+  0: 'right-sidebar',
+  1: 'left-sidebar',
+  2: 'right-sidebar-bottom-bar',
+  3: 'left-sidebar-bottom-bar',
+  4: 'bottom-bar-only'
+};
+
+var LAYOUT_ID_BY_NAME = {
+  'right-sidebar': 0,
+  'left-sidebar': 1,
+  'right-sidebar-bottom-bar': 2,
+  'left-sidebar-bottom-bar': 3,
+  'bottom-bar-only': 4
+};
+
 var HOURLY_VIBE_ID_BY_NAME = {
   'none': 0,
   'everyHour': 1,
@@ -83,12 +99,9 @@ function settingsFromWatchPayload(payload) {
     languageId: getNumber(payload.SettingLanguageID, 0),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
     clockFont: getMappedValue(CLOCK_FONT_BY_ID, getNumber(payload.SettingClockFontId, 0), 'default'),
-    sidebarPosition: getBoolean(payload.SettingSidebarOnLeft) ? 'left' : 'right',
+    layout: getMappedValue(LAYOUT_BY_ID, getNumber(payload.SettingLayoutId, 0), 'right-sidebar'),
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
-    bottomBar: getBoolean(payload.SettingUseBottomBar),
-    bottomBarStyle: getBoolean(payload.SettingBottomBarStyle) ? 'stacked' : 'inline',
-    bottomBarPosition: getBoolean(payload.SettingBottomBarOnTop) ? 'top' : 'bottom',
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -173,16 +186,11 @@ function settingsToWatchPayload(configData) {
     dict.SettingBottomBarWidget3ID = configData.bottomBarWidget3Id;
   }
 
-  if (configData.bottomBarStyle !== undefined) {
-    dict.SettingBottomBarStyle = configData.bottomBarStyle === 'stacked' ? 1 : 0;
-  }
-
-  if (configData.bottomBarPosition !== undefined) {
-    dict.SettingBottomBarOnTop = configData.bottomBarPosition === 'top' ? 1 : 0;
-  }
-
-  if (configData.sidebarPosition) {
-    dict.SettingSidebarOnLeft = configData.sidebarPosition == 'right' ? 0 : 1;
+  if (configData.layout !== undefined) {
+    var layoutId = getMappedValue(LAYOUT_ID_BY_NAME, configData.layout, undefined);
+    if (layoutId !== undefined) {
+      dict.SettingLayoutId = layoutId;
+    }
   }
 
   if (configData.largeSidebarFont !== undefined) {
@@ -191,10 +199,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.wideSidebar !== undefined) {
     dict.SettingUseWideSidebar = configData.wideSidebar ? 1 : 0;
-  }
-
-  if (configData.bottomBar !== undefined) {
-    dict.SettingUseBottomBar = configData.bottomBar ? 1 : 0;
   }
 
   if (configData.weatherUnits) {

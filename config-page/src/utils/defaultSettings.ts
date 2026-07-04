@@ -26,12 +26,9 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   languageId: 0,
   leadingZero: false,
   clockFont: 'default',
-  sidebarPosition: 'right',
+  layout: 'right-sidebar',
   largeSidebarFont: false,
   wideSidebar: false,
-  bottomBar: false,
-  bottomBarStyle: 'inline',
-  bottomBarPosition: 'bottom',
   decimalSeparator: '.',
 
   // Bluetooth

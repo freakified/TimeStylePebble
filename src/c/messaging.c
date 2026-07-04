@@ -46,12 +46,9 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.hRegionSlots[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget2ID, settings.hRegionSlots[2]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget3ID, settings.hRegionSlots[3]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingSidebarOnLeft, settings.vRegionEdge == REGION_EDGE_LEFT ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingLayoutId, settings.layoutId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingUseBottomBar, settings.hRegionEdge != REGION_EDGE_NONE ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarOnTop, settings.hRegionEdge == REGION_EDGE_TOP ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarStyle, settings.hRegionStyle);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
@@ -137,7 +134,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *timeColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorTime);
   Tuple *bgColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorBG);
   Tuple *sidebarColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorSidebar);
-  Tuple *sidebarPos_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarOnLeft);
+  Tuple *layoutId_tuple = dict_find(iterator, MESSAGE_KEY_SettingLayoutId);
   Tuple *sidebarTextColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarTextColor);
   Tuple *useMetric_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseMetric);
   Tuple *btVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingBluetoothVibe);
@@ -148,7 +145,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
   Tuple *useWideSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseWideSidebar);
-  Tuple *useBottomBar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseBottomBar);
 
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
@@ -158,8 +154,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
   Tuple *bottomBarWidget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget2ID);
   Tuple *bottomBarWidget3Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget3ID);
-  Tuple *bottomBarOnTop_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarOnTop);
-  Tuple *bottomBarStyle_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarStyle);
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
@@ -190,9 +184,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
   }
 
-  if(sidebarPos_tuple != NULL) {
-    settings.vRegionEdge = sidebarPos_tuple->value->int8 ? REGION_EDGE_LEFT
-                                                         : REGION_EDGE_RIGHT;
+  if(layoutId_tuple != NULL) {
+    settings.layoutId = layoutId_tuple->value->int8;
   }
 
   if(useMetric_tuple != NULL) {
@@ -225,33 +218,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(useWideSidebar_tuple != NULL) {
     settings.useWideSidebar = (bool)useWideSidebar_tuple->value->int8;
-  }
-
-  // the bar's on/off and top/bottom state both live in hRegionEdge, so
-  // resolve the desired edge before applying either tuple
-  {
-    bool barOnTop = (settings.hRegionEdge == REGION_EDGE_TOP);
-    bool barEnabled = (settings.hRegionEdge != REGION_EDGE_NONE);
-
-    if(bottomBarOnTop_tuple != NULL) {
-      barOnTop = (bool)bottomBarOnTop_tuple->value->int8;
-    }
-
-    if(useBottomBar_tuple != NULL) {
-      barEnabled = (bool)useBottomBar_tuple->value->int8;
-    }
-
-    if(useBottomBar_tuple != NULL || bottomBarOnTop_tuple != NULL) {
-      settings.hRegionEdge = !barEnabled ? REGION_EDGE_NONE
-                             : barOnTop  ? REGION_EDGE_TOP
-                                         : REGION_EDGE_BOTTOM;
-    }
-  }
-
-  if(bottomBarStyle_tuple != NULL) {
-    settings.hRegionStyle = bottomBarStyle_tuple->value->int8
-                                ? HBAR_STYLE_STACKED
-                                : HBAR_STYLE_INLINE;
   }
 
   if(hourlyVibe_tuple != NULL) {
