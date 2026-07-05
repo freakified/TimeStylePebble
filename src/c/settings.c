@@ -28,6 +28,7 @@ void Settings_loadFromStorage() {
   // Set defaults
   settings.timeBgColor = GColorBlack;
   settings.sidebarTextColor = GColorBlack;
+  settings.altSidebarTextColor = GColorWhite;
 
 #ifdef PBL_COLOR
   settings.timeColor = GColorOrange;
@@ -143,12 +144,21 @@ void Settings_updateDynamicSettings() {
     }
   }
 
+  dynamicSettings.sidebarPalette.background = settings.sidebarColor;
+  dynamicSettings.sidebarPalette.text = settings.sidebarTextColor;
+
   // if the sidebar is black, use inverted colors for icons
   if (gcolor_equal(settings.sidebarColor, GColorBlack)) {
-    dynamicSettings.iconFillColor = GColorBlack;
-    dynamicSettings.iconStrokeColor = settings.sidebarTextColor;
+    dynamicSettings.sidebarPalette.iconFill = GColorBlack;
+    dynamicSettings.sidebarPalette.iconStroke = settings.sidebarTextColor;
   } else {
-    dynamicSettings.iconFillColor = GColorWhite;
-    dynamicSettings.iconStrokeColor = GColorBlack;
+    dynamicSettings.sidebarPalette.iconFill = GColorWhite;
+    dynamicSettings.sidebarPalette.iconStroke = GColorBlack;
   }
+
+  // dark regions draw directly on the watchface background
+  dynamicSettings.darkSidebarPalette.background = settings.timeBgColor;
+  dynamicSettings.darkSidebarPalette.text = settings.altSidebarTextColor;
+  dynamicSettings.darkSidebarPalette.iconFill = settings.timeBgColor;
+  dynamicSettings.darkSidebarPalette.iconStroke = settings.timeColor;
 }

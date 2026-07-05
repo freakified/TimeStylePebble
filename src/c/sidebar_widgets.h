@@ -60,6 +60,15 @@ typedef struct {
   bool isLoading;
 } SidebarContent;
 
+// the colors a sidebar region draws itself with; regions come in a
+// "standard" and a "dark" appearance, each described by one of these
+typedef struct {
+  GColor background;
+  GColor text;
+  GColor iconFill;
+  GColor iconStroke;
+} SidebarPalette;
+
 typedef struct {
   SidebarLayoutMode mode;
   int contentWidth;
@@ -89,6 +98,7 @@ void SidebarWidgets_updateTime(struct tm* timeInfo);
 SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
                                                 int contentWidth,
                                                 bool compact);
+void SidebarWidgets_setActivePalette(const SidebarPalette *palette);
 SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type);
 SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,
                                       SidebarRenderSpec *spec);

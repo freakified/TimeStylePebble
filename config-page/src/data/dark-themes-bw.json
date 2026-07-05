@@ -5,7 +5,8 @@
       "colorBackground": "000000",
       "colorTime": "AAAAAA",
       "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "AAAAAA"
     }
   },
   {
@@ -14,7 +15,8 @@
       "colorBackground": "FFFFFF",
       "colorTime": "AAAAAA",
       "colorSidebar": "000000",
-      "colorSidebarText": "FFFFFF"
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "AAAAAA"
     }
   }
 ]

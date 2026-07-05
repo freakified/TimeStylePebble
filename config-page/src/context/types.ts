@@ -48,6 +48,7 @@ export interface Settings {
   colorTime: string;
   colorSidebar: string;
   colorSidebarText: string;
+  colorAltSidebarText: string;  // text on "dark" regions (bottom bar in 2-sidebar layouts)
 
   // Widget slots (integer IDs)
   // 0=Empty, 2=Battery, 3=Alt TZ, 4=Date, 5=Seconds, 6=Week Number,

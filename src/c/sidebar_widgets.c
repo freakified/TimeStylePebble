@@ -312,6 +312,14 @@ SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
   };
 }
 
+// the palette widgets draw with; the region renderer sets this before
+// drawing, the same way it sets colors on the GContext
+static SidebarPalette activePalette;
+
+void SidebarWidgets_setActivePalette(const SidebarPalette *palette) {
+  activePalette = *palette;
+}
+
 static int render_width(SidebarRenderSpec *spec) {
   return spec->contentWidth + SIDEBAR_TEXT_OVERFLOW * 2;
 }
@@ -417,7 +425,7 @@ static void draw_text_at_visible_top(GContext *ctx,
   GRect drawRect =
       text_rect_at_visible_top(x, visibleTop, width, selectedMetrics);
 
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  graphics_context_set_text_color(ctx, activePalette.text);
   graphics_draw_text(ctx, text, selectedFont, drawRect, GTextOverflowModeFill,
                      GTextAlignmentCenter, NULL);
 }
@@ -437,7 +445,7 @@ static void draw_text_at_visible_top_aligned(
   GRect drawRect =
       text_rect_at_visible_top(x, visibleTop, width, selectedMetrics);
 
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  graphics_context_set_text_color(ctx, activePalette.text);
   graphics_draw_text(ctx, text, selectedFont, drawRect, GTextOverflowModeFill,
                      alignment, NULL);
 }
@@ -458,8 +466,8 @@ static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
     return;
   }
 
-  gdraw_command_image_recolor(content->icon, dynamicSettings.iconFillColor,
-                              dynamicSettings.iconStrokeColor);
+  gdraw_command_image_recolor(content->icon, activePalette.iconFill,
+                              activePalette.iconStroke);
   gdraw_command_image_draw(ctx, content->icon,
                            GPoint(iconFrame.origin.x, iconFrame.origin.y));
 }
@@ -471,16 +479,16 @@ static void draw_battery_icon(GContext *ctx, GRect iconFrame,
   }
 
   int batteryY = iconFrame.origin.y - 5;
-  gdraw_command_image_recolor(batteryImage, dynamicSettings.iconFillColor,
-                              dynamicSettings.iconStrokeColor);
+  gdraw_command_image_recolor(batteryImage, activePalette.iconFill,
+                              activePalette.iconStroke);
   gdraw_command_image_draw(ctx, batteryImage,
                            GPoint(iconFrame.origin.x, batteryY));
 
   if (batteryCharging) {
     if (batteryChargeImage) {
       gdraw_command_image_recolor(batteryChargeImage,
-                                  dynamicSettings.iconStrokeColor,
-                                  dynamicSettings.iconFillColor);
+                                  activePalette.iconStroke,
+                                  activePalette.iconFill);
       gdraw_command_image_draw(ctx, batteryChargeImage,
                                GPoint(iconFrame.origin.x, batteryY));
     }
@@ -488,7 +496,7 @@ static void draw_battery_icon(GContext *ctx, GRect iconFrame,
   }
 
   int width = roundf(18 * batteryPercent / 100.0f);
-  graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
+  graphics_context_set_fill_color(ctx, activePalette.iconStroke);
 
 #ifdef PBL_COLOR
   if (batteryPercent <= 20) {
@@ -712,7 +720,7 @@ static void draw_loading_text(GContext *ctx, int x, int visibleTop,
                               int width, GFont font,
                               SidebarTextMetrics metrics) {
   draw_literal_text_at_visible_top(ctx, "...", x, visibleTop, width, font,
-                                   metrics, settings.sidebarTextColor);
+                                   metrics, activePalette.text);
 }
 
 static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
@@ -775,7 +783,7 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
     draw_literal_text_at_visible_top(ctx, content->label, frame.origin.x,
                                      textTop, labelWidth, currentSidebarFont,
                                      fontMetrics.current,
-                                     settings.sidebarTextColor);
+                                     activePalette.text);
     draw_text_at_visible_top_aligned(
         ctx, &content->primary, valueX, textTop, valueWidth, valueWidth,
         currentSidebarFont, fallbackSidebarFont, fontMetrics.current,
@@ -785,7 +793,7 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
 
   draw_literal_text_at_visible_top(ctx, content->label, textXPos, labelTop,
                                    textWidth, smSidebarFont, fontMetrics.sm,
-                                   settings.sidebarTextColor);
+                                   activePalette.text);
   draw_text_at_visible_top(ctx, &content->primary, textXPos, valueTop,
                            textWidth, text_fit_width(spec, textWidth),
                            currentSidebarFont, fallbackSidebarFont,
@@ -867,7 +875,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
           smSidebarFont, smSidebarFont, fontMetrics.sm, fontMetrics.sm,
           GTextAlignmentCenter);
 
-      graphics_context_set_fill_color(ctx, settings.sidebarTextColor);
+      graphics_context_set_fill_color(ctx, activePalette.text);
       graphics_fill_rect(ctx,
                          GRect(dividerX, dividerY, dividerWidth,
                                SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT),
@@ -912,7 +920,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
   dividerX = frame.origin.x + (frame.size.w - spec->contentWidth) / 2 +
              SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN;
 
-  graphics_context_set_fill_color(ctx, settings.sidebarTextColor);
+  graphics_context_set_fill_color(ctx, activePalette.text);
   graphics_fill_rect(ctx,
                      GRect(dividerX, dividerY, dividerWidth,
                            SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT),
@@ -1283,12 +1291,12 @@ static void draw_date_calendar_background_fallback(GContext *ctx, GRect frame) {
   int leftBindingX = frame.origin.x + frame.size.w / 3;
   int rightBindingX = frame.origin.x + frame.size.w * 2 / 3;
 
-  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
+  graphics_context_set_fill_color(ctx, activePalette.iconFill);
   graphics_fill_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
                                 bodyHeight),
                      0, GCornerNone);
 
-  graphics_context_set_stroke_color(ctx, dynamicSettings.iconStrokeColor);
+  graphics_context_set_stroke_color(ctx, activePalette.iconStroke);
   graphics_context_set_stroke_width(ctx, 2);
   graphics_draw_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
                                 bodyHeight));
@@ -1311,17 +1319,17 @@ static void draw_date_calendar_background(GContext *ctx, GRect frame) {
   }
 
   resize_date_calendar_image(frame);
-  gdraw_command_image_recolor(dateImage, dynamicSettings.iconFillColor,
-                              dynamicSettings.iconStrokeColor);
+  gdraw_command_image_recolor(dateImage, activePalette.iconFill,
+                              activePalette.iconStroke);
   gdraw_command_image_draw(ctx, dateImage, GPoint(frame.origin.x,
                                                  frame.origin.y));
 }
 
 static void draw_date_plain_background(GContext *ctx, GRect frame) {
-  graphics_context_set_fill_color(ctx, dynamicSettings.iconStrokeColor);
+  graphics_context_set_fill_color(ctx, activePalette.iconStroke);
   graphics_fill_rect(ctx, frame, 2, GCornersAll);
 
-  graphics_context_set_fill_color(ctx, dynamicSettings.iconFillColor);
+  graphics_context_set_fill_color(ctx, activePalette.iconFill);
   graphics_fill_rect(ctx,
                      GRect(frame.origin.x + 2, frame.origin.y + 2,
                            frame.size.w - 4, frame.size.h - 4),
@@ -1354,8 +1362,8 @@ static void date_content_draw(GContext *ctx, GRect frame,
     draw_literal_text_at_visible_top(ctx, currentDayNum, calendarFrame.origin.x,
                                      dayTop, calendarFrame.size.w,
                                      currentSidebarFont, fontMetrics.current,
-                                     dynamicSettings.iconStrokeColor);
-    graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+                                     activePalette.iconStroke);
+    graphics_context_set_text_color(ctx, activePalette.text);
     graphics_draw_text(
         ctx, currentDayName, currentSidebarFont,
         text_rect_at_visible_top(textX, textTop, textWidth, fontMetrics.current),
@@ -1369,11 +1377,11 @@ static void date_content_draw(GContext *ctx, GRect frame,
   int calendarX =
       frame.origin.x + (frame.size.w - metrics.calendarWidth + 1) / 2;
   int calendarY = frame.origin.y + metrics.calendarTop;
-  GColor dayTextColor = dynamicSettings.iconStrokeColor;
+  GColor dayTextColor = activePalette.iconStroke;
 
   draw_literal_text_at_visible_top(
       ctx, currentDayName, textXPos, frame.origin.y, textWidth,
-      currentSidebarFont, fontMetrics.current, settings.sidebarTextColor);
+      currentSidebarFont, fontMetrics.current, activePalette.text);
 
   draw_date_background(ctx, GRect(calendarX, calendarY, metrics.calendarWidth,
                                   metrics.calendarHeight));
@@ -1386,7 +1394,7 @@ static void date_content_draw(GContext *ctx, GRect frame,
     draw_literal_text_at_visible_top(
         ctx, currentMonth, textXPos, frame.origin.y + metrics.monthTop,
         textWidth, currentSidebarFont, fontMetrics.current,
-        settings.sidebarTextColor);
+        activePalette.text);
   }
 }
 

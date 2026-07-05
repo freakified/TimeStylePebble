@@ -163,21 +163,35 @@ const isBlack = (color: string) => {
 };
 
 interface RegionColors {
-    background: string;  // region fill (the sidebar color)
+    background: string;  // region fill
     text: string;        // widget text color
+    iconFill: string;
+    iconStroke: string;
 }
 
-// Recolor an icon the way the watch does: white fills stay white on a
-// colored sidebar with black strokes; on a black sidebar the fills go
-// black and the strokes take the sidebar text color.
-const iconColors = (colors: RegionColors) =>
-    isBlack(colors.background)
-        ? { fill: '#000000', stroke: colors.text }
-        : { fill: '#ffffff', stroke: '#000000' };
+// "Standard" region appearance, recolored the way the watch does: white
+// fills stay white on a colored sidebar with black strokes; on a black
+// sidebar the fills go black and the strokes take the sidebar text color.
+const standardRegionColors = (s: Settings): RegionColors => {
+    const background = getHex(s.colorSidebar);
+    const text = getHex(s.colorSidebarText);
+    return isBlack(background)
+        ? { background, text, iconFill: '#000000', iconStroke: text }
+        : { background, text, iconFill: '#ffffff', iconStroke: '#000000' };
+};
+
+// "Dark" region appearance (the bottom bar in two-sidebar layouts): draws
+// on the watchface background, strokes icons with the time color, and uses
+// the alt sidebar text color.
+const darkRegionColors = (s: Settings): RegionColors => ({
+    background: getHex(s.colorBackground),
+    text: getHex(s.colorAltSidebarText),
+    iconFill: getHex(s.colorBackground),
+    iconStroke: getHex(s.colorTime),
+});
 
 const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
-    const { fill, stroke } = iconColors(colors);
-    const tinted = svg.replace(/#fff/gi, fill).replace(/#000/gi, stroke);
+    const tinted = svg.replace(/#fff/gi, colors.iconFill).replace(/#000/gi, colors.iconStroke);
     return `data:image/svg+xml;utf8,${encodeURIComponent(tinted)}`;
 };
 
@@ -239,7 +253,7 @@ const renderCalendar = (
     <g key={key}>
         {renderIconImage('bg', ICONS.date, x, y, ICONS.date.w * scale, ICONS.date.h * scale, colors)}
         {textNode('day', day, x + (ICONS.date.w / 2) * scale, y + CALENDAR_DAY_CENTER_Y * scale,
-                  9 * scale, iconColors(colors).stroke)}
+                  9 * scale, colors.iconStroke)}
     </g>
 );
 
@@ -394,15 +408,15 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 }) => {
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
-    const colors: RegionColors = {
-        background: getHex(s.colorSidebar),
-        text: getHex(s.colorSidebarText),
-    };
+    const colors = standardRegionColors(s);
 
     const W = 144, H = 168;
 
     const hasSidebar = layoutHasSidebar(s.layout);
     const hasBar = layoutHasBottomBar(s.layout);
+
+    // when both regions are present, the bottom bar goes dark
+    const barColors = hasSidebar ? darkRegionColors(s) : colors;
     const stackedBar = layoutHasStackedBar(s.layout);
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
@@ -490,7 +504,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                         barX + BAR_PADDING_X + colW * i + colW / 2,
                         barY + BAR_H / 2,
                         colW - 4, BAR_H - 6,
-                        colors, 1, true
+                        barColors, 1, true
                     )}
                 </g>
             ));
@@ -511,7 +525,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                 gapsLeft--;
                 x += gap;
                 const node = (
-                    <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + BAR_H / 2, colors)}</g>
+                    <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + BAR_H / 2, barColors)}</g>
                 );
                 x += widths[i];
                 return node;
@@ -520,7 +534,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
         return (
             <>
-                <rect x={barX} y={barY} width={barW} height={BAR_H} fill={colors.background} />
+                <rect x={barX} y={barY} width={barW} height={BAR_H} fill={barColors.background} />
                 {content}
             </>
         );
@@ -575,10 +589,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings: s }) => {
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
-    const colors: RegionColors = {
-        background: getHex(s.colorSidebar),
-        text: getHex(s.colorSidebarText),
-    };
+    const colors = standardRegionColors(s);
 
     const { hourPath, minutePath } = getTimePaths(s.clockFont);
 

@@ -11,6 +11,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   colorTime: capabilities.BW ? 'FFFFFF' : 'FF5500',
   colorSidebar: capabilities.BW ? 'FFFFFF' : 'FF5500',
   colorSidebarText: '000000',
+  colorAltSidebarText: 'FFFFFF',
 
   // Widget slots
   widget0Id: 7,  // Current Weather

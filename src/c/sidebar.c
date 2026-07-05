@@ -15,6 +15,7 @@
 typedef struct {
   RegionEdge edge;                       // NONE = disabled
   SidebarLayoutMode widgetMode;          // how widgets present themselves
+  bool dark;                             // "dark" appearance (bg-colored)
   int thickness;                         // width (vertical) / height (horizontal)
   int slotCount;                         // rendered cap already applied
   SidebarWidgetType slots[MAX_REGION_SLOTS];
@@ -66,6 +67,8 @@ static void sidebar_buildRegions(void) {
   hRegion = (SidebarRegion){
       .edge = hEdge,
       .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
+      // when both regions are present, the bottom bar goes dark
+      .dark = (hEdge != REGION_EDGE_NONE) && (vEdge != REGION_EDGE_NONE),
       .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
                            : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
       .slotCount = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE,
@@ -349,9 +352,14 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
     return;
   }
 
-  graphics_context_set_fill_color(ctx, settings.sidebarColor);
+  const SidebarPalette *palette = r->dark
+                                      ? &dynamicSettings.darkSidebarPalette
+                                      : &dynamicSettings.sidebarPalette;
+  SidebarWidgets_setActivePalette(palette);
+
+  graphics_context_set_fill_color(ctx, palette->background);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
-  graphics_context_set_text_color(ctx, settings.sidebarTextColor);
+  graphics_context_set_text_color(ctx, palette->text);
 
   if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
     if (r->widgetMode == SIDEBAR_LAYOUT_STACKED) {
@@ -376,6 +384,7 @@ static void updateHRegionLayer(Layer *l, GContext *ctx) {
 
 static void draw_round_arc(GContext *ctx, GRect bgBounds,
                            SidebarWidgetType widgetType, int widgetXOffset) {
+  SidebarWidgets_setActivePalette(&dynamicSettings.sidebarPalette);
   graphics_context_set_fill_color(ctx, settings.sidebarColor);
   graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);

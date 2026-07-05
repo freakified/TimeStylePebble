@@ -5,7 +5,8 @@
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
       "colorSidebar": "FFAA00",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -14,7 +15,8 @@
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
       "colorSidebar": "00AAFF",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -23,7 +25,8 @@
       "colorBackground": "FFAA00",
       "colorTime": "FFFFFF",
       "colorSidebar": "FF5500",
-      "colorSidebarText": "FFFFFF"
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -32,7 +35,8 @@
       "colorBackground": "0055AA",
       "colorTime": "FFFFFF",
       "colorSidebar": "00AAFF",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -41,7 +45,8 @@
       "colorBackground": "005500",
       "colorTime": "FFFFFF",
       "colorSidebar": "00AA00",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -50,7 +55,8 @@
       "colorBackground": "555555",
       "colorTime": "FFFFFF",
       "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   }
 ]

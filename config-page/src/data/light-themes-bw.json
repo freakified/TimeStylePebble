@@ -5,7 +5,8 @@
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
       "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   },
   {
@@ -14,7 +15,8 @@
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
       "colorSidebar": "000000",
-      "colorSidebarText": "FFFFFF"
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "000000"
     }
   },
   {
@@ -23,7 +25,8 @@
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
       "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000"
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
     }
   }
 ]

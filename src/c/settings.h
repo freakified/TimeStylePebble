@@ -67,6 +67,10 @@ typedef struct {
   uint8_t layoutId; // SidebarLayoutId
   uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
   uint8_t hRegionSlots[MAX_REGION_SLOTS];
+
+  // text color for "dark" sidebar regions (the bottom bar in two-sidebar
+  // layouts, which draws on the watchface background color)
+  GColor altSidebarTextColor;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
@@ -75,9 +79,9 @@ typedef struct {
   bool updateScreenEverySecond;
   bool enableBeats;
   bool enableAltTimeZone;
-  
-  GColor iconFillColor;
-  GColor iconStrokeColor;
+
+  SidebarPalette sidebarPalette;     // "standard" region appearance
+  SidebarPalette darkSidebarPalette; // "dark" region appearance
 } DynamicSettings;
 
 extern Settings settings;

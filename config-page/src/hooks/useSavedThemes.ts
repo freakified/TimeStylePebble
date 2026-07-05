@@ -16,6 +16,7 @@ const DAY_THEME_KEYS: (keyof Settings)[] = [
     'colorTime',
     'colorSidebar',
     'colorSidebarText',
+    'colorAltSidebarText',
 ];
 
 /** The color setting keys used by night themes (mirrors day for now; expand when night theme support is added) */
@@ -24,6 +25,7 @@ const NIGHT_THEME_KEYS: (keyof Settings)[] = [
     'colorTime',
     'colorSidebar',
     'colorSidebarText',
+    'colorAltSidebarText',
 ];
 
 function loadFromStorage(key: string): SavedTheme[] {
