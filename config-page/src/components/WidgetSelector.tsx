@@ -100,6 +100,9 @@ export const WidgetSelector: React.FC = () => {
                         )}
                         {layoutHasBottomBar(settings.layout) && (
                             <>
+                                {layoutHasSidebar(settings.layout) && (
+                                    <div className="widget-selector-divider" role="separator" />
+                                )}
                                 {renderSlot('Bar slot 1', 'bottomBarWidget0Id')}
                                 {renderSlot('Bar slot 2', 'bottomBarWidget1Id')}
                                 {layoutHasStackedBar(settings.layout) && (

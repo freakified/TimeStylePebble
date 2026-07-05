@@ -21,7 +21,7 @@ import darkThemes from '../data/dark-themes.json';
 import lightThemesBw from '../data/light-themes-bw.json';
 import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
-import { layoutHasSidebar, layoutHasBottomBar } from '../utils/layout';
+import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
 
 // Alt-clock offset options: -12 to +14
 const ALT_CLOCK_OFFSETS = Array.from({ length: 27 }, (_, i) => {
@@ -97,21 +97,29 @@ export const SettingsPage: React.FC = () => {
   const getNightSavedTheme = () =>
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
-  const sidebarWidgetIds = layoutHasSidebar(settings.layout) || capabilities.ROUND
-    ? [settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id]
+  // Only the slots the current platform + layout actually renders
+  const sidebarWidgetIds = capabilities.ROUND
+    ? [settings.widget0Id, settings.widget1Id]
+    : layoutHasSidebar(settings.layout)
+      ? capabilities.EMERY
+        ? [settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id]
+        : [settings.widget0Id, settings.widget1Id, settings.widget2Id]
+      : [];
+  const bottomBarWidgetIds = !capabilities.ROUND && layoutHasBottomBar(settings.layout)
+    ? layoutHasStackedBar(settings.layout)
+      ? [
+          settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
+          settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
+        ]
+      : [settings.bottomBarWidget0Id, settings.bottomBarWidget1Id]
     : [];
-  const activeWidgetIds = layoutHasBottomBar(settings.layout)
-    ? sidebarWidgetIds.concat([
-        settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
-        settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
-      ])
-    : sidebarWidgetIds;
+  const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
   const showWeatherSection = activeWidgetIds.some((id) => id === 7 || id === 8 || id === 13);
 
   const showAltClockSection = activeWidgetIds.some((id) => id === 3);
 
-  const showHealthSection = sidebarWidgetIds.some((id) => id === 3);
+  const showHealthSection = activeWidgetIds.some((id) => id === 9 || id === 10);
 
 
   return (
@@ -189,40 +197,7 @@ export const SettingsPage: React.FC = () => {
       </Section>
       ── */}
 
-      {/* ── Widgets ── */}
-      <Section title="Widgets">
-        <WidgetSelector />
-      </Section>
-
-
-      {/* ── Time Display ── */}
-      <Section title="Time Display">
-        <SelectCards
-          label="Font"
-          messageKey="clockFont"
-          options={[
-            { label: 'Default', value: 'default' },
-            { label: 'Bold', value: 'bold' },
-            { label: 'Bold (hours only)', value: 'bold-h' },
-            { label: 'Bold (minutes only)', value: 'bold-m' },
-            { label: 'LECO', value: 'leco' },
-          ]}
-          optionSettings={{
-            default: { clockFont: 'default' },
-            bold: { clockFont: 'bold' },
-            'bold-h': { clockFont: 'bold-h' },
-            'bold-m': { clockFont: 'bold-m' },
-            leco: { clockFont: 'leco' },
-          }}
-        />
-        <Toggle
-          label="Show leading zero"
-          description="Display time as 09:30 instead of 9:30"
-          messageKey="leadingZero"
-        />
-      </Section>
-
-      {/* ── Sidebar Display ── */}
+      {/* ── Layout ── */}
       <Section title="Layout">
         {capabilities.RECT && (
           <SelectCards
@@ -265,8 +240,38 @@ export const SettingsPage: React.FC = () => {
         />
       </Section>
 
+      {/* ── Widgets ── */}
+      <Section title="Widgets">
+        <WidgetSelector />
+      </Section>
 
 
+      {/* ── Time Display ── */}
+      <Section title="Time Display">
+        <SelectCards
+          label="Font"
+          messageKey="clockFont"
+          options={[
+            { label: 'Default', value: 'default' },
+            { label: 'Bold', value: 'bold' },
+            { label: 'Bold (hours only)', value: 'bold-h' },
+            { label: 'Bold (minutes only)', value: 'bold-m' },
+            { label: 'LECO', value: 'leco' },
+          ]}
+          optionSettings={{
+            default: { clockFont: 'default' },
+            bold: { clockFont: 'bold' },
+            'bold-h': { clockFont: 'bold-h' },
+            'bold-m': { clockFont: 'bold-m' },
+            leco: { clockFont: 'leco' },
+          }}
+        />
+        <Toggle
+          label="Show leading zero"
+          description="Display time as 09:30 instead of 9:30"
+          messageKey="leadingZero"
+        />
+      </Section>
 
       {/* ── Weather ── */}
       {showWeatherSection && (
@@ -323,7 +328,7 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* ── Health ── */}
-      {capabilities.HEALTH && (
+      {capabilities.HEALTH && showHealthSection && (
         <Section title="Health">
           <Select
             label="Steps widget displays"

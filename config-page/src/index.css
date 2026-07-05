@@ -1131,6 +1131,12 @@ input[type='checkbox'] {
   width: 100%;
 }
 
+.widget-selector-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-color);
+}
+
 @media (max-width: 320px) {
   .widget-selector-container {
     flex-direction: column;

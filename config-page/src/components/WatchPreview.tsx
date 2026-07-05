@@ -1,20 +1,18 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
-import { Settings } from '../context/types';
-import { layoutSidebarOnLeft } from '../utils/layout';
-import widgetAltTz from '../assets/preview/widget_previews/widget_alttz.svg?raw';
-import widgetBattery from '../assets/preview/widget_previews/widget_battery.svg?raw';
-import widgetBatteryNoText from '../assets/preview/widget_previews/widget_battery_notext.svg?raw';
-import widgetBeats from '../assets/preview/widget_previews/widget_beats.svg?raw';
-import widgetDate from '../assets/preview/widget_previews/widget_date.svg?raw';
-import widgetForecast from '../assets/preview/widget_previews/widget_forecast.svg?raw';
-import widgetHrm from '../assets/preview/widget_previews/widget_hrm.svg?raw';
-import widgetSeconds from '../assets/preview/widget_previews/widget_seconds.svg?raw';
-import widgetSleep from '../assets/preview/widget_previews/widget_sleep.svg?raw';
-import widgetSteps from '../assets/preview/widget_previews/widget_steps.svg?raw';
-import widgetUvi from '../assets/preview/widget_previews/widget_uvi.svg?raw';
-import widgetWeather from '../assets/preview/widget_previews/widget_weather.svg?raw';
-import widgetWeek from '../assets/preview/widget_previews/widget_week.svg?raw';
+import { Capabilities, Settings } from '../context/types';
+import {
+    layoutHasSidebar,
+    layoutHasBottomBar,
+    layoutHasStackedBar,
+    layoutSidebarOnLeft,
+} from '../utils/layout';
+import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
+import iconDate from '../assets/preview/widget_previews/icon_date.svg?raw';
+import iconHrm from '../assets/preview/widget_previews/icon_hrm.svg?raw';
+import iconSleep from '../assets/preview/widget_previews/icon_sleep.svg?raw';
+import iconSteps from '../assets/preview/widget_previews/icon_steps.svg?raw';
+import iconWeather from '../assets/preview/widget_previews/icon_weather.svg?raw';
 
 export interface WatchPreviewProps {
     overrideSettings?: Partial<Settings>;
@@ -42,53 +40,119 @@ function getTimePaths(clockFont: Settings['clockFont']) {
     return { hourPath: TIME_PATHS.hours[hKey], minutePath: TIME_PATHS.minutes[mKey] };
 }
 
-const WIDGET_LABELS: Record<number, string> = {
-    0:  '',
-    2:  'BATT',
-    3:  'ALT',
-    4:  'MON\nJAN 1',
-    5:  'SEC',
-    6:  'WK',
-    7:  '72°\nSUNNY',
-    8:  '75°/60°',
-    9:  'SLEEP',
-    10: 'STEPS',
-    11: 'BEAT',
-    12: 'BPM',
-    13: 'UV',
-};
+/* ── Widget rendering ─────────────────────────────────────────────────
+ * Widgets mirror the watch's two presentation modes: "stacked" (icon
+ * above text — sidebars, round arcs, and the standalone bottom bar) and
+ * "inline" (icon beside text — the narrow bottom bar). Each widget is
+ * described as a vertical list of items; the inline renderer re-derives
+ * an icon + single-line form from the same list.
+ */
 
-interface WidgetPreviewAsset {
+interface IconAsset {
     svg: string;
-    width: number;
-    height: number;
+    w: number;
+    h: number;
 }
 
-const WIDGET_PREVIEWS: Record<number, WidgetPreviewAsset> = {
-    3:  { svg: widgetAltTz,   width: 29, height: 35 },
-    4:  { svg: widgetDate,    width: 29, height: 63 },
-    5:  { svg: widgetSeconds, width: 29, height: 35 },
-    6:  { svg: widgetWeek,    width: 29, height: 35 },
-    7:  { svg: widgetWeather, width: 29, height: 47 },
-    8:  { svg: widgetForecast, width: 29, height: 65 },
-    9:  { svg: widgetSleep,   width: 29, height: 52 },
-    10: { svg: widgetSteps,   width: 29, height: 35 },
-    11: { svg: widgetBeats,   width: 29, height: 35 },
-    12: { svg: widgetHrm,     width: 29, height: 47 },
-    13: { svg: widgetUvi,     width: 29, height: 35 },
+const ICONS = {
+    battery: { svg: iconBattery, w: 25, h: 18 },
+    date:    { svg: iconDate,    w: 25, h: 25 },
+    hrm:     { svg: iconHrm,     w: 25, h: 25 },
+    sleep:   { svg: iconSleep,   w: 25, h: 22 },
+    steps:   { svg: iconSteps,   w: 25, h: 18 },
+    weather: { svg: iconWeather, w: 25, h: 25 },
+} as const satisfies Record<string, IconAsset>;
+
+type WidgetItem =
+    | { type: 'icon'; asset: IconAsset }
+    | { type: 'calendar'; day: string }   // date icon with the day number inside
+    | { type: 'text'; text: string; size: number }
+    | { type: 'divider' };
+
+const STACK_GAP = 2;
+const TEXT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const TEXT_CHAR_W = 0.62;  // average bold advance as a fraction of font size
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const getIsoWeek = (date: Date): number => {
+    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = utc.getUTCDay() || 7;
+    utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
+    const yearStart = Date.UTC(utc.getUTCFullYear(), 0, 1);
+    return Math.ceil(((utc.getTime() - yearStart) / 86400000 + 1) / 7);
 };
 
-const BATTERY_PREVIEWS: Record<Settings['batteryMeter'], WidgetPreviewAsset> = {
-    'icon-and-percent': { svg: widgetBattery, width: 29, height: 33 },
-    'icon-only': { svg: widgetBatteryNoText, width: 29, height: 20 },
-};
+const text = (str: string, size = 9): WidgetItem => ({ type: 'text', text: str, size });
 
-const getWidgetPreviewAsset = (widgetId: number, settings: Settings) => {
-    if (widgetId === 2) {
-        return BATTERY_PREVIEWS[settings.batteryMeter];
+const getWidgetItems = (widgetId: number, settings: Settings, compact = false): WidgetItem[] => {
+    const now = new Date();
+
+    switch (widgetId) {
+        case 2: {  // Battery
+            const items: WidgetItem[] = [{ type: 'icon', asset: ICONS.battery }];
+            if (settings.batteryMeter === 'icon-and-percent') items.push(text('80%'));
+            return items;
+        }
+        case 3:  // Alternate Time Zone
+            return [text(settings.altClockName || 'ALT'), text('5p')];
+        case 4: {  // Today's Date
+            const items: WidgetItem[] = [
+                text(DAY_NAMES[now.getDay()]),
+                { type: 'calendar', day: String(now.getDate()) },
+            ];
+            if (!compact) items.push(text(MONTH_NAMES[now.getMonth()]));
+            return items;
+        }
+        case 5:  // Seconds
+            return [text('30')];
+        case 6:  // Week Number
+            return [text('Wk'), text(String(getIsoWeek(now)))];
+        case 7:  // Current Weather
+            return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
+        case 8:  // Today's Forecast
+            return [{ type: 'icon', asset: ICONS.weather }, text('75°'), { type: 'divider' }, text('60°')];
+        case 9:  // Sleep
+            return [{ type: 'icon', asset: ICONS.sleep }, text('7h'), text('42m', 7)];
+        case 10:  // Steps
+            return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
+        case 11:  // Swatch Internet Time
+            return [text('@'), text('543')];
+        case 12:  // Heart Rate
+            return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
+        case 13:  // UV Index
+            return [text('UV'), text('6')];
+        default:
+            return [];
     }
+};
 
-    return WIDGET_PREVIEWS[widgetId];
+const measureItem = (item: WidgetItem): { w: number; h: number } => {
+    switch (item.type) {
+        case 'icon': return { w: item.asset.w, h: item.asset.h };
+        case 'calendar': return { w: ICONS.date.w, h: ICONS.date.h };
+        case 'text': return { w: item.text.length * item.size * TEXT_CHAR_W, h: item.size + 1 };
+        case 'divider': return { w: 14, h: 3 };
+    }
+};
+
+interface WidgetSpec {
+    items: WidgetItem[];
+    w: number;
+    h: number;
+}
+
+const getWidgetSpec = (widgetId: number, settings: Settings, compact = false): WidgetSpec => {
+    const items = getWidgetItems(widgetId, settings, compact);
+    let w = 0;
+    let h = 0;
+    items.forEach((item, i) => {
+        const size = measureItem(item);
+        w = Math.max(w, size.w);
+        h += size.h + (i > 0 ? STACK_GAP : 0);
+    });
+    return { items, w, h };
 };
 
 const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
@@ -98,179 +162,388 @@ const isBlack = (color: string) => {
     return normalized === '#000' || normalized === '#000000';
 };
 
-const getTintedSvgDataUri = (svg: string, sidebarColor: string, textColor: string) => {
-    const fillColor = isBlack(sidebarColor) ? '#000000' : '#ffffff';
-    const strokeColor = isBlack(sidebarColor) ? textColor : '#000000';
+interface RegionColors {
+    background: string;  // region fill (the sidebar color)
+    text: string;        // widget text color
+}
 
-    const svgWithSidebarBackground = svg.replace(
-        /(<(?:path|rect)\b[^>]*\bfill=")#fff(")/i,
-        `$1${sidebarColor}$2`
-    );
+// Recolor an icon the way the watch does: white fills stay white on a
+// colored sidebar with black strokes; on a black sidebar the fills go
+// black and the strokes take the sidebar text color.
+const iconColors = (colors: RegionColors) =>
+    isBlack(colors.background)
+        ? { fill: '#000000', stroke: colors.text }
+        : { fill: '#ffffff', stroke: '#000000' };
 
-    const tintedSvg = svgWithSidebarBackground
-        .replace(/#fff/gi, fillColor)
-        .replace(/stroke="#000"/gi, `stroke="${strokeColor}"`)
-        .replace(/stroke:#000/gi, `stroke:${strokeColor}`)
-        .replace(/fill="#000"/gi, `fill="${textColor}"`)
-        .replace(/fill:#000/gi, `fill:${textColor}`);
-
-    return `data:image/svg+xml;utf8,${encodeURIComponent(tintedSvg)}`;
+const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
+    const { fill, stroke } = iconColors(colors);
+    const tinted = svg.replace(/#fff/gi, fill).replace(/#000/gi, stroke);
+    return `data:image/svg+xml;utf8,${encodeURIComponent(tinted)}`;
 };
 
-const renderFallbackWidgetLabel = (
-    widgetId: number,
-    centerX: number,
-    centerY: number,
-    textColor: string
+const textNode = (
+    key: React.Key,
+    str: string,
+    x: number,
+    y: number,
+    fontSize: number,
+    fill: string,
+    anchor: 'middle' | 'start' = 'middle'
+) => (
+    <text
+        key={key}
+        x={x}
+        y={y}
+        textAnchor={anchor}
+        dominantBaseline="central"
+        fill={fill}
+        fontSize={fontSize}
+        fontFamily={TEXT_FONT}
+        fontWeight="bold"
+    >
+        {str}
+    </text>
+);
+
+const renderIconImage = (
+    key: React.Key,
+    asset: IconAsset,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    colors: RegionColors
+) => (
+    <image
+        key={key}
+        href={getTintedIconDataUri(asset.svg, colors)}
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        preserveAspectRatio="xMidYMid meet"
+    />
+);
+
+// The day number sits inside the calendar body (below the binding rings).
+const CALENDAR_DAY_CENTER_Y = 14;
+
+const renderCalendar = (
+    key: React.Key,
+    day: string,
+    x: number,
+    y: number,
+    scale: number,
+    colors: RegionColors
+) => (
+    <g key={key}>
+        {renderIconImage('bg', ICONS.date, x, y, ICONS.date.w * scale, ICONS.date.h * scale, colors)}
+        {textNode('day', day, x + (ICONS.date.w / 2) * scale, y + CALENDAR_DAY_CENTER_Y * scale,
+                  9 * scale, iconColors(colors).stroke)}
+    </g>
+);
+
+/** Draw a widget's items top-to-bottom, horizontally centered on `cx`. */
+const renderItemsStacked = (
+    items: WidgetItem[],
+    cx: number,
+    top: number,
+    scale: number,
+    colors: RegionColors
 ) => {
-    const label = WIDGET_LABELS[widgetId] ?? '';
-    if (!label) return null;
+    let y = top;
+    return items.map((item, i) => {
+        const size = measureItem(item);
+        const itemTop = y;
+        y += (size.h + STACK_GAP) * scale;
 
-    const lines = label.split('\n');
-    const lineHeight = 10;
-    const startY = centerY - ((lines.length - 1) * lineHeight) / 2 + 2;
-
-    return lines.map((line, i) => (
-        <text
-            key={i}
-            x={centerX}
-            y={startY + i * lineHeight}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill={textColor}
-            fontSize="7"
-            fontFamily="monospace"
-            fontWeight="bold"
-        >
-            {line}
-        </text>
-    ));
+        switch (item.type) {
+            case 'icon': {
+                const w = size.w * scale;
+                const h = size.h * scale;
+                return renderIconImage(i, item.asset, cx - w / 2, itemTop, w, h, colors);
+            }
+            case 'calendar':
+                return renderCalendar(i, item.day, cx - (size.w * scale) / 2, itemTop, scale, colors);
+            case 'text':
+                return textNode(i, item.text, cx, itemTop + (size.h * scale) / 2, item.size * scale, colors.text);
+            case 'divider':
+                return (
+                    <line
+                        key={i}
+                        x1={cx - (size.w * scale) / 2}
+                        x2={cx + (size.w * scale) / 2}
+                        y1={itemTop + 1.5 * scale}
+                        y2={itemTop + 1.5 * scale}
+                        stroke={colors.text}
+                        strokeWidth={1}
+                    />
+                );
+        }
+    });
 };
 
-const getWidgetPreviewSize = (
+/** Draw a widget centered on (cx, centerY), scaled to fit maxW × maxH. */
+const renderStackedWidget = (
     widgetId: number,
     settings: Settings,
-    maxWidth: number,
-    scaleMultiplier = 1
+    cx: number,
+    centerY: number,
+    maxW: number,
+    maxH: number,
+    colors: RegionColors,
+    extraScale = 1,
+    compact = false
 ) => {
-    const asset = getWidgetPreviewAsset(widgetId, settings);
+    const spec = getWidgetSpec(widgetId, settings, compact);
+    if (spec.items.length === 0) return null;
 
-    if (!asset) {
-        return { width: maxWidth, height: 20 * scaleMultiplier };
+    const scale = Math.min(maxW / spec.w, maxH / spec.h, 1) * extraScale;
+    return renderItemsStacked(spec.items, cx, centerY - (spec.h * scale) / 2, scale, colors);
+};
+
+/* ── Inline (narrow bottom bar) rendering ── */
+
+const INLINE_ICON_H = 12;
+const INLINE_GAP = 3;
+const INLINE_FONT = 9;
+
+interface InlineParts {
+    icon?: { asset: IconAsset } | { calendar: string };
+    text: string;
+}
+
+const getInlineParts = (widgetId: number, settings: Settings): InlineParts | null => {
+    const items = getWidgetItems(widgetId, settings, true);
+    if (items.length === 0) return null;
+
+    let icon: InlineParts['icon'];
+    const textParts: string[] = [];
+    let pendingDivider = false;
+
+    for (const item of items) {
+        if (item.type === 'icon' && !icon) icon = { asset: item.asset };
+        else if (item.type === 'calendar' && !icon) icon = { calendar: item.day };
+        else if (item.type === 'divider') pendingDivider = true;
+        else if (item.type === 'text') {
+            if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
+            pendingDivider = false;
+            textParts.push(item.text);
+        }
     }
 
-    const scale = Math.min(maxWidth / asset.width, 1) * scaleMultiplier;
-    return {
-        width: asset.width * scale,
-        height: asset.height * scale,
+    return { icon, text: textParts.join('') };
+};
+
+const measureInline = (parts: InlineParts): number => {
+    let w = 0;
+    if (parts.icon) {
+        const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
+        w += asset.w * (INLINE_ICON_H / asset.h);
+        if (parts.text) w += INLINE_GAP;
+    }
+    w += parts.text.length * INLINE_FONT * TEXT_CHAR_W;
+    return w;
+};
+
+const renderInlineWidget = (
+    parts: InlineParts,
+    x: number,
+    centerY: number,
+    colors: RegionColors
+) => {
+    const nodes: React.ReactNode[] = [];
+    let cursor = x;
+
+    if (parts.icon) {
+        const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
+        const scale = INLINE_ICON_H / asset.h;
+        const w = asset.w * scale;
+        const top = centerY - INLINE_ICON_H / 2;
+
+        if ('asset' in parts.icon) {
+            nodes.push(renderIconImage('icon', asset, cursor, top, w, INLINE_ICON_H, colors));
+        } else {
+            nodes.push(renderCalendar('icon', parts.icon.calendar, cursor, top, scale, colors));
+        }
+        cursor += w + (parts.text ? INLINE_GAP : 0);
+    }
+
+    if (parts.text) {
+        nodes.push(textNode('text', parts.text, cursor, centerY, INLINE_FONT, colors.text, 'start'));
+    }
+
+    return nodes;
+};
+
+/* ── Region geometry (mirrors sidebar_layout.h, in 144×168 units) ── */
+
+const SIDEBAR_W_NARROW = 30;
+const SIDEBAR_W_WIDE = 46;
+const BAR_H_INLINE = 30;
+const BAR_H_STACKED = 50;
+const BAR_SIDEBAR_GAP = 2;
+const BAR_PADDING_X = 4;
+const SIDEBAR_V_PADDING = 8;
+const SIDEBAR_MIN_SLOT_GAP = 4;
+
+/** Render a rectangular (basalt/diorite/emery) TimeStyle face */
+const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabilities }> = ({
+    effectiveSettings: s,
+    capabilities,
+}) => {
+    const bg = getHex(s.colorBackground);
+    const timeColor = getHex(s.colorTime);
+    const colors: RegionColors = {
+        background: getHex(s.colorSidebar),
+        text: getHex(s.colorSidebarText),
     };
-};
 
-const renderWidgetPreview = (
-    widgetId: number,
-    settings: Settings,
-    centerX: number,
-    centerY: number,
-    maxWidth: number,
-    backgroundColor: string,
-    foregroundColor: string,
-    scaleMultiplier = 1
-) => {
-    if (widgetId === 10) {
-        const value = settings.wideSidebar ? '2700' : '2.7k';
-        const scale = Math.min(maxWidth / 29, 1) * scaleMultiplier;
-        const iconY = centerY - 16 * scale;
-        const textY = centerY + 11 * scale;
-
-        return (
-            <g transform={`translate(${centerX - 13 * scale} ${iconY}) scale(${scale})`}>
-                <path
-                    d="M3 5.8v12.4h22.4l-.5-4-6-3.4-1.6-.5-5.3-5-3.6 3.2z"
-                    fill={isBlack(backgroundColor) ? '#000000' : '#ffffff'}
-                    stroke={isBlack(backgroundColor) ? foregroundColor : '#000000'}
-                    strokeWidth="2"
-                    strokeMiterlimit="10"
-                />
-                <path
-                    d="M16.9 18.6l1.7-7.1M3.5 13.8h5.1l1 1h7.9M12.5 9.6l2.1-2.1M14.8 11.6l2.1-2.1"
-                    fill="none"
-                    stroke={isBlack(backgroundColor) ? foregroundColor : '#000000'}
-                    strokeWidth="2"
-                    strokeMiterlimit="10"
-                />
-                <text
-                    x="13"
-                    y={(textY - iconY) / scale}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill={foregroundColor}
-                    fontSize={settings.wideSidebar ? '8' : '7'}
-                    fontFamily="monospace"
-                    fontWeight="bold"
-                >
-                    {value}
-                </text>
-            </g>
-        );
-    }
-
-    const asset = getWidgetPreviewAsset(widgetId, settings);
-
-    if (!asset) {
-        return renderFallbackWidgetLabel(widgetId, centerX, centerY, foregroundColor);
-    }
-
-    const scale = Math.min(maxWidth / asset.width, 1) * scaleMultiplier;
-    const width = asset.width * scale;
-    const height = asset.height * scale;
-
-    return (
-        <image
-            href={getTintedSvgDataUri(asset.svg, backgroundColor, foregroundColor)}
-            x={centerX - width / 2}
-            y={centerY - height / 2}
-            width={width}
-            height={height}
-            preserveAspectRatio="xMidYMid meet"
-        />
-    );
-};
-
-/** Render a rectangular (basalt/aplite/diorite/emery) TimeStyle face */
-const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings }) => {
-    const bg = getHex(effectiveSettings.colorBackground);
-    const timeColor = getHex(effectiveSettings.colorTime);
-    const sidebarColor = getHex(effectiveSettings.colorSidebar);
-    const textColor = getHex(effectiveSettings.colorSidebarText);
-    const sidebarOnLeft = layoutSidebarOnLeft(effectiveSettings.layout);
-
-    // Face dimensions
     const W = 144, H = 168;
-    const SIDEBAR_W = effectiveSettings.wideSidebar ? 46 : 30;
-    const mainX = sidebarOnLeft ? SIDEBAR_W : 0;
+
+    const hasSidebar = layoutHasSidebar(s.layout);
+    const hasBar = layoutHasBottomBar(s.layout);
+    const stackedBar = layoutHasStackedBar(s.layout);
+    const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
+
+    const SIDEBAR_W = hasSidebar ? (s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
+    const BAR_H = hasBar ? (stackedBar ? BAR_H_STACKED : BAR_H_INLINE) : 0;
+
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
+    const mainX = sidebarOnLeft ? SIDEBAR_W : 0;
     const mainW = W - SIDEBAR_W;
 
-    const { hourPath, minutePath } = getTimePaths(effectiveSettings.clockFont);
+    const { hourPath, minutePath } = getTimePaths(s.clockFont);
 
-    const widgetSlots = [
-        effectiveSettings.widget0Id,
-        effectiveSettings.widget1Id,
-        effectiveSettings.widget2Id,
-    ];
-    const widgetMaxWidth = SIDEBAR_W - 1;
-    const sidebarPaddingY = 2;
-    const slotHeight = (H - sidebarPaddingY * 2) / widgetSlots.length;
-    const widgetScale = Math.min(
-        ...widgetSlots
-            .filter((widgetId) => widgetId !== 0)
-            .map((widgetId) => {
-                const { height } = getWidgetPreviewSize(widgetId, effectiveSettings, widgetMaxWidth);
-                return Math.min(slotHeight / height, 1);
-            }),
-        1
-    );
-    const slotCenterX = sidebarX + SIDEBAR_W / 2;
+    /* Sidebar: first and last slots pin to the ends, interior slots
+     * spread evenly between them (the watch's vertical flow). */
+    const renderSidebar = () => {
+        const slotIds = capabilities.EMERY
+            ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id]
+            : [s.widget0Id, s.widget1Id, s.widget2Id];
+
+        const maxW = SIDEBAR_W - 2;
+        const specs = slotIds.map((id) => getWidgetSpec(id, s));
+        const baseScales = specs.map((spec) => (spec.w > 0 ? Math.min(maxW / spec.w, 1) : 1));
+
+        const naturalTotal = specs.reduce((sum, spec, i) => sum + spec.h * baseScales[i], 0);
+        const avail = H - SIDEBAR_V_PADDING * 2 - SIDEBAR_MIN_SLOT_GAP * (slotIds.length - 1);
+        const fit = naturalTotal > 0 ? Math.min(1, avail / naturalTotal) : 1;
+
+        const heights = specs.map((spec, i) => spec.h * baseScales[i] * fit);
+        const cx = sidebarX + SIDEBAR_W / 2;
+        const last = slotIds.length - 1;
+
+        const tops: number[] = new Array(slotIds.length).fill(0);
+        tops[0] = SIDEBAR_V_PADDING;
+        tops[last] = H - SIDEBAR_V_PADDING - heights[last];
+
+        // interior widgets spread evenly between the pinned ends
+        const interiorTotal = heights.slice(1, last).reduce((a, b) => a + b, 0);
+        let y = tops[0] + heights[0];
+        let remaining = tops[last] - y - interiorTotal;
+        let gapsLeft = last;  // interior count + 1
+
+        for (let i = 1; i < last; i++) {
+            const gap = remaining / gapsLeft;
+            remaining -= gap;
+            gapsLeft--;
+            y += gap;
+            tops[i] = y;
+            y += heights[i];
+        }
+
+        return (
+            <>
+                <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />
+                {slotIds.map((id, i) => (
+                    <g key={`sidebar-${i}`}>
+                        {renderItemsStacked(getWidgetItems(id, s), cx, tops[i], baseScales[i] * fit, colors)}
+                    </g>
+                ))}
+            </>
+        );
+    };
+
+    /* Bottom bar: yields its corner to the sidebar with a small gap. */
+    const renderBottomBar = () => {
+        const reserved = hasSidebar ? SIDEBAR_W + BAR_SIDEBAR_GAP : 0;
+        const barX = sidebarOnLeft ? reserved : 0;
+        const barW = W - reserved;
+        const barY = H - BAR_H;
+
+        const slotIds = stackedBar
+            ? [s.bottomBarWidget0Id, s.bottomBarWidget1Id, s.bottomBarWidget2Id, s.bottomBarWidget3Id]
+            : [s.bottomBarWidget0Id, s.bottomBarWidget1Id];
+        const visible = slotIds.filter((id) => id !== 0);
+
+        let content: React.ReactNode = null;
+
+        if (stackedBar && visible.length > 0) {
+            // equal columns, widgets stacked and centered per column
+            const usable = barW - BAR_PADDING_X * 2;
+            const colW = usable / visible.length;
+            content = visible.map((id, i) => (
+                <g key={`bar-${i}`}>
+                    {renderStackedWidget(
+                        id, s,
+                        barX + BAR_PADDING_X + colW * i + colW / 2,
+                        barY + BAR_H / 2,
+                        colW - 4, BAR_H - 6,
+                        colors, 1, true
+                    )}
+                </g>
+            ));
+        } else if (!stackedBar) {
+            // widgets distribute space-evenly along the bar
+            const parts = visible
+                .map((id) => getInlineParts(id, s))
+                .filter((p): p is InlineParts => p !== null);
+            const widths = parts.map(measureInline);
+            const totalW = widths.reduce((a, b) => a + b, 0);
+            let remaining = barW - totalW;
+            let gapsLeft = parts.length + 1;
+            let x = barX;
+
+            content = parts.map((p, i) => {
+                const gap = remaining / gapsLeft;
+                remaining -= gap;
+                gapsLeft--;
+                x += gap;
+                const node = (
+                    <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + BAR_H / 2, colors)}</g>
+                );
+                x += widths[i];
+                return node;
+            });
+        }
+
+        return (
+            <>
+                <rect x={barX} y={barY} width={barW} height={BAR_H} fill={colors.background} />
+                {content}
+            </>
+        );
+    };
+
+    /* Time: centered in the area left over by the regions. */
+    const renderTime = () => {
+        const availH = H - BAR_H;
+        const SVG_W = Math.min(108, mainW - 6, Math.floor(((availH - 6) / 2) * 109 / 81));
+        const SVG_H = Math.round(SVG_W * 81 / 109);
+        const timeX = mainX + (mainW - SVG_W) / 2;
+        const timeY = (availH - SVG_H * 2) / 2;
+        return (
+            <>
+                <svg x={timeX} y={timeY} width={SVG_W} height={SVG_H} viewBox="0 0 109 81">
+                    <path d={hourPath} fill={timeColor} />
+                </svg>
+                <svg x={timeX} y={timeY + SVG_H} width={SVG_W} height={SVG_H} viewBox="0 0 109 81">
+                    <path d={minutePath} fill={timeColor} />
+                </svg>
+            </>
+        );
+    };
 
     return (
         <div className="halite-watch-preview-container">
@@ -284,42 +557,11 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
                     className="halite-watch-preview"
                 >
                     {/* Main background */}
-                    <rect x={mainX} y={0} width={mainW} height={H} fill={bg} />
+                    <rect x={0} y={0} width={W} height={H} fill={bg} />
 
-                    {/* Sidebar */}
-                    <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={sidebarColor} />
-
-                    {/* Widgets */}
-                    {widgetSlots.map((widgetId, index) => {
-                        if (widgetId === 0) {
-                            return null;
-                        }
-
-                        const centerY = sidebarPaddingY + slotHeight * index + slotHeight / 2;
-                        return (
-                            <React.Fragment key={`${widgetId}-${index}`}>
-                                {renderWidgetPreview(widgetId, effectiveSettings, slotCenterX, centerY, widgetMaxWidth, sidebarColor, textColor, widgetScale)}
-                            </React.Fragment>
-                        );
-                    })}
-
-                    {/* Time display — hours stacked above minutes */}
-                    {(() => {
-                        const SVG_W = Math.min(108, mainW - 6);
-                        const SVG_H = Math.round(SVG_W * 81 / 109);
-                        const timeX = mainX + (mainW - SVG_W) / 2;
-                        const timeY = (H - SVG_H * 2) / 2;
-                        return (
-                            <>
-                                <svg x={timeX} y={timeY} width={SVG_W} height={SVG_H} viewBox="0 0 109 81">
-                                    <path d={hourPath} fill={timeColor} />
-                                </svg>
-                                <svg x={timeX} y={timeY + SVG_H} width={SVG_W} height={SVG_H} viewBox="0 0 109 81">
-                                    <path d={minutePath} fill={timeColor} />
-                                </svg>
-                            </>
-                        );
-                    })()}
+                    {renderTime()}
+                    {hasSidebar && renderSidebar()}
+                    {hasBar && renderBottomBar()}
 
                     {/* Border */}
                     <rect x={0.5} y={0.5} width={W - 1} height={H - 1} stroke="#333333" strokeWidth="1" fill="none" />
@@ -329,14 +571,16 @@ const RectPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSetti
     );
 };
 
-/** Render a round (chalk) TimeStyle face */
-const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings }) => {
-    const bg = getHex(effectiveSettings.colorBackground);
-    const timeColor = getHex(effectiveSettings.colorTime);
-    const sidebarColor = getHex(effectiveSettings.colorSidebar);
-    const textColor = getHex(effectiveSettings.colorSidebarText);
+/** Render a round (chalk/gabbro) TimeStyle face */
+const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings: s }) => {
+    const bg = getHex(s.colorBackground);
+    const timeColor = getHex(s.colorTime);
+    const colors: RegionColors = {
+        background: getHex(s.colorSidebar),
+        text: getHex(s.colorSidebarText),
+    };
 
-    const { hourPath, minutePath } = getTimePaths(effectiveSettings.clockFont);
+    const { hourPath, minutePath } = getTimePaths(s.clockFont);
 
     const CX = 90, CY = 90, R = 90;
 
@@ -355,12 +599,12 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                     <circle cx={CX} cy={CY} r={R} fill={bg} />
 
                     {/* Sidebar circles — large circles positioned outside the viewport to create curved sidebar bands */}
-                    <circle cx={-50} cy={CY} r={R} fill={sidebarColor} />
-                    <circle cx={230} cy={CY} r={R} fill={sidebarColor} />
+                    <circle cx={-50} cy={CY} r={R} fill={colors.background} />
+                    <circle cx={230} cy={CY} r={R} fill={colors.background} />
 
-                    {/* Widgets */}
-                    {renderWidgetPreview(effectiveSettings.widget0Id, effectiveSettings, 20, 90, 28, sidebarColor, textColor)}
-                    {renderWidgetPreview(effectiveSettings.widget1Id, effectiveSettings, 160, 90, 28, sidebarColor, textColor)}
+                    {/* Widgets — one per arc, stacked presentation */}
+                    {renderStackedWidget(s.widget0Id, s, 20, 90, 28, 110, colors)}
+                    {renderStackedWidget(s.widget1Id, s, 160, 90, 28, 110, colors)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
@@ -397,5 +641,5 @@ export const WatchPreview: React.FC<WatchPreviewProps> = ({ overrideSettings, is
     if (capabilities.ROUND) {
         return <RoundPreview effectiveSettings={effectiveSettings} />;
     }
-    return <RectPreview effectiveSettings={effectiveSettings} />;
+    return <RectPreview effectiveSettings={effectiveSettings} capabilities={capabilities} />;
 };
