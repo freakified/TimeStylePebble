@@ -29,7 +29,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   clockFont: 'default',
   layout: 'right-sidebar',
   largeSidebarFont: false,
-  wideSidebar: false,
+  seamlessSidebar: false,
   decimalSeparator: '.',
 
   // Bluetooth

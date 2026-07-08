@@ -63,7 +63,9 @@ typedef struct {
   // hRegionEdge / hRegionStyle fields with a single layout preset; old
   // persisted blobs are NOT translated yet -- a migration system for
   // pre-v13 settings comes later)
-  bool useWideSidebar;
+  // "seamless" sidebar: regions draw on the watchface background (the
+  // "dark" appearance) and the vertical sidebar widens
+  bool useSeamlessSidebar;
   uint8_t layoutId; // SidebarLayoutId
   uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
   uint8_t hRegionSlots[MAX_REGION_SLOTS];

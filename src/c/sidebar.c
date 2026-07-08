@@ -50,8 +50,11 @@ static void sidebar_buildRegions(void) {
   vRegion = (SidebarRegion){
       .edge = vEdge,
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
+      // seamless regions blend into the watchface, and the extra room
+      // lets the vertical sidebar widen
+      .dark = settings.useSeamlessSidebar,
       .thickness = (vEdge == REGION_EDGE_NONE) ? 0
-                   : settings.useWideSidebar
+                   : settings.useSeamlessSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
       .slotCount = VREGION_SLOT_CAP,
@@ -67,8 +70,9 @@ static void sidebar_buildRegions(void) {
   hRegion = (SidebarRegion){
       .edge = hEdge,
       .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
-      // when both regions are present, the bottom bar goes dark
-      .dark = (hEdge != REGION_EDGE_NONE) && (vEdge != REGION_EDGE_NONE),
+      // a secondary bar always blends into the watchface; when the bar
+      // is the only region it follows the seamless setting
+      .dark = (vEdge != REGION_EDGE_NONE) || settings.useSeamlessSidebar,
       .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
                            : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
       .slotCount = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE,

@@ -69,7 +69,7 @@ void Settings_loadFromStorage() {
   settings.altclockOffset = 0;
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
-  settings.useWideSidebar = false;
+  settings.useSeamlessSidebar = false;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));

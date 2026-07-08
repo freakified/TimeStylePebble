@@ -5,7 +5,7 @@ var settingsMapper = require('./settings');
 var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
-var LOCAL_CONFIG_URL = 'http://localhost:3000/';
+var LOCAL_CONFIG_URL = 'http://10.25.219.9:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
 var pendingConfigSnapshot = null;
 
@@ -132,8 +132,8 @@ Pebble.addEventListener('webviewclosed', function (e) {
       );
     }
     if (configData.layout === 'right-sidebar-bottom-bar'
-        || configData.layout === 'left-sidebar-bottom-bar'
-        || configData.layout === 'bottom-bar-only') {
+      || configData.layout === 'left-sidebar-bottom-bar'
+      || configData.layout === 'bottom-bar-only') {
       widgetIDs.push(
         configData.bottomBarWidget0Id,
         configData.bottomBarWidget1Id,

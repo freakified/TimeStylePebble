@@ -69,7 +69,7 @@ export interface Settings {
   clockFont: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
   layout: Layout;
   largeSidebarFont: boolean;
-  wideSidebar: boolean;
+  seamlessSidebar: boolean;  // regions draw on the watchface bg; sidebar widens
   decimalSeparator: '.' | ',';
 
   // Bluetooth

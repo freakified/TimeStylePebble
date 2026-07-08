@@ -224,17 +224,17 @@ export const SettingsPage: React.FC = () => {
             }}
           />
         )}
-        {capabilities.RECT && layoutHasSidebar(settings.layout) && (
+        {capabilities.RECT && (
           <SelectCards
-            label="Sidebar width"
-            messageKey="wideSidebar"
+            label="Sidebar"
+            messageKey="seamlessSidebar"
             options={[
-              { label: 'Compact', value: false },
-              { label: 'Wide', value: true },
+              { label: 'Standard', value: false },
+              { label: 'Seamless', value: true },
             ]}
             optionSettings={{
-              false: { wideSidebar: false, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
-              true: { wideSidebar: true, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
+              false: { seamlessSidebar: false, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
+              true: { seamlessSidebar: true, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
             }}
           />
         )}

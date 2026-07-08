@@ -106,7 +106,7 @@ function settingsFromWatchPayload(payload) {
     clockFont: getMappedValue(CLOCK_FONT_BY_ID, getNumber(payload.SettingClockFontId, 0), 'default'),
     layout: getMappedValue(LAYOUT_BY_ID, getNumber(payload.SettingLayoutId, 0), 'right-sidebar'),
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
-    wideSidebar: getBoolean(payload.SettingUseWideSidebar),
+    seamlessSidebar: getBoolean(payload.SettingUseSeamlessSidebar),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
@@ -206,8 +206,8 @@ function settingsToWatchPayload(configData) {
     dict.SettingUseLargeFonts = configData.largeSidebarFont ? 1 : 0;
   }
 
-  if (configData.wideSidebar !== undefined) {
-    dict.SettingUseWideSidebar = configData.wideSidebar ? 1 : 0;
+  if (configData.seamlessSidebar !== undefined) {
+    dict.SettingUseSeamlessSidebar = configData.seamlessSidebar ? 1 : 0;
   }
 
   if (configData.weatherUnits) {

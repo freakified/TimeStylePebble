@@ -116,7 +116,7 @@ const getWidgetItems = (widgetId: number, settings: Settings, compact = false): 
         case 9:  // Sleep
             return [{ type: 'icon', asset: ICONS.sleep }, text('7h'), text('42m', 7)];
         case 10:  // Steps
-            return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
+            return [{ type: 'icon', asset: ICONS.steps }, text(settings.seamlessSidebar ? '2700' : '2.7k')];
         case 11:  // Swatch Internet Time
             return [text('@'), text('543')];
         case 12:  // Heart Rate
@@ -408,19 +408,22 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 }) => {
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
-    const colors = standardRegionColors(s);
 
     const W = 144, H = 168;
 
     const hasSidebar = layoutHasSidebar(s.layout);
     const hasBar = layoutHasBottomBar(s.layout);
 
-    // when both regions are present, the bottom bar goes dark
+    // the primary sidebar follows the seamless setting (drawing on the
+    // watchface background and widening); a secondary bottom bar is
+    // always seamless
+    const colors = s.seamlessSidebar ? darkRegionColors(s) : standardRegionColors(s);
     const barColors = hasSidebar ? darkRegionColors(s) : colors;
+
     const stackedBar = layoutHasStackedBar(s.layout);
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
-    const SIDEBAR_W = hasSidebar ? (s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
+    const SIDEBAR_W = hasSidebar ? (s.seamlessSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
     const BAR_H = hasBar ? (stackedBar ? BAR_H_STACKED : BAR_H_INLINE) : 0;
 
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
