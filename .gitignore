@@ -6,7 +6,6 @@ build
 # Ignore linked files/directories
 waf
 wscript
-tools
 include
 lib
 pebble_app.ld
@@ -15,6 +14,7 @@ node_modules
 # Ignore other generated files
 serial_dump.txt
 pebble_screenshot_*
+screenshots
 compile_commands.json
 
 # Ignore Apple Files

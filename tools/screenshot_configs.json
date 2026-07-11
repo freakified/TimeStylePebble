@@ -1,0 +1,131 @@
+{
+  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'.",
+
+  "defaults": {
+    "SettingColorBG": "#000000",
+    "SettingColorTime": "#FF5500",
+    "SettingColorSidebar": "#FF5500",
+    "SettingSidebarTextColor": "#000000",
+    "SettingAltSidebarTextColor": "#FFFFFF",
+
+    "SettingLayoutId": "SIDEBAR_RIGHT",
+    "SettingUseSeamlessSidebar": 0,
+    "SettingUseLargeFonts": 0,
+
+    "SettingWidget0ID": "WEATHER_CURRENT",
+    "SettingWidget1ID": "EMPTY",
+    "SettingWidget2ID": "DATE",
+    "SettingWidget3ID": "EMPTY",
+    "SettingBottomBarWidget0ID": "BATTERY_METER",
+    "SettingBottomBarWidget1ID": "SECONDS",
+    "SettingBottomBarWidget2ID": "EMPTY",
+    "SettingBottomBarWidget3ID": "EMPTY",
+
+    "SettingClockFontId": 0,
+    "SettingLanguageID": 0,
+    "SettingShowLeadingZero": 0,
+    "SettingShowBatteryPct": 1,
+    "SettingDisableAutobattery": 0,
+    "SettingUseMetric": 1,
+    "SettingBluetoothVibe": 0,
+    "SettingHourlyVibe": 0,
+    "SettingDisconnectIcon": 1,
+    "SettingAltClockName": "MTV",
+    "SettingAltClockOffset": 3,
+    "SettingHealthUseDistance": 0,
+    "SettingHealthUseRestfulSleep": 0,
+    "SettingDecimalSep": 46,
+
+    "WeatherTemperature": 21,
+    "WeatherCondition": "PARTLY_CLOUDY",
+    "WeatherForecastCondition": "LIGHT_RAIN",
+    "WeatherForecastHighTemp": 25,
+    "WeatherForecastLowTemp": 14,
+    "WeatherUVIndex": 6
+  },
+
+  "configs": [
+    { "name": "layout-right", "settings": {} },
+    { "name": "layout-left", "settings": { "SettingLayoutId": "SIDEBAR_LEFT" } },
+    { "name": "layout-right-bottombar", "settings": { "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR" } },
+    { "name": "layout-left-bottombar", "settings": { "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR" } },
+    { "name": "layout-bottombar-only", "settings": { "SettingLayoutId": "BOTTOM_BAR_ONLY" } },
+
+    { "name": "layout-right-seamless", "settings": { "SettingUseSeamlessSidebar": 1 } },
+    { "name": "layout-left-seamless", "settings": { "SettingLayoutId": "SIDEBAR_LEFT", "SettingUseSeamlessSidebar": 1 } },
+    { "name": "layout-right-bottombar-seamless", "settings": { "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR", "SettingUseSeamlessSidebar": 1 } },
+    { "name": "layout-left-bottombar-seamless", "settings": { "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR", "SettingUseSeamlessSidebar": 1 } },
+    { "name": "layout-bottombar-only-seamless", "settings": { "SettingLayoutId": "BOTTOM_BAR_ONLY", "SettingUseSeamlessSidebar": 1 } },
+
+    { "name": "layout-right-largefonts", "settings": { "SettingUseLargeFonts": 1 } },
+    { "name": "layout-right-bottombar-largefonts", "settings": { "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR", "SettingUseLargeFonts": 1 } },
+    { "name": "layout-bottombar-only-largefonts", "settings": { "SettingLayoutId": "BOTTOM_BAR_ONLY", "SettingUseLargeFonts": 1 } },
+
+    { "name": "sidebar-packed", "settings": {
+      "SettingWidget0ID": "WEATHER_CURRENT",
+      "SettingWidget1ID": "BATTERY_METER",
+      "SettingWidget2ID": "ALT_TIME_ZONE",
+      "SettingWidget3ID": "DATE"
+    } },
+    { "name": "sidebar-empty", "settings": {
+      "SettingWidget0ID": "EMPTY",
+      "SettingWidget1ID": "EMPTY",
+      "SettingWidget2ID": "EMPTY",
+      "SettingWidget3ID": "EMPTY"
+    } },
+
+    { "name": "bottombar-packed-inline", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",
+      "SettingBottomBarWidget1ID": "STEP_COUNTER"
+    } },
+    { "name": "bottombar-packed-stacked", "settings": {
+      "SettingLayoutId": "BOTTOM_BAR_ONLY",
+      "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
+      "SettingBottomBarWidget1ID": "BATTERY_METER",
+      "SettingBottomBarWidget2ID": "STEP_COUNTER",
+      "SettingBottomBarWidget3ID": "DATE"
+    } },
+
+    { "name": "widgets-misc", "settings": {
+      "SettingWidget0ID": "WEEK_NUMBER",
+      "SettingWidget1ID": "SECONDS",
+      "SettingWidget2ID": "BEATS",
+      "SettingWidget3ID": "EMPTY"
+    } },
+    { "name": "widgets-health", "settings": {
+      "SettingWidget0ID": "STEP_COUNTER",
+      "SettingWidget1ID": "SLEEP_TIMER",
+      "SettingWidget2ID": "HEARTRATE",
+      "SettingWidget3ID": "EMPTY"
+    } },
+    { "name": "widgets-weather-extras", "settings": {
+      "SettingWidget0ID": "WEATHER_UV_INDEX",
+      "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+      "SettingWidget2ID": "DATE",
+      "SettingWidget3ID": "EMPTY"
+    } },
+
+    { "name": "scheme-mono-dark", "settings": {
+      "SettingColorTime": "#FFFFFF",
+      "SettingColorSidebar": "#000000",
+      "SettingSidebarTextColor": "#FFFFFF"
+    } },
+    { "name": "scheme-light", "settings": {
+      "SettingColorBG": "#FFFFFF",
+      "SettingColorTime": "#000000",
+      "SettingColorSidebar": "#00AAFF",
+      "SettingSidebarTextColor": "#000000",
+      "SettingAltSidebarTextColor": "#000000"
+    } },
+    { "name": "scheme-light-seamless-bottombar", "settings": {
+      "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR",
+      "SettingUseSeamlessSidebar": 1,
+      "SettingColorBG": "#FFFFFF",
+      "SettingColorTime": "#000000",
+      "SettingColorSidebar": "#00AAFF",
+      "SettingSidebarTextColor": "#000000",
+      "SettingAltSidebarTextColor": "#000000"
+    } }
+  ]
+}
