@@ -30,8 +30,11 @@
     "SettingBluetoothVibe": 0,
     "SettingHourlyVibe": 0,
     "SettingDisconnectIcon": 1,
-    "SettingAltClockName": "MTV",
-    "SettingAltClockOffset": 3,
+    "SettingAltClockName": "NYC",
+    "SettingAltClockOffset": -240,
+    "SettingAltClock2Name": "TYO",
+    "SettingAltClock2Offset": 540,
+    "SettingLocalUtcOffset": -420,
     "SettingHealthUseDistance": 0,
     "SettingHealthUseRestfulSleep": 0,
     "SettingDecimalSep": 46,
@@ -41,7 +44,11 @@
     "WeatherForecastCondition": "LIGHT_RAIN",
     "WeatherForecastHighTemp": 25,
     "WeatherForecastLowTemp": 14,
-    "WeatherUVIndex": 6
+    "WeatherUVIndex": 6,
+    "WeatherWindSpeed": 19,
+    "WeatherPrecipChance": 40,
+    "WeatherSunriseMinute": 374,
+    "WeatherSunsetMinute": 1182
   },
 
   "configs": [
@@ -64,7 +71,7 @@
     { "name": "sidebar-packed", "settings": {
       "SettingWidget0ID": "WEATHER_CURRENT",
       "SettingWidget1ID": "BATTERY_METER",
-      "SettingWidget2ID": "ALT_TIME_ZONE",
+      "SettingWidget2ID": "WORLD_TIME_1",
       "SettingWidget3ID": "DATE"
     } },
     { "name": "sidebar-empty", "settings": {
@@ -104,6 +111,28 @@
       "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
       "SettingWidget2ID": "DATE",
       "SettingWidget3ID": "EMPTY"
+    } },
+    { "name": "widgets-worldtime", "settings": {
+      "SettingWidget0ID": "WORLD_TIME_1",
+      "SettingWidget1ID": "WORLD_TIME_2",
+      "SettingWidget2ID": "DATE",
+      "SettingWidget3ID": "EMPTY"
+    } },
+    { "name": "widgets-worldtime-bottombar", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "WORLD_TIME_1",
+      "SettingBottomBarWidget1ID": "WORLD_TIME_2"
+    } },
+    { "name": "widgets-sun-wind-rain", "settings": {
+      "SettingWidget0ID": "NEXT_SUN_EVENT",
+      "SettingWidget1ID": "WEATHER_WIND",
+      "SettingWidget2ID": "WEATHER_PRECIP_CHANCE",
+      "SettingWidget3ID": "EMPTY"
+    } },
+    { "name": "widgets-sun-bottombar", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+      "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE"
     } },
 
     { "name": "scheme-mono-dark", "settings": {

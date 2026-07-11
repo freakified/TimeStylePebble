@@ -22,13 +22,7 @@ import lightThemesBw from '../data/light-themes-bw.json';
 import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
 import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
-
-// Alt-clock offset options: -12 to +14
-const ALT_CLOCK_OFFSETS = Array.from({ length: 27 }, (_, i) => {
-  const offset = i - 12;
-  const label = offset === 0 ? 'UTC±0' : offset > 0 ? `UTC+${offset}` : `UTC${offset}`;
-  return { label, value: offset };
-});
+import { WORLD_TIME_CITY_OPTIONS } from '../data/cities';
 
 const LANGUAGE_OPTIONS = [
   { label: 'English', value: 0 },
@@ -115,9 +109,10 @@ export const SettingsPage: React.FC = () => {
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
-  const showWeatherSection = activeWidgetIds.some((id) => id === 7 || id === 8 || id === 13);
+  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 16, 17].includes(id));
 
-  const showAltClockSection = activeWidgetIds.some((id) => id === 3);
+  const showWorldTime1Section = activeWidgetIds.some((id) => id === 3);
+  const showWorldTime2Section = activeWidgetIds.some((id) => id === 14);
 
   const showHealthSection = activeWidgetIds.some((id) => id === 9 || id === 10);
 
@@ -313,19 +308,36 @@ export const SettingsPage: React.FC = () => {
         </Section>
       )}
 
-      {/* ── Alternate Time Zone ── */}
-      {showAltClockSection && (
-        <Section title="Alternate Time Zone">
+      {/* ── World Time ── */}
+      {showWorldTime1Section && (
+        <Section title="World Time 1">
           <Select
-            label="Time zone offset"
-            messageKey="altClockOffset"
-            description="Note: does not account for Daylight Saving Time"
-            options={ALT_CLOCK_OFFSETS}
+            label="City"
+            messageKey="worldTime1City"
+            description="Daylight Saving Time is handled automatically"
+            options={WORLD_TIME_CITY_OPTIONS}
           />
           <TextField
-            label="Display name"
-            description="Up to 4 characters shown above the time (e.g. NYC, LON)"
-            messageKey="altClockName"
+            label="Custom label"
+            description="Up to 4 characters shown above the time (blank uses the city's own, e.g. NYC)"
+            messageKey="worldTime1Label"
+            maxLength={4}
+            transformValue={(value) => value.toUpperCase()}
+          />
+        </Section>
+      )}
+      {showWorldTime2Section && (
+        <Section title="World Time 2">
+          <Select
+            label="City"
+            messageKey="worldTime2City"
+            description="Daylight Saving Time is handled automatically"
+            options={WORLD_TIME_CITY_OPTIONS}
+          />
+          <TextField
+            label="Custom label"
+            description="Up to 4 characters shown above the time (blank uses the city's own, e.g. TYO)"
+            messageKey="worldTime2Label"
             maxLength={4}
             transformValue={(value) => value.toUpperCase()}
           />

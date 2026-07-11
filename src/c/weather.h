@@ -14,6 +14,14 @@ typedef struct {
   int todaysHighTemp;
   int todaysLowTemp;
   uint32_t forecastIconResourceID;
+
+  // current wind speed (km/h) and today's precipitation chance (%)
+  int windSpeed;
+  int precipChance;
+
+  // today's sunrise/sunset, minutes after local midnight
+  int sunriseMinute;
+  int sunsetMinute;
 } WeatherInfo;
 
 typedef enum {

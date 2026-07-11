@@ -77,12 +77,17 @@ void Weather_init() {
   Weather_weatherInfo.currentUVIndex = INT32_MIN;
   Weather_weatherInfo.todaysHighTemp = INT32_MIN;
   Weather_weatherInfo.todaysLowTemp = INT32_MIN;
+  Weather_weatherInfo.windSpeed = INT32_MIN;
+  Weather_weatherInfo.precipChance = INT32_MIN;
+  Weather_weatherInfo.sunriseMinute = INT32_MIN;
+  Weather_weatherInfo.sunsetMinute = INT32_MIN;
 
-  // if possible, load weather data from persistent storage
+  // if possible, load weather data from persistent storage; a blob saved
+  // by an older version may be smaller than the struct, in which case the
+  // newer fields keep the defaults set above
   if (persist_exists(WEATHER_PERSIST_KEY)) {
-    WeatherInfo storedWeather;
-    persist_read_data(WEATHER_PERSIST_KEY, &storedWeather, sizeof(storedWeather));
-    memcpy(&Weather_weatherInfo, &storedWeather, sizeof(storedWeather));
+    persist_read_data(WEATHER_PERSIST_KEY, &Weather_weatherInfo,
+                      sizeof(Weather_weatherInfo));
   }
   
   // load icon if needed

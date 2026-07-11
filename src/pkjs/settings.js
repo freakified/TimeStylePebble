@@ -119,8 +119,10 @@ function settingsFromWatchPayload(payload) {
     batteryMeter: getBoolean(payload.SettingShowBatteryPct) ? 'icon-and-percent' : 'icon-only',
     autoBattery: !getBoolean(payload.SettingDisableAutobattery),
 
-    altClockName: payload.SettingAltClockName || 'ALT',
+    altClockName: payload.SettingAltClockName || 'UTC',
     altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
+    altClock2Name: payload.SettingAltClock2Name || 'TYO',
+    altClock2Offset: getNumber(payload.SettingAltClock2Offset, 540),
 
     healthActivityMetric: getBoolean(payload.SettingHealthUseDistance) ? 'distance' : 'steps',
     healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
@@ -226,13 +228,8 @@ function settingsToWatchPayload(configData) {
     dict.SettingDisableAutobattery = configData.autoBattery ? 0 : 1;
   }
 
-  if (configData.altClockName) {
-    dict.SettingAltClockName = configData.altClockName;
-  }
-
-  if (configData.altClockOffset !== null) {
-    dict.SettingAltClockOffset = parseInt(configData.altClockOffset, 10);
-  }
+  // world time (formerly "alt clock") settings are handled by worldtime.js,
+  // which translates city selections into label + offset payloads
 
   if (configData.decimalSeparator) {
     dict.SettingDecimalSep = configData.decimalSeparator;

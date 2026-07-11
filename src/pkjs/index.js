@@ -1,6 +1,7 @@
 
 var weather = require('./weather');
 var settingsMapper = require('./settings');
+var worldtime = require('./worldtime');
 
 var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
@@ -70,6 +71,9 @@ Pebble.addEventListener('ready',
     if (window.localStorage.getItem('disable_weather') != 'yes') {
       weather.updateWeather();
     }
+
+    // refresh world time offsets in case a DST boundary was crossed
+    worldtime.sendOffsetsIfChanged();
   }
 );
 
@@ -81,13 +85,23 @@ Pebble.addEventListener('appmessage',
     if (settingsMapper.isConfigSnapshot(msg.payload)) {
       if (pendingConfigSnapshot) {
         clearTimeout(pendingConfigSnapshot.timeoutId);
-        openConfigPage(pendingConfigSnapshot.watchInfo, settingsMapper.settingsFromWatchPayload(msg.payload));
+
+        // the watch only knows labels and offsets; merge in the city
+        // selections, which live on the phone
+        var settings = settingsMapper.settingsFromWatchPayload(msg.payload);
+        var worldTimeSettings = worldtime.getConfigSettings();
+        for (var key in worldTimeSettings) {
+          settings[key] = worldTimeSettings[key];
+        }
+
+        openConfigPage(pendingConfigSnapshot.watchInfo, settings);
         pendingConfigSnapshot = null;
       }
       return;
     }
 
     weather.updateWeather();
+    worldtime.sendOffsetsIfChanged();
   }
 );
 
@@ -102,6 +116,13 @@ Pebble.addEventListener('webviewclosed', function (e) {
     console.log("Config data recieved!" + JSON.stringify(configData));
 
     var dict = settingsMapper.settingsToWatchPayload(configData);
+
+    // store the world time city choices and translate them into
+    // label + current-UTC-offset settings for the watch
+    var worldTimeDict = worldtime.storeConfig(configData);
+    for (var worldTimeKey in worldTimeDict) {
+      dict[worldTimeKey] = worldTimeDict[worldTimeKey];
+    }
 
     // weather location/source configs are not the watch's concern
     if (configData.weatherMode) {
@@ -143,11 +164,12 @@ Pebble.addEventListener('webviewclosed', function (e) {
     }
 
     // if none of the weather widgets are present, disable the weather
-    if (widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1 || widgetIDs.indexOf(13) != -1) {
-      disableWeather = 'no';
-    } else {
-      disableWeather = 'yes';
-    }
+    // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 16=wind, 17=rain chance)
+    var weatherWidgetIDs = [7, 8, 13, 15, 16, 17];
+    var hasWeatherWidget = widgetIDs.some(function (id) {
+      return weatherWidgetIDs.indexOf(id) != -1;
+    });
+    disableWeather = hasWeatherWidget ? 'no' : 'yes';
 
     window.localStorage.setItem('disable_weather', disableWeather);
 

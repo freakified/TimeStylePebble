@@ -70,7 +70,14 @@
       "SettingUseSeamlessSidebar",
       "SettingWidget3ID",
       "SettingBottomBarWidget2ID",
-      "SettingBottomBarWidget3ID"
+      "SettingBottomBarWidget3ID",
+      "SettingAltClock2Name",
+      "SettingAltClock2Offset",
+      "SettingLocalUtcOffset",
+      "WeatherWindSpeed",
+      "WeatherPrecipChance",
+      "WeatherSunriseMinute",
+      "WeatherSunsetMinute"
     ],
     "resources": {
       "media": [
@@ -122,6 +129,16 @@
         {
           "file": "data/WEATHER_GENERIC.pdc",
           "name": "WEATHER_GENERIC",
+          "type": "raw"
+        },
+        {
+          "file": "data/SUNRISE.pdc",
+          "name": "SUNRISE",
+          "type": "raw"
+        },
+        {
+          "file": "data/SUNSET.pdc",
+          "name": "SUNSET",
           "type": "raw"
         },
         {

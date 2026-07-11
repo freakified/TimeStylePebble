@@ -95,8 +95,8 @@ static void main_window_unload(Window *window) {
 
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  // every 30 minutes, request new weather data
-  if(!dynamicSettings.disableWeather) {
+  // every 30 minutes, ping the phone (weather data, world time DST offsets)
+  if(dynamicSettings.enablePhonePolling) {
     if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == 0) {
       messaging_requestNewWeatherData();
     }
@@ -137,7 +137,7 @@ void bluetoothStateChanged(bool newConnectionState) {
   }
 
   // if the phone was disconnected and isn't anymore, update the data
-  if(!isPhoneConnected && newConnectionState && !dynamicSettings.disableWeather) {
+  if(!isPhoneConnected && newConnectionState && dynamicSettings.enablePhonePolling) {
     messaging_requestNewWeatherData();
   }
 
@@ -150,6 +150,16 @@ void bluetoothStateChanged(bool newConnectionState) {
 void batteryStateChanged(BatteryChargeState charge_state) {
   Sidebar_redraw();
 }
+
+#ifdef PBL_HEALTH
+// heart rate readings arrive asynchronously; without this the heart rate
+// widget only refreshed on the minute tick, showing stale or no data
+static void healthEventHandler(HealthEventType event, void *context) {
+  if(event == HealthEventHeartRateUpdate) {
+    Sidebar_redraw();
+  }
+}
+#endif
 
 // fixes for disappearing elements after notifications
 // (from http://codecorner.galanter.net/2016/01/08/solved-issue-with-pebble-framebuffer-after-notification-is-dismissed/)
@@ -212,6 +222,10 @@ static void init() {
   // register with battery service
   battery_state_service_subscribe(batteryStateChanged);
 
+#ifdef PBL_HEALTH
+  health_service_events_subscribe(healthEventHandler, NULL);
+#endif
+
   // set up focus change handlers
   app_focus_service_subscribe_handlers((AppFocusHandlers){
     .did_focus = app_focus_changed,
@@ -230,6 +244,10 @@ static void deinit() {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+
+#ifdef PBL_HEALTH
+  health_service_events_unsubscribe();
+#endif
 }
 
 int main(void) {

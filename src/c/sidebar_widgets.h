@@ -31,7 +31,7 @@ typedef enum {
   EMPTY                     = 0,
   BLUETOOTH_DISCONNECT      = 1,
   BATTERY_METER             = 2,
-  ALT_TIME_ZONE             = 3,
+  WORLD_TIME_1              = 3,
   DATE                      = 4,
   SECONDS                   = 5,
   WEEK_NUMBER               = 6,
@@ -41,7 +41,11 @@ typedef enum {
   STEP_COUNTER              = 10,
   BEATS                     = 11,
   HEARTRATE                 = 12,
-  WEATHER_UV_INDEX          = 13
+  WEATHER_UV_INDEX          = 13,
+  WORLD_TIME_2              = 14,
+  NEXT_SUN_EVENT            = 15,
+  WEATHER_WIND              = 16,
+  WEATHER_PRECIP_CHANCE     = 17
 } SidebarWidgetType;
 
 typedef struct {

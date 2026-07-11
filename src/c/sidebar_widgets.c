@@ -32,6 +32,8 @@ GDrawCommandImage *dateImage;
 GDrawCommandImage *disconnectImage;
 GDrawCommandImage *batteryImage;
 GDrawCommandImage *batteryChargeImage;
+GDrawCommandImage *sunriseImage;
+GDrawCommandImage *sunsetImage;
 
 #ifdef PBL_HEALTH
 GDrawCommandImage *sleepImage;
@@ -74,8 +76,14 @@ char currentDayNum[5];
 char currentMonth[8];
 char currentWeekNum[5];
 char currentSecondsNum[5];
-char altClock[8];
 char currentBeats[5];
+
+// current world times, formatted for display
+static SidebarTextCandidates worldTime1Text;
+static SidebarTextCandidates worldTime2Text;
+
+// minutes since local midnight, for the sunrise/sunset widget
+static int currentMinuteOfDay;
 
 static SidebarContent Empty_getContent();
 static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec);
@@ -90,9 +98,13 @@ static SidebarContent WeatherForecast_getContent();
 static SidebarContent BTDisconnect_getContent();
 static SidebarContent WeekNumber_getContent();
 static SidebarContent Seconds_getContent();
-static SidebarContent AltTime_getContent();
+static SidebarContent WorldTime1_getContent();
+static SidebarContent WorldTime2_getContent();
+static SidebarContent NextSunEvent_getContent();
 static SidebarContent Beats_getContent();
 static SidebarContent UVIndex_getContent();
+static SidebarContent Wind_getContent();
+static SidebarContent PrecipChance_getContent();
 
 #ifdef PBL_HEALTH
 static SidebarContent StepCounter_getContent();
@@ -202,6 +214,8 @@ void SidebarWidgets_init() {
       gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
   batteryChargeImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
+  sunriseImage = gdraw_command_image_create_with_resource(RESOURCE_ID_SUNRISE);
+  sunsetImage = gdraw_command_image_create_with_resource(RESOURCE_ID_SUNSET);
 
 #ifdef PBL_HEALTH
   sleepImage =
@@ -218,6 +232,8 @@ void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(disconnectImage);
   gdraw_command_image_destroy(batteryImage);
   gdraw_command_image_destroy(batteryChargeImage);
+  gdraw_command_image_destroy(sunriseImage);
+  gdraw_command_image_destroy(sunsetImage);
 
 #ifdef PBL_HEALTH
   gdraw_command_image_destroy(stepsImage);
@@ -253,6 +269,70 @@ int mod(int a, int b) {
   return r < 0 ? r + b : r;
 }
 
+/*
+ * Formats a wall-clock time into text candidates, honoring the 12/24h and
+ * leading zero settings. The full candidate carries an optional day-name
+ * suffix (used by the world time widgets when the remote date differs);
+ * narrow regions naturally fall back to the compact/tiny candidates.
+ */
+static void format_time_candidates(int hour, int min, const char *daySuffix,
+                                   SidebarTextCandidates *out) {
+  char timeText[12];
+  char tinyText[8];
+
+  if (clock_is_24h_style()) {
+    if (settings.showLeadingZero) {
+      snprintf(timeText, sizeof(timeText), "%02i:%02i", hour, min);
+    } else {
+      snprintf(timeText, sizeof(timeText), "%i:%02i", hour, min);
+    }
+    snprintf(tinyText, sizeof(tinyText), "%i", hour);
+  } else {
+    char am_pm = (hour < 12) ? 'a' : 'p';
+    int hour12 = mod(hour, 12);
+    if (hour12 == 0) {
+      hour12 = 12;
+    }
+
+    if (settings.showLeadingZero) {
+      snprintf(timeText, sizeof(timeText), "%02i:%02i%c", hour12, min, am_pm);
+    } else {
+      snprintf(timeText, sizeof(timeText), "%i:%02i%c", hour12, min, am_pm);
+    }
+    snprintf(tinyText, sizeof(tinyText), "%i%c", hour12, am_pm);
+  }
+
+  if (daySuffix != NULL && daySuffix[0] != '\0') {
+    snprintf(out->full, sizeof(out->full), "%s %s", timeText, daySuffix);
+  } else {
+    snprintf(out->full, sizeof(out->full), "%s", timeText);
+  }
+  snprintf(out->compact, sizeof(out->compact), "%s", timeText);
+  snprintf(out->tiny, sizeof(out->tiny), "%s", tinyText);
+}
+
+/*
+ * Computes the wall-clock time in another time zone. utcOffsetMinutes is
+ * the zone's current offset from UTC, and settings.localUtcOffset is the
+ * local zone's; the phone recomputes both from DST rules whenever it
+ * talks to the watch (tm_gmtoff is avoided on purpose -- its sign
+ * convention isn't trustworthy across firmwares/emulators).
+ */
+static void update_world_time(const struct tm *localTime, int utcOffsetMinutes,
+                              SidebarTextCandidates *out) {
+  time_t shifted =
+      time(NULL) +
+      ((time_t)utcOffsetMinutes - settings.localUtcOffset) * 60;
+  struct tm altTime = *localtime(&shifted);
+
+  bool differentDate = altTime.tm_yday != localTime->tm_yday ||
+                       altTime.tm_year != localTime->tm_year;
+  format_time_candidates(
+      altTime.tm_hour, altTime.tm_min,
+      differentDate ? dayNames[settings.languageId][altTime.tm_wday] : NULL,
+      out);
+}
+
 void SidebarWidgets_updateTime(struct tm *timeInfo) {
   strftime(currentDayNum, 3, "%e", timeInfo);
   if (currentDayNum[0] == ' ') {
@@ -271,33 +351,19 @@ void SidebarWidgets_updateTime(struct tm *timeInfo) {
 
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
-  if (dynamicSettings.enableAltTimeZone) {
-    int hour =
-        timeInfo->tm_hour - timeInfo->tm_gmtoff / 60 / 60 - timeInfo->tm_isdst;
-    hour += settings.altclockOffset;
-
-    char am_pm = (mod(hour, 24) < 12) ? 'a' : 'p';
-
-    if (clock_is_24h_style()) {
-      hour = mod(hour, 24);
-      am_pm = (char)0;
-    } else {
-      hour = mod(hour, 12);
-      if (hour == 0) {
-        hour = 12;
-      }
-    }
-
-    if (settings.showLeadingZero && hour < 10) {
-      snprintf(altClock, sizeof(altClock), "0%i%c", hour, am_pm);
-    } else {
-      snprintf(altClock, sizeof(altClock), "%i%c", hour, am_pm);
-    }
-  }
+  currentMinuteOfDay = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 
   if (dynamicSettings.enableBeats) {
     snprintf(currentBeats, sizeof(currentBeats), "%i",
              time_get_beats(timeInfo));
+  }
+
+  if (dynamicSettings.enableAltTimeZone) {
+    // timeInfo may point at libc's static localtime() buffer, which
+    // update_world_time clobbers -- work from a copy
+    struct tm localTime = *timeInfo;
+    update_world_time(&localTime, settings.altclockOffset, &worldTime1Text);
+    update_world_time(&localTime, settings.altclock2Offset, &worldTime2Text);
   }
 }
 
@@ -1476,10 +1542,86 @@ static SidebarContent Seconds_getContent() {
   return content;
 }
 
-static SidebarContent AltTime_getContent() {
+static SidebarContent WorldTime1_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
   content.label = settings.altclockName;
-  content.primary = same_text_candidates(altClock);
+  content.primary = worldTime1Text;
+  return content;
+}
+
+static SidebarContent WorldTime2_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
+  content.label = settings.altclock2Name;
+  content.primary = worldTime2Text;
+  return content;
+}
+
+static SidebarContent NextSunEvent_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
+  content.iconKind = SIDEBAR_ICON_IMAGE;
+
+  if (Weather_weatherInfo.sunriseMinute == INT32_MIN ||
+      Weather_weatherInfo.sunsetMinute == INT32_MIN) {
+    content.icon = sunriseImage;
+    content.isLoading = true;
+    return content;
+  }
+
+  // show whichever event comes up sooner from now
+  int sunriseDelta =
+      mod(Weather_weatherInfo.sunriseMinute - currentMinuteOfDay, 24 * 60);
+  int sunsetDelta =
+      mod(Weather_weatherInfo.sunsetMinute - currentMinuteOfDay, 24 * 60);
+  bool sunriseIsNext = sunriseDelta < sunsetDelta;
+  int eventMinute = sunriseIsNext ? Weather_weatherInfo.sunriseMinute
+                                  : Weather_weatherInfo.sunsetMinute;
+
+  content.icon = sunriseIsNext ? sunriseImage : sunsetImage;
+  format_time_candidates(eventMinute / 60, eventMinute % 60, NULL,
+                         &content.primary);
+  return content;
+}
+
+static SidebarContent Wind_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
+  content.label = "WIND";
+
+  if (Weather_weatherInfo.windSpeed == INT32_MIN) {
+    content.primary = same_text_candidates("...");
+    return content;
+  }
+
+  int windSpeed = Weather_weatherInfo.windSpeed;
+  const char *unit = "kph";
+  if (!settings.useMetric) {
+    windSpeed = roundf(windSpeed / 1.609344f);
+    unit = "mph";
+  }
+
+  snprintf(content.primary.full, sizeof(content.primary.full), "%d%s",
+           windSpeed, unit);
+  snprintf(content.primary.compact, sizeof(content.primary.compact), "%d",
+           windSpeed);
+  snprintf(content.primary.tiny, sizeof(content.primary.tiny), "%d",
+           windSpeed);
+  return content;
+}
+
+static SidebarContent PrecipChance_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
+  content.label = "RAIN";
+
+  if (Weather_weatherInfo.precipChance == INT32_MIN) {
+    content.primary = same_text_candidates("...");
+    return content;
+  }
+
+  snprintf(content.primary.full, sizeof(content.primary.full), "%d%%",
+           (int)Weather_weatherInfo.precipChance);
+  snprintf(content.primary.compact, sizeof(content.primary.compact), "%d",
+           (int)Weather_weatherInfo.precipChance);
+  snprintf(content.primary.tiny, sizeof(content.primary.tiny), "%d",
+           (int)Weather_weatherInfo.precipChance);
   return content;
 }
 
@@ -1609,9 +1751,23 @@ static SidebarContent SleepTimer_getContent() {
   HealthActivityMask metric = (settings.healthUseRestfulSleep)
                                   ? HealthMetricSleepRestfulSeconds
                                   : HealthMetricSleepSeconds;
-  int sleepSeconds = is_health_metric_accessible(metric)
-                         ? (int)health_service_sum_today(metric)
-                         : 0;
+
+  // getContent runs several times per redraw (measure + draw), and querying
+  // the sleep metric in rapid succession hangs basalt's health service, so
+  // only ask once per minute
+  static int sleepCacheMinute = -1;
+  static HealthMetric sleepCacheMetric;
+  static int sleepCacheSeconds;
+
+  if (sleepCacheMinute != currentMinuteOfDay || sleepCacheMetric != metric) {
+    sleepCacheSeconds = is_health_metric_accessible(metric)
+                            ? (int)health_service_sum_today(metric)
+                            : 0;
+    sleepCacheMinute = currentMinuteOfDay;
+    sleepCacheMetric = metric;
+  }
+
+  int sleepSeconds = sleepCacheSeconds;
   int sleepMinutes = sleepSeconds / 60;
   int sleepHours = sleepMinutes / 60;
   sleepMinutes %= 60;
@@ -1661,9 +1817,15 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
   case DATE:
     return (SidebarWidgetDefinition){DATE, SIDEBAR_CONTENT_DATE,
                                      Date_getContent, NULL, NULL};
-  case ALT_TIME_ZONE:
-    return (SidebarWidgetDefinition){ALT_TIME_ZONE, SIDEBAR_CONTENT_LABEL_VALUE,
-                                     AltTime_getContent, NULL, NULL};
+  case WORLD_TIME_1:
+    return (SidebarWidgetDefinition){WORLD_TIME_1, SIDEBAR_CONTENT_LABEL_VALUE,
+                                     WorldTime1_getContent, NULL, NULL};
+  case WORLD_TIME_2:
+    return (SidebarWidgetDefinition){WORLD_TIME_2, SIDEBAR_CONTENT_LABEL_VALUE,
+                                     WorldTime2_getContent, NULL, NULL};
+  case NEXT_SUN_EVENT:
+    return (SidebarWidgetDefinition){NEXT_SUN_EVENT, SIDEBAR_CONTENT_ICON_VALUE,
+                                     NextSunEvent_getContent, NULL, NULL};
   case SECONDS:
     return (SidebarWidgetDefinition){SECONDS, SIDEBAR_CONTENT_TEXT,
                                      Seconds_getContent, NULL, NULL};
@@ -1682,6 +1844,13 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
     return (SidebarWidgetDefinition){WEATHER_UV_INDEX,
                                      SIDEBAR_CONTENT_LABEL_VALUE,
                                      UVIndex_getContent, NULL, NULL};
+  case WEATHER_WIND:
+    return (SidebarWidgetDefinition){WEATHER_WIND, SIDEBAR_CONTENT_LABEL_VALUE,
+                                     Wind_getContent, NULL, NULL};
+  case WEATHER_PRECIP_CHANCE:
+    return (SidebarWidgetDefinition){WEATHER_PRECIP_CHANCE,
+                                     SIDEBAR_CONTENT_LABEL_VALUE,
+                                     PrecipChance_getContent, NULL, NULL};
 #ifdef PBL_HEALTH
   case STEP_COUNTER:
     return (SidebarWidgetDefinition){STEP_COUNTER, SIDEBAR_CONTENT_ICON_VALUE,

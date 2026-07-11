@@ -51,9 +51,10 @@ export interface Settings {
   colorAltSidebarText: string;  // text on "dark" regions (bottom bar in 2-sidebar layouts)
 
   // Widget slots (integer IDs)
-  // 0=Empty, 2=Battery, 3=Alt TZ, 4=Date, 5=Seconds, 6=Week Number,
+  // 0=Empty, 2=Battery, 3=World Time 1, 4=Date, 5=Seconds, 6=Week Number,
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
-  // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index
+  // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index, 14=World Time 2,
+  // 15=Sunrise & Sunset, 16=Wind Speed, 17=Chance of Rain
   widget0Id: number;  // first sidebar slot (top on rect, left arc on round)
   widget1Id: number;  // second sidebar slot (right arc on round)
   widget2Id: number;  // third sidebar slot (rect only)
@@ -92,9 +93,18 @@ export interface Settings {
   batteryMeter: 'icon-and-percent' | 'icon-only';
   autoBattery: boolean;
 
-  // Alternate time zone
-  altClockName: string;    // max 4 chars
-  altClockOffset: number;  // -12 to +14
+  // World time (city names match config-page/src/data/cities.ts and
+  // src/pkjs/cities.js; the phone recomputes DST-aware offsets from them).
+  // altClockName/altClockOffset are the watch's current label + offset in
+  // minutes — read-only echoes used as fallbacks, not edited directly.
+  worldTime1City: string;
+  worldTime1Label: string;  // optional custom label, max 4 chars
+  worldTime2City: string;
+  worldTime2Label: string;
+  altClockName: string;
+  altClockOffset: number;
+  altClock2Name: string;
+  altClock2Offset: number;
 
   // Health
   healthActivityMetric: 'steps' | 'distance';

@@ -56,6 +56,9 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisableAutobattery, settings.disableAutobattery ? 1 : 0);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClockName, settings.altclockName);
   dict_write_int32(iter, MESSAGE_KEY_SettingAltClockOffset, settings.altclockOffset);
+  dict_write_cstring(iter, MESSAGE_KEY_SettingAltClock2Name, settings.altclock2Name);
+  dict_write_int32(iter, MESSAGE_KEY_SettingAltClock2Offset, settings.altclock2Offset);
+  dict_write_int32(iter, MESSAGE_KEY_SettingLocalUtcOffset, settings.localUtcOffset);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseDistance, settings.healthUseDistance ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseRestfulSleep, settings.healthUseRestfulSleep ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDecimalSep, settings.decimalSeparator);
@@ -126,6 +129,30 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     weatherDataUpdated = true;
   }
 
+  Tuple *weatherWindSpeed_tuple = dict_find(iterator, MESSAGE_KEY_WeatherWindSpeed);
+  if(weatherWindSpeed_tuple != NULL) {
+    Weather_weatherInfo.windSpeed = (int)weatherWindSpeed_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
+  Tuple *weatherPrecipChance_tuple = dict_find(iterator, MESSAGE_KEY_WeatherPrecipChance);
+  if(weatherPrecipChance_tuple != NULL) {
+    Weather_weatherInfo.precipChance = (int)weatherPrecipChance_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
+  Tuple *weatherSunrise_tuple = dict_find(iterator, MESSAGE_KEY_WeatherSunriseMinute);
+  if(weatherSunrise_tuple != NULL) {
+    Weather_weatherInfo.sunriseMinute = (int)weatherSunrise_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
+  Tuple *weatherSunset_tuple = dict_find(iterator, MESSAGE_KEY_WeatherSunsetMinute);
+  if(weatherSunset_tuple != NULL) {
+    Weather_weatherInfo.sunsetMinute = (int)weatherSunset_tuple->value->int32;
+    weatherDataUpdated = true;
+  }
+
   // only save new weather if weather info was recieved
   if(weatherDataUpdated) {
     Weather_saveData();
@@ -159,6 +186,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
+  Tuple *altclock2Name_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClock2Name);
+  Tuple *altclock2Offset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClock2Offset);
+  Tuple *localUtcOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingLocalUtcOffset);
 
   Tuple *decimalSeparator_tuple = dict_find(iterator, MESSAGE_KEY_SettingDecimalSep);
   Tuple *healthUseDistance_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseDistance);
@@ -268,10 +298,25 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(altclockName_tuple != NULL) {
     strncpy(settings.altclockName, altclockName_tuple->value->cstring, sizeof(settings.altclockName));
+    settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
   }
 
   if(altclockOffset_tuple != NULL) {
-    settings.altclockOffset = altclockOffset_tuple->value->int8;
+    // offset is minutes from UTC, so it needs the full int32
+    settings.altclockOffset = (int)altclockOffset_tuple->value->int32;
+  }
+
+  if(altclock2Name_tuple != NULL) {
+    strncpy(settings.altclock2Name, altclock2Name_tuple->value->cstring, sizeof(settings.altclock2Name));
+    settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
+  }
+
+  if(altclock2Offset_tuple != NULL) {
+    settings.altclock2Offset = (int)altclock2Offset_tuple->value->int32;
+  }
+
+  if(localUtcOffset_tuple != NULL) {
+    settings.localUtcOffset = (int)localUtcOffset_tuple->value->int32;
   }
 
   if(decimalSeparator_tuple != NULL) {

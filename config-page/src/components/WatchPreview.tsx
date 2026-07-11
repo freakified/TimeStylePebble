@@ -1,6 +1,7 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
+import { findWorldTimeCity } from '../data/cities';
 import {
     layoutHasSidebar,
     layoutHasBottomBar,
@@ -95,8 +96,18 @@ const getWidgetItems = (widgetId: number, settings: Settings, compact = false): 
             if (settings.batteryMeter === 'icon-and-percent') items.push(text('80%'));
             return items;
         }
-        case 3:  // Alternate Time Zone
-            return [text(settings.altClockName || 'ALT'), text('5p')];
+        case 3: {  // World Time 1
+            const label1 = settings.worldTime1Label
+                || findWorldTimeCity(settings.worldTime1City)?.label
+                || settings.altClockName || 'UTC';
+            return [text(label1), text('5:42p', 8)];
+        }
+        case 14: {  // World Time 2
+            const label2 = settings.worldTime2Label
+                || findWorldTimeCity(settings.worldTime2City)?.label
+                || settings.altClock2Name || 'TYO';
+            return [text(label2), text('9:42a', 8)];
+        }
         case 4: {  // Today's Date
             const items: WidgetItem[] = [
                 text(DAY_NAMES[now.getDay()]),
@@ -123,6 +134,12 @@ const getWidgetItems = (widgetId: number, settings: Settings, compact = false): 
             return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
         case 13:  // UV Index
             return [text('UV'), text('6')];
+        case 15:  // Sunrise & Sunset
+            return [{ type: 'icon', asset: ICONS.weather }, text('8:14p', 8)];
+        case 16:  // Wind Speed
+            return [text('WIND', 7), text('12')];
+        case 17:  // Chance of Rain
+            return [text('RAIN', 7), text('40%')];
         default:
             return [];
     }

@@ -50,7 +50,9 @@ typedef struct {
   bool showBatteryPct;
   bool disableAutobattery;
 
-  // alt tz widget settings
+  // world time widget settings (offset is minutes from UTC; the phone
+  // recomputes it from the selected city's DST rules whenever it talks
+  // to the watch)
   char altclockName[8];
   int altclockOffset;
 
@@ -73,6 +75,15 @@ typedef struct {
   // text color for "dark" sidebar regions (the bottom bar in two-sidebar
   // layouts, which draws on the watchface background color)
   GColor altSidebarTextColor;
+
+  // second world time widget (same semantics as altclockName/Offset)
+  char altclock2Name[8];
+  int altclock2Offset;
+
+  // the local time zone's current offset from UTC in minutes, sent by
+  // the phone (-getTimezoneOffset()); world time = local + (city - local).
+  // tm_gmtoff can't be trusted here -- its sign convention varies
+  int localUtcOffset;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)
@@ -81,6 +92,10 @@ typedef struct {
   bool updateScreenEverySecond;
   bool enableBeats;
   bool enableAltTimeZone;
+
+  // whether the watch should periodically ping the phone (weather
+  // updates, and world-time DST offset refreshes)
+  bool enablePhonePolling;
 
   SidebarPalette sidebarPalette;     // "standard" region appearance
   SidebarPalette darkSidebarPalette; // "dark" region appearance

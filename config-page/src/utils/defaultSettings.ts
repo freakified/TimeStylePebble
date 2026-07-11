@@ -52,9 +52,15 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   batteryMeter: 'icon-and-percent',
   autoBattery: true,
 
-  // Alternate time zone
-  altClockName: 'ALT',
+  // World time
+  worldTime1City: 'UTC',
+  worldTime1Label: '',
+  worldTime2City: 'TOKYO',
+  worldTime2Label: '',
+  altClockName: 'UTC',
   altClockOffset: 0,
+  altClock2Name: 'TYO',
+  altClock2Offset: 540,
 
   // Health
   healthActivityMetric: 'steps',

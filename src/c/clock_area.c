@@ -18,8 +18,9 @@ Layer* clock_area_layer;
 FFont* hours_font;
 FFont* minutes_font;
 
-// just allocate all the fonts at startup because i don't feel like
-// dealing with allocating and deallocating things
+// only the faces the current font setting uses are kept in memory:
+// smaller-RAM color watches (basalt) can't fit unused fonts alongside
+// fctx's framebuffer-sized antialiasing scratch bitmap
 FFont* avenir;
 FFont* avenir_bold;
 FFont* leco;
@@ -27,7 +28,30 @@ FFont* leco;
 GRect screen_rect;
 
 // "private" functions
+static FFont* get_font(FFont** font, uint32_t resourceId, bool needed) {
+  if(needed && *font == NULL) {
+    *font = ffont_create_from_resource(resourceId);
+  } else if(!needed && *font != NULL) {
+    ffont_destroy(*font);
+    *font = NULL;
+  }
+
+  return *font;
+}
+
 void update_fonts() {
+  bool needsAvenir = settings.clockFontId == FONT_SETTING_DEFAULT ||
+                     settings.clockFontId == FONT_SETTING_BOLD_H ||
+                     settings.clockFontId == FONT_SETTING_BOLD_M;
+  bool needsBold = settings.clockFontId == FONT_SETTING_BOLD ||
+                   settings.clockFontId == FONT_SETTING_BOLD_H ||
+                   settings.clockFontId == FONT_SETTING_BOLD_M;
+  bool needsLeco = settings.clockFontId == FONT_SETTING_LECO;
+
+  get_font(&avenir, RESOURCE_ID_AVENIR_REGULAR_FFONT, needsAvenir);
+  get_font(&avenir_bold, RESOURCE_ID_AVENIR_BOLD_FFONT, needsBold);
+  get_font(&leco, RESOURCE_ID_LECO_REGULAR_FFONT, needsLeco);
+
   switch(settings.clockFontId) {
     case FONT_SETTING_DEFAULT:
         hours_font = avenir;
@@ -73,9 +97,25 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #endif
 
   // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use
-  FContext fctx;
+  #ifdef PBL_COLOR
+    // leco looks awful with antialiasing; this must be set BEFORE
+    // fctx_init_context, which is one of the functions the toggle swaps
+    fctx_enable_aa(settings.clockFontId != FONT_SETTING_LECO);
+  #endif
 
+  FContext fctx;
   fctx_init_context(&fctx, ctx);
+
+  #ifdef PBL_COLOR
+    // fctx's antialiased renderer allocates a framebuffer-sized 8-bit
+    // scratch bitmap every frame and dereferences it without a NULL
+    // check; when the heap can't fit it, retry aliased instead of crashing
+    if(fctx.flag_buffer == NULL) {
+      fctx_enable_aa(false);
+      fctx_init_context(&fctx, ctx);
+    }
+  #endif
+
   fctx_set_color_bias(&fctx, 0);
   fctx_set_fill_color(&fctx, settings.timeColor);
 
@@ -94,15 +134,6 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     v_padding = bounds.size.h / 20;
     h_adjust = -4;
     v_adjust = 0;
-
-    // leco looks awful with antialiasing
-    #ifdef PBL_COLOR
-      fctx_enable_aa(false);
-    #endif
-  } else {
-    #ifdef PBL_COLOR
-      fctx_enable_aa(true);
-    #endif
   }
 
   // if it's a round watch, EVERYTHING CHANGES
@@ -154,21 +185,16 @@ void ClockArea_init(Window* window) {
   layer_add_child(window_get_root_layer(window), clock_area_layer);
   layer_set_update_proc(clock_area_layer, update_clock_area_layer);
 
-  // allocate fonts
-  avenir =      ffont_create_from_resource(RESOURCE_ID_AVENIR_REGULAR_FFONT);
-  avenir_bold = ffont_create_from_resource(RESOURCE_ID_AVENIR_BOLD_FFONT);
-  leco =        ffont_create_from_resource(RESOURCE_ID_LECO_REGULAR_FFONT);
-
-  // select fonts based on settings
+  // load and select fonts based on settings
   update_fonts();
 }
 
 void ClockArea_deinit() {
   layer_destroy(clock_area_layer);
 
-  ffont_destroy(avenir);
-  ffont_destroy(avenir_bold);
-  ffont_destroy(leco);
+  get_font(&avenir, RESOURCE_ID_AVENIR_REGULAR_FFONT, false);
+  get_font(&avenir_bold, RESOURCE_ID_AVENIR_BOLD_FFONT, false);
+  get_font(&leco, RESOURCE_ID_LECO_REGULAR_FFONT, false);
 }
 
 void ClockArea_redraw() {

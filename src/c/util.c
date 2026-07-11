@@ -39,14 +39,18 @@ int time_get_beats(const struct tm *tm) {
 
 #ifdef PBL_HEALTH
 bool is_health_metric_accessible(HealthMetric metric) {
-  time_t start = time_start_of_today();
   time_t end = time(NULL);
 
-  // Check step data is available
-     HealthServiceAccessibilityMask mask = health_service_metric_accessible(metric, start, end);
-  bool result = mask & HealthServiceAccessibilityMaskAvailable;
+  // heart rate is an instantaneous metric: the accessibility check only
+  // supports a zero-length time range ending now (a day-long range always
+  // reports unavailable, which left the widget stuck on "...")
+  time_t start =
+      (metric == HealthMetricHeartRateBPM) ? end : time_start_of_today();
 
-  return result;
+  HealthServiceAccessibilityMask mask =
+      health_service_metric_accessible(metric, start, end);
+
+  return mask & HealthServiceAccessibilityMaskAvailable;
 }
 
 bool is_user_sleeping() {

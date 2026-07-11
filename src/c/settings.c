@@ -65,8 +65,11 @@ void Settings_loadFromStorage() {
   settings.hRegionSlots[3] = EMPTY;
 
   settings.activateDisconnectIcon = true;
-  strncpy(settings.altclockName, "ALT", sizeof(settings.altclockName));
+  strncpy(settings.altclockName, "UTC", sizeof(settings.altclockName));
   settings.altclockOffset = 0;
+  strncpy(settings.altclock2Name, "TYO", sizeof(settings.altclock2Name));
+  settings.altclock2Offset = 540;
+  settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
   settings.showBatteryPct = true;
   settings.useSeamlessSidebar = false;
@@ -74,6 +77,7 @@ void Settings_loadFromStorage() {
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
+    settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
   }
 
   Settings_updateDynamicSettings();
@@ -97,6 +101,7 @@ void Settings_updateDynamicSettings() {
   dynamicSettings.updateScreenEverySecond = false;
   dynamicSettings.enableBeats = false;
   dynamicSettings.enableAltTimeZone = false;
+  dynamicSettings.enablePhonePolling = false;
 
   // scan the widget slots that can actually render
 #ifdef PBL_ROUND
@@ -124,8 +129,12 @@ void Settings_updateDynamicSettings() {
     // if there are any weather widgets, enable weather checking
     if (widget == WEATHER_CURRENT ||
         widget == WEATHER_FORECAST_TODAY ||
-        widget == WEATHER_UV_INDEX) {
+        widget == WEATHER_UV_INDEX ||
+        widget == NEXT_SUN_EVENT ||
+        widget == WEATHER_WIND ||
+        widget == WEATHER_PRECIP_CHANCE) {
       dynamicSettings.disableWeather = false;
+      dynamicSettings.enablePhonePolling = true;
     }
 
     // if any widget is "seconds", we'll need to update the sidebar every second
@@ -138,9 +147,11 @@ void Settings_updateDynamicSettings() {
       dynamicSettings.enableBeats = true;
     }
 
-    // if any widget is "alt_time_zone", enable the alternative time calculation
-    if (widget == ALT_TIME_ZONE) {
+    // world time widgets need the shifted-clock calculation, plus periodic
+    // phone contact so the city's UTC offset tracks DST changes
+    if (widget == WORLD_TIME_1 || widget == WORLD_TIME_2) {
       dynamicSettings.enableAltTimeZone = true;
+      dynamicSettings.enablePhonePolling = true;
     }
   }
 
