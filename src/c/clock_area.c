@@ -5,9 +5,8 @@
 #include "settings.h"
 #include "sidebar.h"
 
-#include <pebble-fctx/fctx.h>
-#include <pebble-fctx/fpath.h>
-#include <pebble-fctx/ffont.h>
+#include "fctx/fctx.h"
+#include "fctx/ffont.h"
 
 #define ROUND_VERTICAL_PADDING 15
 
@@ -18,9 +17,7 @@ Layer* clock_area_layer;
 FFont* hours_font;
 FFont* minutes_font;
 
-// only the faces the current font setting uses are kept in memory:
-// smaller-RAM color watches (basalt) can't fit unused fonts alongside
-// fctx's framebuffer-sized antialiasing scratch bitmap
+// only the faces the current font setting uses are kept in memory
 FFont* avenir;
 FFont* avenir_bold;
 FFont* leco;
@@ -106,16 +103,6 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   FContext fctx;
   fctx_init_context(&fctx, ctx);
 
-  #ifdef PBL_COLOR
-    // fctx's antialiased renderer allocates a framebuffer-sized 8-bit
-    // scratch bitmap every frame and dereferences it without a NULL
-    // check; when the heap can't fit it, retry aliased instead of crashing
-    if(fctx.flag_buffer == NULL) {
-      fctx_enable_aa(false);
-      fctx_init_context(&fctx, ctx);
-    }
-  #endif
-
   fctx_set_color_bias(&fctx, 0);
   fctx_set_fill_color(&fctx, settings.timeColor);
 
@@ -152,19 +139,23 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
     }
   #endif
 
+  // each string gets its own fill so the AA renderer's transient
+  // coverage buffer only ever spans one line of digits
   FPoint time_pos;
-  fctx_begin_fill(&fctx);
   fctx_set_text_em_height(&fctx, hours_font, font_size);
   fctx_set_text_em_height(&fctx, minutes_font, font_size);
 
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
   time_pos.y = INT_TO_FIXED(bounds.origin.y + v_padding + v_adjust);
+  fctx_begin_fill(&fctx);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
+  fctx_end_fill(&fctx);
 
   //draw minutes
   time_pos.y = INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding + v_adjust);
+  fctx_begin_fill(&fctx);
   fctx_set_offset(&fctx, time_pos);
   fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
   fctx_end_fill(&fctx);

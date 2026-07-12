@@ -68,6 +68,12 @@
     { "name": "layout-right-bottombar-largefonts", "settings": { "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR", "SettingUseLargeFonts": 1 } },
     { "name": "layout-bottombar-only-largefonts", "settings": { "SettingLayoutId": "BOTTOM_BAR_ONLY", "SettingUseLargeFonts": 1 } },
 
+    { "name": "font-bold", "settings": { "SettingClockFontId": 2 } },
+    { "name": "font-bold-hours", "settings": { "SettingClockFontId": 3 } },
+    { "name": "font-bold-minutes", "settings": { "SettingClockFontId": 4 } },
+    { "name": "font-leco", "settings": { "SettingClockFontId": 1 } },
+    { "name": "font-bold-hours-largefonts", "settings": { "SettingClockFontId": 3, "SettingUseLargeFonts": 1 } },
+
     { "name": "sidebar-packed", "settings": {
       "SettingWidget0ID": "WEATHER_CURRENT",
       "SettingWidget1ID": "BATTERY_METER",
