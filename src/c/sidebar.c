@@ -294,13 +294,14 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   int remaining = bounds.size.w - totalWidth;
   int gapsLeft = visibleCount + 1;
   int x = 0;
+  int textNudge = HBAR_INLINE_TEXT_NUDGE(settings.useLargeFonts);
 
   for (int i = 0; i < visibleCount; i++) {
     int gap = remaining / gapsLeft;
     remaining -= gap;
     gapsLeft--;
     x += gap;
-    GRect frame = GRect(x, 0, sizes[i].w, bounds.size.h);
+    GRect frame = GRect(x, textNudge, sizes[i].w, bounds.size.h);
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
     x += sizes[i].w;
   }

@@ -660,8 +660,8 @@ static int horizontal_content_width(SidebarContent *content,
     return 0;
   case SIDEBAR_CONTENT_TEXT:
     return clamp_horizontal_width(
-        candidates_fit_width(&content->primary, lgSidebarFont, fontMetrics.lg,
-                             spec->contentWidth),
+        candidates_fit_width(&content->primary, currentSidebarFont,
+                             fontMetrics.current, spec->contentWidth),
         spec);
   case SIDEBAR_CONTENT_ICON:
     return SIDEBAR_ICON_SIZE;
@@ -732,7 +732,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     height = 0;
     break;
   case SIDEBAR_CONTENT_TEXT:
-    height = large_text_height();
+    height = spec->mode == SIDEBAR_LAYOUT_INLINE ? textHeight
+                                                  : large_text_height();
     break;
   case SIDEBAR_CONTENT_ICON:
     height = SIDEBAR_ICON_SIZE;
@@ -1071,6 +1072,14 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
     return;
   case SIDEBAR_CONTENT_TEXT: {
     int width = render_width(spec);
+    if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
+      int textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
+      draw_text_at_visible_top(ctx, &content->primary, text_x(frame, width),
+                               textTop, width, text_fit_width(spec, width),
+                               currentSidebarFont, fallbackSidebarFont,
+                               fontMetrics.current, fallback_current_metrics());
+      return;
+    }
     draw_text_at_visible_top(ctx, &content->primary, text_x(frame, width),
                              frame.origin.y, width,
                              text_fit_width(spec, width), lgSidebarFont,

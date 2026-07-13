@@ -87,6 +87,19 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 #endif
 #define REGION_V_PADDING_COMPACT 4
 
+// The inline horizontal bar centers its text within its own thickness,
+// while the vertical bar's last slot is bottom-anchored (pinned
+// REGION_V_PADDING_DEFAULT above the screen edge). Those two anchor
+// points don't naturally land on the same row, so the horizontal bar's
+// content needs a small downward nudge to line up with it. Derived from
+// ceil((HBAR_HEIGHT_INLINE - textHeight) / 2) - REGION_V_PADDING_DEFAULT
+// for each platform/font-size combo.
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+#define HBAR_INLINE_TEXT_NUDGE(largeFonts) ((largeFonts) ? 4 : 1)
+#else
+#define HBAR_INLINE_TEXT_NUDGE(largeFonts) ((largeFonts) ? 0 : 2)
+#endif
+
 // horizontal bar gaps/padding
 #define HBAR_VBAR_GAP 2
 #define HBAR_SLOT_PADDING_X 4
