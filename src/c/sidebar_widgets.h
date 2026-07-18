@@ -49,7 +49,8 @@ typedef enum {
 } SidebarWidgetType;
 
 typedef struct {
-  char full[16];
+  // full is larger because it can carry a label prefix and/or day suffix
+  char full[24];
   char compact[16];
   char tiny[16];
 } SidebarTextCandidates;

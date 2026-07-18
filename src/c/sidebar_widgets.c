@@ -11,7 +11,7 @@
 #define SIDEBAR_ICON_SIZE 25
 #define SIDEBAR_ICON_TEXT_GAP 5
 #define SIDEBAR_STACKED_VALUE_GAP 5
-#define SIDEBAR_BASIC_LABEL_GAP 0
+#define SIDEBAR_BASIC_LABEL_GAP 3
 #define SIDEBAR_BASIC_PADDING_TOP 0
 #define SIDEBAR_BASIC_PADDING_BOTTOM 0
 #define SIDEBAR_TEXT_MARGIN 0
@@ -181,6 +181,26 @@ pair_text_candidates(SidebarTextCandidates *primary,
                  primary->compact, secondary->compact);
   join_pair_text(candidates.tiny, sizeof(candidates.tiny), primary->tiny,
                  secondary->tiny);
+  return candidates;
+}
+
+/*
+ * Joins a label and value into single-string candidates so the whole
+ * widget degrades as one unit: drop the value's suffix first, then the
+ * label, instead of shrinking the value while the label stays full-size.
+ */
+static SidebarTextCandidates
+label_value_candidates(const char *label, SidebarTextCandidates *value) {
+  if (label == NULL || label[0] == '\0') {
+    return *value;
+  }
+
+  SidebarTextCandidates candidates;
+  snprintf(candidates.full, sizeof(candidates.full), "%s %s", label,
+           value->full);
+  snprintf(candidates.compact, sizeof(candidates.compact), "%s %s", label,
+           value->compact);
+  snprintf(candidates.tiny, sizeof(candidates.tiny), "%s", value->compact);
   return candidates;
 }
 
@@ -413,9 +433,7 @@ static int stacked_value_gap(SidebarRenderSpec *spec) {
   return spec->compact ? 3 : SIDEBAR_STACKED_VALUE_GAP;
 }
 
-static int basic_label_gap(SidebarRenderSpec *spec) {
-  return spec->compact ? 3 : SIDEBAR_BASIC_LABEL_GAP;
-}
+static int basic_label_gap() { return SIDEBAR_BASIC_LABEL_GAP; }
 
 static int basic_padding_top(SidebarRenderSpec *spec) {
   return spec->compact ? 0 : SIDEBAR_BASIC_PADDING_TOP;
@@ -677,18 +695,14 @@ static int horizontal_content_width(SidebarContent *content,
                                                 SIDEBAR_ICON_SIZE -
                                                 horizontal_item_gap())),
         spec);
-  case SIDEBAR_CONTENT_LABEL_VALUE:
+  case SIDEBAR_CONTENT_LABEL_VALUE: {
+    SidebarTextCandidates joined =
+        label_value_candidates(content->label, &content->primary);
     return clamp_horizontal_width(
-        text_content_width(content->label, currentSidebarFont,
-                           fontMetrics.current) +
-            horizontal_item_gap() +
-            candidates_fit_width(
-                &content->primary, currentSidebarFont, fontMetrics.current,
-                spec->contentWidth -
-                    text_content_width(content->label, currentSidebarFont,
-                                       fontMetrics.current) -
-                    horizontal_item_gap()),
+        candidates_fit_width(&joined, currentSidebarFont, fontMetrics.current,
+                             spec->contentWidth),
         spec);
+  }
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT: {
     SidebarTextCandidates pairText =
@@ -750,7 +764,7 @@ static SidebarMeasure generic_measure(SidebarContent *content,
       height = textHeight;
     } else {
       height = basic_padding_top(spec) + small_text_height() +
-               basic_label_gap(spec) + textHeight + basic_padding_bottom(spec);
+               basic_label_gap() + textHeight + basic_padding_bottom(spec);
     }
     break;
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
@@ -833,26 +847,15 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);
   int labelTop = frame.origin.y + basic_padding_top(spec);
-  int valueTop = labelTop + fontMetrics.sm.height + basic_label_gap(spec);
+  int valueTop = labelTop + fontMetrics.sm.height + basic_label_gap();
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
+    SidebarTextCandidates joined =
+        label_value_candidates(content->label, &content->primary);
     int textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
-    int labelWidth =
-        text_content_width(content->label, currentSidebarFont,
-                           fontMetrics.current);
-    int valueX = frame.origin.x + labelWidth + horizontal_item_gap();
-    int valueWidth = frame.size.w - labelWidth - horizontal_item_gap();
 
-    if (valueWidth < 1) {
-      valueWidth = 1;
-    }
-
-    draw_literal_text_at_visible_top(ctx, content->label, frame.origin.x,
-                                     textTop, labelWidth, currentSidebarFont,
-                                     fontMetrics.current,
-                                     activePalette.text);
     draw_text_at_visible_top_aligned(
-        ctx, &content->primary, valueX, textTop, valueWidth, valueWidth,
+        ctx, &joined, frame.origin.x, textTop, frame.size.w, frame.size.w,
         currentSidebarFont, fallbackSidebarFont, fontMetrics.current,
         fallback_current_metrics(), GTextAlignmentLeft);
     return;

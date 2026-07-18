@@ -140,6 +140,17 @@
       "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
       "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE"
     } },
+    { "name": "repro-crowded-bottom", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingUseSeamlessSidebar": 1,
+      "SettingUseLargeFonts": 1,
+      "SettingWidget0ID": "BEATS",
+      "SettingWidget1ID": "WORLD_TIME_2",
+      "SettingWidget2ID": "SECONDS",
+      "SettingWidget3ID": "EMPTY",
+      "SettingBottomBarWidget0ID": "WORLD_TIME_1",
+      "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY"
+    } },
 
     { "name": "scheme-mono-dark", "settings": {
       "SettingColorTime": "#FFFFFF",
