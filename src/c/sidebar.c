@@ -41,9 +41,16 @@ static void sidebar_buildRegions(void) {
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
       .thickness = ROUND_ARC_WIDTH,
       .slotCount = 2,
-      .slots = {(SidebarWidgetType)settings.vRegionSlots[0],
-                (SidebarWidgetType)settings.vRegionSlots[1], EMPTY, EMPTY},
   };
+
+  // slots are a packed list (EMPTY is only wire padding): the first
+  // widget takes the left arc, the second the right
+  for (int i = 0, arc = 0; i < MAX_REGION_SLOTS && arc < 2; i++) {
+    if (settings.vRegionSlots[i] != EMPTY) {
+      vRegion.slots[arc] = (SidebarWidgetType)settings.vRegionSlots[i];
+      arc++;
+    }
+  }
 #else
   RegionEdge vEdge = SidebarLayout_verticalEdge(settings.layoutId);
 
@@ -136,21 +143,30 @@ static GRect hregion_frame(void) {
 }
 
 /*
- * Vertical flow: first and last slots pin to the region's ends, interior
- * slots spread with equal gaps between them. Widgets always render their
- * full form -- the config page's unit budget is what keeps configs
- * fitting. The only over-budget concession is shrinking the end padding;
- * past that, widgets simply crowd together.
+ * Vertical flow: the slots form a packed widget list (EMPTY entries are
+ * dropped): the first widget pins to the top, the last pins to the
+ * bottom, and the rest spread with equal gaps between them. Widgets
+ * always render their full form -- the config page's unit budget is what
+ * keeps configs fitting. The only over-budget concession is shrinking
+ * the end padding; past that, widgets simply crowd together.
  */
 static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
-  int count = r->slotCount;
 
   SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
   SidebarMeasure sizes[MAX_REGION_SLOTS];
+  int count = 0;
 
-  for (int i = 0; i < count; i++) {
-    widgets[i] = getSidebarWidgetByType(r->slots[i]);
+  for (int i = 0; i < r->slotCount; i++) {
+    if (r->slots[i] == EMPTY) {
+      continue;
+    }
+    widgets[count] = getSidebarWidgetByType(r->slots[i]);
+    count++;
+  }
+
+  if (count == 0) {
+    return;
   }
 
   SidebarRenderSpec spec =

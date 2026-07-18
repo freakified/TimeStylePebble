@@ -1137,6 +1137,39 @@ input[type='checkbox'] {
   background: var(--border-color);
 }
 
+.widget-selector-controls .widget-slot-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-selector-controls .widget-slot-row select {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.widget-slot-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.widget-slot-remove:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+}
+
+.widget-add-select {
+  color: var(--text-muted);
+}
+
 .widget-budget {
   display: flex;
   flex-direction: column;

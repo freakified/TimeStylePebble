@@ -14,12 +14,13 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   colorAltSidebarText: 'FFFFFF',
 
   // Widget slots
-  widget0Id: 7,  // Current Weather
-  widget1Id: capabilities.ROUND ? 4 : 0,  // Date on round arcs, else Empty
+  // packed widget list: Current Weather on top, Date pinned to the bottom
+  widget0Id: 7,
+  widget1Id: 4,
   widget2Id: 0,
-  widget3Id: capabilities.ROUND || capabilities.EMERY ? 0 : 4,  // Date pins to the bottom slot
+  widget3Id: 0,
   widget4Id: 0,
-  widget5Id: capabilities.EMERY ? 4 : 0,  // Date pins to emery's 6th slot
+  widget5Id: 0,
   bottomBarWidget0Id: 2,  // Battery
   bottomBarWidget1Id: 5,  // Seconds
   bottomBarWidget2Id: 0,  // Empty

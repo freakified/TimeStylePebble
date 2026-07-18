@@ -446,12 +446,18 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     const { hourPath, minutePath } = getTimePaths(s.clockFont);
 
-    /* Sidebar: first and last slots pin to the ends, interior slots
-     * spread evenly between them (the watch's vertical flow). */
+    /* Sidebar: the slots form a packed widget list; the first pins to the
+     * top, the last to the bottom, interior widgets spread evenly between
+     * them (the watch's vertical flow). */
     const renderSidebar = () => {
-        const slotIds = capabilities.EMERY
+        const slotIds = (capabilities.EMERY
             ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
-            : [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id];
+            : [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id]
+        ).filter((id) => id !== 0);
+
+        if (slotIds.length === 0) {
+            return <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />;
+        }
 
         const maxW = SIDEBAR_W - 2;
         const specs = slotIds.map((id) => getWidgetSpec(id, s));
@@ -467,7 +473,9 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
         const tops: number[] = new Array(slotIds.length).fill(0);
         tops[0] = SIDEBAR_V_PADDING;
-        tops[last] = H - SIDEBAR_V_PADDING - heights[last];
+        if (last > 0) {
+            tops[last] = H - SIDEBAR_V_PADDING - heights[last];
+        }
 
         // interior widgets spread evenly between the pinned ends
         const interiorTotal = heights.slice(1, last).reduce((a, b) => a + b, 0);

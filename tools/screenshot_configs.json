@@ -13,9 +13,9 @@
     "SettingUseLargeFonts": 0,
 
     "SettingWidget0ID": "WEATHER_CURRENT",
-    "SettingWidget1ID": "EMPTY",
+    "SettingWidget1ID": "DATE",
     "SettingWidget2ID": "EMPTY",
-    "SettingWidget3ID": "DATE",
+    "SettingWidget3ID": "EMPTY",
     "SettingWidget4ID": "EMPTY",
     "SettingWidget5ID": "EMPTY",
     "SettingBottomBarWidget0ID": "BATTERY_METER",

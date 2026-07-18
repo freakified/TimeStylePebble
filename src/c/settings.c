@@ -45,15 +45,10 @@ void Settings_loadFromStorage() {
     settings.hRegionSlots[i] = EMPTY;
   }
 
-#ifdef PBL_ROUND
-  // round watches render the first two slots, one per arc
+  // widgets are a packed list: the first renders at the top of the
+  // sidebar (left arc on round), the last pins to the bottom (right arc)
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
-#else
-  // the last rendered slot pins to the bottom of the sidebar
-  settings.vRegionSlots[0] = WEATHER_CURRENT;
-  settings.vRegionSlots[VREGION_SLOT_CAP - 1] = DATE;
-#endif
 
   settings.hRegionSlots[0] = BATTERY_METER;
   settings.hRegionSlots[1] = SECONDS;

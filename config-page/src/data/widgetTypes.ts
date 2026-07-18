@@ -19,8 +19,9 @@ export interface WidgetOption {
     requiresHRM?: boolean;
 }
 
+// Widget id 0 (EMPTY) is deliberately absent: slots form a packed list
+// in the config UI (add/remove), and EMPTY is only wire padding.
 export const ALL_WIDGET_OPTIONS: WidgetOption[] = [
-    { value: 0,  label: 'Empty', category: 'General', vUnits: 0, hUnits: 0 },
     { value: 2,  label: 'Battery', category: 'General', vUnits: 2, hUnits: 2 },
     { value: 3,  label: 'World Time 1', category: 'Time & Date', vUnits: 1, hUnits: 3 },
     { value: 14, label: 'World Time 2', category: 'Time & Date', vUnits: 1, hUnits: 3 },
