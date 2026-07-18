@@ -31,7 +31,7 @@ export const ALL_WIDGET_OPTIONS: WidgetOption[] = [
     { value: 5,  label: 'Seconds', category: 'Time & Date', vUnits: 1, hUnits: 1 },
     { value: 6,  label: 'Week Number', category: 'Time & Date', vUnits: 1, hUnits: 2 },
     { value: 7,  label: 'Current Weather', category: 'Weather', vUnits: 2, hUnits: 2 },
-    { value: 8,  label: "Today's Forecast", category: 'Weather', vUnits: 3, hUnits: 2 },
+    { value: 8,  label: "Today's Forecast", category: 'Weather', vUnits: 3, hUnits: 3 },
     { value: 15, label: 'Sunrise & Sunset', category: 'Weather', vUnits: 2, hUnits: 3 },
     { value: 16, label: 'Wind Speed', category: 'Weather', vUnits: 1, hUnits: 3 },
     { value: 17, label: 'Chance of Rain', category: 'Weather', vUnits: 2, hUnits: 2 },
