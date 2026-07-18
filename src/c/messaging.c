@@ -43,6 +43,8 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget1ID, settings.vRegionSlots[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget2ID, settings.vRegionSlots[2]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget3ID, settings.vRegionSlots[3]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget4ID, settings.vRegionSlots[4]);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingWidget5ID, settings.vRegionSlots[5]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget0ID, settings.hRegionSlots[0]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.hRegionSlots[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget2ID, settings.hRegionSlots[2]);
@@ -177,6 +179,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
   Tuple *widget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget2ID);
   Tuple *widget3Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget3ID);
+  Tuple *widget4Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget4ID);
+  Tuple *widget5Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget5ID);
   Tuple *bottomBarWidget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget0ID);
   Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
   Tuple *bottomBarWidget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget2ID);
@@ -272,6 +276,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(widget3Id_tuple != NULL) {
     settings.vRegionSlots[3] = widget3Id_tuple->value->int8;
+  }
+
+  if(widget4Id_tuple != NULL) {
+    settings.vRegionSlots[4] = widget4Id_tuple->value->int8;
+  }
+
+  if(widget5Id_tuple != NULL) {
+    settings.vRegionSlots[5] = widget5Id_tuple->value->int8;
   }
 
   if(bottomBarWidget0Id_tuple != NULL) {

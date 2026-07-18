@@ -1137,6 +1137,47 @@ input[type='checkbox'] {
   background: var(--border-color);
 }
 
+.widget-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.widget-budget-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-color);
+  overflow: hidden;
+}
+
+.widget-budget-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--halite-orange);
+  transition: width 0.2s ease;
+}
+
+.widget-budget--over {
+  color: #d0342c;
+}
+
+.widget-budget--over .widget-budget-fill {
+  background: #d0342c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .widget-budget--over {
+    color: #ff6b5e;
+  }
+
+  .widget-budget--over .widget-budget-fill {
+    background: #ff6b5e;
+  }
+}
+
 @media (max-width: 320px) {
   .widget-selector-container {
     flex-direction: column;

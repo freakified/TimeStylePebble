@@ -40,29 +40,23 @@ void Settings_loadFromStorage() {
 
   settings.layoutId = LAYOUT_SIDEBAR_RIGHT;
 
+  for (int i = 0; i < MAX_REGION_SLOTS; i++) {
+    settings.vRegionSlots[i] = EMPTY;
+    settings.hRegionSlots[i] = EMPTY;
+  }
+
 #ifdef PBL_ROUND
   // round watches render the first two slots, one per arc
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
-  settings.vRegionSlots[2] = EMPTY;
-  settings.vRegionSlots[3] = EMPTY;
-#elif VREGION_SLOT_CAP == 4
+#else
   // the last rendered slot pins to the bottom of the sidebar
   settings.vRegionSlots[0] = WEATHER_CURRENT;
-  settings.vRegionSlots[1] = EMPTY;
-  settings.vRegionSlots[2] = EMPTY;
-  settings.vRegionSlots[3] = DATE;
-#else
-  settings.vRegionSlots[0] = WEATHER_CURRENT;
-  settings.vRegionSlots[1] = EMPTY;
-  settings.vRegionSlots[2] = DATE;
-  settings.vRegionSlots[3] = EMPTY;
+  settings.vRegionSlots[VREGION_SLOT_CAP - 1] = DATE;
 #endif
 
   settings.hRegionSlots[0] = BATTERY_METER;
   settings.hRegionSlots[1] = SECONDS;
-  settings.hRegionSlots[2] = EMPTY;
-  settings.hRegionSlots[3] = EMPTY;
 
   settings.activateDisconnectIcon = true;
   strncpy(settings.altclockName, "UTC", sizeof(settings.altclockName));

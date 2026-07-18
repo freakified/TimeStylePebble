@@ -450,8 +450,8 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
      * spread evenly between them (the watch's vertical flow). */
     const renderSidebar = () => {
         const slotIds = capabilities.EMERY
-            ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id]
-            : [s.widget0Id, s.widget1Id, s.widget2Id];
+            ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
+            : [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id];
 
         const maxW = SIDEBAR_W - 2;
         const specs = slotIds.map((id) => getWidgetSpec(id, s));
@@ -503,9 +503,12 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         const barW = W - reserved;
         const barY = H - BAR_H;
 
-        const slotIds = stackedBar
-            ? [s.bottomBarWidget0Id, s.bottomBarWidget1Id, s.bottomBarWidget2Id, s.bottomBarWidget3Id]
-            : [s.bottomBarWidget0Id, s.bottomBarWidget1Id];
+        // mirror the watch's rendered caps: stacked bars hold four slots,
+        // inline bars two (three on emery)
+        const slotIds = [
+            s.bottomBarWidget0Id, s.bottomBarWidget1Id,
+            s.bottomBarWidget2Id, s.bottomBarWidget3Id,
+        ].slice(0, stackedBar ? 4 : capabilities.EMERY ? 3 : 2);
         const visible = slotIds.filter((id) => id !== 0);
 
         let content: React.ReactNode = null;

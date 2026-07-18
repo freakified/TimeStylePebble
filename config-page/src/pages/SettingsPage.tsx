@@ -96,16 +96,16 @@ export const SettingsPage: React.FC = () => {
     ? [settings.widget0Id, settings.widget1Id]
     : layoutHasSidebar(settings.layout)
       ? capabilities.EMERY
-        ? [settings.widget0Id, settings.widget1Id, settings.widget2Id, settings.widget3Id]
-        : [settings.widget0Id, settings.widget1Id, settings.widget2Id]
+        ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
+           settings.widget3Id, settings.widget4Id, settings.widget5Id]
+        : [settings.widget0Id, settings.widget1Id, settings.widget2Id,
+           settings.widget3Id]
       : [];
   const bottomBarWidgetIds = !capabilities.ROUND && layoutHasBottomBar(settings.layout)
-    ? layoutHasStackedBar(settings.layout)
-      ? [
-          settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
-          settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
-        ]
-      : [settings.bottomBarWidget0Id, settings.bottomBarWidget1Id]
+    ? [
+        settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
+        settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
+      ].slice(0, layoutHasStackedBar(settings.layout) ? 4 : capabilities.EMERY ? 3 : 2)
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 

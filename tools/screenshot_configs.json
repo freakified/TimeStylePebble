@@ -14,8 +14,10 @@
 
     "SettingWidget0ID": "WEATHER_CURRENT",
     "SettingWidget1ID": "EMPTY",
-    "SettingWidget2ID": "DATE",
-    "SettingWidget3ID": "EMPTY",
+    "SettingWidget2ID": "EMPTY",
+    "SettingWidget3ID": "DATE",
+    "SettingWidget4ID": "EMPTY",
+    "SettingWidget5ID": "EMPTY",
     "SettingBottomBarWidget0ID": "BATTERY_METER",
     "SettingBottomBarWidget1ID": "SECONDS",
     "SettingBottomBarWidget2ID": "EMPTY",
@@ -79,6 +81,14 @@
       "SettingWidget2ID": "WORLD_TIME_1",
       "SettingWidget3ID": "DATE"
     } },
+    { "name": "sidebar-small-stack", "settings": {
+      "SettingWidget0ID": "SECONDS",
+      "SettingWidget1ID": "WEEK_NUMBER",
+      "SettingWidget2ID": "WEATHER_WIND",
+      "SettingWidget3ID": "WORLD_TIME_1",
+      "SettingWidget4ID": "WEATHER_PRECIP_CHANCE",
+      "SettingWidget5ID": "WORLD_TIME_2"
+    } },
     { "name": "sidebar-empty", "settings": {
       "SettingWidget0ID": "EMPTY",
       "SettingWidget1ID": "EMPTY",
@@ -138,6 +148,37 @@
       "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
       "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
       "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE"
+    } },
+    { "name": "bottombar-three-small", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "SECONDS",
+      "SettingBottomBarWidget1ID": "WEATHER_UV_INDEX",
+      "SettingBottomBarWidget2ID": "BATTERY_METER"
+    } },
+    { "name": "bottombar-sleep-weather", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "SLEEP_TIMER",
+      "SettingBottomBarWidget1ID": "WEATHER_CURRENT"
+    } },
+    { "name": "bottombar-overbudget", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "WORLD_TIME_1",
+      "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY",
+      "SettingBottomBarWidget2ID": "STEP_COUNTER",
+      "SettingBottomBarWidget3ID": "SECONDS"
+    } },
+    { "name": "bottombar-forecast-negative", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",
+      "SettingBottomBarWidget1ID": "SECONDS",
+      "WeatherForecastHighTemp": -10,
+      "WeatherForecastLowTemp": -24
+    } },
+    { "name": "sidebar-overbudget", "settings": {
+      "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+      "SettingWidget1ID": "SLEEP_TIMER",
+      "SettingWidget2ID": "DATE",
+      "SettingWidget3ID": "EMPTY"
     } },
     { "name": "repro-crowded-bottom", "settings": {
       "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",

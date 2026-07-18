@@ -137,9 +137,10 @@ static GRect hregion_frame(void) {
 
 /*
  * Vertical flow: first and last slots pin to the region's ends, interior
- * slots spread with equal gaps between them. If the widgets don't fit,
- * fall back in stages: compact widget text, then hide interior widgets
- * from the middle out, then shrink the end padding.
+ * slots spread with equal gaps between them. Widgets always render their
+ * full form -- the config page's unit budget is what keeps configs
+ * fitting. The only over-budget concession is shrinking the end padding;
+ * past that, widgets simply crowd together.
  */
 static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -147,7 +148,6 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 
   SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
   SidebarMeasure sizes[MAX_REGION_SLOTS];
-  bool hidden[MAX_REGION_SLOTS] = {false};
 
   for (int i = 0; i < count; i++) {
     widgets[i] = getSidebarWidgetByType(r->slots[i]);
@@ -156,42 +156,16 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness, false);
 
-  int fit_threshold = bounds.size.h - REGION_V_PADDING_DEFAULT * 2;
-  int v_padding = REGION_V_PADDING_DEFAULT;
-
   int totalHeight = 0;
   for (int i = 0; i < count; i++) {
     sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
     totalHeight += sizes[i].h;
   }
 
-  // fallback: compact the widget text
-  if (totalHeight > fit_threshold) {
-    spec.compact = true;
-    totalHeight = 0;
-    for (int i = 0; i < count; i++) {
-      sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-      totalHeight += sizes[i].h;
-    }
-  }
-
-  // fallback: hide interior widgets, middle-out
-  for (int step = 0; totalHeight > fit_threshold && step < count - 2; step++) {
-    int mid = count / 2 + ((step % 2 == 0) ? -(step / 2) : (step / 2 + 1));
-    if (count % 2 == 0) {
-      mid -= (step % 2 == 0) ? 1 : 0;
-    }
-    if (mid <= 0 || mid >= count - 1 || hidden[mid]) {
-      continue;
-    }
-    hidden[mid] = true;
-    totalHeight -= sizes[mid].h;
-  }
-
-  // fallback: shrink the end padding
-  if (totalHeight > fit_threshold) {
-    v_padding = REGION_V_PADDING_COMPACT;
-  }
+  int v_padding =
+      (totalHeight > bounds.size.h - REGION_V_PADDING_DEFAULT * 2)
+          ? REGION_V_PADDING_COMPACT
+          : REGION_V_PADDING_DEFAULT;
 
   int topPos = v_padding;
   int lowerPos = bounds.size.h - v_padding - sizes[count - 1].h;
@@ -210,19 +184,14 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   int gapsLeft = 1;
 
   for (int i = 1; i < count - 1; i++) {
-    if (!hidden[i]) {
-      interiorTotal += sizes[i].h;
-      gapsLeft++;
-    }
+    interiorTotal += sizes[i].h;
+    gapsLeft++;
   }
 
   int y = topPos + sizes[0].h;
   int remaining = (lowerPos - y) - interiorTotal;
 
   for (int i = 1; i < count - 1; i++) {
-    if (hidden[i]) {
-      continue;
-    }
     int gap = remaining / gapsLeft;
     remaining -= gap;
     gapsLeft--;
@@ -234,10 +203,12 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 }
 
 /*
- * Horizontal flow: EMPTY slots are dropped, the rest distribute
- * space-evenly across the bar. If two widgets contend for space, they
- * negotiate: each may shrink toward an equal split, but no further than
- * its natural width.
+ * Horizontal flow: EMPTY slots are dropped, the rest render at their
+ * natural width and distribute space-evenly across the bar. Widgets
+ * always get their full form when the config fits its unit budget; only
+ * over-budget configs degrade, deterministically: the widest widgets
+ * shrink toward an equal share (narrower ones keep their natural width)
+ * and their text candidates absorb the squeeze.
  */
 static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -255,6 +226,10 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     visibleCount++;
   }
 
+  if (visibleCount == 0) {
+    return;
+  }
+
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth, true);
 
@@ -264,30 +239,43 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     totalWidth += sizes[i].w;
   }
 
-  if (visibleCount == 1 && sizes[0].w > contentWidth) {
-    totalWidth = sizes[0].w = contentWidth;
-  } else if (visibleCount == 2) {
-    int available = contentWidth - HBAR_WIDGET_GAP;
+  int available = contentWidth - HBAR_WIDGET_GAP * (visibleCount - 1);
 
-    if (available < 0) {
-      available = 0;
+  if (available < 0) {
+    available = 0;
+  }
+
+  if (totalWidth > available) {
+    // find the equal share by fixing widgets that fit under it: each
+    // pass locks in widgets narrower than the current share and
+    // redistributes what they didn't use; the rest split what's left
+    bool fits[MAX_REGION_SLOTS] = {false};
+    int budget = available;
+    int flexCount = visibleCount;
+    bool changed = true;
+
+    while (changed && flexCount > 0) {
+      changed = false;
+      int share = budget / flexCount;
+      for (int i = 0; i < visibleCount; i++) {
+        if (!fits[i] && sizes[i].w <= share) {
+          fits[i] = true;
+          budget -= sizes[i].w;
+          flexCount--;
+          changed = true;
+        }
+      }
     }
 
-    if (sizes[0].w + sizes[1].w > available) {
-      int leftWidth = available / 2;
-      int rightWidth = available - leftWidth;
-
-      if (sizes[0].w < leftWidth) {
-        leftWidth = sizes[0].w;
-        rightWidth = available - leftWidth;
-      } else if (sizes[1].w < rightWidth) {
-        rightWidth = sizes[1].w;
-        leftWidth = available - rightWidth;
+    totalWidth = 0;
+    for (int i = 0; i < visibleCount; i++) {
+      if (!fits[i]) {
+        int share = budget / flexCount;
+        sizes[i].w = share;
+        budget -= share;
+        flexCount--;
       }
-
-      sizes[0].w = leftWidth;
-      sizes[1].w = rightWidth;
-      totalWidth = leftWidth + rightWidth;
+      totalWidth += sizes[i].w;
     }
   }
 
@@ -334,7 +322,6 @@ static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
   int usableWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
   int columnWidth = usableWidth / visibleCount;
 
-  // bars are short, so widgets always render in their compact form
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, columnWidth, true);
 

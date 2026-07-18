@@ -77,7 +77,9 @@ typedef struct {
 typedef struct {
   SidebarLayoutMode mode;
   int contentWidth;
-  bool compact;
+  // rendering inside a horizontal bar: tighter paddings and the
+  // bar-specific widget forms (month-less date, stacked mini-pair)
+  bool bar;
 } SidebarRenderSpec;
 
 typedef struct {
@@ -102,7 +104,7 @@ void SidebarWidgets_updateTime(struct tm* timeInfo);
 
 SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
                                                 int contentWidth,
-                                                bool compact);
+                                                bool bar);
 void SidebarWidgets_setActivePalette(const SidebarPalette *palette);
 SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type);
 SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,

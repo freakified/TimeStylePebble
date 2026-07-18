@@ -96,6 +96,8 @@ function settingsFromWatchPayload(payload) {
     widget1Id: getNumber(payload.SettingWidget1ID, 0),
     widget2Id: getNumber(payload.SettingWidget2ID, 4),
     widget3Id: getNumber(payload.SettingWidget3ID, 0),
+    widget4Id: getNumber(payload.SettingWidget4ID, 0),
+    widget5Id: getNumber(payload.SettingWidget5ID, 0),
     bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 2),
     bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 5),
     bottomBarWidget2Id: getNumber(payload.SettingBottomBarWidget2ID, 0),
@@ -186,6 +188,14 @@ function settingsToWatchPayload(configData) {
 
   if (configData.widget3Id !== undefined) {
     dict.SettingWidget3ID = configData.widget3Id;
+  }
+
+  if (configData.widget4Id !== undefined) {
+    dict.SettingWidget4ID = configData.widget4Id;
+  }
+
+  if (configData.widget5Id !== undefined) {
+    dict.SettingWidget5ID = configData.widget5Id;
   }
 
   if (configData.bottomBarWidget2Id !== undefined) {

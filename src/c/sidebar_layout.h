@@ -60,15 +60,18 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
                                               : HBAR_STYLE_INLINE;
 }
 
-#define MAX_REGION_SLOTS 4
+#define MAX_REGION_SLOTS 6
 
-// rendered slot caps
+// rendered slot caps: the vertical sidebar has room for a stack of
+// small widgets, while the inline bar realistically fits two (three
+// small on emery) -- the config page's unit budget polices the rest
 #if defined(PBL_PLATFORM_EMERY)
-#define VREGION_SLOT_CAP 4
+#define VREGION_SLOT_CAP 6
+#define HREGION_SLOT_CAP_INLINE 3
 #else
-#define VREGION_SLOT_CAP 3
-#endif
+#define VREGION_SLOT_CAP 4
 #define HREGION_SLOT_CAP_INLINE 2
+#endif
 #define HREGION_SLOT_CAP_STACKED 4
 
 // region thicknesses
