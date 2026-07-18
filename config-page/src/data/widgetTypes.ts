@@ -11,8 +11,10 @@ export interface WidgetOption {
     // region the widget's canonical form occupies. vUnits is height in the
     // vertical sidebar (stacked form), hUnits is width in the inline bottom
     // bar. Derived from the watch's measure code: icon-above-value stacks
-    // are 2 tall, calendars/divided pairs 3 tall; label+value joins and
-    // hour-and-minute pairs are the wide inline forms.
+    // are 2 tall, calendars/divided pairs 3 tall. hUnits are calibrated
+    // against measured full-form widths (widgets never compact, so a
+    // region's units must cover the widest typical form): one unit is a
+    // quarter of the basalt bar (~26px), rounded to nearest.
     vUnits: number;
     hUnits: number;
     requiresHealth?: boolean;
@@ -30,12 +32,12 @@ export const ALL_WIDGET_OPTIONS: WidgetOption[] = [
     { value: 6,  label: 'Week Number', category: 'Time & Date', vUnits: 1, hUnits: 2 },
     { value: 7,  label: 'Current Weather', category: 'Weather', vUnits: 2, hUnits: 2 },
     { value: 8,  label: "Today's Forecast", category: 'Weather', vUnits: 3, hUnits: 2 },
-    { value: 15, label: 'Sunrise & Sunset', category: 'Weather', vUnits: 2, hUnits: 2 },
-    { value: 16, label: 'Wind Speed', category: 'Weather', vUnits: 1, hUnits: 2 },
-    { value: 17, label: 'Chance of Rain', category: 'Weather', vUnits: 1, hUnits: 2 },
+    { value: 15, label: 'Sunrise & Sunset', category: 'Weather', vUnits: 2, hUnits: 3 },
+    { value: 16, label: 'Wind Speed', category: 'Weather', vUnits: 1, hUnits: 3 },
+    { value: 17, label: 'Chance of Rain', category: 'Weather', vUnits: 2, hUnits: 2 },
     { value: 9,  label: 'Sleep', category: 'Health', vUnits: 3, hUnits: 3, requiresHealth: true },
-    { value: 10, label: 'Steps', category: 'Health', vUnits: 2, hUnits: 2, requiresHealth: true },
-    { value: 11, label: 'Swatch™ Internet Time', category: 'Time & Date', vUnits: 1, hUnits: 1 },
+    { value: 10, label: 'Steps', category: 'Health', vUnits: 2, hUnits: 3, requiresHealth: true },
+    { value: 11, label: 'Swatch™ Internet Time', category: 'Time & Date', vUnits: 1, hUnits: 2 },
     { value: 12, label: 'Heart Rate', category: 'Health', vUnits: 2, hUnits: 2, requiresHRM: true },
     { value: 13, label: 'UV Index', category: 'Weather', vUnits: 1, hUnits: 1 },
 ];

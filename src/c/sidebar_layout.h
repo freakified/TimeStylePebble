@@ -106,7 +106,7 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 // horizontal bar gaps/padding
 #define HBAR_VBAR_GAP 2
 #define HBAR_SLOT_PADDING_X 4
-#define HBAR_WIDGET_GAP 4
+#define HBAR_SLOT_PADDING_X_COMPACT 2
 
 // round watch arcs
 #if defined(PBL_PLATFORM_GABBRO)

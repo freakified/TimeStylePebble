@@ -167,6 +167,11 @@
       "SettingBottomBarWidget2ID": "STEP_COUNTER",
       "SettingBottomBarWidget3ID": "SECONDS"
     } },
+    { "name": "bottombar-single", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
+      "SettingBottomBarWidget1ID": "EMPTY"
+    } },
     { "name": "bottombar-forecast-negative", "settings": {
       "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
       "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",

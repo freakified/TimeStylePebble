@@ -34,6 +34,7 @@ GDrawCommandImage *batteryImage;
 GDrawCommandImage *batteryChargeImage;
 GDrawCommandImage *sunriseImage;
 GDrawCommandImage *sunsetImage;
+GDrawCommandImage *precipImage;
 
 #ifdef PBL_HEALTH
 GDrawCommandImage *sleepImage;
@@ -236,6 +237,8 @@ void SidebarWidgets_init() {
       gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
   sunriseImage = gdraw_command_image_create_with_resource(RESOURCE_ID_SUNRISE);
   sunsetImage = gdraw_command_image_create_with_resource(RESOURCE_ID_SUNSET);
+  precipImage =
+      gdraw_command_image_create_with_resource(RESOURCE_ID_WEATHER_HEAVY_RAIN);
 
 #ifdef PBL_HEALTH
   sleepImage =
@@ -254,6 +257,7 @@ void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(batteryChargeImage);
   gdraw_command_image_destroy(sunriseImage);
   gdraw_command_image_destroy(sunsetImage);
+  gdraw_command_image_destroy(precipImage);
 
 #ifdef PBL_HEALTH
   gdraw_command_image_destroy(stepsImage);
@@ -623,25 +627,14 @@ static int candidates_content_width(SidebarTextCandidates *candidates,
   return text_content_width(candidates->full, font, metrics);
 }
 
-static int candidates_fit_width(SidebarTextCandidates *candidates,
-                                GFont primaryFont,
-                                SidebarTextMetrics primaryMetrics,
-                                int maxWidth) {
-  int width = text_content_width(candidates->full, primaryFont,
-                                 primaryMetrics);
-  int fitWidth = width + SIDEBAR_TEXT_FIT_ALLOWANCE;
-  if (fitWidth <= maxWidth) {
-    return fitWidth;
-  }
-
-  width = text_content_width(candidates->compact, primaryFont,
-                             primaryMetrics);
-  fitWidth = width + SIDEBAR_TEXT_FIT_ALLOWANCE;
-  if (fitWidth <= maxWidth) {
-    return fitWidth;
-  }
-
-  return text_content_width(candidates->tiny, primaryFont, primaryMetrics);
+// inline widgets always claim their full-form width; like the vertical
+// flow, over-budget configs crowd rather than compact, so the compact and
+// tiny candidates only matter when a lone widget outgrows the whole bar
+static int candidates_full_width(SidebarTextCandidates *candidates,
+                                 GFont primaryFont,
+                                 SidebarTextMetrics primaryMetrics) {
+  return text_content_width(candidates->full, primaryFont, primaryMetrics) +
+         SIDEBAR_TEXT_FIT_ALLOWANCE;
 }
 
 static int horizontal_pair_stack_height() {
@@ -688,8 +681,8 @@ static int horizontal_content_width(SidebarContent *content,
     return 0;
   case SIDEBAR_CONTENT_TEXT:
     return clamp_horizontal_width(
-        candidates_fit_width(&content->primary, currentSidebarFont,
-                             fontMetrics.current, spec->contentWidth),
+        candidates_full_width(&content->primary, currentSidebarFont,
+                              fontMetrics.current),
         spec);
   case SIDEBAR_CONTENT_ICON:
     return SIDEBAR_ICON_SIZE;
@@ -699,18 +692,14 @@ static int horizontal_content_width(SidebarContent *content,
             (content->isLoading
                  ? text_content_width("...", fallbackSidebarFont,
                                       fallback_current_metrics())
-                 : candidates_fit_width(
-                       &content->primary, currentSidebarFont,
-                       fontMetrics.current, spec->contentWidth -
-                                                SIDEBAR_ICON_SIZE -
-                                                horizontal_item_gap())),
+                 : candidates_full_width(&content->primary, currentSidebarFont,
+                                         fontMetrics.current)),
         spec);
   case SIDEBAR_CONTENT_LABEL_VALUE: {
     SidebarTextCandidates joined =
         label_value_candidates(content->label, &content->primary);
     return clamp_horizontal_width(
-        candidates_fit_width(&joined, currentSidebarFont, fontMetrics.current,
-                             spec->contentWidth),
+        candidates_full_width(&joined, currentSidebarFont, fontMetrics.current),
         spec);
   }
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
@@ -731,11 +720,8 @@ static int horizontal_content_width(SidebarContent *content,
     int textWidth = content->isLoading
                         ? text_content_width("...", currentSidebarFont,
                                              fontMetrics.current)
-                        : candidates_fit_width(
-                              &pairText, currentSidebarFont,
-                              fontMetrics.current,
-                              spec->contentWidth - SIDEBAR_ICON_SIZE -
-                                  horizontal_item_gap());
+                        : candidates_full_width(&pairText, currentSidebarFont,
+                                                fontMetrics.current);
     return clamp_horizontal_width(
         SIDEBAR_ICON_SIZE + horizontal_item_gap() + textWidth, spec);
   }
@@ -1625,11 +1611,12 @@ static SidebarContent Wind_getContent() {
 }
 
 static SidebarContent PrecipChance_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
-  content.label = "RAIN";
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
+  content.iconKind = SIDEBAR_ICON_IMAGE;
+  content.icon = precipImage;
 
   if (Weather_weatherInfo.precipChance == INT32_MIN) {
-    content.primary = same_text_candidates("...");
+    content.isLoading = true;
     return content;
   }
 
@@ -1866,7 +1853,7 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
                                      Wind_getContent, NULL, NULL};
   case WEATHER_PRECIP_CHANCE:
     return (SidebarWidgetDefinition){WEATHER_PRECIP_CHANCE,
-                                     SIDEBAR_CONTENT_LABEL_VALUE,
+                                     SIDEBAR_CONTENT_ICON_VALUE,
                                      PrecipChance_getContent, NULL, NULL};
 #ifdef PBL_HEALTH
   case STEP_COUNTER:

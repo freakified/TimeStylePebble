@@ -219,12 +219,12 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 }
 
 /*
- * Horizontal flow: EMPTY slots are dropped, the rest render at their
- * natural width and distribute space-evenly across the bar. Widgets
- * always get their full form when the config fits its unit budget; only
- * over-budget configs degrade, deterministically: the widest widgets
- * shrink toward an equal share (narrower ones keep their natural width)
- * and their text candidates absorb the squeeze.
+ * Horizontal flow: the slots form a packed widget list (EMPTY entries are
+ * dropped): the first widget pins to the left, the last pins to the
+ * right, and the rest spread with equal gaps between them. Widgets
+ * always render their full form -- the config page's unit budget is what
+ * keeps configs fitting. The only over-budget concession is shrinking
+ * the end padding; past that, widgets simply crowd together.
  */
 static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -232,17 +232,17 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 
   SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
   SidebarMeasure sizes[MAX_REGION_SLOTS];
-  int visibleCount = 0;
+  int count = 0;
 
   for (int i = 0; i < r->slotCount; i++) {
     if (r->slots[i] == EMPTY) {
       continue;
     }
-    widgets[visibleCount] = getSidebarWidgetByType(r->slots[i]);
-    visibleCount++;
+    widgets[count] = getSidebarWidgetByType(r->slots[i]);
+    count++;
   }
 
-  if (visibleCount == 0) {
+  if (count == 0) {
     return;
   }
 
@@ -250,57 +250,49 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
       SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth, true);
 
   int totalWidth = 0;
-  for (int i = 0; i < visibleCount; i++) {
+  for (int i = 0; i < count; i++) {
     sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
     totalWidth += sizes[i].w;
   }
 
-  int available = contentWidth - HBAR_WIDGET_GAP * (visibleCount - 1);
+  int h_padding = (totalWidth > contentWidth) ? HBAR_SLOT_PADDING_X_COMPACT
+                                              : HBAR_SLOT_PADDING_X;
 
-  if (available < 0) {
-    available = 0;
-  }
-
-  if (totalWidth > available) {
-    // find the equal share by fixing widgets that fit under it: each
-    // pass locks in widgets narrower than the current share and
-    // redistributes what they didn't use; the rest split what's left
-    bool fits[MAX_REGION_SLOTS] = {false};
-    int budget = available;
-    int flexCount = visibleCount;
-    bool changed = true;
-
-    while (changed && flexCount > 0) {
-      changed = false;
-      int share = budget / flexCount;
-      for (int i = 0; i < visibleCount; i++) {
-        if (!fits[i] && sizes[i].w <= share) {
-          fits[i] = true;
-          budget -= sizes[i].w;
-          flexCount--;
-          changed = true;
-        }
-      }
-    }
-
-    totalWidth = 0;
-    for (int i = 0; i < visibleCount; i++) {
-      if (!fits[i]) {
-        int share = budget / flexCount;
-        sizes[i].w = share;
-        budget -= share;
-        flexCount--;
-      }
-      totalWidth += sizes[i].w;
-    }
-  }
-
-  int remaining = bounds.size.w - totalWidth;
-  int gapsLeft = visibleCount + 1;
-  int x = 0;
   int textNudge = HBAR_INLINE_TEXT_NUDGE(settings.useLargeFonts);
 
-  for (int i = 0; i < visibleCount; i++) {
+  // a lone widget centers in the bar rather than pinning to an edge
+  if (count == 1) {
+    GRect frame = GRect((bounds.size.w - sizes[0].w) / 2, textNudge,
+                        sizes[0].w, bounds.size.h);
+    SidebarWidgets_draw(ctx, &widgets[0], frame, &spec);
+    return;
+  }
+
+  int leftPos = h_padding;
+  int rightPos = bounds.size.w - h_padding - sizes[count - 1].w;
+
+  GRect leftFrame = GRect(leftPos, textNudge, sizes[0].w, bounds.size.h);
+  SidebarWidgets_draw(ctx, &widgets[0], leftFrame, &spec);
+
+  if (count > 1) {
+    GRect rightFrame =
+        GRect(rightPos, textNudge, sizes[count - 1].w, bounds.size.h);
+    SidebarWidgets_draw(ctx, &widgets[count - 1], rightFrame, &spec);
+  }
+
+  // interior widgets spread evenly between the pinned ends
+  int interiorTotal = 0;
+  int gapsLeft = 1;
+
+  for (int i = 1; i < count - 1; i++) {
+    interiorTotal += sizes[i].w;
+    gapsLeft++;
+  }
+
+  int x = leftPos + sizes[0].w;
+  int remaining = (rightPos - x) - interiorTotal;
+
+  for (int i = 1; i < count - 1; i++) {
     int gap = remaining / gapsLeft;
     remaining -= gap;
     gapsLeft--;
