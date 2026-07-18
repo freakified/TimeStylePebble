@@ -28,8 +28,8 @@ function addZoneToPayload(zoneNum, nameKey, offsetKey, dict) {
     return;
   }
 
-  var label = window.localStorage.getItem(storageKey(zoneNum, 'label'));
-  var name = String(label || city.label || city.name);
+  // the label is exactly what the user typed; blank means no label
+  var name = String(window.localStorage.getItem(storageKey(zoneNum, 'label')) || '');
   dict[nameKey] = name.toUpperCase().slice(0, MAX_LABEL_LENGTH);
   dict[offsetKey] = Cities.cityOffsetMinutes(city, new Date());
 }

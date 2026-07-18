@@ -138,6 +138,15 @@
       "SettingBottomBarWidget0ID": "WORLD_TIME_1",
       "SettingBottomBarWidget1ID": "WORLD_TIME_2"
     } },
+    { "name": "widgets-worldtime-nolabel", "settings": {
+      "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+      "SettingAltClockName": "",
+      "SettingWidget0ID": "WORLD_TIME_1",
+      "SettingWidget1ID": "DATE",
+      "SettingWidget2ID": "EMPTY",
+      "SettingBottomBarWidget0ID": "WORLD_TIME_1",
+      "SettingBottomBarWidget1ID": "SECONDS"
+    } },
     { "name": "widgets-sun-wind-rain", "settings": {
       "SettingWidget0ID": "NEXT_SUN_EVENT",
       "SettingWidget1ID": "WEATHER_WIND",

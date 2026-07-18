@@ -94,16 +94,18 @@ const getWidgetItems = (widgetId: number, settings: Settings, compact = false): 
         case 2:  // Battery
             return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
         case 3: {  // World Time 1
-            const label1 = settings.worldTime1Label
-                || findWorldTimeCity(settings.worldTime1City)?.label
-                || settings.altClockName || 'UTC';
-            return [text(label1), text('5:42p', 8)];
+            // an explicit blank label means no label; the fallback chain
+            // only applies while no city has been picked yet
+            const label1 = findWorldTimeCity(settings.worldTime1City)
+                ? settings.worldTime1Label
+                : settings.altClockName || 'UTC';
+            return label1 ? [text(label1), text('5:42p', 8)] : [text('5:42p', 8)];
         }
         case 14: {  // World Time 2
-            const label2 = settings.worldTime2Label
-                || findWorldTimeCity(settings.worldTime2City)?.label
-                || settings.altClock2Name || 'TYO';
-            return [text(label2), text('9:42a', 8)];
+            const label2 = findWorldTimeCity(settings.worldTime2City)
+                ? settings.worldTime2Label
+                : settings.altClock2Name || 'TYO';
+            return label2 ? [text(label2), text('9:42a', 8)] : [text('9:42a', 8)];
         }
         case 4: {  // Today's Date
             const items: WidgetItem[] = [

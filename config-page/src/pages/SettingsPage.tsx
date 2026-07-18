@@ -319,7 +319,7 @@ export const SettingsPage: React.FC = () => {
           />
           <TextField
             label="Custom label"
-            description="Up to 4 characters shown above the time (blank uses the city's own, e.g. NYC)"
+            description="Up to 4 characters shown above the time (leave blank for no label)"
             messageKey="worldTime1Label"
             maxLength={4}
             transformValue={(value) => value.toUpperCase()}
@@ -336,7 +336,7 @@ export const SettingsPage: React.FC = () => {
           />
           <TextField
             label="Custom label"
-            description="Up to 4 characters shown above the time (blank uses the city's own, e.g. TYO)"
+            description="Up to 4 characters shown above the time (leave blank for no label)"
             messageKey="worldTime2Label"
             maxLength={4}
             transformValue={(value) => value.toUpperCase()}

@@ -713,8 +713,13 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = textHeight;
     } else {
-      height = basic_padding_top(spec) + small_text_height() +
-               basic_label_gap() + textHeight + basic_padding_bottom(spec);
+      // an empty label (e.g. a blanked world time name) drops the label
+      // line entirely instead of reserving an empty row
+      height = basic_padding_top(spec) + textHeight +
+               basic_padding_bottom(spec);
+      if (content->label != NULL && content->label[0] != '\0') {
+        height += small_text_height() + basic_label_gap();
+      }
     }
     break;
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
@@ -797,7 +802,10 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
   int textWidth = render_width(spec);
   int textXPos = text_x(frame, textWidth);
   int labelTop = frame.origin.y + basic_padding_top(spec);
-  int valueTop = labelTop + fontMetrics.sm.height + basic_label_gap();
+  bool hasLabel = content->label != NULL && content->label[0] != '\0';
+  int valueTop = hasLabel
+                     ? labelTop + fontMetrics.sm.height + basic_label_gap()
+                     : labelTop;
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     SidebarTextCandidates joined =
@@ -811,9 +819,11 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
     return;
   }
 
-  draw_literal_text_at_visible_top(ctx, content->label, textXPos, labelTop,
-                                   textWidth, smSidebarFont, fontMetrics.sm,
-                                   activePalette.text);
+  if (hasLabel) {
+    draw_literal_text_at_visible_top(ctx, content->label, textXPos, labelTop,
+                                     textWidth, smSidebarFont, fontMetrics.sm,
+                                     activePalette.text);
+  }
   draw_text_at_visible_top(ctx, &content->primary, textXPos, valueTop,
                            textWidth, text_fit_width(spec, textWidth),
                            currentSidebarFont, fallbackSidebarFont,
