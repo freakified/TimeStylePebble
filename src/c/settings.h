@@ -47,7 +47,6 @@ typedef struct {
   bool useMetric;
 
   // battery meter widget settings
-  bool showBatteryPct;
   bool disableAutobattery;
 
   // world time widget settings (offset is minutes from UTC; the phone

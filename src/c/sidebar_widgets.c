@@ -1157,7 +1157,7 @@ static void battery_text_candidates(uint8_t batteryPercent,
 static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
   BatteryChargeState chargeState = battery_state_service_peek();
 
-  if (chargeState.is_charging || !settings.showBatteryPct) {
+  if (chargeState.is_charging) {
     return (SidebarMeasure){spec->mode == SIDEBAR_LAYOUT_INLINE
                                 ? SIDEBAR_ICON_SIZE
                                 : spec->contentWidth,
@@ -1208,7 +1208,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
 
   draw_battery_icon(ctx, iconFrame, batteryPercent, batteryCharging);
 
-  if (batteryCharging || !settings.showBatteryPct) {
+  if (batteryCharging) {
     return;
   }
 

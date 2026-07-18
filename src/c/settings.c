@@ -71,7 +71,6 @@ void Settings_loadFromStorage() {
   settings.altclock2Offset = 540;
   settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
-  settings.showBatteryPct = true;
   settings.useSeamlessSidebar = false;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {

@@ -116,7 +116,6 @@ function settingsFromWatchPayload(payload) {
 
     weatherUnits: getBoolean(payload.SettingUseMetric) ? 'c' : 'f',
 
-    batteryMeter: getBoolean(payload.SettingShowBatteryPct) ? 'icon-and-percent' : 'icon-only',
     autoBattery: !getBoolean(payload.SettingDisableAutobattery),
 
     altClockName: payload.SettingAltClockName || 'UTC',
@@ -214,14 +213,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.weatherUnits) {
     dict.SettingUseMetric = configData.weatherUnits == 'c' ? 1 : 0;
-  }
-
-  if (configData.batteryMeter) {
-    if (configData.batteryMeter == 'icon-and-percent') {
-      dict.SettingShowBatteryPct = 1;
-    } else if (configData.batteryMeter == 'icon-only') {
-      dict.SettingShowBatteryPct = 0;
-    }
   }
 
   if (configData.autoBattery !== undefined) {

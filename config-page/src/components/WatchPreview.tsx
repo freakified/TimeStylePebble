@@ -91,11 +91,8 @@ const getWidgetItems = (widgetId: number, settings: Settings, compact = false): 
     const now = new Date();
 
     switch (widgetId) {
-        case 2: {  // Battery
-            const items: WidgetItem[] = [{ type: 'icon', asset: ICONS.battery }];
-            if (settings.batteryMeter === 'icon-and-percent') items.push(text('80%'));
-            return items;
-        }
+        case 2:  // Battery
+            return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
         case 3: {  // World Time 1
             const label1 = settings.worldTime1Label
                 || findWorldTimeCity(settings.worldTime1City)?.label

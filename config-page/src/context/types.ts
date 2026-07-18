@@ -90,7 +90,6 @@ export interface Settings {
   weatherApiKey: string;
 
   // Battery
-  batteryMeter: 'icon-and-percent' | 'icon-only';
   autoBattery: boolean;
 
   // World time (city names match config-page/src/data/cities.ts and

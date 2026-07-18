@@ -366,17 +366,6 @@ export const SettingsPage: React.FC = () => {
         </Section>
       )}
 
-      {/* ── Battery ── */}
-      <Section title="Battery">
-        <Select
-          label="Battery meter style"
-          messageKey="batteryMeter"
-          options={[
-            { label: 'Icon & percent', value: 'icon-and-percent' },
-            { label: 'Icon only', value: 'icon-only' },
-          ]}
-        />
-      </Section>
       <Section title="Status">
         <Toggle
           label="Low battery indicator"

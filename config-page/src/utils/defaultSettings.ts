@@ -49,7 +49,6 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   weatherApiKey: '',
 
   // Battery
-  batteryMeter: 'icon-and-percent',
   autoBattery: true,
 
   // World time

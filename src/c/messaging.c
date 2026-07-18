@@ -52,7 +52,6 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseSeamlessSidebar, settings.useSeamlessSidebar ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingShowBatteryPct, settings.showBatteryPct ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDisableAutobattery, settings.disableAutobattery ? 1 : 0);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClockName, settings.altclockName);
   dict_write_int32(iter, MESSAGE_KEY_SettingAltClockOffset, settings.altclockOffset);
@@ -169,7 +168,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *btVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingBluetoothVibe);
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
   Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
-  Tuple *batteryPct_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowBatteryPct);
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
@@ -234,10 +232,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(leadingZero_tuple != NULL) {
     settings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
-  }
-
-  if(batteryPct_tuple != NULL) {
-    settings.showBatteryPct = (bool)batteryPct_tuple->value->int8;
   }
 
   if(autobattery_tuple != NULL) {
