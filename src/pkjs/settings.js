@@ -111,14 +111,13 @@ function settingsFromWatchPayload(payload) {
     seamlessSidebar: getBoolean(payload.SettingUseSeamlessSidebar),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
-    disconnectIcon: getBoolean(payload.SettingDisconnectIcon),
     bluetoothVibe: getBoolean(payload.SettingBluetoothVibe),
 
     hourlyVibe: getMappedValue(HOURLY_VIBE_BY_ID, getNumber(payload.SettingHourlyVibe, 0), 'none'),
 
     weatherUnits: getBoolean(payload.SettingUseMetric) ? 'c' : 'f',
 
-    autoBattery: !getBoolean(payload.SettingDisableAutobattery),
+    statusBarEnabled: getNumber(payload.SettingEnableStatusBar, 1) !== 0,
 
     altClockName: payload.SettingAltClockName || 'UTC',
     altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
@@ -168,8 +167,8 @@ function settingsToWatchPayload(configData) {
     }
   }
 
-  if (configData.disconnectIcon !== undefined) {
-    dict.SettingDisconnectIcon = configData.disconnectIcon ? 1 : 0;
+  if (configData.statusBarEnabled !== undefined) {
+    dict.SettingEnableStatusBar = configData.statusBarEnabled ? 1 : 0;
   }
 
   if (configData.bluetoothVibe !== undefined) {
@@ -223,10 +222,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.weatherUnits) {
     dict.SettingUseMetric = configData.weatherUnits == 'c' ? 1 : 0;
-  }
-
-  if (configData.autoBattery !== undefined) {
-    dict.SettingDisableAutobattery = configData.autoBattery ? 0 : 1;
   }
 
   // world time (formerly "alt clock") settings are handled by worldtime.js,

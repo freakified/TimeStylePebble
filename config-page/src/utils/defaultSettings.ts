@@ -36,8 +36,10 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   decimalSeparator: '.',
 
   // Bluetooth
-  disconnectIcon: false,
   bluetoothVibe: false,
+
+  // Status bar
+  statusBarEnabled: true,
 
   // Notifications
   hourlyVibe: 'none',
@@ -50,9 +52,6 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   weatherMode: true,
   weatherDataSource: 'openmeteo',
   weatherApiKey: '',
-
-  // Battery
-  autoBattery: true,
 
   // World time
   worldTime1City: 'UTC',

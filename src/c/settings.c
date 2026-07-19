@@ -53,7 +53,7 @@ void Settings_loadFromStorage() {
   settings.hRegionSlots[0] = BATTERY_METER;
   settings.hRegionSlots[1] = SECONDS;
 
-  settings.activateDisconnectIcon = true;
+  settings.enableStatusBar = true;
   strncpy(settings.altclockName, "UTC", sizeof(settings.altclockName));
   settings.altclockOffset = 0;
   strncpy(settings.altclock2Name, "TYO", sizeof(settings.altclock2Name));

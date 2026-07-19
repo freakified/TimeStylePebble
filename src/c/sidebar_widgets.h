@@ -29,7 +29,7 @@ typedef enum {
  */
 typedef enum {
   EMPTY                     = 0,
-  BLUETOOTH_DISCONNECT      = 1,
+  // 1 was BLUETOOTH_DISCONNECT, retired in favor of the status bar
   BATTERY_METER             = 2,
   WORLD_TIME_1              = 3,
   DATE                      = 4,

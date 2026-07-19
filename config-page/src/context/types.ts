@@ -76,8 +76,10 @@ export interface Settings {
   decimalSeparator: '.' | ',';
 
   // Bluetooth
-  disconnectIcon: boolean;
   bluetoothVibe: boolean;
+
+  // Status bar (battery + connection icons, quiet time while active)
+  statusBarEnabled: boolean;
 
   // Notifications
   hourlyVibe: 'none' | 'everyHour' | 'everyHalfHour';
@@ -90,9 +92,6 @@ export interface Settings {
   weatherMode: boolean;
   weatherDataSource: string;
   weatherApiKey: string;
-
-  // Battery
-  autoBattery: boolean;
 
   // World time (city names match config-page/src/data/cities.ts and
   // src/pkjs/cities.js; the phone recomputes DST-aware offsets from them).

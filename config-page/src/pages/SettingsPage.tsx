@@ -368,14 +368,9 @@ export const SettingsPage: React.FC = () => {
 
       <Section title="Status">
         <Toggle
-          label="Low battery indicator"
-          messageKey="autoBattery"
-          description="Show icon when battery drops below 10%"
-        />
-        <Toggle
-          label="Bluetooth disconnection indicator"
-          description="Show icon when the watch is disconnected from your phone"
-          messageKey="disconnectIcon"
+          label="Enable status bar"
+          description="Show battery, phone connection, and Quiet Time icons at the top of the screen"
+          messageKey="statusBarEnabled"
         />
       </Section>
 

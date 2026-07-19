@@ -52,9 +52,8 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingLayoutId, settings.layoutId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseSeamlessSidebar, settings.useSeamlessSidebar ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingDisconnectIcon, settings.activateDisconnectIcon ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingDisableAutobattery, settings.disableAutobattery ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingEnableStatusBar, settings.enableStatusBar ? 1 : 0);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClockName, settings.altclockName);
   dict_write_int32(iter, MESSAGE_KEY_SettingAltClockOffset, settings.altclockOffset);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClock2Name, settings.altclock2Name);
@@ -196,9 +195,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *healthUseDistance_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseDistance);
   Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
 
-  Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
-
-  Tuple *activateDisconnectIcon_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisconnectIcon);
+  Tuple *enableStatusBar_tuple = dict_find(iterator, MESSAGE_KEY_SettingEnableStatusBar);
 
 
   if(timeColor_tuple != NULL) {
@@ -236,10 +233,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(leadingZero_tuple != NULL) {
     settings.showLeadingZero = (bool)leadingZero_tuple->value->int8;
-  }
-
-  if(autobattery_tuple != NULL) {
-    settings.disableAutobattery = (bool)autobattery_tuple->value->int8;
   }
 
   if(clockFont_tuple != NULL) {
@@ -337,8 +330,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
   }
 
-  if(activateDisconnectIcon_tuple != NULL) {
-    settings.activateDisconnectIcon = (bool)activateDisconnectIcon_tuple->value->int8;
+  if(enableStatusBar_tuple != NULL) {
+    settings.enableStatusBar = (bool)enableStatusBar_tuple->value->int8;
   }
 
   // save the new settings to persistent storage

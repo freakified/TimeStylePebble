@@ -3,7 +3,7 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 13
+#define CURRENT_SETTINGS_VERSION 14
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -41,13 +41,9 @@ typedef struct {
 
   // sidebar settings
   bool useLargeFonts;
-  bool activateDisconnectIcon; // dormant: for the future status widget
-  
+
   // weather widget settings
   bool useMetric;
-
-  // battery meter widget settings
-  bool disableAutobattery;
 
   // world time widget settings (offset is minutes from UTC; the phone
   // recomputes it from the selected city's DST rules whenever it talks
@@ -83,6 +79,11 @@ typedef struct {
   // the phone (-getTimezoneOffset()); world time = local + (city - local).
   // tm_gmtoff can't be trusted here -- its sign convention varies
   int localUtcOffset;
+
+  // status bar settings (v14: replaced the v13 disableAutobattery /
+  // activateDisconnectIcon fields); when the bar is on, battery and
+  // connection always show (quiet time only while active)
+  bool enableStatusBar;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

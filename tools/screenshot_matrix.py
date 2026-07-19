@@ -50,7 +50,6 @@ LAYOUTS = {
 }
 WIDGETS = {
     "EMPTY": 0,
-    "BLUETOOTH_DISCONNECT": 1,
     "BATTERY_METER": 2,
     "WORLD_TIME_1": 3,
     "DATE": 4,

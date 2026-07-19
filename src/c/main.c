@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "weather.h"
 #include "sidebar.h"
+#include "status_bar.h"
 #include "util.h"
 
 // windows and layers
@@ -73,6 +74,8 @@ void redrawScreen() {
   // update the sidebar
   Sidebar_redraw();
 
+  StatusBar_redraw();
+
   ClockArea_redraw();
 }
 
@@ -84,11 +87,14 @@ static void main_window_load(Window *window) {
 
   ClockArea_init(window);
 
+  StatusBar_init(window);
+
   // Make sure the time is displayed from the start
   redrawScreen();
 }
 
 static void main_window_unload(Window *window) {
+  StatusBar_deinit();
   ClockArea_deinit();
   Sidebar_deinit();
 }
@@ -121,6 +127,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   // redraw all screen
   Sidebar_redraw();
+  StatusBar_redraw(); // quiet time can toggle between ticks
   ClockArea_redraw();
 }
 
@@ -144,11 +151,13 @@ void bluetoothStateChanged(bool newConnectionState) {
   isPhoneConnected = newConnectionState;
 
   Sidebar_redraw();
+  StatusBar_redraw();
 }
 
-// force the sidebar to redraw any time the battery state changes
+// force the sidebar and status bar to redraw any time the battery state changes
 void batteryStateChanged(BatteryChargeState charge_state) {
   Sidebar_redraw();
+  StatusBar_redraw();
 }
 
 #ifdef PBL_HEALTH

@@ -39,9 +39,7 @@
       "WeatherUVIndex",
       "SettingAltClockName",
       "SettingAltClockOffset",
-      "SettingDisableAutobattery",
       "SettingBluetoothVibe",
-      "SettingDisconnectIcon",
       "SettingClockFontId",
       "SettingColorBG",
       "SettingColorSidebar",
@@ -76,7 +74,8 @@
       "WeatherWindSpeed",
       "WeatherPrecipChance",
       "WeatherSunriseMinute",
-      "WeatherSunsetMinute"
+      "WeatherSunsetMinute",
+      "SettingEnableStatusBar"
     ],
     "resources": {
       "media": [
@@ -84,6 +83,31 @@
           "file": "images/menuicon.png",
           "menuIcon": true,
           "name": "MENU_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/status-dnd.png",
+          "name": "STATUS_DND",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/status-battery-bg.png",
+          "name": "STATUS_BATTERY_BG",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/status-battery-chg.png",
+          "name": "STATUS_BATTERY_CHG",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/status-watch-connected.png",
+          "name": "STATUS_WATCH_CONNECTED",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/status-watch-disconnected.png",
+          "name": "STATUS_WATCH_DISCONNECTED",
           "type": "bitmap"
         },
         {
@@ -178,11 +202,6 @@
         {
           "file": "data/HEAVY_RAIN.pdc",
           "name": "WEATHER_HEAVY_RAIN",
-          "type": "raw"
-        },
-        {
-          "file": "data/DISCONNECTED.pdc",
-          "name": "DISCONNECTED",
           "type": "raw"
         },
         {

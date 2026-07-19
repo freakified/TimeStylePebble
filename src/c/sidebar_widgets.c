@@ -27,7 +27,6 @@
 #define DATE_PLAIN_VERTICAL_PADDING 4
 
 GDrawCommandImage *dateImage;
-GDrawCommandImage *disconnectImage;
 GDrawCommandImage *batteryImage;
 GDrawCommandImage *batteryChargeImage;
 GDrawCommandImage *sunriseImage;
@@ -94,7 +93,6 @@ static void date_content_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec);
 static SidebarContent CurrentWeather_getContent();
 static SidebarContent WeatherForecast_getContent();
-static SidebarContent BTDisconnect_getContent();
 static SidebarContent WeekNumber_getContent();
 static SidebarContent Seconds_getContent();
 static SidebarContent WorldTime1_getContent();
@@ -227,8 +225,6 @@ void SidebarWidgets_init() {
 #endif
 
   dateImage = gdraw_command_image_create_with_resource(RESOURCE_ID_DATE_BG);
-  disconnectImage =
-      gdraw_command_image_create_with_resource(RESOURCE_ID_DISCONNECTED);
   batteryImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
   batteryChargeImage =
@@ -250,7 +246,6 @@ void SidebarWidgets_init() {
 
 void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(dateImage);
-  gdraw_command_image_destroy(disconnectImage);
   gdraw_command_image_destroy(batteryImage);
   gdraw_command_image_destroy(batteryChargeImage);
   gdraw_command_image_destroy(sunriseImage);
@@ -1459,13 +1454,6 @@ static SidebarContent WeatherForecast_getContent() {
   return content;
 }
 
-static SidebarContent BTDisconnect_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON);
-  content.iconKind = SIDEBAR_ICON_IMAGE;
-  content.icon = disconnectImage;
-  return content;
-}
-
 static SidebarContent WeekNumber_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
   content.label = wordForWeek[settings.languageId];
@@ -1749,9 +1737,6 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
     return (SidebarWidgetDefinition){BATTERY_METER, SIDEBAR_CONTENT_CUSTOM,
                                      NULL, BatteryMeter_measure,
                                      BatteryMeter_draw};
-  case BLUETOOTH_DISCONNECT:
-    return (SidebarWidgetDefinition){BLUETOOTH_DISCONNECT, SIDEBAR_CONTENT_ICON,
-                                     BTDisconnect_getContent, NULL, NULL};
   case DATE:
     return (SidebarWidgetDefinition){DATE, SIDEBAR_CONTENT_DATE,
                                      Date_getContent, NULL, NULL};

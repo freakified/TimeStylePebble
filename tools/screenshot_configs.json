@@ -26,11 +26,10 @@
     "SettingClockFontId": 0,
     "SettingLanguageID": 0,
     "SettingShowLeadingZero": 0,
-    "SettingDisableAutobattery": 0,
     "SettingUseMetric": 1,
     "SettingBluetoothVibe": 0,
     "SettingHourlyVibe": 0,
-    "SettingDisconnectIcon": 1,
+    "SettingEnableStatusBar": 1,
     "SettingAltClockName": "NYC",
     "SettingAltClockOffset": -240,
     "SettingAltClock2Name": "TYO",
@@ -204,6 +203,13 @@
       "SettingWidget3ID": "EMPTY",
       "SettingBottomBarWidget0ID": "WORLD_TIME_1",
       "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY"
+    } },
+
+    { "name": "statusbar-off", "settings": {
+      "SettingEnableStatusBar": 0
+    } },
+    { "name": "statusbar-leco", "settings": {
+      "SettingClockFontId": 1
     } },
 
     { "name": "scheme-mono-dark", "settings": {
