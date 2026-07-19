@@ -54,6 +54,7 @@ void Settings_loadFromStorage() {
   settings.hRegionSlots[1] = SECONDS;
 
   settings.enableStatusBar = true;
+  settings.statusShowConnection = false;
   strncpy(settings.altclockName, "UTC", sizeof(settings.altclockName));
   settings.altclockOffset = 0;
   strncpy(settings.altclock2Name, "TYO", sizeof(settings.altclock2Name));

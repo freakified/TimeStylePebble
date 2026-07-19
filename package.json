@@ -75,7 +75,8 @@
       "WeatherPrecipChance",
       "WeatherSunriseMinute",
       "WeatherSunsetMinute",
-      "SettingEnableStatusBar"
+      "SettingEnableStatusBar",
+      "SettingStatusShowConnection"
     ],
     "resources": {
       "media": [
@@ -101,13 +102,13 @@
           "type": "bitmap"
         },
         {
-          "file": "images/status-watch-connected.png",
-          "name": "STATUS_WATCH_CONNECTED",
+          "file": "images/status-connected.png",
+          "name": "STATUS_CONNECTED",
           "type": "bitmap"
         },
         {
-          "file": "images/status-watch-disconnected.png",
-          "name": "STATUS_WATCH_DISCONNECTED",
+          "file": "images/status-disconnected.png",
+          "name": "STATUS_DISCONNECTED",
           "type": "bitmap"
         },
         {

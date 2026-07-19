@@ -54,6 +54,7 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseSeamlessSidebar, settings.useSeamlessSidebar ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingEnableStatusBar, settings.enableStatusBar ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingStatusShowConnection, settings.statusShowConnection ? 1 : 0);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClockName, settings.altclockName);
   dict_write_int32(iter, MESSAGE_KEY_SettingAltClockOffset, settings.altclockOffset);
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClock2Name, settings.altclock2Name);
@@ -196,6 +197,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
 
   Tuple *enableStatusBar_tuple = dict_find(iterator, MESSAGE_KEY_SettingEnableStatusBar);
+  Tuple *statusShowConnection_tuple = dict_find(iterator, MESSAGE_KEY_SettingStatusShowConnection);
 
 
   if(timeColor_tuple != NULL) {
@@ -332,6 +334,10 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(enableStatusBar_tuple != NULL) {
     settings.enableStatusBar = (bool)enableStatusBar_tuple->value->int8;
+  }
+
+  if(statusShowConnection_tuple != NULL) {
+    settings.statusShowConnection = (bool)statusShowConnection_tuple->value->int8;
   }
 
   // save the new settings to persistent storage

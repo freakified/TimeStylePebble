@@ -40,6 +40,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // Status bar
   statusBarEnabled: true,
+  statusBarShowConnection: false,
 
   // Notifications
   hourlyVibe: 'none',

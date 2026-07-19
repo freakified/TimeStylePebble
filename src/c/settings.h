@@ -81,9 +81,11 @@ typedef struct {
   int localUtcOffset;
 
   // status bar settings (v14: replaced the v13 disableAutobattery /
-  // activateDisconnectIcon fields); when the bar is on, battery and
-  // connection always show (quiet time only while active)
+  // activateDisconnectIcon fields); when the bar is on, battery always
+  // shows, and the corner icon shows disconnection or quiet time only
+  // while active -- unless statusShowConnection also shows "connected"
   bool enableStatusBar;
+  bool statusShowConnection;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

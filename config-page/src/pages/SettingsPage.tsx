@@ -372,6 +372,13 @@ export const SettingsPage: React.FC = () => {
           description="Show battery, phone connection, and Quiet Time icons at the top of the screen"
           messageKey="statusBarEnabled"
         />
+        {settings.statusBarEnabled && (
+          <Toggle
+            label="Always show connection status"
+            description="Show an icon while connected to your phone, not just when disconnected"
+            messageKey="statusBarShowConnection"
+          />
+        )}
       </Section>
 
       <Section title="Vibration">

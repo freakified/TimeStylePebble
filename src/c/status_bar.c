@@ -5,13 +5,16 @@
 #include <pebble.h>
 
 /*
- * The status bar is a thin strip of tiny prerendered icons: quiet time
- * on the left, phone connection in the middle, and battery on the
- * right. It overlays the top of the watchface without reserving any
- * space -- the clock keeps its full size, and the icons sit in the
- * clock's natural top padding. On rectangular watches the strip spans
- * the non-sidebar width; on round watches the icons cluster at the top
- * center.
+ * The status bar is a thin strip of tiny prerendered icons: a status
+ * icon on the left and battery on the right. It overlays the top of
+ * the watchface without reserving any space -- the clock keeps its
+ * full size, and the icons sit in the clock's natural top padding. On
+ * rectangular watches the strip spans the non-sidebar width; on round
+ * watches the icons cluster at the top center.
+ *
+ * The left icon does double duty: disconnection always wins, then
+ * quiet time, then (only if the "always show connection" setting is
+ * on) a "connected" icon; otherwise the slot stays empty.
  */
 
 #define STATUS_BAR_HEIGHT 15
@@ -96,9 +99,9 @@ static void status_bar_update(Layer *l, GContext *ctx) {
 
   GRect bounds = layer_get_bounds(l);
 
-  // the bar draws directly on the watchface background, so it follows
-  // the "dark" region text color
-  GColor color = settings.altSidebarTextColor;
+  // the bar draws directly on the watchface background, matching the
+  // time color
+  GColor color = settings.timeColor;
 
   recolor_icon(dndIcon, color);
   recolor_icon(batteryIcon, color);
@@ -111,19 +114,23 @@ static void status_bar_update(Layer *l, GContext *ctx) {
   BatteryChargeState battery = battery_state_service_peek();
   bool connected = bluetooth_connection_service_peek();
 
-  // battery and connection always show; quiet time only while active
-  bool showDnd = quiet_time_is_active();
+  GBitmap *statusIcon = NULL;
 
-  GBitmap *connectionIcon = connected ? connectedIcon : disconnectedIcon;
+  if (!connected) {
+    statusIcon = disconnectedIcon;
+  } else if (quiet_time_is_active()) {
+    statusIcon = dndIcon;
+  } else if (settings.statusShowConnection) {
+    statusIcon = connectedIcon;
+  }
 
 #ifdef PBL_ROUND
-  GBitmap *cluster[3];
+  GBitmap *cluster[2];
   int count = 0;
 
-  if (showDnd) {
-    cluster[count++] = dndIcon;
+  if (statusIcon != NULL) {
+    cluster[count++] = statusIcon;
   }
-  cluster[count++] = connectionIcon;
   cluster[count++] = battery.is_charging ? batteryChargeIcon : batteryIcon;
 
   int totalWidth = (count > 0) ? (count - 1) * ROUND_STATUS_ICON_GAP : 0;
@@ -145,12 +152,9 @@ static void status_bar_update(Layer *l, GContext *ctx) {
 #else
   int centerY = bounds.size.h / 2;
 
-  if (showDnd) {
-    draw_icon(ctx, dndIcon, STATUS_BAR_PADDING_X, centerY);
+  if (statusIcon != NULL) {
+    draw_icon(ctx, statusIcon, STATUS_BAR_PADDING_X, centerY);
   }
-
-  int connW = gbitmap_get_bounds(connectionIcon).size.w;
-  draw_icon(ctx, connectionIcon, (bounds.size.w - connW) / 2, centerY);
 
   int battW = gbitmap_get_bounds(batteryIcon).size.w;
   draw_battery(ctx, battery, bounds.size.w - STATUS_BAR_PADDING_X - battW,
@@ -183,10 +187,9 @@ void StatusBar_init(Window *window) {
   batteryIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_BATTERY_BG);
   batteryChargeIcon =
       gbitmap_create_with_resource(RESOURCE_ID_STATUS_BATTERY_CHG);
-  connectedIcon =
-      gbitmap_create_with_resource(RESOURCE_ID_STATUS_WATCH_CONNECTED);
+  connectedIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_CONNECTED);
   disconnectedIcon =
-      gbitmap_create_with_resource(RESOURCE_ID_STATUS_WATCH_DISCONNECTED);
+      gbitmap_create_with_resource(RESOURCE_ID_STATUS_DISCONNECTED);
 
 #ifdef PBL_ROUND
   statusBarLayer = layer_create(

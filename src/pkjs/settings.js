@@ -118,6 +118,7 @@ function settingsFromWatchPayload(payload) {
     weatherUnits: getBoolean(payload.SettingUseMetric) ? 'c' : 'f',
 
     statusBarEnabled: getNumber(payload.SettingEnableStatusBar, 1) !== 0,
+    statusBarShowConnection: getBoolean(payload.SettingStatusShowConnection),
 
     altClockName: payload.SettingAltClockName || 'UTC',
     altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
@@ -169,6 +170,10 @@ function settingsToWatchPayload(configData) {
 
   if (configData.statusBarEnabled !== undefined) {
     dict.SettingEnableStatusBar = configData.statusBarEnabled ? 1 : 0;
+  }
+
+  if (configData.statusBarShowConnection !== undefined) {
+    dict.SettingStatusShowConnection = configData.statusBarShowConnection ? 1 : 0;
   }
 
   if (configData.bluetoothVibe !== undefined) {
