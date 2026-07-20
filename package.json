@@ -92,16 +92,6 @@
           "type": "bitmap"
         },
         {
-          "file": "images/status-battery-bg.png",
-          "name": "STATUS_BATTERY_BG",
-          "type": "bitmap"
-        },
-        {
-          "file": "images/status-battery-chg.png",
-          "name": "STATUS_BATTERY_CHG",
-          "type": "bitmap"
-        },
-        {
           "file": "images/status-connected.png",
           "name": "STATUS_CONNECTED",
           "type": "bitmap"

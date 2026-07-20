@@ -78,7 +78,7 @@ export interface Settings {
   // Bluetooth
   bluetoothVibe: boolean;
 
-  // Status bar (battery icon, plus disconnection / quiet time while active)
+  // Status icon (disconnection / quiet time while active; mini-battery removed for now)
   statusBarEnabled: boolean;
   statusBarShowConnection: boolean; // show "connected" icon even when connected
 

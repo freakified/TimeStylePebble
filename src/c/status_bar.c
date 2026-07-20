@@ -5,38 +5,28 @@
 #include <pebble.h>
 
 /*
- * The status bar is a thin strip of tiny prerendered icons: a status
- * icon on the left and battery on the right. It overlays the top of
- * the watchface without reserving any space -- the clock keeps its
- * full size, and the icons sit in the clock's natural top padding. On
- * rectangular watches the strip spans the non-sidebar width; on round
- * watches the icons cluster at the top center.
+ * The status bar is a single tiny prerendered icon that overlays the
+ * top of the watchface without reserving any space -- the clock keeps
+ * its full size, and the icon sits in the clock's natural top
+ * padding. On rectangular watches it sits at the top corner opposite
+ * the vertical sidebar; on round watches it centers at the top.
  *
- * The left icon does double duty: disconnection always wins, then
- * quiet time, then (only if the "always show connection" setting is
- * on) a "connected" icon; otherwise the slot stays empty.
+ * Disconnection always wins, then quiet time, then (only if the
+ * "always show connection" setting is on) a "connected" icon;
+ * otherwise nothing is drawn.
  */
 
 #define STATUS_BAR_HEIGHT 15
 #define STATUS_BAR_PADDING_X 3
 
-// round watches: the icon cluster centers on this row
+// round watches: the icon centers on this row
 #define ROUND_STATUS_BAR_HEIGHT 22
 #define ROUND_STATUS_CENTER_Y 11
-#define ROUND_STATUS_ICON_GAP 6
-
-// the charge level fill, inset from the battery outline by a 1px gap
-#define STATUS_BATTERY_FILL_X 2
-#define STATUS_BATTERY_FILL_Y 2
-#define STATUS_BATTERY_FILL_W 10
-#define STATUS_BATTERY_FILL_H 4
 
 static GRect screen_rect;
 static Layer *statusBarLayer;
 
 static GBitmap *dndIcon;
-static GBitmap *batteryIcon;
-static GBitmap *batteryChargeIcon;
 static GBitmap *connectedIcon;
 static GBitmap *disconnectedIcon;
 
@@ -71,27 +61,6 @@ static void draw_icon(GContext *ctx, GBitmap *icon, int x, int centerY) {
       ctx, icon, GRect(x, centerY - size.h / 2, size.w, size.h));
 }
 
-// while charging the outline carries a bolt cutout instead of a level
-static void draw_battery(GContext *ctx, BatteryChargeState state, int x,
-                         int centerY, GColor color) {
-  GBitmap *icon = state.is_charging ? batteryChargeIcon : batteryIcon;
-  GSize size = gbitmap_get_bounds(icon).size;
-  int y = centerY - size.h / 2;
-
-  graphics_draw_bitmap_in_rect(ctx, icon, GRect(x, y, size.w, size.h));
-
-  if (!state.is_charging) {
-    int fillWidth =
-        (STATUS_BATTERY_FILL_W * state.charge_percent + 50) / 100;
-    graphics_context_set_fill_color(ctx, color);
-    graphics_fill_rect(ctx,
-                       GRect(x + STATUS_BATTERY_FILL_X,
-                             y + STATUS_BATTERY_FILL_Y, fillWidth,
-                             STATUS_BATTERY_FILL_H),
-                       0, GCornerNone);
-  }
-}
-
 static void status_bar_update(Layer *l, GContext *ctx) {
   if (!settings.enableStatusBar) {
     return;
@@ -104,14 +73,11 @@ static void status_bar_update(Layer *l, GContext *ctx) {
   GColor color = settings.timeColor;
 
   recolor_icon(dndIcon, color);
-  recolor_icon(batteryIcon, color);
-  recolor_icon(batteryChargeIcon, color);
   recolor_icon(connectedIcon, color);
   recolor_icon(disconnectedIcon, color);
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
 
-  BatteryChargeState battery = battery_state_service_peek();
   bool connected = bluetooth_connection_service_peek();
 
   GBitmap *statusIcon = NULL;
@@ -124,41 +90,16 @@ static void status_bar_update(Layer *l, GContext *ctx) {
     statusIcon = connectedIcon;
   }
 
+  if (statusIcon == NULL) {
+    return;
+  }
+
 #ifdef PBL_ROUND
-  GBitmap *cluster[2];
-  int count = 0;
-
-  if (statusIcon != NULL) {
-    cluster[count++] = statusIcon;
-  }
-  cluster[count++] = battery.is_charging ? batteryChargeIcon : batteryIcon;
-
-  int totalWidth = (count > 0) ? (count - 1) * ROUND_STATUS_ICON_GAP : 0;
-
-  for (int i = 0; i < count; i++) {
-    totalWidth += gbitmap_get_bounds(cluster[i]).size.w;
-  }
-
-  int x = (bounds.size.w - totalWidth) / 2;
-
-  for (int i = 0; i < count; i++) {
-    if (cluster[i] == batteryIcon || cluster[i] == batteryChargeIcon) {
-      draw_battery(ctx, battery, x, ROUND_STATUS_CENTER_Y, color);
-    } else {
-      draw_icon(ctx, cluster[i], x, ROUND_STATUS_CENTER_Y);
-    }
-    x += gbitmap_get_bounds(cluster[i]).size.w + ROUND_STATUS_ICON_GAP;
-  }
+  int iconWidth = gbitmap_get_bounds(statusIcon).size.w;
+  draw_icon(ctx, statusIcon, (bounds.size.w - iconWidth) / 2,
+            ROUND_STATUS_CENTER_Y);
 #else
-  int centerY = bounds.size.h / 2;
-
-  if (statusIcon != NULL) {
-    draw_icon(ctx, statusIcon, STATUS_BAR_PADDING_X, centerY);
-  }
-
-  int battW = gbitmap_get_bounds(batteryIcon).size.w;
-  draw_battery(ctx, battery, bounds.size.w - STATUS_BAR_PADDING_X - battW,
-               centerY, color);
+  draw_icon(ctx, statusIcon, STATUS_BAR_PADDING_X, bounds.size.h / 2);
 #endif
 }
 
@@ -184,9 +125,6 @@ void StatusBar_init(Window *window) {
   screen_rect = layer_get_bounds(root);
 
   dndIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_DND);
-  batteryIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_BATTERY_BG);
-  batteryChargeIcon =
-      gbitmap_create_with_resource(RESOURCE_ID_STATUS_BATTERY_CHG);
   connectedIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_CONNECTED);
   disconnectedIcon =
       gbitmap_create_with_resource(RESOURCE_ID_STATUS_DISCONNECTED);
@@ -207,8 +145,6 @@ void StatusBar_deinit(void) {
   layer_destroy(statusBarLayer);
 
   gbitmap_destroy(dndIcon);
-  gbitmap_destroy(batteryIcon);
-  gbitmap_destroy(batteryChargeIcon);
   gbitmap_destroy(connectedIcon);
   gbitmap_destroy(disconnectedIcon);
 }

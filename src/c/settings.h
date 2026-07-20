@@ -80,10 +80,11 @@ typedef struct {
   // tm_gmtoff can't be trusted here -- its sign convention varies
   int localUtcOffset;
 
-  // status bar settings (v14: replaced the v13 disableAutobattery /
-  // activateDisconnectIcon fields); when the bar is on, battery always
-  // shows, and the corner icon shows disconnection or quiet time only
-  // while active -- unless statusShowConnection also shows "connected"
+  // status icon settings (v14: replaced the v13 disableAutobattery /
+  // activateDisconnectIcon fields); when enabled, a corner icon shows
+  // disconnection or quiet time only while active -- unless
+  // statusShowConnection also shows "connected" (mini-battery removed
+  // for now)
   bool enableStatusBar;
   bool statusShowConnection;
 } Settings;
