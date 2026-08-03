@@ -1137,16 +1137,108 @@ input[type='checkbox'] {
   background: var(--border-color);
 }
 
+/* one region's rows, add row and budget meter; the drag hit-tests these */
+.widget-region {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .widget-selector-controls .widget-slot-row {
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .widget-selector-controls .widget-slot-row select {
   flex: 1;
   width: auto;
   min-width: 0;
+}
+
+/* The lifted row follows the pointer while the list holds still, so the
+   row under your finger is always the one you picked up. It gets a solid
+   background and a shadow so it reads as floating ABOVE the rows it
+   passes over instead of blending into them.
+   Note: no `pointer-events: none` here — the handle inside this row holds
+   the pointer capture, and hiding it from hit-testing is a good way to
+   lose the capture in some browsers. Nothing needs it: the drop target is
+   worked out from getBoundingClientRect(), not from what's under the
+   pointer. */
+.widget-selector-controls .widget-slot-row[data-dragging] {
+  z-index: 2;
+  background: var(--bg-surface);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 35%);
+}
+
+/* Where it will land. Half the row gap, so the line sits in the middle of
+   the space between two rows rather than against one of them. */
+.widget-slot-row[data-drop]::after,
+.widget-region[data-drop-empty]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--halite-orange);
+}
+
+.widget-slot-row[data-drop='before']::after {
+  top: -9px;
+}
+
+.widget-slot-row[data-drop='after']::after {
+  bottom: -9px;
+}
+
+.widget-region[data-drop-empty] {
+  position: relative;
+  min-height: 12px;
+}
+
+.widget-region[data-drop-empty]::after {
+  top: -9px;
+}
+
+/* Only the handle claims the touch gesture, so a drag never fights the
+   page scroll — press and hold anywhere else and the page still moves.
+   The callout/select suppression stops iOS turning a long press into a
+   text selection or share sheet mid-drag. */
+.widget-slot-drag {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 6px 4px;
+  border-radius: 6px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.widget-slot-drag:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+}
+
+.widget-slot-drag:focus-visible {
+  outline: 2px solid var(--halite-orange);
+  outline-offset: 1px;
+}
+
+/* While a drag is live the whole column stops selecting text, so dragging
+   past a label doesn't leave a blue smear behind the row. */
+.widget-selector-controls--dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
 }
 
 .widget-slot-remove {

@@ -60,7 +60,7 @@ void Settings_loadFromStorage() {
   settings.altclock2Offset = 540;
   settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
-  settings.useSeamlessSidebar = false;
+  settings.useWideSidebar = false;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));

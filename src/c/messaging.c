@@ -51,7 +51,7 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget3ID, settings.hRegionSlots[3]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingLayoutId, settings.layoutId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingUseSeamlessSidebar, settings.useSeamlessSidebar ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseMetric, settings.useMetric ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingEnableStatusBar, settings.enableStatusBar ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingStatusShowConnection, settings.statusShowConnection ? 1 : 0);
@@ -173,7 +173,7 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
-  Tuple *useSeamlessSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseSeamlessSidebar);
+  Tuple *useWideSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseWideSidebar);
 
   Tuple *widget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget0ID);
   Tuple *widget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidget1ID);
@@ -245,8 +245,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     settings.useLargeFonts = (bool)useLargeFonts_tuple->value->int8;
   }
 
-  if(useSeamlessSidebar_tuple != NULL) {
-    settings.useSeamlessSidebar = (bool)useSeamlessSidebar_tuple->value->int8;
+  if(useWideSidebar_tuple != NULL) {
+    settings.useWideSidebar = (bool)useWideSidebar_tuple->value->int8;
   }
 
   if(hourlyVibe_tuple != NULL) {

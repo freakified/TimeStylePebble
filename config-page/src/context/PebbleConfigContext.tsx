@@ -6,6 +6,8 @@ import { getDefaultSettings } from '../utils/defaultSettings';
 interface ConfigContextType {
   settings: Settings;
   updateSetting: (key: keyof Settings, value: Settings[keyof Settings]) => void;
+  /** Apply several settings in one state transition (e.g. repacking widget slots). */
+  updateSettings: (partial: Partial<Settings>) => void;
   resetToDefaults: () => void;
   save: () => void;
 }
@@ -67,6 +69,10 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const updateSettings = (partial: Partial<Settings>) => {
+    setSettings((prev) => ({ ...prev, ...partial }));
+  };
+
   const resetToDefaults = () => {
     setSettings(getDefaultSettings(capabilities));
   };
@@ -81,7 +87,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   return (
     <WatchInfoContext.Provider value={{ watchInfo, capabilities }}>
-      <ConfigContext.Provider value={{ settings, updateSetting, resetToDefaults, save }}>
+      <ConfigContext.Provider value={{ settings, updateSetting, updateSettings, resetToDefaults, save }}>
         {children}
       </ConfigContext.Provider>
     </WatchInfoContext.Provider>

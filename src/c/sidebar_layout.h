@@ -74,28 +74,34 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 #endif
 #define HREGION_SLOT_CAP_STACKED 4
 
-// region thicknesses
+// Region thicknesses. The wide sidebar is sized off the widest thing a
+// widget routinely says -- a world time's "23:59" -- plus a pixel of
+// margin on each side, so it is exactly as wide as it needs to be for a
+// widget to show its full form. Measured with
+// graphics_text_layout_get_content_size on the bold gothic the sidebar
+// draws with: 36px at 18, 44px at 24, 49px at 28.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 43 : 34)
-#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 58 : 52)
+#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 51 : 46)
 #define HBAR_HEIGHT_INLINE(largeFonts) ((largeFonts) ? 43 : 34)
 #define HBAR_HEIGHT_STACKED(largeFonts) ((largeFonts) ? 62 : 56)
 #define REGION_V_PADDING_DEFAULT 9
 #else
 #define VBAR_WIDTH_NARROW(largeFonts) 30
-#define VBAR_WIDTH_WIDE(largeFonts) 46
+#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 46 : 38)
 #define HBAR_HEIGHT_INLINE(largeFonts) 30
 #define HBAR_HEIGHT_STACKED(largeFonts) 50
 #define REGION_V_PADDING_DEFAULT 8
 #endif
 #define REGION_V_PADDING_COMPACT 4
 
-// A seamless inline bar paints no background, so the clock area may reach
-// past the bar's top edge into the padding above its widgets: the clock's
-// digits stop about a tenth of the area's height short of its lower bound
-// (v_padding plus the font's baseline slop), so reserving the bar's full
-// thickness shrinks the time far more than the bar actually costs.
-// Reclaiming that slack keeps the digits near their no-bar size.
+// An inline bar beside a sidebar draws straight on the watchface, so the
+// clock area may reach past the bar's top edge into the padding above its
+// widgets: the clock's digits stop about a tenth of the area's height
+// short of its lower bound (v_padding plus the font's baseline slop), so
+// reserving the bar's full thickness shrinks the time far more than the
+// bar actually costs. Reclaiming that slack keeps the digits near their
+// no-bar size.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define HBAR_CLOCK_ENCROACH 10
 #else

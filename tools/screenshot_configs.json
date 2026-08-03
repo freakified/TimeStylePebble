@@ -7,7 +7,7 @@
     "SettingSidebarTextColor": "#000000",
     "SettingAltSidebarTextColor": "#FFFFFF",
     "SettingLayoutId": "SIDEBAR_RIGHT",
-    "SettingUseSeamlessSidebar": 0,
+    "SettingUseWideSidebar": 0,
     "SettingUseLargeFonts": 0,
     "SettingWidget0ID": "WEATHER_CURRENT",
     "SettingWidget1ID": "DATE",
@@ -75,37 +75,30 @@
       }
     },
     {
-      "name": "layout-right-seamless",
+      "name": "layout-right-wide",
       "settings": {
-        "SettingUseSeamlessSidebar": 1
+        "SettingUseWideSidebar": 1
       }
     },
     {
-      "name": "layout-left-seamless",
+      "name": "layout-left-wide",
       "settings": {
         "SettingLayoutId": "SIDEBAR_LEFT",
-        "SettingUseSeamlessSidebar": 1
+        "SettingUseWideSidebar": 1
       }
     },
     {
-      "name": "layout-right-bottombar-seamless",
+      "name": "layout-right-bottombar-wide",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
-        "SettingUseSeamlessSidebar": 1
+        "SettingUseWideSidebar": 1
       }
     },
     {
-      "name": "layout-left-bottombar-seamless",
+      "name": "layout-left-bottombar-wide",
       "settings": {
         "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR",
-        "SettingUseSeamlessSidebar": 1
-      }
-    },
-    {
-      "name": "layout-bottombar-only-seamless",
-      "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY",
-        "SettingUseSeamlessSidebar": 1
+        "SettingUseWideSidebar": 1
       }
     },
     {
@@ -357,7 +350,7 @@
       "name": "repro-crowded-bottom",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
-        "SettingUseSeamlessSidebar": 1,
+        "SettingUseWideSidebar": 1,
         "SettingUseLargeFonts": 1,
         "SettingWidget0ID": "BEATS",
         "SettingWidget1ID": "WORLD_TIME_2",
@@ -398,10 +391,10 @@
       }
     },
     {
-      "name": "scheme-light-seamless-bottombar",
+      "name": "scheme-light-wide-bottombar",
       "settings": {
         "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR",
-        "SettingUseSeamlessSidebar": 1,
+        "SettingUseWideSidebar": 1,
         "SettingColorBG": "#FFFFFF",
         "SettingColorTime": "#000000",
         "SettingColorSidebar": "#00AAFF",

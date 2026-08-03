@@ -57,11 +57,10 @@ static void sidebar_buildRegions(void) {
   vRegion = (SidebarRegion){
       .edge = vEdge,
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
-      // seamless regions blend into the watchface, and the extra room
-      // lets the vertical sidebar widen
-      .dark = settings.useSeamlessSidebar,
+      // the primary sidebar always wears the accent background
+      .dark = false,
       .thickness = (vEdge == REGION_EDGE_NONE) ? 0
-                   : settings.useSeamlessSidebar
+                   : settings.useWideSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
       .slotCount = VREGION_SLOT_CAP,
@@ -77,9 +76,9 @@ static void sidebar_buildRegions(void) {
   hRegion = (SidebarRegion){
       .edge = hEdge,
       .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
-      // a secondary bar always blends into the watchface; when the bar
-      // is the only region it follows the seamless setting
-      .dark = (vEdge != REGION_EDGE_NONE) || settings.useSeamlessSidebar,
+      // a secondary bar blends into the watchface so the accent color
+      // stays with the sidebar; a bar on its own takes the accent itself
+      .dark = (vEdge != REGION_EDGE_NONE),
       .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
                            : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
       .slotCount = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE,
@@ -103,7 +102,7 @@ int Sidebar_reservedTop(void) {
 int Sidebar_reservedBottom(void) {
 #ifndef PBL_ROUND
   if (hRegion.edge == REGION_EDGE_BOTTOM) {
-    // a seamless inline bar lends the clock the padding above its widgets
+    // a bar on the watchface lends the clock the padding above its widgets
     if (hRegion.dark && hRegion.widgetMode == SIDEBAR_LAYOUT_INLINE) {
       return hRegion.thickness - HBAR_CLOCK_ENCROACH;
     }

@@ -21,7 +21,7 @@ import iconWeather from '../assets/preview/widget_previews/icon_weather.svg?raw'
  *
  * The budget must use the watch ruler; the preview keeps its own. Sharing
  * the content layer is the point — a blank world-time label or the
- * seamless step format changes both at once.
+ * wide-sidebar step format changes both at once.
  */
 
 /* ── Icons ── */
@@ -104,7 +104,7 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
         case 9:  // Sleep
             return [{ type: 'icon', asset: ICONS.sleep }, text('7h'), text('42m', 7)];
         case 10:  // Steps
-            return [{ type: 'icon', asset: ICONS.steps }, text(settings.seamlessSidebar ? '2700' : '2.7k')];
+            return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
         case 11:  // Swatch Internet Time
             return [text('@'), text('543')];
         case 12:  // Heart Rate
@@ -247,7 +247,7 @@ export const platformMetrics = (
         return {
             screenW: 200,
             vbarNarrow: largeFonts ? 43 : 34,
-            vbarWide: largeFonts ? 58 : 52,
+            vbarWide: largeFonts ? 51 : 46,
             barWidgetGap: 6,
             fontSize: largeFonts ? 28 : 24,
             barSlots: 3,
@@ -257,7 +257,7 @@ export const platformMetrics = (
     return {
         screenW: 144,
         vbarNarrow: 30,
-        vbarWide: 46,
+        vbarWide: largeFonts ? 46 : 38,
         barWidgetGap: 4,
         fontSize: largeFonts ? 24 : 18,
         barSlots: 2,
@@ -287,7 +287,7 @@ export const inlineWidgetWidth = (
 
 /**
  * Usable width of the inline bottom bar, in watch pixels. The bar yields
- * its corner to the vertical sidebar, so a seamless (wider) sidebar
+ * its corner to the vertical sidebar, so a wider sidebar
  * directly costs the bar room -- the effect the old unit budget missed.
  */
 export const inlineBarContentWidth = (
@@ -297,7 +297,7 @@ export const inlineBarContentWidth = (
 ): number => {
     const m = platformMetrics(capabilities, settings.largeSidebarFont);
     const sidebarW = hasSidebar
-        ? (settings.seamlessSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP
+        ? (settings.wideSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP
         : 0;
     return m.screenW - sidebarW - WATCH_BAR_PADDING_X * 2;
 };

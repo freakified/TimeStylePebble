@@ -5,15 +5,42 @@ import { getWidgetOptions } from '../data/widgetTypes';
 import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
 import { sidebarUnitsUsed } from '../utils/budget';
 import { assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
+import {
+    addWidget as addWidgetToRegion,
+    moveWidget,
+    removeWidgetAt,
+    setWidgetAt,
+    DropPosition,
+    WidgetLists,
+    WidgetRegion,
+} from '../utils/widgetSlots';
+import { Settings } from '../context/types';
 
 /*
- * Each region is presented as a packed widget list: N dropdowns for the
- * N configured widgets, plus an "add widget" dropdown and per-row remove
+ * Each region is presented as a packed widget list: N rows for the N
+ * configured widgets, plus an "add widget" dropdown and per-row remove
  * buttons. On the watch the sidebar pins its first widget to the top and
  * its last to the bottom, while the bottom bar centers its widgets as one
  * group, so an "empty slot" has no visual meaning either way — EMPTY (0)
  * is only wire padding, written back when the lists are packed into the
  * slot keys.
+ *
+ * Row ORDER is meaningful (top-to-bottom in the sidebar, left-to-right in
+ * the bar), so rows drag by their handle: within a region to reorder, and
+ * across regions to move a widget between the sidebar and the bottom bar.
+ * Every drop lands in one commit() so a widget is never briefly in two
+ * places.
+ *
+ * The drag is hand-rolled on Pointer Events rather than borrowed from a
+ * library. react-aria's drag and drop — the obvious candidate, already a
+ * dependency — cannot work here: it drives pointer dragging through native
+ * HTML5 drag events, which mobile browsers never fire from touch, and its
+ * drag handle explicitly ignores any press that isn't keyboard or screen
+ * reader (useDrag.mjs: `if (e.pointerType !== 'keyboard' && e.pointerType
+ * !== 'virtual') return`). Since this page lives in a phone webview, that
+ * is the one platform that has to work. Pointer Events give mouse and
+ * touch a single code path, and the lists are small and plainly stacked,
+ * so the hit-testing stays simple.
  */
 
 const ALL_SIDEBAR_SLOT_KEYS = [
@@ -31,14 +58,37 @@ const ALL_BAR_SLOT_KEYS = [
     'bottomBarWidget3Id',
 ] as const;
 
-type WidgetRegion = 'sidebar' | 'bar';
-
 const WIDGET_CATEGORY_ORDER = ['General', 'Time & Date', 'Weather', 'Health'] as const;
+
+/** Where a drag would land: null while the pointer is over nowhere useful. */
+interface DropTarget {
+    region: WidgetRegion;
+    /** the row the widget would be placed against; null appends to an empty region */
+    targetWidgetId: number | null;
+    position: DropPosition;
+}
+
+interface DragState {
+    /** the region the widget started in */
+    region: WidgetRegion;
+    widgetId: number;
+    pointerId: number;
+    startY: number;
+    /** how far the lifted row has travelled, for its transform */
+    dy: number;
+    drop: DropTarget | null;
+}
 
 export const WidgetSelector: React.FC = () => {
     const capabilities = useCapabilities();
-    const { settings, updateSetting } = useConfig();
+    const { settings, updateSettings } = useConfig();
     const widgetOptions = getWidgetOptions(capabilities);
+
+    const controlsRef = React.useRef<HTMLDivElement>(null);
+    const [drag, setDrag] = React.useState<DragState | null>(null);
+    // a widget moved by keyboard changes rows (and across regions, DOM
+    // nodes), so focus has to be put back on its handle afterwards
+    const refocusRef = React.useRef<number | null>(null);
 
     // widget counts per region mirror the watch's rendered slot caps
     // (sidebar_layout.h): sidebars hold a stack of small widgets, the
@@ -59,42 +109,175 @@ export const WidgetSelector: React.FC = () => {
     // commit doesn't discard widgets configured for other layouts
     const barIds = readIds(ALL_BAR_SLOT_KEYS, showBar ? barSlotCount : ALL_BAR_SLOT_KEYS.length);
 
+    const lists: WidgetLists = { sidebar: sidebarIds, bar: barIds };
+    const idsOf = (region: WidgetRegion) => (region === 'sidebar' ? sidebarIds : barIds);
+    const capOf = (region: WidgetRegion) => (region === 'sidebar' ? sidebarSlotCount : barSlotCount);
+    // regions in the order they appear on screen, which is the order the
+    // drag hit-test and the keyboard nudge both walk
+    const shownRegions: WidgetRegion[] = [
+        ...(showSidebar ? (['sidebar'] as const) : []),
+        ...(showBar ? (['bar'] as const) : []),
+    ];
+
     // write both regions back packed, zero-padding every wire slot so
-    // stale ids can't hide in slots the current layout doesn't show
-    const commit = (nextSidebar: number[], nextBar: number[]) => {
-        ALL_SIDEBAR_SLOT_KEYS.forEach((key, i) =>
-            updateSetting(key, nextSidebar[i] !== undefined ? nextSidebar[i] : 0)
-        );
-        ALL_BAR_SLOT_KEYS.forEach((key, i) =>
-            updateSetting(key, nextBar[i] !== undefined ? nextBar[i] : 0)
-        );
+    // stale ids can't hide in slots the current layout doesn't show. Both
+    // regions land in one state update, so a widget is never momentarily
+    // in two places (or neither) while moving between them.
+    const commit = (next: WidgetLists) => {
+        const partial: Partial<Settings> = {};
+        ALL_SIDEBAR_SLOT_KEYS.forEach((key, i) => {
+            partial[key] = next.sidebar[i] !== undefined ? next.sidebar[i] : 0;
+        });
+        ALL_BAR_SLOT_KEYS.forEach((key, i) => {
+            partial[key] = next.bar[i] !== undefined ? next.bar[i] : 0;
+        });
+        updateSettings(partial);
     };
 
-    const changeWidget = (region: WidgetRegion, index: number, widgetId: number) => {
-        const sidebar = [...sidebarIds];
-        const bar = [...barIds];
-        (region === 'sidebar' ? sidebar : bar)[index] = widgetId;
+    const changeWidget = (region: WidgetRegion, index: number, widgetId: number) =>
+        commit(setWidgetAt(lists, widgetId, region, index));
 
-        // a widget lives in one place: drop any other occurrence
-        commit(
-            sidebar.filter((id, i) => id !== widgetId || (region === 'sidebar' && i === index)),
-            bar.filter((id, i) => id !== widgetId || (region === 'bar' && i === index))
-        );
+    const addWidget = (region: WidgetRegion, widgetId: number) =>
+        commit(addWidgetToRegion(lists, widgetId, region));
+
+    const removeWidget = (region: WidgetRegion, index: number) =>
+        commit(removeWidgetAt(lists, region, index));
+
+    /* ── Dragging ──────────────────────────────────────────────────────
+     *
+     * Geometry is read from the DOM on every pointermove rather than
+     * snapshotted on pointerdown: the rows don't move during a drag (the
+     * lifted row is only transformed), but the page can still scroll under
+     * the pointer, and live rects stay correct through that.
+     */
+
+    /** Which region's controls the pointer is over, clamped to the ends. */
+    const regionAt = (y: number): HTMLElement | null => {
+        const els = [...(controlsRef.current?.querySelectorAll<HTMLElement>('[data-region]') ?? [])];
+        if (els.length === 0) return null;
+
+        const hit = els.find((el) => {
+            const r = el.getBoundingClientRect();
+            return y >= r.top && y <= r.bottom;
+        });
+        if (hit) return hit;
+
+        // above the first region or below the last one: clamp to the nearer
+        return y < els[0].getBoundingClientRect().top ? els[0] : els[els.length - 1];
     };
 
-    const addWidget = (region: WidgetRegion, widgetId: number) => {
-        const sidebar = sidebarIds.filter((id) => id !== widgetId);
-        const bar = barIds.filter((id) => id !== widgetId);
-        (region === 'sidebar' ? sidebar : bar).push(widgetId);
-        commit(sidebar, bar);
+    const dropTargetAt = (y: number, dragged: DragState): DropTarget | null => {
+        const regionEl = regionAt(y);
+        if (!regionEl) return null;
+
+        const region = regionEl.dataset.region as WidgetRegion;
+
+        // a move into the other region grows it by one; refuse at the cap
+        // rather than dropping the widget on the floor. No indicator is
+        // drawn, which is what tells the user it won't land there.
+        if (region !== dragged.region && idsOf(region).length >= capOf(region)) {
+            return null;
+        }
+
+        const rows = [...regionEl.querySelectorAll<HTMLElement>('[data-widget-id]')]
+            .map((el) => ({ widgetId: Number(el.dataset.widgetId), rect: el.getBoundingClientRect() }))
+            .filter((row) => row.widgetId !== dragged.widgetId);
+
+        if (rows.length === 0) {
+            return { region, targetWidgetId: null, position: 'before' };
+        }
+
+        // the row's midpoint is the tipping point between landing above it
+        // and landing below it
+        const passed = rows.filter((row) => y > row.rect.top + row.rect.height / 2).length;
+        return passed >= rows.length
+            ? { region, targetWidgetId: rows[rows.length - 1].widgetId, position: 'after' }
+            : { region, targetWidgetId: rows[passed].widgetId, position: 'before' };
     };
 
-    const removeWidget = (region: WidgetRegion, index: number) => {
-        commit(
-            region === 'sidebar' ? sidebarIds.filter((_, i) => i !== index) : sidebarIds,
-            region === 'bar' ? barIds.filter((_, i) => i !== index) : barIds
-        );
+    const onHandlePointerDown = (e: React.PointerEvent, region: WidgetRegion, widgetId: number) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+        // capture on the handle so the drag survives the pointer leaving it
+        e.currentTarget.setPointerCapture(e.pointerId);
+        e.preventDefault();
+
+        setDrag({ region, widgetId, pointerId: e.pointerId, startY: e.clientY, dy: 0, drop: null });
     };
+
+    const onHandlePointerMove = (e: React.PointerEvent) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+
+        const next: DragState = { ...drag, dy: e.clientY - drag.startY };
+        next.drop = dropTargetAt(e.clientY, next);
+        setDrag(next);
+    };
+
+    const onHandlePointerUp = (e: React.PointerEvent) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+
+        if (drag.drop) {
+            commit(moveWidget(
+                lists,
+                drag.widgetId,
+                drag.drop.region,
+                drag.drop.targetWidgetId,
+                drag.drop.position
+            ));
+        }
+        setDrag(null);
+    };
+
+    const onHandlePointerCancel = (e: React.PointerEvent) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        setDrag(null);
+    };
+
+    /**
+     * Keyboard equivalent: with a handle focused, up/down moves its row one
+     * slot, crossing into the adjacent region at either end.
+     */
+    const nudge = (region: WidgetRegion, widgetId: number, delta: -1 | 1) => {
+        const ids = idsOf(region);
+        const to = ids.indexOf(widgetId) + delta;
+
+        if (to >= 0 && to < ids.length) {
+            commit(moveWidget(lists, widgetId, region, ids[to], delta > 0 ? 'after' : 'before'));
+            refocusRef.current = widgetId;
+            return;
+        }
+
+        const nextRegion = shownRegions[shownRegions.indexOf(region) + delta];
+        if (!nextRegion || idsOf(nextRegion).length >= capOf(nextRegion)) return;
+
+        const nextIds = idsOf(nextRegion);
+        const target = delta > 0 ? nextIds[0] : nextIds[nextIds.length - 1];
+        commit(moveWidget(
+            lists,
+            widgetId,
+            nextRegion,
+            target !== undefined ? target : null,
+            delta > 0 ? 'before' : 'after'
+        ));
+        refocusRef.current = widgetId;
+    };
+
+    const onHandleKeyDown = (e: React.KeyboardEvent, region: WidgetRegion, widgetId: number) => {
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+        e.preventDefault();
+        nudge(region, widgetId, e.key === 'ArrowDown' ? 1 : -1);
+    };
+
+    React.useEffect(() => {
+        const widgetId = refocusRef.current;
+        if (widgetId === null) return;
+        refocusRef.current = null;
+        controlsRef.current
+            ?.querySelector<HTMLElement>(`[data-widget-id="${widgetId}"] .widget-slot-drag`)
+            ?.focus();
+    });
+
+    /* ── Rendering ── */
 
     const usedIds = new Set([...sidebarIds, ...barIds]);
     const addableOptions = widgetOptions.filter((option) => !usedIds.has(option.value));
@@ -154,8 +337,33 @@ export const WidgetSelector: React.FC = () => {
         const widgetName =
             widgetOptions.find((option) => option.value === widgetId)?.label ?? 'widget';
 
+        const isDragging = drag?.widgetId === widgetId;
+        const dropSide = drag?.drop?.region === region && drag.drop.targetWidgetId === widgetId
+            ? drag.drop.position
+            : undefined;
+
         return (
-            <div className="halite-item halite-select widget-slot-row" key={selectId}>
+            <div
+                className="halite-item halite-select widget-slot-row"
+                key={selectId}
+                data-widget-id={widgetId}
+                data-dragging={isDragging || undefined}
+                data-drop={dropSide}
+                style={isDragging ? { transform: `translateY(${drag.dy}px)` } : undefined}
+            >
+                <button
+                    type="button"
+                    className="widget-slot-drag"
+                    aria-label={`Reorder ${widgetName}`}
+                    title={`Drag to reorder ${widgetName}`}
+                    onPointerDown={(e) => onHandlePointerDown(e, region, widgetId)}
+                    onPointerMove={onHandlePointerMove}
+                    onPointerUp={onHandlePointerUp}
+                    onPointerCancel={onHandlePointerCancel}
+                    onKeyDown={(e) => onHandleKeyDown(e, region, widgetId)}
+                >
+                    <span aria-hidden="true">⠿</span>
+                </button>
                 <label className="halite-item-label" htmlFor={selectId}>{label}</label>
                 <select
                     id={selectId}
@@ -217,46 +425,51 @@ export const WidgetSelector: React.FC = () => {
         );
     };
 
+    /** One region's rows + add row + budget meter; the drag hit-tests these. */
+    const renderRegion = (region: WidgetRegion, ids: number[], cap: number, budget: React.ReactNode) => (
+        <div
+            className="widget-region"
+            data-region={region}
+            data-drop-empty={
+                ids.length === 0 && drag?.drop?.region === region ? true : undefined
+            }
+        >
+            {ids.map((id, i) => renderWidgetRow(region, id, i, ids.length))}
+            {renderAddWidget(region, ids.length, cap)}
+            {budget}
+        </div>
+    );
+
     return (
         <div className="widget-selector-container">
             <div className="widget-selector-preview">
                 <WatchPreview />
             </div>
-            <div className="widget-selector-controls">
-                {showSidebar && (
-                    <>
-                        {sidebarIds.map((id, i) =>
-                            renderWidgetRow('sidebar', id, i, sidebarIds.length)
-                        )}
-                        {renderAddWidget('sidebar', sidebarIds.length, sidebarSlotCount)}
-                        {!capabilities.ROUND &&
-                            renderBudget(
-                                assessSidebar(
-                                    sidebarUnitsUsed(sidebarIds),
-                                    capabilities,
-                                    settings.largeSidebarFont
-                                )
-                            )}
-                    </>
+            <div
+                className={`widget-selector-controls${drag ? ' widget-selector-controls--dragging' : ''}`}
+                ref={controlsRef}
+            >
+                {showSidebar && renderRegion(
+                    'sidebar',
+                    sidebarIds,
+                    sidebarSlotCount,
+                    !capabilities.ROUND && renderBudget(
+                        assessSidebar(sidebarUnitsUsed(sidebarIds), capabilities, settings.largeSidebarFont)
+                    )
                 )}
                 {showBar && (
                     <>
                         {showSidebar && (
                             <div className="widget-selector-divider" role="separator" />
                         )}
-                        {barIds.map((id, i) =>
-                            renderWidgetRow('bar', id, i, barIds.length)
+                        {renderRegion(
+                            'bar',
+                            barIds,
+                            barSlotCount,
+                            !layoutHasStackedBar(settings.layout) && renderBudget(
+                                assessInlineBar(barIds, settings, capabilities, layoutHasSidebar(settings.layout))
+                            )
                         )}
-                        {renderAddWidget('bar', barIds.length, barSlotCount)}
-                        {!layoutHasStackedBar(settings.layout) &&
-                            renderBudget(
-                                assessInlineBar(
-                                    barIds,
-                                    settings,
-                                    capabilities,
-                                    layoutHasSidebar(settings.layout)
-                                )
-                            )}
                     </>
                 )}
             </div>

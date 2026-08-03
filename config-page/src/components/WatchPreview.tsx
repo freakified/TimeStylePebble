@@ -201,14 +201,21 @@ const renderItemsStacked = (
     });
 };
 
-/** Draw a widget centered on (cx, centerY), scaled to fit maxW × maxH. */
+/**
+ * Draw a widget centered on (cx, centerY), scaled to fit maxW.
+ *
+ * Width only: the watch's stacked bar flow (render_stacked_bar_flow in
+ * sidebar.c) caps a widget's *column* width and then draws the widget at
+ * full size, centered in it — nothing shrinks to fit the bar's height.
+ * Text too wide to fit does have a ladder to fall down (a shorter
+ * candidate, then a smaller font), so scaling on width is a fair stand-in.
+ */
 const renderStackedWidget = (
     widgetId: number,
     settings: Settings,
     cx: number,
     centerY: number,
     maxW: number,
-    maxH: number,
     colors: RegionColors,
     extraScale = 1,
     compact = false
@@ -216,7 +223,7 @@ const renderStackedWidget = (
     const spec = getWidgetSpec(widgetId, settings, compact);
     if (spec.items.length === 0) return null;
 
-    const scale = Math.min(maxW / spec.w, maxH / spec.h, 1) * extraScale;
+    const scale = Math.min(maxW / spec.w, 1) * extraScale;
     return renderItemsStacked(spec.items, cx, centerY - (spec.h * scale) / 2, scale, colors);
 };
 
@@ -255,7 +262,9 @@ const renderInlineWidget = (
 /* ── Region geometry (mirrors sidebar_layout.h, in 144×168 units) ── */
 
 const SIDEBAR_W_NARROW = 30;
-const SIDEBAR_W_WIDE = 46;
+// the preview draws normal-font geometry, so it takes the normal-font
+// wide width (VBAR_WIDTH_WIDE(false)) rather than the large-font one
+const SIDEBAR_W_WIDE = 38;
 const BAR_H_INLINE = 30;
 const BAR_H_STACKED = 50;
 const BAR_SIDEBAR_GAP = 2;
@@ -263,9 +272,9 @@ const BAR_PADDING_X = 4;
 const BAR_PADDING_X_COMPACT = 2;
 const BAR_WIDGET_GAP = 4;           // HBAR_WIDGET_GAP
 const BAR_WIDGET_GAP_COMPACT = 1;   // HBAR_WIDGET_GAP_COMPACT
-const BAR_STACKED_COL_MAX = 46;     // HBAR_STACKED_COLUMN_MAX (= SIDEBAR_W_WIDE)
-const SIDEBAR_V_PADDING = 8;
-const SIDEBAR_MIN_SLOT_GAP = 4;
+const BAR_STACKED_COL_MAX = 38;     // HBAR_STACKED_COLUMN_MAX (= SIDEBAR_W_WIDE)
+const SIDEBAR_V_PADDING = 8;         // REGION_V_PADDING_DEFAULT
+const SIDEBAR_V_PADDING_COMPACT = 4; // REGION_V_PADDING_COMPACT
 
 /** Render a rectangular (basalt/diorite/emery) TimeStyle face */
 const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabilities }> = ({
@@ -280,16 +289,16 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     const hasSidebar = layoutHasSidebar(s.layout);
     const hasBar = layoutHasBottomBar(s.layout);
 
-    // the primary sidebar follows the seamless setting (drawing on the
-    // watchface background and widening); a secondary bottom bar is
-    // always seamless
-    const colors = s.seamlessSidebar ? darkRegionColors(s) : standardRegionColors(s);
+    // the sidebar always wears the accent color; a bottom bar beside it
+    // draws on the watchface background instead, and takes the accent
+    // only when it is the sole region
+    const colors = standardRegionColors(s);
     const barColors = hasSidebar ? darkRegionColors(s) : colors;
 
     const stackedBar = layoutHasStackedBar(s.layout);
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
-    const SIDEBAR_W = hasSidebar ? (s.seamlessSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
+    const SIDEBAR_W = hasSidebar ? (s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
     const BAR_H = hasBar ? (stackedBar ? BAR_H_STACKED : BAR_H_INLINE) : 0;
 
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
@@ -300,7 +309,14 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     /* Sidebar: the slots form a packed widget list; the first pins to the
      * top, the last to the bottom, interior widgets spread evenly between
-     * them (the watch's vertical flow). */
+     * them (the watch's vertical flow).
+     *
+     * Widgets are NOT scaled down to make a crowded stack fit. The watch
+     * doesn't do that — render_vertical_flow draws every widget at full
+     * size and its only concession to a full sidebar is tightening the end
+     * padding, after which widgets simply crowd into each other. Mirroring
+     * that is what keeps this preview honest with the budget meter: an
+     * over-budget config has to *look* over-budget here too. */
     const renderSidebar = () => {
         const slotIds = (capabilities.EMERY
             ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
@@ -315,18 +331,21 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         const specs = slotIds.map((id) => getWidgetSpec(id, s));
         const baseScales = specs.map((spec) => (spec.w > 0 ? Math.min(maxW / spec.w, 1) : 1));
 
-        const naturalTotal = specs.reduce((sum, spec, i) => sum + spec.h * baseScales[i], 0);
-        const avail = H - SIDEBAR_V_PADDING * 2 - SIDEBAR_MIN_SLOT_GAP * (slotIds.length - 1);
-        const fit = naturalTotal > 0 ? Math.min(1, avail / naturalTotal) : 1;
+        const heights = specs.map((spec, i) => spec.h * baseScales[i]);
+        const naturalTotal = heights.reduce((a, b) => a + b, 0);
 
-        const heights = specs.map((spec, i) => spec.h * baseScales[i] * fit);
+        // the watch's one concession to a crowded stack: tighter end padding
+        const vPadding = naturalTotal > H - SIDEBAR_V_PADDING * 2
+            ? SIDEBAR_V_PADDING_COMPACT
+            : SIDEBAR_V_PADDING;
+
         const cx = sidebarX + SIDEBAR_W / 2;
         const last = slotIds.length - 1;
 
         const tops: number[] = new Array(slotIds.length).fill(0);
-        tops[0] = SIDEBAR_V_PADDING;
+        tops[0] = vPadding;
         if (last > 0) {
-            tops[last] = H - SIDEBAR_V_PADDING - heights[last];
+            tops[last] = H - vPadding - heights[last];
         }
 
         // interior widgets spread evenly between the pinned ends
@@ -349,7 +368,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                 <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />
                 {slotIds.map((id, i) => (
                     <g key={`sidebar-${i}`}>
-                        {renderItemsStacked(getWidgetItems(id, s), cx, tops[i], baseScales[i] * fit, colors)}
+                        {renderItemsStacked(getWidgetItems(id, s), cx, tops[i], baseScales[i], colors)}
                     </g>
                 ))}
             </>
@@ -384,7 +403,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                         id, s,
                         firstColX + colW * i + colW / 2,
                         barY + BAR_H / 2,
-                        colW - 4, BAR_H - 6,
+                        colW - 4,
                         barColors, 1, true
                     )}
                 </g>
@@ -500,8 +519,8 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                     <circle cx={230} cy={CY} r={R} fill={colors.background} />
 
                     {/* Widgets — one per arc, stacked presentation */}
-                    {renderStackedWidget(s.widget0Id, s, 20, 90, 28, 110, colors)}
-                    {renderStackedWidget(s.widget1Id, s, 160, 90, 28, 110, colors)}
+                    {renderStackedWidget(s.widget0Id, s, 20, 90, 28, colors)}
+                    {renderStackedWidget(s.widget1Id, s, 160, 90, 28, colors)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
