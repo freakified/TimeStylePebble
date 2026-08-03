@@ -248,7 +248,7 @@ export const platformMetrics = (
             screenW: 200,
             vbarNarrow: largeFonts ? 43 : 34,
             vbarWide: largeFonts ? 58 : 52,
-            barWidgetGap: largeFonts ? 14 : 12,
+            barWidgetGap: 6,
             fontSize: largeFonts ? 28 : 24,
             barSlots: 3,
         };
@@ -258,7 +258,7 @@ export const platformMetrics = (
         screenW: 144,
         vbarNarrow: 30,
         vbarWide: 46,
-        barWidgetGap: 10,
+        barWidgetGap: 4,
         fontSize: largeFonts ? 24 : 18,
         barSlots: 2,
     };

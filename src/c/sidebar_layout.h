@@ -112,11 +112,11 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 // to its ends, separated by this gap. Over-budget configs tighten the gap
 // down to the compact value before the group crowds the end padding.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-#define HBAR_WIDGET_GAP(largeFonts) ((largeFonts) ? 14 : 12)
+#define HBAR_WIDGET_GAP(largeFonts) 6
 #else
-#define HBAR_WIDGET_GAP(largeFonts) 10
+#define HBAR_WIDGET_GAP(largeFonts) 4
 #endif
-#define HBAR_WIDGET_GAP_COMPACT 4
+#define HBAR_WIDGET_GAP_COMPACT 1
 
 // a stacked bar widget is a vertical sidebar widget wearing a different
 // hat, so its column never needs to be wider than the widest sidebar.
