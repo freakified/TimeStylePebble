@@ -90,6 +90,18 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 #endif
 #define REGION_V_PADDING_COMPACT 4
 
+// A seamless inline bar paints no background, so the clock area may reach
+// past the bar's top edge into the padding above its widgets: the clock's
+// digits stop about a tenth of the area's height short of its lower bound
+// (v_padding plus the font's baseline slop), so reserving the bar's full
+// thickness shrinks the time far more than the bar actually costs.
+// Reclaiming that slack keeps the digits near their no-bar size.
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+#define HBAR_CLOCK_ENCROACH 10
+#else
+#define HBAR_CLOCK_ENCROACH 0
+#endif
+
 // The inline horizontal bar centers its text within its own thickness,
 // while the vertical bar's last slot is bottom-anchored (pinned
 // REGION_V_PADDING_DEFAULT above the screen edge). Those two anchor

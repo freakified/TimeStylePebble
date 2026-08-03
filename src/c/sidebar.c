@@ -103,6 +103,10 @@ int Sidebar_reservedTop(void) {
 int Sidebar_reservedBottom(void) {
 #ifndef PBL_ROUND
   if (hRegion.edge == REGION_EDGE_BOTTOM) {
+    // a seamless inline bar lends the clock the padding above its widgets
+    if (hRegion.dark && hRegion.widgetMode == SIDEBAR_LAYOUT_INLINE) {
+      return hRegion.thickness - HBAR_CLOCK_ENCROACH;
+    }
     return hRegion.thickness;
   }
 #endif
