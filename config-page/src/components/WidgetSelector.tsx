@@ -3,18 +3,15 @@ import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
 import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
-import {
-    sidebarCapacity,
-    sidebarUnitsUsed,
-    inlineBarCapacity,
-    inlineBarUnitsUsed,
-} from '../utils/budget';
+import { sidebarUnitsUsed } from '../utils/budget';
+import { assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
 
 /*
  * Each region is presented as a packed widget list: N dropdowns for the
  * N configured widgets, plus an "add widget" dropdown and per-row remove
- * buttons. On the watch the first widget pins to the region's start, the
- * last to its end, so an "empty slot" has no visual meaning — EMPTY (0)
+ * buttons. On the watch the sidebar pins its first widget to the top and
+ * its last to the bottom, while the bottom bar centers its widgets as one
+ * group, so an "empty slot" has no visual meaning either way — EMPTY (0)
  * is only wire padding, written back when the lists are packed into the
  * slot keys.
  */
@@ -126,28 +123,30 @@ export const WidgetSelector: React.FC = () => {
         return index === count - 1 ? 'Bottom widget' : `Middle widget ${index}`;
     };
 
-    const renderBudget = (used: number, capacity: number) => {
-        const over = used > capacity;
-        const fillPercent = Math.min(100, (used / capacity) * 100);
-
-        return (
-            <div
-                className={`widget-budget${over ? ' widget-budget--over' : ''}`}
-                role="status"
-            >
-                <div className="widget-budget-track" aria-hidden="true">
-                    <div
-                        className="widget-budget-fill"
-                        style={{ width: `${fillPercent}%` }}
-                    />
-                </div>
-                <span>
-                    {used} of {capacity} space used
-                    {over && ' — widgets may get squeezed'}
-                </span>
-            </div>
-        );
+    /*
+     * The fit readout is deliberately qualitative. The underlying measure
+     * is good to a few pixels, but the watch also degrades gracefully
+     * (shorter text candidates, a smaller fallback font), so there is no
+     * hard cliff to report a precise number against — "over" means the
+     * widgets' full forms don't fit, not that anything breaks.
+     */
+    const FIT_LABEL: Record<FitResult['state'], string> = {
+        good: 'Everything fits',
+        tight: 'Tight fit',
+        over: 'Widgets will be squeezed',
     };
+
+    const renderBudget = (fit: FitResult) => (
+        <div className={`widget-budget widget-budget--${fit.state}`} role="status">
+            <div className="widget-budget-track" aria-hidden="true">
+                <div
+                    className="widget-budget-fill"
+                    style={{ width: `${Math.min(100, fit.ratio * 100)}%` }}
+                />
+            </div>
+            <span>{FIT_LABEL[fit.state]}</span>
+        </div>
+    );
 
     const renderWidgetRow = (region: WidgetRegion, widgetId: number, index: number, count: number) => {
         const selectId = `widget-slot-${region}-${index}`;
@@ -232,8 +231,11 @@ export const WidgetSelector: React.FC = () => {
                         {renderAddWidget('sidebar', sidebarIds.length, sidebarSlotCount)}
                         {!capabilities.ROUND &&
                             renderBudget(
-                                sidebarUnitsUsed(sidebarIds),
-                                sidebarCapacity(capabilities, settings.largeSidebarFont)
+                                assessSidebar(
+                                    sidebarUnitsUsed(sidebarIds),
+                                    capabilities,
+                                    settings.largeSidebarFont
+                                )
                             )}
                     </>
                 )}
@@ -248,8 +250,12 @@ export const WidgetSelector: React.FC = () => {
                         {renderAddWidget('bar', barIds.length, barSlotCount)}
                         {!layoutHasStackedBar(settings.layout) &&
                             renderBudget(
-                                inlineBarUnitsUsed(barIds),
-                                inlineBarCapacity(capabilities, settings.largeSidebarFont)
+                                assessInlineBar(
+                                    barIds,
+                                    settings,
+                                    capabilities,
+                                    layoutHasSidebar(settings.layout)
+                                )
                             )}
                     </>
                 )}

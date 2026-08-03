@@ -98,8 +98,8 @@ function settingsFromWatchPayload(payload) {
     widget3Id: getNumber(payload.SettingWidget3ID, 0),
     widget4Id: getNumber(payload.SettingWidget4ID, 0),
     widget5Id: getNumber(payload.SettingWidget5ID, 0),
-    bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 2),
-    bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 5),
+    bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 10),
+    bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 0),
     bottomBarWidget2Id: getNumber(payload.SettingBottomBarWidget2ID, 0),
     bottomBarWidget3Id: getNumber(payload.SettingBottomBarWidget3ID, 0),
 

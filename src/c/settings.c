@@ -50,8 +50,7 @@ void Settings_loadFromStorage() {
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
 
-  settings.hRegionSlots[0] = BATTERY_METER;
-  settings.hRegionSlots[1] = SECONDS;
+  settings.hRegionSlots[0] = STEP_COUNTER;
 
   settings.enableStatusBar = true;
   settings.statusShowConnection = false;

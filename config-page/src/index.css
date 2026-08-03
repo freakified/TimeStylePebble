@@ -1193,6 +1193,16 @@ input[type='checkbox'] {
   transition: width 0.2s ease;
 }
 
+/* Three fit states: comfortable, crowded but rendering as picked, and
+   past the point where the watch starts compacting text. */
+.widget-budget--tight {
+  color: #a86413;
+}
+
+.widget-budget--tight .widget-budget-fill {
+  background: #e08b1a;
+}
+
 .widget-budget--over {
   color: #d0342c;
 }
@@ -1202,6 +1212,14 @@ input[type='checkbox'] {
 }
 
 @media (prefers-color-scheme: dark) {
+  .widget-budget--tight {
+    color: #f0ad4e;
+  }
+
+  .widget-budget--tight .widget-budget-fill {
+    background: #f0ad4e;
+  }
+
   .widget-budget--over {
     color: #ff6b5e;
   }

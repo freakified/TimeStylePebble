@@ -108,6 +108,22 @@ static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
 #define HBAR_SLOT_PADDING_X 4
 #define HBAR_SLOT_PADDING_X_COMPACT 2
 
+// inline bar widgets cluster around the bar's center rather than pinning
+// to its ends, separated by this gap. Over-budget configs tighten the gap
+// down to the compact value before the group crowds the end padding.
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+#define HBAR_WIDGET_GAP(largeFonts) ((largeFonts) ? 14 : 12)
+#else
+#define HBAR_WIDGET_GAP(largeFonts) 10
+#endif
+#define HBAR_WIDGET_GAP_COMPACT 4
+
+// a stacked bar widget is a vertical sidebar widget wearing a different
+// hat, so its column never needs to be wider than the widest sidebar.
+// Capping it keeps a sparse stacked bar clustered in the middle instead
+// of marooning two widgets at the bar's quarter points.
+#define HBAR_STACKED_COLUMN_MAX(largeFonts) VBAR_WIDTH_WIDE(largeFonts)
+
 // round watch arcs
 #if defined(PBL_PLATFORM_GABBRO)
 #define ROUND_ARC_WIDTH 56

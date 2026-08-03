@@ -21,8 +21,8 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   widget3Id: 0,
   widget4Id: 0,
   widget5Id: 0,
-  bottomBarWidget0Id: 2,  // Battery
-  bottomBarWidget1Id: 5,  // Seconds
+  bottomBarWidget0Id: 10, // Steps
+  bottomBarWidget1Id: 0,  // Empty
   bottomBarWidget2Id: 0,  // Empty
   bottomBarWidget3Id: 0,  // Empty
 

@@ -1,19 +1,27 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
-import { findWorldTimeCity } from '../data/cities';
 import {
     layoutHasSidebar,
     layoutHasBottomBar,
     layoutHasStackedBar,
     layoutSidebarOnLeft,
 } from '../utils/layout';
-import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
-import iconDate from '../assets/preview/widget_previews/icon_date.svg?raw';
-import iconHrm from '../assets/preview/widget_previews/icon_hrm.svg?raw';
-import iconSleep from '../assets/preview/widget_previews/icon_sleep.svg?raw';
-import iconSteps from '../assets/preview/widget_previews/icon_steps.svg?raw';
-import iconWeather from '../assets/preview/widget_previews/icon_weather.svg?raw';
+import {
+    ICONS,
+    IconAsset,
+    WidgetItem,
+    STACK_GAP,
+    measureItem,
+    getWidgetItems,
+    getWidgetSpec,
+    InlineParts,
+    getInlineParts,
+    measureInline,
+    INLINE_ICON_H,
+    INLINE_GAP,
+    INLINE_FONT,
+} from '../utils/widgetMetrics';
 
 export interface WatchPreviewProps {
     overrideSettings?: Partial<Settings>;
@@ -49,127 +57,7 @@ function getTimePaths(clockFont: Settings['clockFont']) {
  * an icon + single-line form from the same list.
  */
 
-interface IconAsset {
-    svg: string;
-    w: number;
-    h: number;
-}
-
-const ICONS = {
-    battery: { svg: iconBattery, w: 25, h: 18 },
-    date:    { svg: iconDate,    w: 25, h: 25 },
-    hrm:     { svg: iconHrm,     w: 25, h: 25 },
-    sleep:   { svg: iconSleep,   w: 25, h: 22 },
-    steps:   { svg: iconSteps,   w: 25, h: 18 },
-    weather: { svg: iconWeather, w: 25, h: 25 },
-} as const satisfies Record<string, IconAsset>;
-
-type WidgetItem =
-    | { type: 'icon'; asset: IconAsset }
-    | { type: 'calendar'; day: string }   // date icon with the day number inside
-    | { type: 'text'; text: string; size: number }
-    | { type: 'divider' };
-
-const STACK_GAP = 2;
 const TEXT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-const TEXT_CHAR_W = 0.62;  // average bold advance as a fraction of font size
-
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const getIsoWeek = (date: Date): number => {
-    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = utc.getUTCDay() || 7;
-    utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
-    const yearStart = Date.UTC(utc.getUTCFullYear(), 0, 1);
-    return Math.ceil(((utc.getTime() - yearStart) / 86400000 + 1) / 7);
-};
-
-const text = (str: string, size = 9): WidgetItem => ({ type: 'text', text: str, size });
-
-const getWidgetItems = (widgetId: number, settings: Settings, compact = false): WidgetItem[] => {
-    const now = new Date();
-
-    switch (widgetId) {
-        case 2:  // Battery
-            return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
-        case 3: {  // World Time 1
-            // an explicit blank label means no label; the fallback chain
-            // only applies while no city has been picked yet
-            const label1 = findWorldTimeCity(settings.worldTime1City)
-                ? settings.worldTime1Label
-                : settings.altClockName || 'UTC';
-            return label1 ? [text(label1), text('5:42p', 8)] : [text('5:42p', 8)];
-        }
-        case 14: {  // World Time 2
-            const label2 = findWorldTimeCity(settings.worldTime2City)
-                ? settings.worldTime2Label
-                : settings.altClock2Name || 'TYO';
-            return label2 ? [text(label2), text('9:42a', 8)] : [text('9:42a', 8)];
-        }
-        case 4: {  // Today's Date
-            const items: WidgetItem[] = [
-                text(DAY_NAMES[now.getDay()]),
-                { type: 'calendar', day: String(now.getDate()) },
-            ];
-            if (!compact) items.push(text(MONTH_NAMES[now.getMonth()]));
-            return items;
-        }
-        case 5:  // Seconds
-            return [text('30')];
-        case 6:  // Week Number
-            return [text('Wk'), text(String(getIsoWeek(now)))];
-        case 7:  // Current Weather
-            return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
-        case 8:  // Today's Forecast
-            return [{ type: 'icon', asset: ICONS.weather }, text('75°'), { type: 'divider' }, text('60°')];
-        case 9:  // Sleep
-            return [{ type: 'icon', asset: ICONS.sleep }, text('7h'), text('42m', 7)];
-        case 10:  // Steps
-            return [{ type: 'icon', asset: ICONS.steps }, text(settings.seamlessSidebar ? '2700' : '2.7k')];
-        case 11:  // Swatch Internet Time
-            return [text('@'), text('543')];
-        case 12:  // Heart Rate
-            return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
-        case 13:  // UV Index
-            return [text('UV'), text('6')];
-        case 15:  // Sunrise & Sunset
-            return [{ type: 'icon', asset: ICONS.weather }, text('8:14p', 8)];
-        case 16:  // Wind Speed
-            return [text('WIND', 7), text('12')];
-        case 17:  // Chance of Rain
-            return [text('RAIN', 7), text('40%')];
-        default:
-            return [];
-    }
-};
-
-const measureItem = (item: WidgetItem): { w: number; h: number } => {
-    switch (item.type) {
-        case 'icon': return { w: item.asset.w, h: item.asset.h };
-        case 'calendar': return { w: ICONS.date.w, h: ICONS.date.h };
-        case 'text': return { w: item.text.length * item.size * TEXT_CHAR_W, h: item.size + 1 };
-        case 'divider': return { w: 14, h: 3 };
-    }
-};
-
-interface WidgetSpec {
-    items: WidgetItem[];
-    w: number;
-    h: number;
-}
-
-const getWidgetSpec = (widgetId: number, settings: Settings, compact = false): WidgetSpec => {
-    const items = getWidgetItems(widgetId, settings, compact);
-    let w = 0;
-    let h = 0;
-    items.forEach((item, i) => {
-        const size = measureItem(item);
-        w = Math.max(w, size.w);
-        h += size.h + (i > 0 ? STACK_GAP : 0);
-    });
-    return { items, w, h };
-};
 
 const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
 
@@ -334,48 +222,6 @@ const renderStackedWidget = (
 
 /* ── Inline (narrow bottom bar) rendering ── */
 
-const INLINE_ICON_H = 12;
-const INLINE_GAP = 3;
-const INLINE_FONT = 9;
-
-interface InlineParts {
-    icon?: { asset: IconAsset } | { calendar: string };
-    text: string;
-}
-
-const getInlineParts = (widgetId: number, settings: Settings): InlineParts | null => {
-    const items = getWidgetItems(widgetId, settings, true);
-    if (items.length === 0) return null;
-
-    let icon: InlineParts['icon'];
-    const textParts: string[] = [];
-    let pendingDivider = false;
-
-    for (const item of items) {
-        if (item.type === 'icon' && !icon) icon = { asset: item.asset };
-        else if (item.type === 'calendar' && !icon) icon = { calendar: item.day };
-        else if (item.type === 'divider') pendingDivider = true;
-        else if (item.type === 'text') {
-            if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
-            pendingDivider = false;
-            textParts.push(item.text);
-        }
-    }
-
-    return { icon, text: textParts.join('') };
-};
-
-const measureInline = (parts: InlineParts): number => {
-    let w = 0;
-    if (parts.icon) {
-        const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
-        w += asset.w * (INLINE_ICON_H / asset.h);
-        if (parts.text) w += INLINE_GAP;
-    }
-    w += parts.text.length * INLINE_FONT * TEXT_CHAR_W;
-    return w;
-};
-
 const renderInlineWidget = (
     parts: InlineParts,
     x: number,
@@ -414,6 +260,10 @@ const BAR_H_INLINE = 30;
 const BAR_H_STACKED = 50;
 const BAR_SIDEBAR_GAP = 2;
 const BAR_PADDING_X = 4;
+const BAR_PADDING_X_COMPACT = 2;
+const BAR_WIDGET_GAP = 10;          // HBAR_WIDGET_GAP
+const BAR_WIDGET_GAP_COMPACT = 4;   // HBAR_WIDGET_GAP_COMPACT
+const BAR_STACKED_COL_MAX = 46;     // HBAR_STACKED_COLUMN_MAX (= SIDEBAR_W_WIDE)
 const SIDEBAR_V_PADDING = 8;
 const SIDEBAR_MIN_SLOT_GAP = 4;
 
@@ -524,14 +374,15 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         let content: React.ReactNode = null;
 
         if (stackedBar && visible.length > 0) {
-            // equal columns, widgets stacked and centered per column
+            // equal columns capped at a sidebar's width, block centered
             const usable = barW - BAR_PADDING_X * 2;
-            const colW = usable / visible.length;
+            const colW = Math.min(usable / visible.length, BAR_STACKED_COL_MAX);
+            const firstColX = barX + (barW - colW * visible.length) / 2;
             content = visible.map((id, i) => (
                 <g key={`bar-${i}`}>
                     {renderStackedWidget(
                         id, s,
-                        barX + BAR_PADDING_X + colW * i + colW / 2,
+                        firstColX + colW * i + colW / 2,
                         barY + BAR_H / 2,
                         colW - 4, BAR_H - 6,
                         barColors, 1, true
@@ -539,25 +390,30 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                 </g>
             ));
         } else if (!stackedBar) {
-            // widgets distribute space-evenly along the bar
+            // widgets cluster as one centered group with a fixed gap
             const parts = visible
                 .map((id) => getInlineParts(id, s))
                 .filter((p): p is InlineParts => p !== null);
             const widths = parts.map(measureInline);
             const totalW = widths.reduce((a, b) => a + b, 0);
-            let remaining = barW - totalW;
-            let gapsLeft = parts.length + 1;
-            let x = barX;
+            const contentW = barW - BAR_PADDING_X * 2;
+            const gapCount = parts.length - 1;
+
+            let gap = BAR_WIDGET_GAP;
+            if (gapCount > 0 && totalW + gap * gapCount > contentW) {
+                gap = Math.max(BAR_WIDGET_GAP_COMPACT, (contentW - totalW) / gapCount);
+            }
+
+            let x = Math.max(
+                barX + BAR_PADDING_X_COMPACT,
+                barX + (barW - (totalW + gap * gapCount)) / 2
+            );
 
             content = parts.map((p, i) => {
-                const gap = remaining / gapsLeft;
-                remaining -= gap;
-                gapsLeft--;
-                x += gap;
                 const node = (
                     <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + BAR_H / 2, barColors)}</g>
                 );
-                x += widths[i];
+                x += widths[i] + gap;
                 return node;
             });
         }

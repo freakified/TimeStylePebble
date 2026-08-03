@@ -220,11 +220,11 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 
 /*
  * Horizontal flow: the slots form a packed widget list (EMPTY entries are
- * dropped): the first widget pins to the left, the last pins to the
- * right, and the rest spread with equal gaps between them. Widgets
- * always render their full form -- the config page's unit budget is what
- * keeps configs fitting. The only over-budget concession is shrinking
- * the end padding; past that, widgets simply crowd together.
+ * dropped) and the widgets cluster as one group in the middle of the bar,
+ * separated by a fixed gap. Widgets always render their full form -- the
+ * config page's unit budget is what keeps configs fitting. The only
+ * over-budget concession is tightening the gap; past that, the group
+ * eats into the end padding.
  */
 static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -255,58 +255,36 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     totalWidth += sizes[i].w;
   }
 
-  int h_padding = (totalWidth > contentWidth) ? HBAR_SLOT_PADDING_X_COMPACT
-                                              : HBAR_SLOT_PADDING_X;
+  int gapCount = count - 1;
+  int gap = HBAR_WIDGET_GAP(settings.useLargeFonts);
+
+  // tighten the gap before letting the group spill past the end padding
+  if (gapCount > 0 && totalWidth + gap * gapCount > contentWidth) {
+    gap = (contentWidth - totalWidth) / gapCount;
+    if (gap < HBAR_WIDGET_GAP_COMPACT) {
+      gap = HBAR_WIDGET_GAP_COMPACT;
+    }
+  }
+
+  int x = (bounds.size.w - (totalWidth + gap * gapCount)) / 2;
+  if (x < HBAR_SLOT_PADDING_X_COMPACT) {
+    x = HBAR_SLOT_PADDING_X_COMPACT;
+  }
 
   int textNudge = HBAR_INLINE_TEXT_NUDGE(settings.useLargeFonts);
 
-  // a lone widget centers in the bar rather than pinning to an edge
-  if (count == 1) {
-    GRect frame = GRect((bounds.size.w - sizes[0].w) / 2, textNudge,
-                        sizes[0].w, bounds.size.h);
-    SidebarWidgets_draw(ctx, &widgets[0], frame, &spec);
-    return;
-  }
-
-  int leftPos = h_padding;
-  int rightPos = bounds.size.w - h_padding - sizes[count - 1].w;
-
-  GRect leftFrame = GRect(leftPos, textNudge, sizes[0].w, bounds.size.h);
-  SidebarWidgets_draw(ctx, &widgets[0], leftFrame, &spec);
-
-  if (count > 1) {
-    GRect rightFrame =
-        GRect(rightPos, textNudge, sizes[count - 1].w, bounds.size.h);
-    SidebarWidgets_draw(ctx, &widgets[count - 1], rightFrame, &spec);
-  }
-
-  // interior widgets spread evenly between the pinned ends
-  int interiorTotal = 0;
-  int gapsLeft = 1;
-
-  for (int i = 1; i < count - 1; i++) {
-    interiorTotal += sizes[i].w;
-    gapsLeft++;
-  }
-
-  int x = leftPos + sizes[0].w;
-  int remaining = (rightPos - x) - interiorTotal;
-
-  for (int i = 1; i < count - 1; i++) {
-    int gap = remaining / gapsLeft;
-    remaining -= gap;
-    gapsLeft--;
-    x += gap;
+  for (int i = 0; i < count; i++) {
     GRect frame = GRect(x, textNudge, sizes[i].w, bounds.size.h);
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
-    x += sizes[i].w;
+    x += sizes[i].w + gap;
   }
 }
 
 /*
- * Stacked bar flow: EMPTY slots are dropped, the bar is split into equal
- * columns, and each widget renders in the stacked (sidebar-style) layout
- * centered within its column.
+ * Stacked bar flow: EMPTY slots are dropped, the widgets take equal
+ * columns capped at a sidebar's width, and the resulting block of columns
+ * centers in the bar. Each widget renders in the stacked (sidebar-style)
+ * layout centered within its own column.
  */
 static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
                                     GContext *ctx) {
@@ -329,6 +307,11 @@ static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
 
   int usableWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
   int columnWidth = usableWidth / visibleCount;
+  int maxColumnWidth = HBAR_STACKED_COLUMN_MAX(settings.useLargeFonts);
+
+  if (columnWidth > maxColumnWidth) {
+    columnWidth = maxColumnWidth;
+  }
 
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, columnWidth, true);
@@ -339,8 +322,10 @@ static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
     sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
   }
 
+  int firstColumnX = (bounds.size.w - columnWidth * visibleCount) / 2;
+
   for (int i = 0; i < visibleCount; i++) {
-    int x = HBAR_SLOT_PADDING_X + columnWidth * i;
+    int x = firstColumnX + columnWidth * i;
     int y = (bounds.size.h - sizes[i].h) / 2;
     GRect frame = GRect(x, y, columnWidth, sizes[i].h);
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
