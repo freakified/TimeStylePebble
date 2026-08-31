@@ -30,12 +30,12 @@ export interface Capabilities {
   HEALTH: boolean;
 }
 
+// where the vertical sidebar sits; the bottom bar isn't a layout choice,
+// it's on whenever its widget slots hold something
 export type Layout =
   | 'right-sidebar'
   | 'left-sidebar'
-  | 'right-sidebar-bottom-bar'
-  | 'left-sidebar-bottom-bar'
-  | 'bottom-bar-only';
+  | 'no-sidebar';
 
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)

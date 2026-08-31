@@ -1086,23 +1086,40 @@ input[type='checkbox'] {
 }
 
 /* Widget Selector */
+/* The preview sits above the controls rather than beside them: the rows
+   carry a drag handle, a dropdown and a remove button, which leaves too
+   little width for a side-by-side preview on a phone. Stacked, both get
+   the full column. */
 .widget-selector-container {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 24px;
   padding: 1.25rem 1rem;
 }
 
 .widget-selector-preview {
+  align-self: center;
   flex-shrink: 0;
 }
 
+/* with a column to itself the preview can be drawn bigger; the SVG has a
+   viewBox, so it just scales */
+.widget-selector-preview .halite-watch-face,
+.widget-selector-preview .halite-watch-preview {
+  width: 216px;
+  height: 252px;
+}
+
+.widget-selector-preview .halite-watch-face--round,
+.widget-selector-preview .halite-watch-face--round .halite-watch-preview {
+  width: 252px;
+  height: 252px;
+}
+
 .widget-selector-controls {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .widget-selector-controls .halite-item {
@@ -1131,17 +1148,26 @@ input[type='checkbox'] {
   width: 100%;
 }
 
-.widget-selector-divider {
-  width: 100%;
-  height: 1px;
-  background: var(--border-color);
-}
-
-/* one region's rows, add row and budget meter; the drag hit-tests these */
+/* one region's heading, rows, add row and warning; drags hit-test these */
 .widget-region {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.widget-region-heading {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.widget-region-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .widget-selector-controls .widget-slot-row {
@@ -1262,77 +1288,46 @@ input[type='checkbox'] {
   color: var(--text-muted);
 }
 
-.widget-budget {
+/* Shown only when the widgets genuinely don't fit — there is no "all
+   good" state to report, so nothing appears the rest of the time. */
+.widget-warning {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.widget-budget-track {
-  width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--border-color);
-  overflow: hidden;
-}
-
-.widget-budget-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--halite-orange);
-  transition: width 0.2s ease;
-}
-
-/* Three fit states: comfortable, crowded but rendering as picked, and
-   past the point where the watch starts compacting text. */
-.widget-budget--tight {
-  color: #a86413;
-}
-
-.widget-budget--tight .widget-budget-fill {
-  background: #e08b1a;
-}
-
-.widget-budget--over {
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
   color: #d0342c;
 }
 
-.widget-budget--over .widget-budget-fill {
+.widget-warning-icon {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
   background: #d0342c;
+  color: var(--bg-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
 }
 
 @media (prefers-color-scheme: dark) {
-  .widget-budget--tight {
-    color: #f0ad4e;
-  }
-
-  .widget-budget--tight .widget-budget-fill {
-    background: #f0ad4e;
-  }
-
-  .widget-budget--over {
+  .widget-warning {
     color: #ff6b5e;
   }
 
-  .widget-budget--over .widget-budget-fill {
+  .widget-warning-icon {
     background: #ff6b5e;
+    color: #1a1a1a;
   }
 }
 
-@media (max-width: 320px) {
-  .widget-selector-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .widget-selector-preview {
-    margin-bottom: 0;
-  }
-
-  .widget-selector-controls {
-    width: 100%;
+@media (max-width: 360px) {
+  .widget-selector-preview .halite-watch-face,
+  .widget-selector-preview .halite-watch-preview {
+    width: 180px;
+    height: 210px;
   }
 }

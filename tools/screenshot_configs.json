@@ -15,7 +15,7 @@
     "SettingWidget3ID": "EMPTY",
     "SettingWidget4ID": "EMPTY",
     "SettingWidget5ID": "EMPTY",
-    "SettingBottomBarWidget0ID": "STEP_COUNTER",
+    "SettingBottomBarWidget0ID": "EMPTY",
     "SettingBottomBarWidget1ID": "EMPTY",
     "SettingBottomBarWidget2ID": "EMPTY",
     "SettingBottomBarWidget3ID": "EMPTY",
@@ -59,19 +59,22 @@
     {
       "name": "layout-right-bottombar",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR"
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
       "name": "layout-left-bottombar",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR"
+        "SettingLayoutId": "SIDEBAR_LEFT",
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
       "name": "layout-bottombar-only",
       "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY"
+        "SettingLayoutId": "NO_SIDEBAR",
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
@@ -90,15 +93,17 @@
     {
       "name": "layout-right-bottombar-wide",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
-        "SettingUseWideSidebar": 1
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingUseWideSidebar": 1,
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
       "name": "layout-left-bottombar-wide",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR",
-        "SettingUseWideSidebar": 1
+        "SettingLayoutId": "SIDEBAR_LEFT",
+        "SettingUseWideSidebar": 1,
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
@@ -110,15 +115,17 @@
     {
       "name": "layout-right-bottombar-largefonts",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
-        "SettingUseLargeFonts": 1
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingUseLargeFonts": 1,
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
       "name": "layout-bottombar-only-largefonts",
       "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY",
-        "SettingUseLargeFonts": 1
+        "SettingLayoutId": "NO_SIDEBAR",
+        "SettingUseLargeFonts": 1,
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     },
     {
@@ -184,7 +191,7 @@
     {
       "name": "bottombar-packed-inline",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",
         "SettingBottomBarWidget1ID": "STEP_COUNTER"
       }
@@ -192,7 +199,7 @@
     {
       "name": "bottombar-packed-stacked",
       "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY",
+        "SettingLayoutId": "NO_SIDEBAR",
         "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
         "SettingBottomBarWidget1ID": "BATTERY_METER",
         "SettingBottomBarWidget2ID": "STEP_COUNTER",
@@ -238,7 +245,7 @@
     {
       "name": "widgets-worldtime-bottombar",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WORLD_TIME_1",
         "SettingBottomBarWidget1ID": "WORLD_TIME_2"
       }
@@ -246,7 +253,7 @@
     {
       "name": "widgets-worldtime-nolabel",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingAltClockName": "",
         "SettingWidget0ID": "WORLD_TIME_1",
         "SettingWidget1ID": "DATE",
@@ -267,7 +274,7 @@
     {
       "name": "widgets-sun-bottombar",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
         "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE"
       }
@@ -275,7 +282,7 @@
     {
       "name": "bottombar-three-small",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "SECONDS",
         "SettingBottomBarWidget1ID": "WEATHER_UV_INDEX",
         "SettingBottomBarWidget2ID": "BATTERY_METER"
@@ -284,7 +291,7 @@
     {
       "name": "bottombar-sleep-weather",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "SLEEP_TIMER",
         "SettingBottomBarWidget1ID": "WEATHER_CURRENT"
       }
@@ -292,7 +299,7 @@
     {
       "name": "bottombar-overbudget",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WORLD_TIME_1",
         "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY",
         "SettingBottomBarWidget2ID": "STEP_COUNTER",
@@ -302,7 +309,7 @@
     {
       "name": "bottombar-single",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
         "SettingBottomBarWidget1ID": "EMPTY"
       }
@@ -310,7 +317,7 @@
     {
       "name": "bottombar-single-stacked",
       "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY",
+        "SettingLayoutId": "NO_SIDEBAR",
         "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
         "SettingBottomBarWidget1ID": "EMPTY",
         "SettingBottomBarWidget2ID": "EMPTY",
@@ -320,7 +327,7 @@
     {
       "name": "bottombar-three-stacked",
       "settings": {
-        "SettingLayoutId": "BOTTOM_BAR_ONLY",
+        "SettingLayoutId": "NO_SIDEBAR",
         "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
         "SettingBottomBarWidget1ID": "BATTERY_METER",
         "SettingBottomBarWidget2ID": "DATE",
@@ -330,7 +337,7 @@
     {
       "name": "bottombar-forecast-negative",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",
         "SettingBottomBarWidget1ID": "SECONDS",
         "WeatherForecastHighTemp": -10,
@@ -349,7 +356,7 @@
     {
       "name": "repro-crowded-bottom",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_RIGHT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingUseWideSidebar": 1,
         "SettingUseLargeFonts": 1,
         "SettingWidget0ID": "BEATS",
@@ -393,13 +400,14 @@
     {
       "name": "scheme-light-wide-bottombar",
       "settings": {
-        "SettingLayoutId": "SIDEBAR_LEFT_BOTTOM_BAR",
+        "SettingLayoutId": "SIDEBAR_LEFT",
         "SettingUseWideSidebar": 1,
         "SettingColorBG": "#FFFFFF",
         "SettingColorTime": "#000000",
         "SettingColorSidebar": "#00AAFF",
         "SettingSidebarTextColor": "#000000",
-        "SettingAltSidebarTextColor": "#000000"
+        "SettingAltSidebarTextColor": "#000000",
+        "SettingBottomBarWidget0ID": "STEP_COUNTER"
       }
     }
   ]

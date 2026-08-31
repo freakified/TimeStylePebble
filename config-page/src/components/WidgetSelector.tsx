@@ -2,7 +2,7 @@ import React from 'react';
 import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
-import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
+import { barIsStacked, barSlotCap, layoutHasSidebar } from '../utils/layout';
 import { sidebarUnitsUsed } from '../utils/budget';
 import { assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
 import {
@@ -94,20 +94,18 @@ export const WidgetSelector: React.FC = () => {
     // (sidebar_layout.h): sidebars hold a stack of small widgets, the
     // inline bar holds two (three on emery), the tall stacked bar four
     const sidebarSlotCount = capabilities.ROUND ? 2 : capabilities.EMERY ? 6 : 4;
-    const barSlotCount = layoutHasStackedBar(settings.layout)
-        ? 4
-        : capabilities.EMERY ? 3 : 2;
+    const barSlotCount = barSlotCap(settings.layout, capabilities.EMERY);
 
     const showSidebar = capabilities.ROUND || layoutHasSidebar(settings.layout);
-    const showBar = !capabilities.ROUND && layoutHasBottomBar(settings.layout);
+    // the bar's slots are always on offer (round watches have no bar at
+    // all); putting a widget in them is what turns the bar on
+    const showBar = !capabilities.ROUND;
 
     const readIds = (keys: readonly (typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number])[], count: number) =>
         keys.slice(0, count).map((key) => settings[key]).filter((id) => id !== 0);
 
     const sidebarIds = readIds(ALL_SIDEBAR_SLOT_KEYS, sidebarSlotCount);
-    // when the layout hides the bar, keep every stored bar slot so a
-    // commit doesn't discard widgets configured for other layouts
-    const barIds = readIds(ALL_BAR_SLOT_KEYS, showBar ? barSlotCount : ALL_BAR_SLOT_KEYS.length);
+    const barIds = readIds(ALL_BAR_SLOT_KEYS, barSlotCount);
 
     const lists: WidgetLists = { sidebar: sidebarIds, bar: barIds };
     const idsOf = (region: WidgetRegion) => (region === 'sidebar' ? sidebarIds : barIds);
@@ -123,6 +121,10 @@ export const WidgetSelector: React.FC = () => {
     // stale ids can't hide in slots the current layout doesn't show. Both
     // regions land in one state update, so a widget is never momentarily
     // in two places (or neither) while moving between them.
+    //
+    // Nothing else needs writing: the bottom bar is on exactly when these
+    // slots hold a widget, so filling or emptying them is the whole of
+    // turning the bar on and off, on the watch as well as here.
     const commit = (next: WidgetLists) => {
         const partial: Partial<Settings> = {};
         ALL_SIDEBAR_SLOT_KEYS.forEach((key, i) => {
@@ -307,29 +309,25 @@ export const WidgetSelector: React.FC = () => {
     };
 
     /*
-     * The fit readout is deliberately qualitative. The underlying measure
-     * is good to a few pixels, but the watch also degrades gracefully
-     * (shorter text candidates, a smaller fallback font), so there is no
-     * hard cliff to report a precise number against — "over" means the
-     * widgets' full forms don't fit, not that anything breaks.
+     * Fit is reported only when it's a problem. A meter that spends most of
+     * its life saying "everything fits" is noise, and the measure is
+     * qualitative anyway: it's good to a few pixels, but the watch degrades
+     * gracefully (shorter text candidates, a smaller fallback font), so
+     * there's no hard cliff to put a precise number against. "over" means
+     * the widgets' full forms don't fit — not that anything breaks.
      */
-    const FIT_LABEL: Record<FitResult['state'], string> = {
-        good: 'Everything fits',
-        tight: 'Tight fit',
-        over: 'Widgets will be squeezed',
+    const OVER_MESSAGE: Record<WidgetRegion, string> = {
+        sidebar: 'Too many widgets to fit — they will crowd together on the watch.',
+        bar: 'Too many widgets to fit — the watch will shorten their text.',
     };
 
-    const renderBudget = (fit: FitResult) => (
-        <div className={`widget-budget widget-budget--${fit.state}`} role="status">
-            <div className="widget-budget-track" aria-hidden="true">
-                <div
-                    className="widget-budget-fill"
-                    style={{ width: `${Math.min(100, fit.ratio * 100)}%` }}
-                />
-            </div>
-            <span>{FIT_LABEL[fit.state]}</span>
-        </div>
-    );
+    const renderWarning = (region: WidgetRegion, fit: FitResult) =>
+        fit.state === 'over' ? (
+            <p className="widget-warning" role="status">
+                <span className="widget-warning-icon" aria-hidden="true">!</span>
+                {OVER_MESSAGE[region]}
+            </p>
+        ) : null;
 
     const renderWidgetRow = (region: WidgetRegion, widgetId: number, index: number, count: number) => {
         const selectId = `widget-slot-${region}-${index}`;
@@ -425,8 +423,15 @@ export const WidgetSelector: React.FC = () => {
         );
     };
 
-    /** One region's rows + add row + budget meter; the drag hit-tests these. */
-    const renderRegion = (region: WidgetRegion, ids: number[], cap: number, budget: React.ReactNode) => (
+    /** One region's heading, rows, add row and warning; drags hit-test these. */
+    const renderRegion = (
+        region: WidgetRegion,
+        heading: string,
+        hint: string,
+        ids: number[],
+        cap: number,
+        warning: React.ReactNode
+    ) => (
         <div
             className="widget-region"
             data-region={region}
@@ -434,9 +439,11 @@ export const WidgetSelector: React.FC = () => {
                 ids.length === 0 && drag?.drop?.region === region ? true : undefined
             }
         >
+            <h4 className="widget-region-heading">{heading}</h4>
             {ids.map((id, i) => renderWidgetRow(region, id, i, ids.length))}
+            {ids.length === 0 && <p className="widget-region-hint">{hint}</p>}
             {renderAddWidget(region, ids.length, cap)}
-            {budget}
+            {warning}
         </div>
     );
 
@@ -451,26 +458,25 @@ export const WidgetSelector: React.FC = () => {
             >
                 {showSidebar && renderRegion(
                     'sidebar',
+                    capabilities.ROUND ? 'Arcs' : 'Sidebar',
+                    'No widgets — the sidebar shows as a plain band.',
                     sidebarIds,
                     sidebarSlotCount,
-                    !capabilities.ROUND && renderBudget(
+                    !capabilities.ROUND && renderWarning(
+                        'sidebar',
                         assessSidebar(sidebarUnitsUsed(sidebarIds), capabilities, settings.largeSidebarFont)
                     )
                 )}
-                {showBar && (
-                    <>
-                        {showSidebar && (
-                            <div className="widget-selector-divider" role="separator" />
-                        )}
-                        {renderRegion(
-                            'bar',
-                            barIds,
-                            barSlotCount,
-                            !layoutHasStackedBar(settings.layout) && renderBudget(
-                                assessInlineBar(barIds, settings, capabilities, layoutHasSidebar(settings.layout))
-                            )
-                        )}
-                    </>
+                {showBar && renderRegion(
+                    'bar',
+                    'Bottom bar',
+                    'Add a widget here to turn the bottom bar on.',
+                    barIds,
+                    barSlotCount,
+                    !barIsStacked(settings.layout) && renderWarning(
+                        'bar',
+                        assessInlineBar(barIds, settings, capabilities, layoutHasSidebar(settings.layout))
+                    )
                 )}
             </div>
         </div>

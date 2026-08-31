@@ -20,20 +20,18 @@ var HOURLY_VIBE_BY_ID = {
   2: 'everyHalfHour'
 };
 
+// a layout says only where the sidebar goes; the bottom bar is present
+// whenever its widget slots hold something
 var LAYOUT_BY_ID = {
   0: 'right-sidebar',
   1: 'left-sidebar',
-  2: 'right-sidebar-bottom-bar',
-  3: 'left-sidebar-bottom-bar',
-  4: 'bottom-bar-only'
+  2: 'no-sidebar'
 };
 
 var LAYOUT_ID_BY_NAME = {
   'right-sidebar': 0,
   'left-sidebar': 1,
-  'right-sidebar-bottom-bar': 2,
-  'left-sidebar-bottom-bar': 3,
-  'bottom-bar-only': 4
+  'no-sidebar': 2
 };
 
 var HOURLY_VIBE_ID_BY_NAME = {

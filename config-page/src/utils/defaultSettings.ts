@@ -21,10 +21,12 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   widget3Id: 0,
   widget4Id: 0,
   widget5Id: 0,
-  bottomBarWidget0Id: 10, // Steps
-  bottomBarWidget1Id: 0,  // Empty
-  bottomBarWidget2Id: 0,  // Empty
-  bottomBarWidget3Id: 0,  // Empty
+  // the bottom bar starts empty on purpose: it's on screen only when it
+  // holds a widget, so a default here would ship the bar to everyone
+  bottomBarWidget0Id: 0,
+  bottomBarWidget1Id: 0,
+  bottomBarWidget2Id: 0,
+  bottomBarWidget3Id: 0,
 
   // General
   languageId: 0,

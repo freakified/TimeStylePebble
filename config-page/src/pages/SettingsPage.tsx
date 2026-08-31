@@ -21,7 +21,8 @@ import darkThemes from '../data/dark-themes.json';
 import lightThemesBw from '../data/light-themes-bw.json';
 import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
-import { layoutHasSidebar, layoutHasBottomBar, layoutHasStackedBar } from '../utils/layout';
+import { barSlotCap, layoutHasSidebar } from '../utils/layout';
+import { Layout } from '../context/types';
 import { WORLD_TIME_CITY_OPTIONS } from '../data/cities';
 
 const LANGUAGE_OPTIONS = [
@@ -101,13 +102,27 @@ export const SettingsPage: React.FC = () => {
         : [settings.widget0Id, settings.widget1Id, settings.widget2Id,
            settings.widget3Id]
       : [];
-  const bottomBarWidgetIds = !capabilities.ROUND && layoutHasBottomBar(settings.layout)
+  // the bottom bar's slots are always live: holding a widget is what turns
+  // the bar on, so its widgets always count as active
+  const bottomBarWidgetIds = !capabilities.ROUND
     ? [
         settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
         settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
-      ].slice(0, layoutHasStackedBar(settings.layout) ? 4 : capabilities.EMERY ? 3 : 2)
+      ].slice(0, barSlotCap(settings.layout, capabilities.EMERY))
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
+
+  // the layout picks a sidebar side and nothing else — whether there's a
+  // bottom bar follows from the bar's own widgets
+  const layoutOptions: { label: string; value: Layout }[] = [
+    { label: 'Left sidebar', value: 'left-sidebar' },
+    { label: 'Right sidebar', value: 'right-sidebar' },
+    { label: 'No sidebar', value: 'no-sidebar' },
+  ];
+  const layoutOptionSettings: Record<string, { layout: Layout }> = {};
+  layoutOptions.forEach((option) => {
+    layoutOptionSettings[option.value] = { layout: option.value };
+  });
 
   const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 16, 17].includes(id));
 
@@ -203,20 +218,8 @@ export const SettingsPage: React.FC = () => {
           <SelectCards
             label="Layout"
             messageKey="layout"
-            options={[
-              { label: 'Left sidebar', value: 'left-sidebar' },
-              { label: 'Right sidebar', value: 'right-sidebar' },
-              { label: 'Left sidebar + bottom bar', value: 'left-sidebar-bottom-bar' },
-              { label: 'Right sidebar + bottom bar', value: 'right-sidebar-bottom-bar' },
-              { label: 'Bottom bar only', value: 'bottom-bar-only' },
-            ]}
-            optionSettings={{
-              'left-sidebar': { layout: 'left-sidebar' },
-              'right-sidebar': { layout: 'right-sidebar' },
-              'left-sidebar-bottom-bar': { layout: 'left-sidebar-bottom-bar' },
-              'right-sidebar-bottom-bar': { layout: 'right-sidebar-bottom-bar' },
-              'bottom-bar-only': { layout: 'bottom-bar-only' },
-            }}
+            options={layoutOptions}
+            optionSettings={layoutOptionSettings}
           />
         )}
         {capabilities.RECT && (

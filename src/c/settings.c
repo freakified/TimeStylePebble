@@ -50,7 +50,9 @@ void Settings_loadFromStorage() {
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
 
-  settings.hRegionSlots[0] = STEP_COUNTER;
+  // the bottom bar's slots are left empty on purpose: the bar exists only
+  // when it holds a widget, so a default one here would turn it on for
+  // every fresh install
 
   settings.enableStatusBar = true;
   settings.statusShowConnection = false;
@@ -94,19 +96,15 @@ void Settings_updateDynamicSettings() {
   // scan the widget slots that can actually render
 #ifdef PBL_ROUND
   int vSlotCount = 2;
-#else
-  int vSlotCount =
-      (SidebarLayout_verticalEdge(settings.layoutId) == REGION_EDGE_NONE)
-          ? 0
-          : VREGION_SLOT_CAP;
-#endif
   int hSlotCount = 0;
-
-  if (SidebarLayout_horizontalEdge(settings.layoutId) != REGION_EDGE_NONE) {
-    hSlotCount = (SidebarLayout_hBarStyle(settings.layoutId) == HBAR_STYLE_STACKED)
-                     ? HREGION_SLOT_CAP_STACKED
-                     : HREGION_SLOT_CAP_INLINE;
-  }
+#else
+  bool hasSidebar =
+      SidebarLayout_verticalEdge(settings.layoutId) != REGION_EDGE_NONE;
+  int vSlotCount = hasSidebar ? VREGION_SLOT_CAP : 0;
+  // the bar needs no presence test of its own: it renders whatever these
+  // slots hold, and empty slots contribute nothing to the scan either way
+  int hSlotCount = hasSidebar ? HREGION_SLOT_CAP_INLINE : HREGION_SLOT_CAP_STACKED;
+#endif
 
   for (int i = 0; i < vSlotCount + hSlotCount; i++) {
     SidebarWidgetType widget =

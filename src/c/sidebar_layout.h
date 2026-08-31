@@ -16,48 +16,30 @@ typedef enum {
   REGION_EDGE_TOP    = 4
 } RegionEdge;
 
-// presentation style for horizontal (top/bottom) bars
+/*
+ * User-facing layout presets (the ids travel over AppMessage, so they must
+ * stay stable). A preset says only where the vertical sidebar goes: the
+ * bottom bar isn't a layout choice, it exists exactly when its slots hold
+ * a widget, and it presents itself inline beside a sidebar or stacked when
+ * it's the only region. That keeps the two facts that used to be encoded
+ * here -- "is there a bar" and "which style" -- derivable from state that
+ * can't disagree with itself.
+ */
 typedef enum {
-  HBAR_STYLE_INLINE  = 0, // short bar, icon beside text
-  HBAR_STYLE_STACKED = 1  // tall bar, icon above text (sidebar-style widgets)
-} HBarStyle;
-
-// user-facing layout presets (the ids travel over AppMessage, so they
-// must stay stable); each preset decodes into a region configuration
-typedef enum {
-  LAYOUT_SIDEBAR_RIGHT            = 0,
-  LAYOUT_SIDEBAR_LEFT             = 1,
-  LAYOUT_SIDEBAR_RIGHT_BOTTOM_BAR = 2,
-  LAYOUT_SIDEBAR_LEFT_BOTTOM_BAR  = 3,
-  LAYOUT_BOTTOM_BAR_ONLY          = 4
+  LAYOUT_SIDEBAR_RIGHT = 0,
+  LAYOUT_SIDEBAR_LEFT  = 1,
+  LAYOUT_NO_SIDEBAR    = 2
 } SidebarLayoutId;
 
 static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
   switch (layoutId) {
     case LAYOUT_SIDEBAR_LEFT:
-    case LAYOUT_SIDEBAR_LEFT_BOTTOM_BAR:
       return REGION_EDGE_LEFT;
-    case LAYOUT_BOTTOM_BAR_ONLY:
+    case LAYOUT_NO_SIDEBAR:
       return REGION_EDGE_NONE;
     default:
       return REGION_EDGE_RIGHT;
   }
-}
-
-static inline RegionEdge SidebarLayout_horizontalEdge(uint8_t layoutId) {
-  switch (layoutId) {
-    case LAYOUT_SIDEBAR_RIGHT_BOTTOM_BAR:
-    case LAYOUT_SIDEBAR_LEFT_BOTTOM_BAR:
-    case LAYOUT_BOTTOM_BAR_ONLY:
-      return REGION_EDGE_BOTTOM;
-    default:
-      return REGION_EDGE_NONE;
-  }
-}
-
-static inline HBarStyle SidebarLayout_hBarStyle(uint8_t layoutId) {
-  return (layoutId == LAYOUT_BOTTOM_BAR_ONLY) ? HBAR_STYLE_STACKED
-                                              : HBAR_STYLE_INLINE;
 }
 
 #define MAX_REGION_SLOTS 6

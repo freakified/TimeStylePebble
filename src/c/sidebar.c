@@ -70,18 +70,30 @@ static void sidebar_buildRegions(void) {
     vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
   }
 
-  bool stacked = (SidebarLayout_hBarStyle(settings.layoutId) == HBAR_STYLE_STACKED);
-  RegionEdge hEdge = SidebarLayout_horizontalEdge(settings.layoutId);
+  // with no sidebar the bar is the primary region, so it wears the taller
+  // stacked form (and, below, the accent background)
+  bool stacked = (vEdge == REGION_EDGE_NONE);
+  int hSlotCap = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE;
+
+  // the bar exists exactly when it has something to show: an empty bar
+  // would draw nothing while still costing the clock its height
+  bool hasBarWidgets = false;
+  for (int i = 0; i < hSlotCap; i++) {
+    if (settings.hRegionSlots[i] != EMPTY) {
+      hasBarWidgets = true;
+      break;
+    }
+  }
 
   hRegion = (SidebarRegion){
-      .edge = hEdge,
+      .edge = hasBarWidgets ? REGION_EDGE_BOTTOM : REGION_EDGE_NONE,
       .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
       // a secondary bar blends into the watchface so the accent color
       // stays with the sidebar; a bar on its own takes the accent itself
       .dark = (vEdge != REGION_EDGE_NONE),
       .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
                            : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
-      .slotCount = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE,
+      .slotCount = hSlotCap,
   };
 
   for (int i = 0; i < hRegion.slotCount; i++) {

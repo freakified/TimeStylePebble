@@ -144,7 +144,7 @@ Pebble.addEventListener('webviewclosed', function (e) {
     var disableWeather;
 
     var widgetIDs = [];
-    if (configData.layout !== 'bottom-bar-only') {
+    if (configData.layout !== 'no-sidebar') {
       widgetIDs.push(
         configData.widget0Id,
         configData.widget1Id,
@@ -152,16 +152,14 @@ Pebble.addEventListener('webviewclosed', function (e) {
         configData.widget3Id
       );
     }
-    if (configData.layout === 'right-sidebar-bottom-bar'
-      || configData.layout === 'left-sidebar-bottom-bar'
-      || configData.layout === 'bottom-bar-only') {
-      widgetIDs.push(
-        configData.bottomBarWidget0Id,
-        configData.bottomBarWidget1Id,
-        configData.bottomBarWidget2Id,
-        configData.bottomBarWidget3Id
-      );
-    }
+    // the bar's slots are always live -- holding a widget is what puts the
+    // bar on screen, so anything in them renders
+    widgetIDs.push(
+      configData.bottomBarWidget0Id,
+      configData.bottomBarWidget1Id,
+      configData.bottomBarWidget2Id,
+      configData.bottomBarWidget3Id
+    );
 
     // if none of the weather widgets are present, disable the weather
     // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 16=wind, 17=rain chance)

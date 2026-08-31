@@ -2,9 +2,10 @@ import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
 import {
+    barHasWidgets,
+    barIsStacked,
+    barSlotCap,
     layoutHasSidebar,
-    layoutHasBottomBar,
-    layoutHasStackedBar,
     layoutSidebarOnLeft,
 } from '../utils/layout';
 import {
@@ -287,7 +288,15 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     const W = 144, H = 168;
 
     const hasSidebar = layoutHasSidebar(s.layout);
-    const hasBar = layoutHasBottomBar(s.layout);
+    const stackedBar = barIsStacked(s.layout);
+
+    // the bar is on screen exactly when it holds a widget, the same rule
+    // sidebar_buildRegions() applies on the watch
+    const barSlotIds = [
+        s.bottomBarWidget0Id, s.bottomBarWidget1Id,
+        s.bottomBarWidget2Id, s.bottomBarWidget3Id,
+    ].slice(0, barSlotCap(s.layout, capabilities.EMERY));
+    const hasBar = barHasWidgets(barSlotIds);
 
     // the sidebar always wears the accent color; a bottom bar beside it
     // draws on the watchface background instead, and takes the accent
@@ -295,7 +304,6 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     const colors = standardRegionColors(s);
     const barColors = hasSidebar ? darkRegionColors(s) : colors;
 
-    const stackedBar = layoutHasStackedBar(s.layout);
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
     const SIDEBAR_W = hasSidebar ? (s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
@@ -384,11 +392,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
         // mirror the watch's rendered caps: stacked bars hold four slots,
         // inline bars two (three on emery)
-        const slotIds = [
-            s.bottomBarWidget0Id, s.bottomBarWidget1Id,
-            s.bottomBarWidget2Id, s.bottomBarWidget3Id,
-        ].slice(0, stackedBar ? 4 : capabilities.EMERY ? 3 : 2);
-        const visible = slotIds.filter((id) => id !== 0);
+        const visible = barSlotIds.filter((id) => id !== 0);
 
         let content: React.ReactNode = null;
 

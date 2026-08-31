@@ -41,12 +41,12 @@ PINNED_SLEEP_MINUTES = 452
 PINNED_HEART_RATE = 68  # emery only; ignored elsewhere
 
 # enums mirrored from src/c (sidebar_layout.h, sidebar_widgets.h, weather.h)
+# a layout only says where the sidebar goes; the bottom bar is on
+# whenever SettingBottomBarWidget*ID holds a widget
 LAYOUTS = {
     "SIDEBAR_RIGHT": 0,
     "SIDEBAR_LEFT": 1,
-    "SIDEBAR_RIGHT_BOTTOM_BAR": 2,
-    "SIDEBAR_LEFT_BOTTOM_BAR": 3,
-    "BOTTOM_BAR_ONLY": 4,
+    "NO_SIDEBAR": 2,
 }
 WIDGETS = {
     "EMPTY": 0,
