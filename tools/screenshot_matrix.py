@@ -46,7 +46,6 @@ PINNED_HEART_RATE = 68  # emery only; ignored elsewhere
 LAYOUTS = {
     "SIDEBAR_RIGHT": 0,
     "SIDEBAR_LEFT": 1,
-    "NO_SIDEBAR": 2,
 }
 WIDGETS = {
     "EMPTY": 0,

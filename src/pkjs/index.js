@@ -143,13 +143,18 @@ Pebble.addEventListener('webviewclosed', function (e) {
     // determine whether or not the weather checking should be enabled
     var disableWeather;
 
-    // the bar's slots are always live -- holding a widget is what puts the
-    // bar on screen, so anything in them renders
+    // every slot the config page can fill counts: the phone doesn't know
+    // which platform it's talking to, and the extra slots are only ever
+    // EMPTY on watches that don't render them. (The bar's slots are
+    // always live too -- holding a widget is what puts the bar on
+    // screen, so anything in them renders.)
     var widgetIDs = [
       configData.widget0Id,
       configData.widget1Id,
       configData.widget2Id,
       configData.widget3Id,
+      configData.widget4Id,
+      configData.widget5Id,
       configData.bottomBarWidget0Id,
       configData.bottomBarWidget1Id,
       configData.bottomBarWidget2Id

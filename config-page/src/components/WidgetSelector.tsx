@@ -2,9 +2,9 @@ import React from 'react';
 import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
-import { barSlotCap } from '../utils/layout';
+import { ARC_SLOT_CAP, barSlotCap } from '../utils/layout';
 import { sidebarUnitsUsed } from '../utils/budget';
-import { assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
+import { assessArc, assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
 import {
     addWidget as addWidgetToRegion,
     moveWidget,
@@ -17,17 +17,18 @@ import {
 import { Settings } from '../context/types';
 
 /*
- * Each region is presented as a packed widget list: N rows for the N
- * configured widgets, plus an "add widget" dropdown and per-row remove
- * buttons. On the watch the sidebar pins its first widget to the top and
- * its last to the bottom, while the bottom bar centers its widgets as one
- * group, so an "empty slot" has no visual meaning either way — EMPTY (0)
- * is only wire padding, written back when the lists are packed into the
- * slot keys.
+ * Every platform has two widget regions — a sidebar and a bottom bar on
+ * rect, the left and right arcs on round — and each is presented as a
+ * packed widget list: N rows for the N configured widgets, plus an "add
+ * widget" dropdown and per-row remove buttons. On the watch the sidebar
+ * pins its first widget to the top and its last to the bottom, while the
+ * bar and the arcs center their widgets as one group, so an "empty slot"
+ * has no visual meaning either way — EMPTY (0) is only wire padding,
+ * written back when the lists are packed into the slot keys.
  *
- * Row ORDER is meaningful (top-to-bottom in the sidebar, left-to-right in
- * the bar), so rows drag by their handle: within a region to reorder, and
- * across regions to move a widget between the sidebar and the bottom bar.
+ * Row ORDER is meaningful (top-to-bottom in the sidebar and the arcs,
+ * left-to-right in the bar), so rows drag by their handle: within a
+ * region to reorder, and across regions to move a widget between them.
  * Every drop lands in one commit() so a widget is never briefly in two
  * places.
  *
@@ -89,47 +90,59 @@ export const WidgetSelector: React.FC = () => {
     // nodes), so focus has to be put back on its handle afterwards
     const refocusRef = React.useRef<number | null>(null);
 
-    // widget counts per region mirror the watch's rendered slot caps
-    // (sidebar_layout.h): sidebars hold a stack of small widgets, the
-    // bar holds two (three on emery)
-    const sidebarSlotCount = capabilities.ROUND ? 2 : capabilities.EMERY ? 6 : 4;
-    const barSlotCount = barSlotCap(capabilities.EMERY);
+    /*
+     * Which wire slots each region owns, and how many of them the watch
+     * actually renders (the caps mirror sidebar_layout.h). Rect keeps the
+     * two key groups apart — sidebar keys and bar keys. Round has no bar,
+     * so its two arcs split the sidebar keys down the middle instead:
+     * slots 0..2 are the left arc, 3..5 the right.
+     */
+    const primaryKeys = capabilities.ROUND
+        ? ALL_SIDEBAR_SLOT_KEYS.slice(0, ARC_SLOT_CAP)
+        : ALL_SIDEBAR_SLOT_KEYS;
+    const secondaryKeys = capabilities.ROUND
+        ? ALL_SIDEBAR_SLOT_KEYS.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2)
+        : ALL_BAR_SLOT_KEYS;
 
-    // the bar's slots are always on offer (round watches have no bar at
-    // all); putting a widget in them is what turns the bar on
-    const showBar = !capabilities.ROUND;
+    const primarySlotCount = capabilities.ROUND
+        ? ARC_SLOT_CAP
+        : capabilities.EMERY ? 6 : 4;
+    const secondarySlotCount = capabilities.ROUND
+        ? ARC_SLOT_CAP
+        : barSlotCap(capabilities.EMERY);
 
-    const readIds = (keys: readonly (typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number])[], count: number) =>
+    type SlotKey = typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number];
+
+    const readIds = (keys: readonly SlotKey[], count: number) =>
         keys.slice(0, count).map((key) => settings[key]).filter((id) => id !== 0);
 
-    const sidebarIds = readIds(ALL_SIDEBAR_SLOT_KEYS, sidebarSlotCount);
-    const barIds = readIds(ALL_BAR_SLOT_KEYS, barSlotCount);
+    const primaryIds = readIds(primaryKeys, primarySlotCount);
+    const secondaryIds = readIds(secondaryKeys, secondarySlotCount);
 
-    const lists: WidgetLists = { sidebar: sidebarIds, bar: barIds };
-    const idsOf = (region: WidgetRegion) => (region === 'sidebar' ? sidebarIds : barIds);
-    const capOf = (region: WidgetRegion) => (region === 'sidebar' ? sidebarSlotCount : barSlotCount);
+    const lists: WidgetLists = { primary: primaryIds, secondary: secondaryIds };
+    const idsOf = (region: WidgetRegion) => (region === 'primary' ? primaryIds : secondaryIds);
+    const capOf = (region: WidgetRegion) =>
+        region === 'primary' ? primarySlotCount : secondarySlotCount;
     // regions in the order they appear on screen, which is the order the
     // drag hit-test and the keyboard nudge both walk
-    const shownRegions: WidgetRegion[] = [
-        'sidebar',
-        ...(showBar ? (['bar'] as const) : []),
-    ];
+    const shownRegions: WidgetRegion[] = ['primary', 'secondary'];
 
     // write both regions back packed, zero-padding every wire slot so
-    // stale ids can't hide in slots the current layout doesn't show. Both
-    // regions land in one state update, so a widget is never momentarily
+    // stale ids can't hide in slots the current layout doesn't show.
+    // Together the two key groups cover every slot key on this platform,
+    // and both land in one state update, so a widget is never momentarily
     // in two places (or neither) while moving between them.
     //
-    // Nothing else needs writing: the bottom bar is on exactly when these
+    // Nothing else needs writing: the bottom bar is on exactly when its
     // slots hold a widget, so filling or emptying them is the whole of
     // turning the bar on and off, on the watch as well as here.
     const commit = (next: WidgetLists) => {
         const partial: Partial<Settings> = {};
-        ALL_SIDEBAR_SLOT_KEYS.forEach((key, i) => {
-            partial[key] = next.sidebar[i] !== undefined ? next.sidebar[i] : 0;
+        primaryKeys.forEach((key, i) => {
+            partial[key] = next.primary[i] !== undefined ? next.primary[i] : 0;
         });
-        ALL_BAR_SLOT_KEYS.forEach((key, i) => {
-            partial[key] = next.bar[i] !== undefined ? next.bar[i] : 0;
+        secondaryKeys.forEach((key, i) => {
+            partial[key] = next.secondary[i] !== undefined ? next.secondary[i] : 0;
         });
         updateSettings(partial);
     };
@@ -279,7 +292,7 @@ export const WidgetSelector: React.FC = () => {
 
     /* ── Rendering ── */
 
-    const usedIds = new Set([...sidebarIds, ...barIds]);
+    const usedIds = new Set([...primaryIds, ...secondaryIds]);
     const addableOptions = widgetOptions.filter((option) => !usedIds.has(option.value));
 
     const groupOptions = (options: typeof widgetOptions) =>
@@ -290,15 +303,14 @@ export const WidgetSelector: React.FC = () => {
 
     const groupedWidgetOptions = groupOptions(widgetOptions);
 
+    // the bar is the one region whose widgets read left-to-right; the
+    // sidebar and both arcs stack, so their rows are named by height
     const rowLabel = (region: WidgetRegion, index: number, count: number) => {
-        if (region === 'bar') {
+        if (region === 'secondary' && !capabilities.ROUND) {
             return `Bar widget ${index + 1}`;
         }
-        if (capabilities.ROUND) {
-            return index === 0 ? 'Left arc widget' : 'Right arc widget';
-        }
         if (count <= 1) {
-            return 'Sidebar widget';
+            return capabilities.ROUND ? 'Arc widget' : 'Sidebar widget';
         }
         if (index === 0) {
             return 'Top widget';
@@ -314,16 +326,17 @@ export const WidgetSelector: React.FC = () => {
      * there's no hard cliff to put a precise number against. "over" means
      * the widgets' full forms don't fit — not that anything breaks.
      */
-    const OVER_MESSAGE: Record<WidgetRegion, string> = {
-        sidebar: 'Too many widgets to fit — they will crowd together on the watch.',
-        bar: 'Too many widgets to fit — the watch will shorten their text.',
-    };
+    const CROWD_MESSAGE = 'Too many widgets to fit — they will crowd together on the watch.';
+    const overMessage = (region: WidgetRegion) =>
+        region === 'secondary' && !capabilities.ROUND
+            ? 'Too many widgets to fit — the watch will shorten their text.'
+            : CROWD_MESSAGE;
 
     const renderWarning = (region: WidgetRegion, fit: FitResult) =>
         fit.state === 'over' ? (
             <p className="widget-warning" role="status">
                 <span className="widget-warning-icon" aria-hidden="true">!</span>
-                {OVER_MESSAGE[region]}
+                {overMessage(region)}
             </p>
         ) : null;
 
@@ -455,25 +468,33 @@ export const WidgetSelector: React.FC = () => {
                 ref={controlsRef}
             >
                 {renderRegion(
-                    'sidebar',
-                    capabilities.ROUND ? 'Arcs' : 'Sidebar',
-                    'No widgets — the sidebar shows as a plain band.',
-                    sidebarIds,
-                    sidebarSlotCount,
-                    !capabilities.ROUND && renderWarning(
-                        'sidebar',
-                        assessSidebar(sidebarUnitsUsed(sidebarIds), capabilities, settings.largeSidebarFont)
+                    'primary',
+                    capabilities.ROUND ? 'Left arc' : 'Sidebar',
+                    capabilities.ROUND
+                        ? 'No widgets in this arc.'
+                        : 'No widgets — the sidebar shows as a plain band.',
+                    primaryIds,
+                    primarySlotCount,
+                    renderWarning(
+                        'primary',
+                        capabilities.ROUND
+                            ? assessArc(sidebarUnitsUsed(primaryIds), capabilities, settings.largeSidebarFont)
+                            : assessSidebar(sidebarUnitsUsed(primaryIds), capabilities, settings.largeSidebarFont)
                     )
                 )}
-                {showBar && renderRegion(
-                    'bar',
-                    'Bottom bar',
-                    'Add a widget here to turn the bottom bar on.',
-                    barIds,
-                    barSlotCount,
+                {renderRegion(
+                    'secondary',
+                    capabilities.ROUND ? 'Right arc' : 'Bottom bar',
+                    capabilities.ROUND
+                        ? 'No widgets in this arc.'
+                        : 'Add a widget here to turn the bottom bar on.',
+                    secondaryIds,
+                    secondarySlotCount,
                     renderWarning(
-                        'bar',
-                        assessInlineBar(barIds, settings, capabilities)
+                        'secondary',
+                        capabilities.ROUND
+                            ? assessArc(sidebarUnitsUsed(secondaryIds), capabilities, settings.largeSidebarFont)
+                            : assessInlineBar(secondaryIds, settings, capabilities)
                     )
                 )}
             </div>

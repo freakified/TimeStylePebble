@@ -75,7 +75,8 @@
       "WeatherSunriseMinute",
       "WeatherSunsetMinute",
       "SettingEnableStatusBar",
-      "SettingStatusShowConnection"
+      "SettingStatusShowConnection",
+      "SettingColorBothArcs"
     ],
     "resources": {
       "media": [

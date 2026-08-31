@@ -92,9 +92,11 @@ export const SettingsPage: React.FC = () => {
   const getNightSavedTheme = () =>
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
-  // Only the slots the current platform actually renders
+  // Only the slots the current platform actually renders. Round uses all
+  // six: its two arcs split the list between them.
   const sidebarWidgetIds = capabilities.ROUND
-    ? [settings.widget0Id, settings.widget1Id]
+    ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
+       settings.widget3Id, settings.widget4Id, settings.widget5Id]
     : capabilities.EMERY
       ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
          settings.widget3Id, settings.widget4Id, settings.widget5Id]
@@ -110,12 +112,19 @@ export const SettingsPage: React.FC = () => {
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
-  // the layout picks the sidebar's side and nothing else — whether there's
-  // a bottom bar follows from the bar's own widgets
-  const layoutOptions: { label: string; value: Layout }[] = [
-    { label: 'Left sidebar', value: 'left-sidebar' },
-    { label: 'Right sidebar', value: 'right-sidebar' },
-  ];
+  // the layout picks which side the accent-colored band sits on and
+  // nothing else. On rect that places the sidebar (whether there's a
+  // bottom bar follows from the bar's own widgets); on round both arcs
+  // are always there, so it picks which of them is filled.
+  const layoutOptions: { label: string; value: Layout }[] = capabilities.ROUND
+    ? [
+        { label: 'Color left arc', value: 'left-sidebar' },
+        { label: 'Color right arc', value: 'right-sidebar' },
+      ]
+    : [
+        { label: 'Left sidebar', value: 'left-sidebar' },
+        { label: 'Right sidebar', value: 'right-sidebar' },
+      ];
   const layoutOptionSettings: Record<string, { layout: Layout }> = {};
   layoutOptions.forEach((option) => {
     layoutOptionSettings[option.value] = { layout: option.value };
@@ -211,12 +220,17 @@ export const SettingsPage: React.FC = () => {
 
       {/* ── Layout ── */}
       <Section title="Layout">
-        {capabilities.RECT && (
-          <SelectCards
-            label="Layout"
-            messageKey="layout"
-            options={layoutOptions}
-            optionSettings={layoutOptionSettings}
+        <SelectCards
+          label="Layout"
+          messageKey="layout"
+          options={layoutOptions}
+          optionSettings={layoutOptionSettings}
+        />
+        {capabilities.ROUND && (
+          <Toggle
+            label="Show sidebar background color on both sides"
+            description="Fill both arcs instead of letting one blend into the watchface"
+            messageKey="colorBothArcs"
           />
         )}
         {capabilities.RECT && (

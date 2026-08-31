@@ -2,6 +2,8 @@ import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
 import {
+    ARC_SLOT_CAP,
+    arcIsAccent,
     barHasWidgets,
     barSlotCap,
     layoutSidebarOnLeft,
@@ -198,22 +200,6 @@ const renderItemsStacked = (
                 );
         }
     });
-};
-
-/** Draw a widget centered on (cx, centerY), scaled to fit maxW. */
-const renderStackedWidget = (
-    widgetId: number,
-    settings: Settings,
-    cx: number,
-    centerY: number,
-    maxW: number,
-    colors: RegionColors
-) => {
-    const spec = getWidgetSpec(widgetId, settings);
-    if (spec.items.length === 0) return null;
-
-    const scale = Math.min(maxW / spec.w, 1);
-    return renderItemsStacked(spec.items, cx, centerY - (spec.h * scale) / 2, scale, colors);
 };
 
 /* ── Inline (bottom bar) rendering ── */
@@ -453,15 +439,76 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     );
 };
 
+/* ── Round arc geometry (mirrors the ROUND_ARC_* block, in chalk units) ── */
+
+const ARC_W = 40;               // ROUND_ARC_WIDTH
+const ARC_CONTENT_W = 30;       // ROUND_ARC_CONTENT_WIDTH
+const ARC_INNER_MARGIN = 3;     // ROUND_ARC_INNER_MARGIN
+const ARC_WIDGET_GAP = 2;       // ROUND_ARC_WIDGET_GAP
+
 /** Render a round (chalk/gabbro) TimeStyle face */
 const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings: s }) => {
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
-    const colors = standardRegionColors(s);
 
     const { hourPath, minutePath } = getTimePaths(s.clockFont);
 
     const CX = 90, CY = 90, R = 90;
+
+    const slotIds = [
+        s.widget0Id, s.widget1Id, s.widget2Id,
+        s.widget3Id, s.widget4Id, s.widget5Id,
+    ];
+
+    /*
+     * Each arc is a circle the size of the screen, offset so only a
+     * sliver shows down its edge — the same construction draw_round_arc
+     * uses, which is what makes the arc taper away from its waist. An
+     * arc that isn't the accent one draws no circle at all: the arcs sit
+     * on top of the clock area, so filling a seamless arc with the
+     * watchface color would punch a hole in the time.
+     */
+    const renderArc = (side: 'left' | 'right') => {
+        const accent = arcIsAccent(s.layout, s.colorBothArcs, side);
+        const colors = accent ? standardRegionColors(s) : darkRegionColors(s);
+
+        const ids = (side === 'left'
+            ? slotIds.slice(0, ARC_SLOT_CAP)
+            : slotIds.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2)
+        ).filter((id) => id !== 0);
+
+        // the widget column sits ARC_INNER_MARGIN in from the arc's
+        // inner edge, so its center is a fixed inset from the screen edge
+        const inset = ARC_W - ARC_INNER_MARGIN - ARC_CONTENT_W / 2;
+        const cx = side === 'left' ? inset : 180 - inset;
+
+        const specs = ids.map((id) => getWidgetSpec(id, s));
+        const scales = specs.map((spec) => (spec.w > 0 ? Math.min(ARC_CONTENT_W / spec.w, 1) : 1));
+        const heights = specs.map((spec, i) => spec.h * scales[i]);
+        const totalH =
+            heights.reduce((a, b) => a + b, 0) + ARC_WIDGET_GAP * Math.max(0, ids.length - 1);
+
+        // the stack centers on the arc's waist
+        let y = CY - totalH / 2;
+
+        return (
+            <>
+                {accent && (
+                    <circle cx={side === 'left' ? ARC_W - 180 : 180 + (180 - ARC_W)}
+                            cy={CY} r={180} fill={colors.background} />
+                )}
+                {specs.map((spec, i) => {
+                    const top = y;
+                    y += heights[i] + ARC_WIDGET_GAP;
+                    return (
+                        <g key={`arc-${side}-${i}`}>
+                            {renderItemsStacked(spec.items, cx, top, scales[i], colors)}
+                        </g>
+                    );
+                })}
+            </>
+        );
+    };
 
     return (
         <div className="halite-watch-preview-container">
@@ -476,14 +523,6 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                 >
                     {/* Main circular background */}
                     <circle cx={CX} cy={CY} r={R} fill={bg} />
-
-                    {/* Sidebar circles — large circles positioned outside the viewport to create curved sidebar bands */}
-                    <circle cx={-50} cy={CY} r={R} fill={colors.background} />
-                    <circle cx={230} cy={CY} r={R} fill={colors.background} />
-
-                    {/* Widgets — one per arc, stacked presentation */}
-                    {renderStackedWidget(s.widget0Id, s, 20, 90, 28, colors)}
-                    {renderStackedWidget(s.widget1Id, s, 160, 90, 28, colors)}
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
@@ -502,6 +541,10 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
                             </>
                         );
                     })()}
+
+                    {/* Arcs draw over the clock area, as they do on the watch */}
+                    {renderArc('left')}
+                    {renderArc('right')}
 
                     {/* Circle border */}
                     <circle cx={CX} cy={CY} r={R - 0.5} stroke="#333333" strokeWidth="1" fill="none" />

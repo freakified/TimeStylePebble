@@ -13,12 +13,14 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   colorSidebarText: '000000',
   colorAltSidebarText: 'FFFFFF',
 
-  // Widget slots
-  // packed widget list: Current Weather on top, Date pinned to the bottom
+  // Widget slots — a packed widget list: Current Weather on top, Date
+  // pinned to the bottom. Round splits the same list between its arcs
+  // (0..2 left, 3..5 right), so its defaults straddle the split to put
+  // one widget in each arc.
   widget0Id: 7,
-  widget1Id: 4,
+  widget1Id: capabilities.ROUND ? 0 : 4,
   widget2Id: 0,
-  widget3Id: 0,
+  widget3Id: capabilities.ROUND ? 4 : 0,
   widget4Id: 0,
   widget5Id: 0,
   // the bottom bar starts empty on purpose: it's on screen only when it
@@ -34,6 +36,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   layout: 'right-sidebar',
   largeSidebarFont: false,
   wideSidebar: false,
+  colorBothArcs: false,
   decimalSeparator: '.',
 
   // Bluetooth

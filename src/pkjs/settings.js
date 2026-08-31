@@ -104,6 +104,7 @@ function settingsFromWatchPayload(payload) {
     layout: getMappedValue(LAYOUT_BY_ID, getNumber(payload.SettingLayoutId, 0), 'right-sidebar'),
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
+    colorBothArcs: getBoolean(payload.SettingColorBothArcs),
     decimalSeparator: decimalSeparatorFromPayload(payload.SettingDecimalSep),
 
     bluetoothVibe: getBoolean(payload.SettingBluetoothVibe),
@@ -210,6 +211,10 @@ function settingsToWatchPayload(configData) {
 
   if (configData.largeSidebarFont !== undefined) {
     dict.SettingUseLargeFonts = configData.largeSidebarFont ? 1 : 0;
+  }
+
+  if (configData.colorBothArcs !== undefined) {
+    dict.SettingColorBothArcs = configData.colorBothArcs ? 1 : 0;
   }
 
   if (configData.wideSidebar !== undefined) {

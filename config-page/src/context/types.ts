@@ -54,11 +54,13 @@ export interface Settings {
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
   // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index, 14=World Time 2,
   // 15=Sunrise & Sunset, 16=Wind Speed, 17=Chance of Rain
-  widget0Id: number;  // first sidebar slot (top on rect, left arc on round)
-  widget1Id: number;  // second sidebar slot (right arc on round)
-  widget2Id: number;  // third sidebar slot (rect only)
-  widget3Id: number;  // fourth sidebar slot (bottom on non-emery rects)
-  widget4Id: number;  // fifth sidebar slot (emery only)
+  // On round these same six slots are split between the two arcs:
+  // 0..2 are the left arc's widget list, 3..5 the right arc's.
+  widget0Id: number;  // first sidebar slot (top on rect, left arc top on round)
+  widget1Id: number;  // second sidebar slot
+  widget2Id: number;  // third sidebar slot
+  widget3Id: number;  // fourth sidebar slot (bottom on non-emery rects; right arc top on round)
+  widget4Id: number;  // fifth sidebar slot (emery only on rect)
   widget5Id: number;  // sixth sidebar slot (bottom on emery)
   bottomBarWidget0Id: number;  // bar slot 1 (rect only)
   bottomBarWidget1Id: number;  // bar slot 2 (rect only)
@@ -71,6 +73,10 @@ export interface Settings {
   layout: Layout;
   largeSidebarFont: boolean;
   wideSidebar: boolean;  // wider sidebar: widgets show their full form
+  // round only: fill both arcs with the sidebar color. Off (the default)
+  // fills only the arc on the layout's side and lets the other blend
+  // into the watchface.
+  colorBothArcs: boolean;
   decimalSeparator: '.' | ',';
 
   // Bluetooth

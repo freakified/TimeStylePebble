@@ -90,6 +90,11 @@ typedef struct {
   // for now)
   bool enableStatusBar;
   bool statusShowConnection;
+
+  // round only: normally just one arc is filled with the sidebar color
+  // and the other blends into the watchface, which is what layoutId
+  // picks between. This fills both, the way every arc used to look.
+  bool colorBothArcs;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

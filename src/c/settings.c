@@ -48,9 +48,17 @@ void Settings_loadFromStorage() {
   }
 
   // widgets are a packed list: the first renders at the top of the
-  // sidebar (left arc on round), the last pins to the bottom (right arc)
+  // sidebar, the last pins to the bottom. Round splits the same list
+  // between its two arcs -- slots 0..2 are the left arc, 3..5 the right
+  // -- so its defaults have to straddle the split to put one widget in
+  // each arc.
+#ifdef PBL_ROUND
+  settings.vRegionSlots[0] = WEATHER_CURRENT;
+  settings.vRegionSlots[ROUND_ARC_SLOT_CAP] = DATE;
+#else
   settings.vRegionSlots[0] = WEATHER_CURRENT;
   settings.vRegionSlots[1] = DATE;
+#endif
 
   // the bottom bar's slots are left empty on purpose: the bar exists only
   // when it holds a widget, so a default one here would turn it on for
@@ -65,6 +73,7 @@ void Settings_loadFromStorage() {
   settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
   settings.useWideSidebar = false;
+  settings.colorBothArcs = false;
 
   if (persist_exists(SETTINGS_PERSIST_KEY)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
@@ -97,7 +106,8 @@ void Settings_updateDynamicSettings() {
 
   // scan the widget slots that can actually render
 #ifdef PBL_ROUND
-  int vSlotCount = 2;
+  // both arcs draw from the vertical slot list
+  int vSlotCount = MAX_REGION_SLOTS;
   int hSlotCount = 0;
 #else
   int vSlotCount = VREGION_SLOT_CAP;

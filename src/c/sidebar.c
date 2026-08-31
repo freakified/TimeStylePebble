@@ -5,11 +5,15 @@
 #include <pebble.h>
 
 /*
- * The sidebar is modeled as up to two edge "regions": a vertical one
- * (left/right) and a horizontal one (top/bottom). Each region holds a list
- * of widget slots and a widget presentation mode; a single layout engine
- * measures, fits, and distributes the widgets along the region's main axis.
- * Round watches present the vertical region as two arc layers instead.
+ * The sidebar is modeled as two "regions", each holding a list of widget
+ * slots and a widget presentation mode; a single layout engine measures,
+ * fits, and distributes the widgets along the region's main axis.
+ *
+ * On rect watches the regions are edges: a vertical sidebar (left/right)
+ * and a horizontal bottom bar. On round they are the two arcs, which
+ * split the vertical slot list between them -- slots 0..2 to the left
+ * arc, 3..5 to the right -- and draw on top of the clock area rather
+ * than reserving an edge.
  */
 
 typedef struct {
@@ -22,11 +26,14 @@ typedef struct {
 } SidebarRegion;
 
 static GRect screen_rect;
+// rect: the vertical sidebar. round: the left arc.
 static SidebarRegion vRegion;
 
 static Layer *vRegionLayer;
 
 #ifdef PBL_ROUND
+// round: the right arc
+static SidebarRegion vRegion2;
 static Layer *vRegionLayer2;
 #else
 static SidebarRegion hRegion;
@@ -35,21 +42,33 @@ static Layer *hRegionLayer;
 
 static void sidebar_buildRegions(void) {
 #ifdef PBL_ROUND
+  // only the arc on the layout's side wears the sidebar color; the other
+  // blends into the watchface, unless the user asks for both
+  bool leftIsAccent =
+      SidebarLayout_verticalEdge(settings.layoutId) == REGION_EDGE_LEFT;
+
   vRegion = (SidebarRegion){
       // arcs draw on top of the clock area, so they reserve no edge
       .edge = REGION_EDGE_NONE,
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
+      .dark = !settings.colorBothArcs && !leftIsAccent,
       .thickness = ROUND_ARC_WIDTH,
-      .slotCount = 2,
+      .slotCount = ROUND_ARC_SLOT_CAP,
+  };
+  vRegion2 = (SidebarRegion){
+      .edge = REGION_EDGE_NONE,
+      .widgetMode = SIDEBAR_LAYOUT_STACKED,
+      .dark = !settings.colorBothArcs && leftIsAccent,
+      .thickness = ROUND_ARC_WIDTH,
+      .slotCount = ROUND_ARC_SLOT_CAP,
   };
 
-  // slots are a packed list (EMPTY is only wire padding): the first
-  // widget takes the left arc, the second the right
-  for (int i = 0, arc = 0; i < MAX_REGION_SLOTS && arc < 2; i++) {
-    if (settings.vRegionSlots[i] != EMPTY) {
-      vRegion.slots[arc] = (SidebarWidgetType)settings.vRegionSlots[i];
-      arc++;
-    }
+  // the vertical slot list is split down the middle: its first half is
+  // the left arc's widget list, its second half the right arc's
+  for (int i = 0; i < ROUND_ARC_SLOT_CAP; i++) {
+    vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
+    vRegion2.slots[i] =
+        (SidebarWidgetType)settings.vRegionSlots[ROUND_ARC_SLOT_CAP + i];
   }
 #else
   vRegion = (SidebarRegion){
@@ -314,23 +333,65 @@ static void updateHRegionLayer(Layer *l, GContext *ctx) {
 
 #else /* PBL_ROUND */
 
-static void draw_round_arc(GContext *ctx, GRect bgBounds,
-                           SidebarWidgetType widgetType, int widgetXOffset) {
-  SidebarWidgets_setActivePalette(&dynamicSettings.sidebarPalette);
-  graphics_context_set_fill_color(ctx, settings.sidebarColor);
-  graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
-                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
+/*
+ * Arc flow: the slots form a packed widget list (EMPTY entries are
+ * dropped) and the widgets stack as one block centered on the arc's
+ * waist -- the only part of a circle segment wide enough to hold them.
+ * Widgets always render their full form; the config page's arc budget is
+ * what keeps configs fitting, and past it they simply crowd together.
+ *
+ * A "dark" arc skips its fill entirely rather than painting the
+ * watchface color over itself: the arcs draw on top of the clock area,
+ * so a filled seamless arc would punch a hole in the time.
+ */
+static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
+                           int widgetXOffset) {
+  const SidebarPalette *palette = r->dark
+                                      ? &dynamicSettings.darkSidebarPalette
+                                      : &dynamicSettings.sidebarPalette;
+  SidebarWidgets_setActivePalette(palette);
+
+  if (!r->dark) {
+    graphics_context_set_fill_color(ctx, palette->background);
+    graphics_fill_radial(ctx, bgBounds, GOvalScaleModeFillCircle, 100,
+                         DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE);
+  }
+  graphics_context_set_text_color(ctx, palette->text);
 
   SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(
-      vRegion.widgetMode, ROUND_ARC_CONTENT_WIDTH, false);
-  SidebarWidgetDefinition widget = getSidebarWidgetByType(widgetType);
-  SidebarMeasure widgetSize = SidebarWidgets_measure(&widget, &spec);
+      r->widgetMode, ROUND_ARC_CONTENT_WIDTH, false);
 
-  // center the widget vertically within the arc
-  int widgetPosition = bgBounds.size.h / 4 - widgetSize.h / 2;
-  GRect widgetFrame = GRect(widgetXOffset, widgetPosition,
-                            ROUND_ARC_CONTENT_WIDTH, widgetSize.h);
-  SidebarWidgets_draw(ctx, &widget, widgetFrame, &spec);
+  SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
+  SidebarMeasure sizes[MAX_REGION_SLOTS];
+  int count = 0;
+  int totalHeight = 0;
+
+  for (int i = 0; i < r->slotCount; i++) {
+    if (r->slots[i] == EMPTY) {
+      continue;
+    }
+    widgets[count] = getSidebarWidgetByType(r->slots[i]);
+    sizes[count] = SidebarWidgets_measure(&widgets[count], &spec);
+    totalHeight += sizes[count].h;
+    count++;
+  }
+
+  if (count == 0) {
+    return;
+  }
+
+  totalHeight += ROUND_ARC_WIDGET_GAP * (count - 1);
+
+  // bgBounds is a square twice the arc's height, so a quarter of it is
+  // the arc's vertical center
+  int y = bgBounds.size.h / 4 - totalHeight / 2;
+
+  for (int i = 0; i < count; i++) {
+    GRect frame =
+        GRect(widgetXOffset, y, ROUND_ARC_CONTENT_WIDTH, sizes[i].h);
+    SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
+    y += sizes[i].h + ROUND_ARC_WIDGET_GAP;
+  }
 }
 
 static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
@@ -339,7 +400,7 @@ static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
       GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w,
             bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, bgBounds, vRegion.slots[0],
+  draw_round_arc(ctx, &vRegion, bgBounds,
                  ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH -
                      ROUND_ARC_INNER_MARGIN);
 }
@@ -349,7 +410,7 @@ static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
   GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2,
                          bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, bgBounds, vRegion.slots[1], ROUND_ARC_INNER_MARGIN);
+  draw_round_arc(ctx, &vRegion2, bgBounds, ROUND_ARC_INNER_MARGIN);
 }
 
 #endif

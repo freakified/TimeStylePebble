@@ -264,6 +264,78 @@ export const platformMetrics = (
     };
 };
 
+/* ── Round arcs ───────────────────────────────────────────────────────
+ *
+ * Mirrors the ROUND_ARC_* block in sidebar_layout.h.
+ */
+
+interface ArcMetrics {
+    /** square screen edge, in watch pixels */
+    screen: number;
+    /** ROUND_ARC_WIDTH */
+    width: number;
+    /** ROUND_ARC_CONTENT_WIDTH */
+    contentWidth: number;
+}
+
+export const arcMetrics = (capabilities: Capabilities): ArcMetrics =>
+    capabilities.DISPLAY_260x260_ROUND
+        ? { screen: 260, width: 56, contentWidth: 42 }
+        : { screen: 180, width: 40, contentWidth: 30 };
+
+const ARC_INNER_MARGIN = 3;   // ROUND_ARC_INNER_MARGIN
+
+/**
+ * How tall the usable part of an arc is, in watch pixels.
+ *
+ * An arc is drawn as a circle the size of the screen, offset so only a
+ * sliver shows down one edge (draw_round_arc in sidebar.c). That sliver
+ * is its full ROUND_ARC_CONTENT_WIDTH only across a band around the
+ * arc's waist; above and below, the curve cuts in and a full-width
+ * widget would hang off the arc. The band, not the screen height, is
+ * what an arc's widgets have to fit in -- and it is short: about 65px on
+ * chalk, 79px on gabbro.
+ *
+ * Taking the arc layer's own left edge as x = 0: the circle has radius
+ * r = screen and its center sits at x = width - r, and the widget column
+ * reaches in to x = width - ARC_INNER_MARGIN. So the circle has to span
+ * (width - margin) - (width - r) = r - margin horizontally, which by
+ * Pythagoras it manages for rows within sqrt(r² - (r - margin)²) of the
+ * waist. The band is twice that.
+ */
+export const arcContentBand = (capabilities: Capabilities): number => {
+    const r = arcMetrics(capabilities).screen;
+    const reach = r - ARC_INNER_MARGIN;
+    return 2 * Math.sqrt(r * r - reach * reach);
+};
+
+/*
+ * The rect sidebar's unit scale, in watch pixels per unit: its capacity
+ * is calibrated at 6 units over 152px of usable sidebar (8 over 210 on
+ * the taller, larger-fonted emery), and a large font costs one unit.
+ * Reusing that scale is what lets the arcs share the widgets' vUnits.
+ * Gabbro is emery-sized and emery-fonted, so it takes emery's scale.
+ */
+const SIDEBAR_PX_PER_UNIT = (
+    capabilities: Capabilities,
+    largeFonts: boolean
+): number =>
+    capabilities.EMERY || capabilities.DISPLAY_260x260_ROUND
+        ? 210 / (largeFonts ? 7 : 8)
+        : 152 / (largeFonts ? 5 : 6);
+
+/**
+ * An arc's capacity in sidebar units. Small by construction: two short
+ * widgets on chalk, three on gabbro at the normal font size.
+ */
+export const arcUnitCapacity = (
+    capabilities: Capabilities,
+    largeFonts: boolean
+): number =>
+    Math.floor(
+        arcContentBand(capabilities) / SIDEBAR_PX_PER_UNIT(capabilities, largeFonts)
+    );
+
 const textWidth = (str: string, fontSize: number): number =>
     str.length * (GOTHIC_ADVANCE[fontSize] ?? GOTHIC_ADVANCE[24]);
 
@@ -356,18 +428,32 @@ export const assessInlineBar = (
 const SIDEBAR_UNIT_CAPACITY = (capabilities: Capabilities, largeFonts: boolean): number =>
     (capabilities.EMERY ? 8 : 6) - (largeFonts ? 1 : 0);
 
-export const assessSidebar = (
-    unitsUsed: number,
-    capabilities: Capabilities,
-    largeFonts: boolean
-): FitResult => {
-    const capacityPx = SIDEBAR_UNIT_CAPACITY(capabilities, largeFonts);
-    const ratio = capacityPx > 0 ? unitsUsed / capacityPx : 0;
+const assessUnits = (unitsUsed: number, capacity: number): FitResult => {
+    const ratio = capacity > 0 ? unitsUsed / capacity : 0;
     const state: FitState =
         unitsUsed === 0 ? 'good'
         : ratio > 1 ? 'over'
         : ratio > 1 - TIGHT_SLACK ? 'tight'
         : 'good';
 
-    return { state, usedPx: unitsUsed, capacityPx, ratio };
+    return { state, usedPx: unitsUsed, capacityPx: capacity, ratio };
 };
+
+export const assessSidebar = (
+    unitsUsed: number,
+    capabilities: Capabilities,
+    largeFonts: boolean
+): FitResult =>
+    assessUnits(unitsUsed, SIDEBAR_UNIT_CAPACITY(capabilities, largeFonts));
+
+/**
+ * The same unit model applied to one round arc. Heights are as
+ * predictable here as in the sidebar; all that changes is the capacity,
+ * which comes from the arc's content band rather than the screen height.
+ */
+export const assessArc = (
+    unitsUsed: number,
+    capabilities: Capabilities,
+    largeFonts: boolean
+): FitResult =>
+    assessUnits(unitsUsed, arcUnitCapacity(capabilities, largeFonts));

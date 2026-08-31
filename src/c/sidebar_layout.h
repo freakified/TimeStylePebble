@@ -109,7 +109,18 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #endif
 #define HBAR_WIDGET_GAP_COMPACT 1
 
-// round watch arcs
+/*
+ * Round watch arcs. Each arc is its own region holding a small stack of
+ * widgets, centered on the arc's waist.
+ *
+ * An arc is a circle segment, so it is only ROUND_ARC_CONTENT_WIDTH wide
+ * across a band around that waist -- towards the top and bottom of the
+ * screen it tapers to nothing. That band, not the screen height, is what
+ * an arc's widgets have to fit in, and it is small: roughly 65px on chalk
+ * and 79px on gabbro. The config page derives the same figure in
+ * arcContentBand() (utils/widgetMetrics.ts) and budgets against it; the
+ * slot cap below is only the coarse backstop.
+ */
 #if defined(PBL_PLATFORM_GABBRO)
 #define ROUND_ARC_WIDTH 56
 #define ROUND_ARC_CONTENT_WIDTH 42
@@ -119,3 +130,5 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #endif
 // widgets sit closer to the screen center than to the curved outer edge
 #define ROUND_ARC_INNER_MARGIN 3
+#define ROUND_ARC_SLOT_CAP 3
+#define ROUND_ARC_WIDGET_GAP 2

@@ -1,17 +1,22 @@
 /*
  * Slot math for the widget selector's two packed lists.
  *
+ * Every platform has exactly two widget regions, so they are named for
+ * their rank rather than their shape: on rect the primary is the sidebar
+ * and the secondary the bottom bar, on round they are the left and right
+ * arcs.
+ *
  * Both regions are edited as one unit: a widget lives in exactly one place,
- * so every edit rewrites the sidebar list AND the bar list, and the caller
- * commits them together. Keeping the arithmetic here (rather than inside
- * the component's closures) is what makes the drop-index behavior legible.
+ * so every edit rewrites BOTH lists, and the caller commits them together.
+ * Keeping the arithmetic here (rather than inside the component's closures)
+ * is what makes the drop-index behavior legible.
  */
 
-export type WidgetRegion = 'sidebar' | 'bar';
+export type WidgetRegion = 'primary' | 'secondary';
 
 export interface WidgetLists {
-    sidebar: number[];
-    bar: number[];
+    primary: number[];
+    secondary: number[];
 }
 
 export type DropPosition = 'before' | 'after';
@@ -40,8 +45,8 @@ export const moveWidget = (
     }
 
     const next: WidgetLists = {
-        sidebar: lists.sidebar.filter((id) => id !== widgetId),
-        bar: lists.bar.filter((id) => id !== widgetId),
+        primary: lists.primary.filter((id) => id !== widgetId),
+        secondary: lists.secondary.filter((id) => id !== widgetId),
     };
     const list = next[region];
 
@@ -59,14 +64,14 @@ export const setWidgetAt = (
     region: WidgetRegion,
     index: number
 ): WidgetLists => {
-    const sidebar = [...lists.sidebar];
-    const bar = [...lists.bar];
-    (region === 'sidebar' ? sidebar : bar)[index] = widgetId;
+    const primary = [...lists.primary];
+    const secondary = [...lists.secondary];
+    (region === 'primary' ? primary : secondary)[index] = widgetId;
 
     // a widget lives in one place: drop any other occurrence
     return {
-        sidebar: sidebar.filter((id, i) => id !== widgetId || (region === 'sidebar' && i === index)),
-        bar: bar.filter((id, i) => id !== widgetId || (region === 'bar' && i === index)),
+        primary: primary.filter((id, i) => id !== widgetId || (region === 'primary' && i === index)),
+        secondary: secondary.filter((id, i) => id !== widgetId || (region === 'secondary' && i === index)),
     };
 };
 
@@ -77,8 +82,8 @@ export const addWidget = (
     region: WidgetRegion
 ): WidgetLists => {
     const next: WidgetLists = {
-        sidebar: lists.sidebar.filter((id) => id !== widgetId),
-        bar: lists.bar.filter((id) => id !== widgetId),
+        primary: lists.primary.filter((id) => id !== widgetId),
+        secondary: lists.secondary.filter((id) => id !== widgetId),
     };
     next[region].push(widgetId);
     return next;
@@ -90,6 +95,6 @@ export const removeWidgetAt = (
     region: WidgetRegion,
     index: number
 ): WidgetLists => ({
-    sidebar: region === 'sidebar' ? lists.sidebar.filter((_, i) => i !== index) : lists.sidebar,
-    bar: region === 'bar' ? lists.bar.filter((_, i) => i !== index) : lists.bar,
+    primary: region === 'primary' ? lists.primary.filter((_, i) => i !== index) : lists.primary,
+    secondary: region === 'secondary' ? lists.secondary.filter((_, i) => i !== index) : lists.secondary,
 });
