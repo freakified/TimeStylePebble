@@ -6,7 +6,7 @@ var worldtime = require('./worldtime');
 var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
-var LOCAL_CONFIG_URL = 'http://10.25.219.26:3000/';
+var LOCAL_CONFIG_URL = 'http://10.25.219.10:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
 var pendingConfigSnapshot = null;
 
@@ -143,23 +143,17 @@ Pebble.addEventListener('webviewclosed', function (e) {
     // determine whether or not the weather checking should be enabled
     var disableWeather;
 
-    var widgetIDs = [];
-    if (configData.layout !== 'no-sidebar') {
-      widgetIDs.push(
-        configData.widget0Id,
-        configData.widget1Id,
-        configData.widget2Id,
-        configData.widget3Id
-      );
-    }
     // the bar's slots are always live -- holding a widget is what puts the
     // bar on screen, so anything in them renders
-    widgetIDs.push(
+    var widgetIDs = [
+      configData.widget0Id,
+      configData.widget1Id,
+      configData.widget2Id,
+      configData.widget3Id,
       configData.bottomBarWidget0Id,
       configData.bottomBarWidget1Id,
-      configData.bottomBarWidget2Id,
-      configData.bottomBarWidget3Id
-    );
+      configData.bottomBarWidget2Id
+    ];
 
     // if none of the weather widgets are present, disable the weather
     // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 16=wind, 17=rain chance)

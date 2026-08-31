@@ -26,7 +26,6 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   bottomBarWidget0Id: 0,
   bottomBarWidget1Id: 0,
   bottomBarWidget2Id: 0,
-  bottomBarWidget3Id: 0,
 
   // General
   languageId: 0,

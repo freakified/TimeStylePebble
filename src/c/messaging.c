@@ -48,7 +48,6 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget0ID, settings.hRegionSlots[0]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget1ID, settings.hRegionSlots[1]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget2ID, settings.hRegionSlots[2]);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingBottomBarWidget3ID, settings.hRegionSlots[3]);
   dict_write_uint8(iter, MESSAGE_KEY_SettingLayoutId, settings.layoutId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseLargeFonts, settings.useLargeFonts ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingUseWideSidebar, settings.useWideSidebar ? 1 : 0);
@@ -184,7 +183,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *bottomBarWidget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget0ID);
   Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
   Tuple *bottomBarWidget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget2ID);
-  Tuple *bottomBarWidget3Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget3ID);
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
@@ -291,10 +289,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(bottomBarWidget2Id_tuple != NULL) {
     settings.hRegionSlots[2] = bottomBarWidget2Id_tuple->value->int8;
-  }
-
-  if(bottomBarWidget3Id_tuple != NULL) {
-    settings.hRegionSlots[3] = bottomBarWidget3Id_tuple->value->int8;
   }
 
   if(altclockName_tuple != NULL) {

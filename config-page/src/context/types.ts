@@ -30,12 +30,11 @@ export interface Capabilities {
   HEALTH: boolean;
 }
 
-// where the vertical sidebar sits; the bottom bar isn't a layout choice,
-// it's on whenever its widget slots hold something
+// which side the vertical sidebar sits on; the bottom bar isn't a layout
+// choice, it's on whenever its widget slots hold something
 export type Layout =
   | 'right-sidebar'
-  | 'left-sidebar'
-  | 'no-sidebar';
+  | 'left-sidebar';
 
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)
@@ -48,7 +47,7 @@ export interface Settings {
   colorTime: string;
   colorSidebar: string;
   colorSidebarText: string;
-  colorAltSidebarText: string;  // text on "dark" regions (bottom bar in 2-sidebar layouts)
+  colorAltSidebarText: string;  // text on "dark" regions (the bottom bar)
 
   // Widget slots (integer IDs)
   // 0=Empty, 2=Battery, 3=World Time 1, 4=Date, 5=Seconds, 6=Week Number,
@@ -63,8 +62,7 @@ export interface Settings {
   widget5Id: number;  // sixth sidebar slot (bottom on emery)
   bottomBarWidget0Id: number;  // bar slot 1 (rect only)
   bottomBarWidget1Id: number;  // bar slot 2 (rect only)
-  bottomBarWidget2Id: number;  // bar slot 3 (stacked bars only)
-  bottomBarWidget3Id: number;  // bar slot 4 (stacked bars only)
+  bottomBarWidget2Id: number;  // bar slot 3 (emery only)
 
   // General display
   languageId: number;

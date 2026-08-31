@@ -52,15 +52,12 @@ static void sidebar_buildRegions(void) {
     }
   }
 #else
-  RegionEdge vEdge = SidebarLayout_verticalEdge(settings.layoutId);
-
   vRegion = (SidebarRegion){
-      .edge = vEdge,
+      .edge = SidebarLayout_verticalEdge(settings.layoutId),
       .widgetMode = SIDEBAR_LAYOUT_STACKED,
-      // the primary sidebar always wears the accent background
+      // the sidebar always wears the accent background
       .dark = false,
-      .thickness = (vEdge == REGION_EDGE_NONE) ? 0
-                   : settings.useWideSidebar
+      .thickness = settings.useWideSidebar
                        ? VBAR_WIDTH_WIDE(settings.useLargeFonts)
                        : VBAR_WIDTH_NARROW(settings.useLargeFonts),
       .slotCount = VREGION_SLOT_CAP,
@@ -70,15 +67,10 @@ static void sidebar_buildRegions(void) {
     vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
   }
 
-  // with no sidebar the bar is the primary region, so it wears the taller
-  // stacked form (and, below, the accent background)
-  bool stacked = (vEdge == REGION_EDGE_NONE);
-  int hSlotCap = stacked ? HREGION_SLOT_CAP_STACKED : HREGION_SLOT_CAP_INLINE;
-
   // the bar exists exactly when it has something to show: an empty bar
   // would draw nothing while still costing the clock its height
   bool hasBarWidgets = false;
-  for (int i = 0; i < hSlotCap; i++) {
+  for (int i = 0; i < HREGION_SLOT_CAP; i++) {
     if (settings.hRegionSlots[i] != EMPTY) {
       hasBarWidgets = true;
       break;
@@ -87,13 +79,12 @@ static void sidebar_buildRegions(void) {
 
   hRegion = (SidebarRegion){
       .edge = hasBarWidgets ? REGION_EDGE_BOTTOM : REGION_EDGE_NONE,
-      .widgetMode = stacked ? SIDEBAR_LAYOUT_STACKED : SIDEBAR_LAYOUT_INLINE,
-      // a secondary bar blends into the watchface so the accent color
-      // stays with the sidebar; a bar on its own takes the accent itself
-      .dark = (vEdge != REGION_EDGE_NONE),
-      .thickness = stacked ? HBAR_HEIGHT_STACKED(settings.useLargeFonts)
-                           : HBAR_HEIGHT_INLINE(settings.useLargeFonts),
-      .slotCount = hSlotCap,
+      .widgetMode = SIDEBAR_LAYOUT_INLINE,
+      // the bar blends into the watchface so the accent color stays with
+      // the sidebar
+      .dark = true,
+      .thickness = HBAR_HEIGHT(settings.useLargeFonts),
+      .slotCount = HREGION_SLOT_CAP,
   };
 
   for (int i = 0; i < hRegion.slotCount; i++) {
@@ -115,10 +106,7 @@ int Sidebar_reservedBottom(void) {
 #ifndef PBL_ROUND
   if (hRegion.edge == REGION_EDGE_BOTTOM) {
     // a bar on the watchface lends the clock the padding above its widgets
-    if (hRegion.dark && hRegion.widgetMode == SIDEBAR_LAYOUT_INLINE) {
-      return hRegion.thickness - HBAR_CLOCK_ENCROACH;
-    }
-    return hRegion.thickness;
+    return hRegion.thickness - HBAR_CLOCK_ENCROACH;
   }
 #endif
   return 0;
@@ -286,64 +274,12 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     x = HBAR_SLOT_PADDING_X_COMPACT;
   }
 
-  int textNudge = HBAR_INLINE_TEXT_NUDGE(settings.useLargeFonts);
+  int textNudge = HBAR_TEXT_NUDGE(settings.useLargeFonts);
 
   for (int i = 0; i < count; i++) {
     GRect frame = GRect(x, textNudge, sizes[i].w, bounds.size.h);
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
     x += sizes[i].w + gap;
-  }
-}
-
-/*
- * Stacked bar flow: EMPTY slots are dropped, the widgets take equal
- * columns capped at a sidebar's width, and the resulting block of columns
- * centers in the bar. Each widget renders in the stacked (sidebar-style)
- * layout centered within its own column.
- */
-static void render_stacked_bar_flow(SidebarRegion *r, Layer *l,
-                                    GContext *ctx) {
-  GRect bounds = layer_get_unobstructed_bounds(l);
-
-  SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
-  int visibleCount = 0;
-
-  for (int i = 0; i < r->slotCount; i++) {
-    if (r->slots[i] == EMPTY) {
-      continue;
-    }
-    widgets[visibleCount] = getSidebarWidgetByType(r->slots[i]);
-    visibleCount++;
-  }
-
-  if (visibleCount == 0) {
-    return;
-  }
-
-  int usableWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
-  int columnWidth = usableWidth / visibleCount;
-  int maxColumnWidth = HBAR_STACKED_COLUMN_MAX(settings.useLargeFonts);
-
-  if (columnWidth > maxColumnWidth) {
-    columnWidth = maxColumnWidth;
-  }
-
-  SidebarRenderSpec spec =
-      SidebarWidgets_makeRenderSpec(r->widgetMode, columnWidth, true);
-
-  SidebarMeasure sizes[MAX_REGION_SLOTS];
-
-  for (int i = 0; i < visibleCount; i++) {
-    sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-  }
-
-  int firstColumnX = (bounds.size.w - columnWidth * visibleCount) / 2;
-
-  for (int i = 0; i < visibleCount; i++) {
-    int x = firstColumnX + columnWidth * i;
-    int y = (bounds.size.h - sizes[i].h) / 2;
-    GRect frame = GRect(x, y, columnWidth, sizes[i].h);
-    SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
   }
 }
 
@@ -362,11 +298,7 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
   graphics_context_set_text_color(ctx, palette->text);
 
   if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
-    if (r->widgetMode == SIDEBAR_LAYOUT_STACKED) {
-      render_stacked_bar_flow(r, l, ctx);
-    } else {
-      render_horizontal_flow(r, l, ctx);
-    }
+    render_horizontal_flow(r, l, ctx);
   } else {
     render_vertical_flow(r, l, ctx);
   }

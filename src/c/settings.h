@@ -60,16 +60,18 @@ typedef struct {
   // hRegionEdge / hRegionStyle fields with a single layout preset; old
   // persisted blobs are NOT translated yet -- a migration system for
   // pre-v13 settings comes later)
+  // the layout only picks the sidebar's side: there is always a sidebar,
+  // and the bottom bar is on exactly when hRegionSlots holds a widget
   // sidebar width: the "wide" sidebar trades clock room for widgets that
   // can show their full form (a world time's HH:MM, an unabbreviated
   // step count) instead of falling back to a compact one
   bool useWideSidebar;
   uint8_t layoutId; // SidebarLayoutId
   uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
-  uint8_t hRegionSlots[MAX_REGION_SLOTS];
+  uint8_t hRegionSlots[HREGION_SLOT_MAX];
 
-  // text color for "dark" sidebar regions (the bottom bar in two-sidebar
-  // layouts, which draws on the watchface background color)
+  // text color for "dark" sidebar regions (the bottom bar, which draws
+  // on the watchface background color)
   GColor altSidebarTextColor;
 
   // second world time widget (same semantics as altclockName/Offset)

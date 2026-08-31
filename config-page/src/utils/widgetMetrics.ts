@@ -234,7 +234,7 @@ interface PlatformMetrics {
     vbarWide: number;
     barWidgetGap: number;
     fontSize: number;
-    /** rendered inline bar slots (HREGION_SLOT_CAP_INLINE) */
+    /** rendered bar slots (HREGION_SLOT_CAP) */
     barSlots: number;
 }
 
@@ -292,13 +292,11 @@ export const inlineWidgetWidth = (
  */
 export const inlineBarContentWidth = (
     settings: Settings,
-    capabilities: Capabilities,
-    hasSidebar: boolean
+    capabilities: Capabilities
 ): number => {
     const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const sidebarW = hasSidebar
-        ? (settings.wideSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP
-        : 0;
+    const sidebarW =
+        (settings.wideSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP;
     return m.screenW - sidebarW - WATCH_BAR_PADDING_X * 2;
 };
 
@@ -328,11 +326,10 @@ const TIGHT_SLACK = 0.1;
 export const assessInlineBar = (
     widgetIds: number[],
     settings: Settings,
-    capabilities: Capabilities,
-    hasSidebar: boolean
+    capabilities: Capabilities
 ): FitResult => {
     const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const capacityPx = inlineBarContentWidth(settings, capabilities, hasSidebar);
+    const capacityPx = inlineBarContentWidth(settings, capabilities);
 
     const widths = widgetIds.map((id) => inlineWidgetWidth(id, settings, m.fontSize));
     const gaps = Math.max(0, widgetIds.length - 1) * m.barWidgetGap;

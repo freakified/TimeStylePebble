@@ -21,7 +21,7 @@ import darkThemes from '../data/dark-themes.json';
 import lightThemesBw from '../data/light-themes-bw.json';
 import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
-import { barSlotCap, layoutHasSidebar } from '../utils/layout';
+import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { WORLD_TIME_CITY_OPTIONS } from '../data/cities';
 
@@ -92,32 +92,29 @@ export const SettingsPage: React.FC = () => {
   const getNightSavedTheme = () =>
     nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
-  // Only the slots the current platform + layout actually renders
+  // Only the slots the current platform actually renders
   const sidebarWidgetIds = capabilities.ROUND
     ? [settings.widget0Id, settings.widget1Id]
-    : layoutHasSidebar(settings.layout)
-      ? capabilities.EMERY
-        ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
-           settings.widget3Id, settings.widget4Id, settings.widget5Id]
-        : [settings.widget0Id, settings.widget1Id, settings.widget2Id,
-           settings.widget3Id]
-      : [];
+    : capabilities.EMERY
+      ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
+         settings.widget3Id, settings.widget4Id, settings.widget5Id]
+      : [settings.widget0Id, settings.widget1Id, settings.widget2Id,
+         settings.widget3Id];
   // the bottom bar's slots are always live: holding a widget is what turns
   // the bar on, so its widgets always count as active
   const bottomBarWidgetIds = !capabilities.ROUND
     ? [
         settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
-        settings.bottomBarWidget2Id, settings.bottomBarWidget3Id,
-      ].slice(0, barSlotCap(settings.layout, capabilities.EMERY))
+        settings.bottomBarWidget2Id,
+      ].slice(0, barSlotCap(capabilities.EMERY))
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
-  // the layout picks a sidebar side and nothing else — whether there's a
-  // bottom bar follows from the bar's own widgets
+  // the layout picks the sidebar's side and nothing else — whether there's
+  // a bottom bar follows from the bar's own widgets
   const layoutOptions: { label: string; value: Layout }[] = [
     { label: 'Left sidebar', value: 'left-sidebar' },
     { label: 'Right sidebar', value: 'right-sidebar' },
-    { label: 'No sidebar', value: 'no-sidebar' },
   ];
   const layoutOptionSettings: Record<string, { layout: Layout }> = {};
   layoutOptions.forEach((option) => {
@@ -223,17 +220,10 @@ export const SettingsPage: React.FC = () => {
           />
         )}
         {capabilities.RECT && (
-          <SelectCards
-            label="Sidebar width"
+          <Toggle
+            label="Wider sidebar"
+            description="Give your widgets slightly more breathing room"
             messageKey="wideSidebar"
-            options={[
-              { label: 'Classic', value: false },
-              { label: 'Wider', value: true },
-            ]}
-            optionSettings={{
-              false: { wideSidebar: false, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
-              true: { wideSidebar: true, widget0Id: 10, widget1Id: 0, widget2Id: 4 },
-            }}
           />
         )}
         <Toggle

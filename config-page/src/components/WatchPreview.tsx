@@ -3,9 +3,7 @@ import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
 import {
     barHasWidgets,
-    barIsStacked,
     barSlotCap,
-    layoutHasSidebar,
     layoutSidebarOnLeft,
 } from '../utils/layout';
 import {
@@ -52,10 +50,10 @@ function getTimePaths(clockFont: Settings['clockFont']) {
 
 /* ── Widget rendering ─────────────────────────────────────────────────
  * Widgets mirror the watch's two presentation modes: "stacked" (icon
- * above text — sidebars, round arcs, and the standalone bottom bar) and
- * "inline" (icon beside text — the narrow bottom bar). Each widget is
- * described as a vertical list of items; the inline renderer re-derives
- * an icon + single-line form from the same list.
+ * above text — sidebars and round arcs) and "inline" (icon beside text —
+ * the bottom bar). Each widget is described as a vertical list of items;
+ * the inline renderer re-derives an icon + single-line form from the same
+ * list.
  */
 
 const TEXT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
@@ -85,9 +83,9 @@ const standardRegionColors = (s: Settings): RegionColors => {
         : { background, text, iconFill: '#ffffff', iconStroke: '#000000' };
 };
 
-// "Dark" region appearance (the bottom bar in two-sidebar layouts): draws
-// on the watchface background, strokes icons with the time color, and uses
-// the alt sidebar text color.
+// "Dark" region appearance (the bottom bar): draws on the watchface
+// background, strokes icons with the time color, and uses the alt
+// sidebar text color.
 const darkRegionColors = (s: Settings): RegionColors => ({
     background: getHex(s.colorBackground),
     text: getHex(s.colorAltSidebarText),
@@ -202,33 +200,23 @@ const renderItemsStacked = (
     });
 };
 
-/**
- * Draw a widget centered on (cx, centerY), scaled to fit maxW.
- *
- * Width only: the watch's stacked bar flow (render_stacked_bar_flow in
- * sidebar.c) caps a widget's *column* width and then draws the widget at
- * full size, centered in it — nothing shrinks to fit the bar's height.
- * Text too wide to fit does have a ladder to fall down (a shorter
- * candidate, then a smaller font), so scaling on width is a fair stand-in.
- */
+/** Draw a widget centered on (cx, centerY), scaled to fit maxW. */
 const renderStackedWidget = (
     widgetId: number,
     settings: Settings,
     cx: number,
     centerY: number,
     maxW: number,
-    colors: RegionColors,
-    extraScale = 1,
-    compact = false
+    colors: RegionColors
 ) => {
-    const spec = getWidgetSpec(widgetId, settings, compact);
+    const spec = getWidgetSpec(widgetId, settings);
     if (spec.items.length === 0) return null;
 
-    const scale = Math.min(maxW / spec.w, 1) * extraScale;
+    const scale = Math.min(maxW / spec.w, 1);
     return renderItemsStacked(spec.items, cx, centerY - (spec.h * scale) / 2, scale, colors);
 };
 
-/* ── Inline (narrow bottom bar) rendering ── */
+/* ── Inline (bottom bar) rendering ── */
 
 const renderInlineWidget = (
     parts: InlineParts,
@@ -266,14 +254,12 @@ const SIDEBAR_W_NARROW = 30;
 // the preview draws normal-font geometry, so it takes the normal-font
 // wide width (VBAR_WIDTH_WIDE(false)) rather than the large-font one
 const SIDEBAR_W_WIDE = 38;
-const BAR_H_INLINE = 30;
-const BAR_H_STACKED = 50;
+const BAR_H = 30;                   // HBAR_HEIGHT
 const BAR_SIDEBAR_GAP = 2;
 const BAR_PADDING_X = 4;
 const BAR_PADDING_X_COMPACT = 2;
 const BAR_WIDGET_GAP = 4;           // HBAR_WIDGET_GAP
 const BAR_WIDGET_GAP_COMPACT = 1;   // HBAR_WIDGET_GAP_COMPACT
-const BAR_STACKED_COL_MAX = 38;     // HBAR_STACKED_COLUMN_MAX (= SIDEBAR_W_WIDE)
 const SIDEBAR_V_PADDING = 8;         // REGION_V_PADDING_DEFAULT
 const SIDEBAR_V_PADDING_COMPACT = 4; // REGION_V_PADDING_COMPACT
 
@@ -287,27 +273,22 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     const W = 144, H = 168;
 
-    const hasSidebar = layoutHasSidebar(s.layout);
-    const stackedBar = barIsStacked(s.layout);
-
     // the bar is on screen exactly when it holds a widget, the same rule
     // sidebar_buildRegions() applies on the watch
     const barSlotIds = [
-        s.bottomBarWidget0Id, s.bottomBarWidget1Id,
-        s.bottomBarWidget2Id, s.bottomBarWidget3Id,
-    ].slice(0, barSlotCap(s.layout, capabilities.EMERY));
+        s.bottomBarWidget0Id, s.bottomBarWidget1Id, s.bottomBarWidget2Id,
+    ].slice(0, barSlotCap(capabilities.EMERY));
     const hasBar = barHasWidgets(barSlotIds);
 
-    // the sidebar always wears the accent color; a bottom bar beside it
-    // draws on the watchface background instead, and takes the accent
-    // only when it is the sole region
+    // the sidebar always wears the accent color; the bottom bar draws on
+    // the watchface background instead
     const colors = standardRegionColors(s);
-    const barColors = hasSidebar ? darkRegionColors(s) : colors;
+    const barColors = darkRegionColors(s);
 
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
-    const SIDEBAR_W = hasSidebar ? (s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW) : 0;
-    const BAR_H = hasBar ? (stackedBar ? BAR_H_STACKED : BAR_H_INLINE) : 0;
+    const SIDEBAR_W = s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW;
+    const barH = hasBar ? BAR_H : 0;
 
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
     const mainX = sidebarOnLeft ? SIDEBAR_W : 0;
@@ -383,67 +364,45 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         );
     };
 
-    /* Bottom bar: yields its corner to the sidebar with a small gap. */
+    /* Bottom bar: yields its corner to the sidebar with a small gap. Its
+     * widgets cluster as one centered group with a fixed gap. */
     const renderBottomBar = () => {
-        const reserved = hasSidebar ? SIDEBAR_W + BAR_SIDEBAR_GAP : 0;
+        const reserved = SIDEBAR_W + BAR_SIDEBAR_GAP;
         const barX = sidebarOnLeft ? reserved : 0;
         const barW = W - reserved;
-        const barY = H - BAR_H;
+        const barY = H - barH;
 
-        // mirror the watch's rendered caps: stacked bars hold four slots,
-        // inline bars two (three on emery)
-        const visible = barSlotIds.filter((id) => id !== 0);
+        // mirror the watch's rendered cap: two slots, three on emery
+        const parts = barSlotIds
+            .filter((id) => id !== 0)
+            .map((id) => getInlineParts(id, s))
+            .filter((p): p is InlineParts => p !== null);
+        const widths = parts.map(measureInline);
+        const totalW = widths.reduce((a, b) => a + b, 0);
+        const contentW = barW - BAR_PADDING_X * 2;
+        const gapCount = parts.length - 1;
 
-        let content: React.ReactNode = null;
-
-        if (stackedBar && visible.length > 0) {
-            // equal columns capped at a sidebar's width, block centered
-            const usable = barW - BAR_PADDING_X * 2;
-            const colW = Math.min(usable / visible.length, BAR_STACKED_COL_MAX);
-            const firstColX = barX + (barW - colW * visible.length) / 2;
-            content = visible.map((id, i) => (
-                <g key={`bar-${i}`}>
-                    {renderStackedWidget(
-                        id, s,
-                        firstColX + colW * i + colW / 2,
-                        barY + BAR_H / 2,
-                        colW - 4,
-                        barColors, 1, true
-                    )}
-                </g>
-            ));
-        } else if (!stackedBar) {
-            // widgets cluster as one centered group with a fixed gap
-            const parts = visible
-                .map((id) => getInlineParts(id, s))
-                .filter((p): p is InlineParts => p !== null);
-            const widths = parts.map(measureInline);
-            const totalW = widths.reduce((a, b) => a + b, 0);
-            const contentW = barW - BAR_PADDING_X * 2;
-            const gapCount = parts.length - 1;
-
-            let gap = BAR_WIDGET_GAP;
-            if (gapCount > 0 && totalW + gap * gapCount > contentW) {
-                gap = Math.max(BAR_WIDGET_GAP_COMPACT, (contentW - totalW) / gapCount);
-            }
-
-            let x = Math.max(
-                barX + BAR_PADDING_X_COMPACT,
-                barX + (barW - (totalW + gap * gapCount)) / 2
-            );
-
-            content = parts.map((p, i) => {
-                const node = (
-                    <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + BAR_H / 2, barColors)}</g>
-                );
-                x += widths[i] + gap;
-                return node;
-            });
+        let gap = BAR_WIDGET_GAP;
+        if (gapCount > 0 && totalW + gap * gapCount > contentW) {
+            gap = Math.max(BAR_WIDGET_GAP_COMPACT, (contentW - totalW) / gapCount);
         }
+
+        let x = Math.max(
+            barX + BAR_PADDING_X_COMPACT,
+            barX + (barW - (totalW + gap * gapCount)) / 2
+        );
+
+        const content = parts.map((p, i) => {
+            const node = (
+                <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + barH / 2, barColors)}</g>
+            );
+            x += widths[i] + gap;
+            return node;
+        });
 
         return (
             <>
-                <rect x={barX} y={barY} width={barW} height={BAR_H} fill={barColors.background} />
+                <rect x={barX} y={barY} width={barW} height={barH} fill={barColors.background} />
                 {content}
             </>
         );
@@ -451,7 +410,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     /* Time: centered in the area left over by the regions. */
     const renderTime = () => {
-        const availH = H - BAR_H;
+        const availH = H - barH;
         const SVG_W = Math.min(108, mainW - 6, Math.floor(((availH - 6) / 2) * 109 / 81));
         const SVG_H = Math.round(SVG_W * 81 / 109);
         const timeX = mainX + (mainW - SVG_W) / 2;
@@ -483,7 +442,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                     <rect x={0} y={0} width={W} height={H} fill={bg} />
 
                     {renderTime()}
-                    {hasSidebar && renderSidebar()}
+                    {renderSidebar()}
                     {hasBar && renderBottomBar()}
 
                     {/* Border */}

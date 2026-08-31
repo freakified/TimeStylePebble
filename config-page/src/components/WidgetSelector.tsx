@@ -2,7 +2,7 @@ import React from 'react';
 import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
-import { barIsStacked, barSlotCap, layoutHasSidebar } from '../utils/layout';
+import { barSlotCap } from '../utils/layout';
 import { sidebarUnitsUsed } from '../utils/budget';
 import { assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
 import {
@@ -55,7 +55,6 @@ const ALL_BAR_SLOT_KEYS = [
     'bottomBarWidget0Id',
     'bottomBarWidget1Id',
     'bottomBarWidget2Id',
-    'bottomBarWidget3Id',
 ] as const;
 
 const WIDGET_CATEGORY_ORDER = ['General', 'Time & Date', 'Weather', 'Health'] as const;
@@ -92,11 +91,10 @@ export const WidgetSelector: React.FC = () => {
 
     // widget counts per region mirror the watch's rendered slot caps
     // (sidebar_layout.h): sidebars hold a stack of small widgets, the
-    // inline bar holds two (three on emery), the tall stacked bar four
+    // bar holds two (three on emery)
     const sidebarSlotCount = capabilities.ROUND ? 2 : capabilities.EMERY ? 6 : 4;
-    const barSlotCount = barSlotCap(settings.layout, capabilities.EMERY);
+    const barSlotCount = barSlotCap(capabilities.EMERY);
 
-    const showSidebar = capabilities.ROUND || layoutHasSidebar(settings.layout);
     // the bar's slots are always on offer (round watches have no bar at
     // all); putting a widget in them is what turns the bar on
     const showBar = !capabilities.ROUND;
@@ -113,7 +111,7 @@ export const WidgetSelector: React.FC = () => {
     // regions in the order they appear on screen, which is the order the
     // drag hit-test and the keyboard nudge both walk
     const shownRegions: WidgetRegion[] = [
-        ...(showSidebar ? (['sidebar'] as const) : []),
+        'sidebar',
         ...(showBar ? (['bar'] as const) : []),
     ];
 
@@ -456,7 +454,7 @@ export const WidgetSelector: React.FC = () => {
                 className={`widget-selector-controls${drag ? ' widget-selector-controls--dragging' : ''}`}
                 ref={controlsRef}
             >
-                {showSidebar && renderRegion(
+                {renderRegion(
                     'sidebar',
                     capabilities.ROUND ? 'Arcs' : 'Sidebar',
                     'No widgets — the sidebar shows as a plain band.',
@@ -473,9 +471,9 @@ export const WidgetSelector: React.FC = () => {
                     'Add a widget here to turn the bottom bar on.',
                     barIds,
                     barSlotCount,
-                    !barIsStacked(settings.layout) && renderWarning(
+                    renderWarning(
                         'bar',
-                        assessInlineBar(barIds, settings, capabilities, layoutHasSidebar(settings.layout))
+                        assessInlineBar(barIds, settings, capabilities)
                     )
                 )}
             </div>

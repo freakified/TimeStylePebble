@@ -20,18 +20,16 @@ var HOURLY_VIBE_BY_ID = {
   2: 'everyHalfHour'
 };
 
-// a layout says only where the sidebar goes; the bottom bar is present
-// whenever its widget slots hold something
+// a layout says only which side the sidebar goes on; the bottom bar is
+// present whenever its widget slots hold something
 var LAYOUT_BY_ID = {
   0: 'right-sidebar',
-  1: 'left-sidebar',
-  2: 'no-sidebar'
+  1: 'left-sidebar'
 };
 
 var LAYOUT_ID_BY_NAME = {
   'right-sidebar': 0,
-  'left-sidebar': 1,
-  'no-sidebar': 2
+  'left-sidebar': 1
 };
 
 var HOURLY_VIBE_ID_BY_NAME = {
@@ -99,7 +97,6 @@ function settingsFromWatchPayload(payload) {
     bottomBarWidget0Id: getNumber(payload.SettingBottomBarWidget0ID, 10),
     bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 0),
     bottomBarWidget2Id: getNumber(payload.SettingBottomBarWidget2ID, 0),
-    bottomBarWidget3Id: getNumber(payload.SettingBottomBarWidget3ID, 0),
 
     languageId: getNumber(payload.SettingLanguageID, 0),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
@@ -202,10 +199,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.bottomBarWidget2Id !== undefined) {
     dict.SettingBottomBarWidget2ID = configData.bottomBarWidget2Id;
-  }
-
-  if (configData.bottomBarWidget3Id !== undefined) {
-    dict.SettingBottomBarWidget3ID = configData.bottomBarWidget3Id;
   }
 
   if (configData.layout !== undefined) {

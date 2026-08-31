@@ -42,6 +42,8 @@ void Settings_loadFromStorage() {
 
   for (int i = 0; i < MAX_REGION_SLOTS; i++) {
     settings.vRegionSlots[i] = EMPTY;
+  }
+  for (int i = 0; i < HREGION_SLOT_MAX; i++) {
     settings.hRegionSlots[i] = EMPTY;
   }
 
@@ -98,12 +100,10 @@ void Settings_updateDynamicSettings() {
   int vSlotCount = 2;
   int hSlotCount = 0;
 #else
-  bool hasSidebar =
-      SidebarLayout_verticalEdge(settings.layoutId) != REGION_EDGE_NONE;
-  int vSlotCount = hasSidebar ? VREGION_SLOT_CAP : 0;
+  int vSlotCount = VREGION_SLOT_CAP;
   // the bar needs no presence test of its own: it renders whatever these
   // slots hold, and empty slots contribute nothing to the scan either way
-  int hSlotCount = hasSidebar ? HREGION_SLOT_CAP_INLINE : HREGION_SLOT_CAP_STACKED;
+  int hSlotCount = HREGION_SLOT_CAP;
 #endif
 
   for (int i = 0; i < vSlotCount + hSlotCount; i++) {
