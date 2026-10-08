@@ -1,5 +1,5 @@
 {
-  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state.",
+  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state. Configs are written for rect watches (a packed sidebar list plus bottom-bar slots) and translated for round ones: the bar's widgets go on the right arc and the sidebar's on the left, or with no bar widgets the sidebar list is split across both arcs. Configs named 'arc-*' are written for round directly (slots 0-2 left arc, 3-5 right) and sent as-is.",
   "defaults": {
     "SettingColorBG": "#000000",
     "SettingColorTime": "#FF5500",
@@ -43,7 +43,8 @@
     "WeatherPrecipChance": 40,
     "WeatherSunriseMinute": 374,
     "WeatherSunsetMinute": 1182,
-    "SettingColorBothArcs": 0
+    "SettingColorBothArcs": 0,
+    "SettingStatusShowConnection": 0
   },
   "configs": [
     {
@@ -491,7 +492,7 @@
       }
     },
     {
-      "name": "fit-arc-two-small",
+      "name": "arc-fit-two-small",
       "settings": {
         "SettingColorBothArcs": 1,
         "SettingWidget0ID": "WEATHER_CURRENT",
@@ -502,7 +503,7 @@
       }
     },
     {
-      "name": "fit-arc-two-small-largefonts",
+      "name": "arc-fit-two-small-largefonts",
       "settings": {
         "SettingColorBothArcs": 1,
         "SettingUseLargeFonts": 1,
@@ -514,7 +515,7 @@
       }
     },
     {
-      "name": "fit-arc-two-icons",
+      "name": "arc-fit-two-icons",
       "settings": {
         "SettingColorBothArcs": 1,
         "SettingWidget0ID": "WEATHER_CURRENT",
@@ -525,7 +526,7 @@
       }
     },
     {
-      "name": "fit-arc-icon-two-labels",
+      "name": "arc-fit-icon-two-labels",
       "settings": {
         "SettingColorBothArcs": 1,
         "SettingWidget0ID": "WEATHER_CURRENT",
@@ -537,7 +538,7 @@
       }
     },
     {
-      "name": "fit-arc-date-plus-small",
+      "name": "arc-fit-date-plus-small",
       "settings": {
         "SettingColorBothArcs": 1,
         "SettingWidget0ID": "DATE",

@@ -32,6 +32,11 @@ CONFIGS_PATH = Path(__file__).resolve().parent / "screenshot_configs.json"
 MESSAGE_KEYS_PATH = PROJECT_ROOT / "build" / "js" / "message_keys.json"
 
 DEFAULT_PLATFORMS = ["basalt", "chalk", "diorite", "emery", "flint", "gabbro"]
+ROUND_PLATFORMS = {"chalk", "gabbro"}
+ARC_SLOT_CAP = 3  # ROUND_ARC_SLOT_CAP
+
+SIDEBAR_SLOT_KEYS = [f"SettingWidget{i}ID" for i in range(6)]
+BAR_SLOT_KEYS = [f"SettingBottomBarWidget{i}ID" for i in range(3)]
 
 # pinned environment: Wednesday 2026-03-25, 10:08:30 local time
 PINNED_TIME = datetime.datetime(2026, 3, 25, 10, 8, 30)
@@ -119,6 +124,32 @@ def resolve_value(raw):
     raise ValueError(f"can't resolve config value: {raw!r}")
 
 
+def round_settings(name, merged):
+    """Translate a rect-shaped config for a round watch.
+
+    Round has no bar; its two arcs split the sidebar slots instead (0-2
+    left, 3-5 right). Sent as-is, a rect config lands entirely on the left
+    arc and loses its bar widgets. So, like the config page's regions:
+    the bar's widgets become the right arc and the sidebar's the left, and
+    a config with no bar widgets has its sidebar list split across both
+    arcs. Configs named arc-* are already written for round.
+    """
+    if name.startswith("arc-"):
+        return merged
+    sidebar = [merged[k] for k in SIDEBAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
+    bar = [merged[k] for k in BAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
+    if bar:
+        left, right = sidebar[:ARC_SLOT_CAP], bar[:ARC_SLOT_CAP]
+    else:
+        half = (len(sidebar) + 1) // 2
+        left, right = sidebar[:half], sidebar[half:]
+    pad = lambda ids: (ids + ["EMPTY"] * ARC_SLOT_CAP)[:ARC_SLOT_CAP]
+    out = dict(merged)
+    out.update(zip(SIDEBAR_SLOT_KEYS, pad(left) + pad(right)))
+    out.update({k: "EMPTY" for k in BAR_SLOT_KEYS})
+    return out
+
+
 def send_config(platform, app_uuid, key_ids, merged_settings):
     groups = {"uint": [], "int": [], "string": []}
     for key_name, raw in merged_settings.items():
@@ -180,8 +211,7 @@ def find_duplicate_widgets(matrix):
     the bar, so a config that repeats one shows a state no user can reach.
     Checked after merging defaults, since a bar-only config inherits the
     default sidebar."""
-    slots = ([f"SettingWidget{i}ID" for i in range(6)]
-             + [f"SettingBottomBarWidget{i}ID" for i in range(3)])
+    slots = SIDEBAR_SLOT_KEYS + BAR_SLOT_KEYS
     problems = []
     for config in matrix["configs"]:
         merged = dict(matrix["defaults"])
@@ -310,6 +340,8 @@ def main():
             name = config["name"]
             merged = dict(matrix["defaults"])
             merged.update(config["settings"])
+            if platform in ROUND_PLATFORMS:
+                merged = round_settings(name, merged)
             env = config.get("env", {})
             shot = platform_dir / f"{name}.png"
             try:
