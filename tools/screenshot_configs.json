@@ -1,5 +1,5 @@
 {
-  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'.",
+  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state.",
   "defaults": {
     "SettingColorBG": "#000000",
     "SettingColorTime": "#FF5500",
@@ -232,7 +232,14 @@
         "SettingAltClockName": "",
         "SettingWidget0ID": "WORLD_TIME_1",
         "SettingWidget1ID": "DATE",
-        "SettingWidget2ID": "EMPTY",
+        "SettingWidget2ID": "EMPTY"
+      }
+    },
+    {
+      "name": "widgets-worldtime-nolabel-bottombar",
+      "settings": {
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingAltClockName": "",
         "SettingBottomBarWidget0ID": "WORLD_TIME_1",
         "SettingBottomBarWidget1ID": "SECONDS"
       }
@@ -268,7 +275,8 @@
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "SLEEP_TIMER",
-        "SettingBottomBarWidget1ID": "WEATHER_CURRENT"
+        "SettingBottomBarWidget1ID": "WEATHER_CURRENT",
+        "SettingWidget0ID": "BATTERY_METER"
       }
     },
     {
@@ -285,7 +293,8 @@
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
         "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
-        "SettingBottomBarWidget1ID": "EMPTY"
+        "SettingBottomBarWidget1ID": "EMPTY",
+        "SettingWidget0ID": "BATTERY_METER"
       }
     },
     {
@@ -426,6 +435,413 @@
         "SettingWidget1ID": "EMPTY",
         "SettingWidget3ID": "DATE",
         "SettingUseLargeFonts": 1
+      }
+    },
+    {
+      "name": "arc-three-per-side",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingWidget0ID": "WORLD_TIME_1",
+        "SettingWidget1ID": "SECONDS",
+        "SettingWidget2ID": "WEEK_NUMBER",
+        "SettingWidget3ID": "WEATHER_UV_INDEX",
+        "SettingWidget4ID": "BEATS",
+        "SettingWidget5ID": "BATTERY_METER"
+      }
+    },
+    {
+      "name": "arc-three-seamless",
+      "settings": {
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingWidget0ID": "WORLD_TIME_1",
+        "SettingWidget1ID": "SECONDS",
+        "SettingWidget2ID": "WEEK_NUMBER",
+        "SettingWidget3ID": "WEATHER_CURRENT",
+        "SettingWidget4ID": "EMPTY"
+      }
+    },
+    {
+      "name": "fit-sidebar-tight",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "BATTERY_METER",
+        "SettingWidget2ID": "DATE",
+        "SettingWidget3ID": "NEXT_SUN_EVENT"
+      }
+    },
+    {
+      "name": "fit-sidebar-tight-largefonts",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "BATTERY_METER",
+        "SettingWidget2ID": "DATE",
+        "SettingWidget3ID": "NEXT_SUN_EVENT",
+        "SettingUseLargeFonts": 1
+      }
+    },
+    {
+      "name": "fit-sidebar-six-mixed",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "BATTERY_METER",
+        "SettingWidget2ID": "WORLD_TIME_1",
+        "SettingWidget3ID": "STEP_COUNTER",
+        "SettingWidget4ID": "WEATHER_UV_INDEX",
+        "SettingWidget5ID": "SECONDS"
+      }
+    },
+    {
+      "name": "fit-arc-two-small",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
+        "SettingWidget2ID": "EMPTY",
+        "SettingWidget3ID": "NEXT_SUN_EVENT",
+        "SettingWidget4ID": "WEATHER_WIND"
+      }
+    },
+    {
+      "name": "fit-arc-two-small-largefonts",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingUseLargeFonts": 1,
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
+        "SettingWidget2ID": "EMPTY",
+        "SettingWidget3ID": "NEXT_SUN_EVENT",
+        "SettingWidget4ID": "WEATHER_WIND"
+      }
+    },
+    {
+      "name": "fit-arc-two-icons",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "STEP_COUNTER",
+        "SettingWidget2ID": "EMPTY",
+        "SettingWidget3ID": "NEXT_SUN_EVENT",
+        "SettingWidget4ID": "WEATHER_PRECIP_CHANCE"
+      }
+    },
+    {
+      "name": "fit-arc-icon-two-labels",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
+        "SettingWidget2ID": "BEATS",
+        "SettingWidget3ID": "SECONDS",
+        "SettingWidget4ID": "WEATHER_WIND",
+        "SettingWidget5ID": "WEEK_NUMBER"
+      }
+    },
+    {
+      "name": "fit-arc-date-plus-small",
+      "settings": {
+        "SettingColorBothArcs": 1,
+        "SettingWidget0ID": "DATE",
+        "SettingWidget1ID": "SECONDS",
+        "SettingWidget2ID": "EMPTY",
+        "SettingWidget3ID": "WORLD_TIME_1",
+        "SettingWidget4ID": "WEATHER_UV_INDEX"
+      }
+    },
+    {
+      "name": "bottombar-date-week-beats",
+      "settings": {
+        "SettingBottomBarWidget0ID": "DATE",
+        "SettingBottomBarWidget1ID": "WEEK_NUMBER",
+        "SettingBottomBarWidget2ID": "BEATS",
+        "SettingWidget1ID": "BATTERY_METER"
+      }
+    },
+    {
+      "name": "bottombar-wind-heartrate",
+      "settings": {
+        "SettingBottomBarWidget0ID": "WEATHER_WIND",
+        "SettingBottomBarWidget1ID": "HEARTRATE"
+      }
+    },
+    {
+      "name": "bottombar-three-small-largefonts",
+      "settings": {
+        "SettingUseLargeFonts": 1,
+        "SettingBottomBarWidget0ID": "SECONDS",
+        "SettingBottomBarWidget1ID": "WEATHER_UV_INDEX",
+        "SettingBottomBarWidget2ID": "BATTERY_METER"
+      }
+    },
+    {
+      "name": "bottombar-left-wide-largefonts",
+      "settings": {
+        "SettingLayoutId": "SIDEBAR_LEFT",
+        "SettingUseWideSidebar": 1,
+        "SettingUseLargeFonts": 1,
+        "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
+        "SettingBottomBarWidget1ID": "STEP_COUNTER",
+        "SettingWidget0ID": "BATTERY_METER"
+      }
+    },
+    {
+      "name": "widgets-health-largefonts",
+      "settings": {
+        "SettingWidget0ID": "STEP_COUNTER",
+        "SettingWidget1ID": "SLEEP_TIMER",
+        "SettingWidget2ID": "HEARTRATE",
+        "SettingWidget3ID": "EMPTY",
+        "SettingUseLargeFonts": 1
+      }
+    },
+    {
+      "name": "widgets-health-wide",
+      "settings": {
+        "SettingWidget0ID": "STEP_COUNTER",
+        "SettingWidget1ID": "SLEEP_TIMER",
+        "SettingWidget2ID": "HEARTRATE",
+        "SettingWidget3ID": "EMPTY",
+        "SettingUseWideSidebar": 1
+      }
+    },
+    {
+      "name": "widgets-misc-largefonts",
+      "settings": {
+        "SettingUseLargeFonts": 1,
+        "SettingWidget0ID": "WEEK_NUMBER",
+        "SettingWidget1ID": "SECONDS",
+        "SettingWidget2ID": "BEATS",
+        "SettingWidget3ID": "EMPTY"
+      }
+    },
+    {
+      "name": "widgets-weather-extras-largefonts",
+      "settings": {
+        "SettingUseLargeFonts": 1,
+        "SettingWidget0ID": "WEATHER_UV_INDEX",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget2ID": "WEATHER_PRECIP_CHANCE",
+        "SettingWidget3ID": "EMPTY"
+      }
+    },
+    {
+      "name": "widgets-worldtime-wide-largefonts",
+      "settings": {
+        "SettingUseWideSidebar": 1,
+        "SettingUseLargeFonts": 1,
+        "SettingWidget0ID": "WORLD_TIME_1",
+        "SettingWidget1ID": "WORLD_TIME_2",
+        "SettingWidget2ID": "EMPTY"
+      }
+    },
+    {
+      "name": "units-imperial",
+      "settings": {
+        "SettingUseMetric": 0,
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget2ID": "WEATHER_WIND"
+      }
+    },
+    {
+      "name": "units-imperial-bottombar",
+      "settings": {
+        "SettingUseMetric": 0,
+        "SettingWidget0ID": "BATTERY_METER",
+        "SettingWidget1ID": "DATE",
+        "SettingBottomBarWidget0ID": "WEATHER_WIND",
+        "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY"
+      }
+    },
+    {
+      "name": "health-distance-metric",
+      "settings": {
+        "SettingHealthUseDistance": 1,
+        "SettingWidget0ID": "STEP_COUNTER",
+        "SettingWidget1ID": "DATE"
+      }
+    },
+    {
+      "name": "health-distance-imperial-comma",
+      "settings": {
+        "SettingHealthUseDistance": 1,
+        "SettingUseMetric": 0,
+        "SettingDecimalSep": 44,
+        "SettingBottomBarWidget0ID": "STEP_COUNTER",
+        "SettingWidget0ID": "BATTERY_METER",
+        "SettingWidget1ID": "DATE"
+      }
+    },
+    {
+      "name": "health-restful-sleep",
+      "settings": {
+        "SettingHealthUseRestfulSleep": 1,
+        "SettingWidget0ID": "SLEEP_TIMER",
+        "SettingWidget1ID": "DATE"
+      }
+    },
+    {
+      "name": "time-single-digit-hour",
+      "settings": {
+        "SettingWidget0ID": "WORLD_TIME_1",
+        "SettingWidget1ID": "DATE"
+      },
+      "env": {
+        "time": "07:05"
+      }
+    },
+    {
+      "name": "time-leading-zero",
+      "settings": {
+        "SettingShowLeadingZero": 1,
+        "SettingWidget0ID": "WORLD_TIME_1",
+        "SettingWidget1ID": "DATE"
+      },
+      "env": {
+        "time": "07:05"
+      }
+    },
+    {
+      "name": "lang-tr",
+      "settings": {
+        "SettingWidget0ID": "DATE",
+        "SettingWidget1ID": "WEEK_NUMBER",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "EMPTY",
+        "SettingBottomBarWidget0ID": "WORLD_TIME_2",
+        "SettingLanguageID": 6
+      }
+    },
+    {
+      "name": "lang-ru",
+      "settings": {
+        "SettingWidget0ID": "DATE",
+        "SettingWidget1ID": "WEEK_NUMBER",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "EMPTY",
+        "SettingBottomBarWidget0ID": "WORLD_TIME_2",
+        "SettingLanguageID": 17
+      }
+    },
+    {
+      "name": "lang-jp",
+      "settings": {
+        "SettingWidget0ID": "DATE",
+        "SettingWidget1ID": "WEEK_NUMBER",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "EMPTY",
+        "SettingBottomBarWidget0ID": "WORLD_TIME_2",
+        "SettingLanguageID": 34
+      }
+    },
+    {
+      "name": "lang-iw",
+      "settings": {
+        "SettingWidget0ID": "DATE",
+        "SettingWidget1ID": "WEEK_NUMBER",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "EMPTY",
+        "SettingBottomBarWidget0ID": "WORLD_TIME_2",
+        "SettingLanguageID": 36
+      }
+    },
+    {
+      "name": "statusbar-show-connection",
+      "settings": {
+        "SettingStatusShowConnection": 1
+      }
+    },
+    {
+      "name": "env-battery-low",
+      "settings": {
+        "SettingWidget0ID": "BATTERY_METER",
+        "SettingWidget1ID": "DATE"
+      },
+      "env": {
+        "battery": 15
+      }
+    },
+    {
+      "name": "env-battery-charging",
+      "settings": {
+        "SettingWidget0ID": "BATTERY_METER",
+        "SettingWidget1ID": "DATE"
+      },
+      "env": {
+        "charging": true
+      }
+    },
+    {
+      "name": "env-sunrise-next",
+      "settings": {
+        "SettingWidget0ID": "NEXT_SUN_EVENT",
+        "SettingWidget1ID": "DATE"
+      },
+      "env": {
+        "time": "03:30"
+      }
+    },
+    {
+      "name": "weather-loading",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget2ID": "WEATHER_UV_INDEX",
+        "SettingWidget3ID": "WEATHER_WIND",
+        "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+        "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE",
+        "WeatherTemperature": -2147483648,
+        "WeatherForecastHighTemp": -2147483648,
+        "WeatherForecastLowTemp": -2147483648,
+        "WeatherUVIndex": -2147483648,
+        "WeatherWindSpeed": -2147483648,
+        "WeatherPrecipChance": -2147483648,
+        "WeatherSunriseMinute": -2147483648,
+        "WeatherSunsetMinute": -2147483648
+      }
+    },
+    {
+      "name": "weather-icons-clear-day",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "WeatherCondition": "CLEAR_DAY",
+        "WeatherForecastCondition": "CLEAR_NIGHT"
+      }
+    },
+    {
+      "name": "weather-icons-cloudy-day",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "WeatherCondition": "CLOUDY_DAY",
+        "WeatherForecastCondition": "HEAVY_RAIN"
+      }
+    },
+    {
+      "name": "weather-icons-heavy-snow",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "WeatherCondition": "HEAVY_SNOW",
+        "WeatherForecastCondition": "LIGHT_SNOW"
+      }
+    },
+    {
+      "name": "weather-icons-partly-cloudy-night",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "WeatherCondition": "PARTLY_CLOUDY_NIGHT",
+        "WeatherForecastCondition": "RAINING_AND_SNOWING"
+      }
+    },
+    {
+      "name": "weather-icons-thunderstorm",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
+        "WeatherCondition": "THUNDERSTORM",
+        "WeatherForecastCondition": "WEATHER_GENERIC"
       }
     }
   ]

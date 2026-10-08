@@ -6,7 +6,7 @@ var worldtime = require('./worldtime');
 var CONFIG_VERSION = 9;
 var USE_LOCAL_CONFIG = true;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
-var LOCAL_CONFIG_URL = 'http://10.25.219.10:3000/';
+var LOCAL_CONFIG_URL = 'http://192.168.11.9:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
 var pendingConfigSnapshot = null;
 

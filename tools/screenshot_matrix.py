@@ -146,6 +146,53 @@ def pin_environment(platform):
         run_pebble(["emu-heart-rate", str(PINNED_HEART_RATE)], platform, check=False)
 
 
+def config_time(env):
+    """The time to pin for a config: PINNED_TIME, or its env "time"
+    ("HH:MM" or "HH:MM:SS") on the same pinned date."""
+    raw = env.get("time")
+    if raw is None:
+        return PINNED_TIME
+    parts = [int(p) for p in raw.split(":")]
+    hour, minute, second = (parts + [0, 0])[:3]
+    return PINNED_TIME.replace(hour=hour, minute=minute, second=second)
+
+
+def apply_env(platform, env):
+    """Battery level/charging: emulator state that isn't an AppMessage
+    setting. (Bluetooth is deliberately not offered: toggling the link
+    makes the watch request weather, and pkjs answers with real weather
+    that lands on top of the pinned values.)"""
+    if "battery" in env or "charging" in env:
+        args = ["emu-battery", "--percent", str(env.get("battery", PINNED_BATTERY_PCT))]
+        if env.get("charging"):
+            args.append("--charging")
+        run_pebble(args, platform)
+
+
+def restore_env(platform, env):
+    """Undo apply_env so the next config starts from the pinned state."""
+    if "battery" in env or "charging" in env:
+        run_pebble(["emu-battery", "--percent", str(PINNED_BATTERY_PCT)], platform)
+
+
+def find_duplicate_widgets(matrix):
+    """The config page keeps every widget unique across the sidebar and
+    the bar, so a config that repeats one shows a state no user can reach.
+    Checked after merging defaults, since a bar-only config inherits the
+    default sidebar."""
+    slots = ([f"SettingWidget{i}ID" for i in range(6)]
+             + [f"SettingBottomBarWidget{i}ID" for i in range(3)])
+    problems = []
+    for config in matrix["configs"]:
+        merged = dict(matrix["defaults"])
+        merged.update(config["settings"])
+        ids = [merged[k] for k in slots if merged.get(k, "EMPTY") != "EMPTY"]
+        dupes = sorted({w for w in ids if ids.count(w) > 1})
+        if dupes:
+            problems.append((config["name"], dupes))
+    return problems
+
+
 def write_contact_sheet(out_dir, config_order):
     """Build index.html from every PNG on disk, so partial reruns
     (--only/--platforms) refresh the sheet without dropping older shots."""
@@ -216,6 +263,10 @@ def main():
 
     matrix = json.loads(CONFIGS_PATH.read_text())
     configs = matrix["configs"]
+    problems = find_duplicate_widgets(matrix)
+    if problems:
+        sys.exit("configs place a widget twice, which the config page can't do:\n"
+                 + "\n".join(f"  {name}: {', '.join(ws)}" for name, ws in problems))
     if args.list:
         for config in configs:
             print(config["name"])
@@ -259,13 +310,15 @@ def main():
             name = config["name"]
             merged = dict(matrix["defaults"])
             merged.update(config["settings"])
+            env = config.get("env", {})
             shot = platform_dir / f"{name}.png"
             try:
+                apply_env(platform, env)
                 send_config(platform, app_uuid, key_ids, merged)
                 # pin time AFTER the config message: send-app-message's
                 # connection re-syncs the emulator clock to host time, and
                 # the time jump fires a tick that redraws the face
-                run_pebble(["emu-set-time", str(int(PINNED_TIME.timestamp()))], platform)
+                run_pebble(["emu-set-time", str(int(config_time(env).timestamp()))], platform)
                 time.sleep(args.settle)
                 run_pebble(["screenshot", "--no-open", str(shot)], platform)
                 results[(platform, name)] = f"{platform}/{name}.png"
@@ -273,6 +326,11 @@ def main():
             except Exception as err:
                 failures.append((platform, name, str(err)))
                 print(f"  [FAIL] {platform}/{name}: {err}")
+            finally:
+                try:
+                    restore_env(platform, env)
+                except RuntimeError as err:
+                    print(f"  [warn] {platform}/{name}: couldn't restore env: {err}")
 
     index = write_contact_sheet(out_dir, [c["name"] for c in matrix["configs"]])
     print(f"\n{len(results)} screenshots, {len(failures)} failures")

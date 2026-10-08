@@ -5,7 +5,6 @@ import {
     ARC_SLOT_CAP,
     arcIsAccent,
     barHasWidgets,
-    barSlotCap,
     layoutSidebarOnLeft,
 } from '../utils/layout';
 import {
@@ -14,7 +13,6 @@ import {
     WidgetItem,
     STACK_GAP,
     measureItem,
-    getWidgetItems,
     getWidgetSpec,
     InlineParts,
     getInlineParts,
@@ -22,6 +20,19 @@ import {
     INLINE_ICON_H,
     INLINE_GAP,
     INLINE_FONT,
+    platformMetrics,
+    arcMetrics,
+    arcContentBand,
+    sidebarFontSize,
+    previewTextScale,
+    stackedWidgetHeight,
+    ARC_WIDGET_GAP_COMPACT,
+    ARC_INWARD_NUDGE,
+    REGION_V_PADDING_COMPACT,
+    WATCH_BAR_PADDING_X,
+    WATCH_BAR_PADDING_X_COMPACT,
+    WATCH_BAR_VBAR_GAP,
+    WATCH_BAR_WIDGET_GAP_COMPACT,
 } from '../utils/widgetMetrics';
 
 export interface WatchPreviewProps {
@@ -96,7 +107,11 @@ const darkRegionColors = (s: Settings): RegionColors => ({
 });
 
 const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
-    const tinted = svg.replace(/#fff/gi, colors.iconFill).replace(/#000/gi, colors.iconStroke);
+    // match whole short or long hex colors: the Illustrator exports spell
+    // white #FFFFFF, and a bare /#fff/ would leave its tail behind
+    const tinted = svg
+        .replace(/#fff(fff)?\b/gi, colors.iconFill)
+        .replace(/#000(000)?\b/gi, colors.iconStroke);
     return `data:image/svg+xml;utf8,${encodeURIComponent(tinted)}`;
 };
 
@@ -168,11 +183,12 @@ const renderItemsStacked = (
     cx: number,
     top: number,
     scale: number,
-    colors: RegionColors
+    colors: RegionColors,
+    textScale = 1
 ) => {
     let y = top;
     return items.map((item, i) => {
-        const size = measureItem(item);
+        const size = measureItem(item, textScale);
         const itemTop = y;
         y += (size.h + STACK_GAP) * scale;
 
@@ -185,7 +201,8 @@ const renderItemsStacked = (
             case 'calendar':
                 return renderCalendar(i, item.day, cx - (size.w * scale) / 2, itemTop, scale, colors);
             case 'text':
-                return textNode(i, item.text, cx, itemTop + (size.h * scale) / 2, item.size * scale, colors.text);
+                return textNode(i, item.text, cx, itemTop + (size.h * scale) / 2,
+                                item.size * textScale * scale, colors.text);
             case 'divider':
                 return (
                     <line
@@ -208,7 +225,8 @@ const renderInlineWidget = (
     parts: InlineParts,
     x: number,
     centerY: number,
-    colors: RegionColors
+    colors: RegionColors,
+    textScale = 1
 ) => {
     const nodes: React.ReactNode[] = [];
     let cursor = x;
@@ -228,26 +246,25 @@ const renderInlineWidget = (
     }
 
     if (parts.text) {
-        nodes.push(textNode('text', parts.text, cursor, centerY, INLINE_FONT, colors.text, 'start'));
+        nodes.push(textNode('text', parts.text, cursor, centerY, INLINE_FONT * textScale, colors.text, 'start'));
     }
 
     return nodes;
 };
 
-/* ── Region geometry (mirrors sidebar_layout.h, in 144×168 units) ── */
-
-const SIDEBAR_W_NARROW = 30;
-// the preview draws normal-font geometry, so it takes the normal-font
-// wide width (VBAR_WIDTH_WIDE(false)) rather than the large-font one
-const SIDEBAR_W_WIDE = 38;
-const BAR_H = 30;                   // HBAR_HEIGHT
-const BAR_SIDEBAR_GAP = 2;
-const BAR_PADDING_X = 4;
-const BAR_PADDING_X_COMPACT = 2;
-const BAR_WIDGET_GAP = 4;           // HBAR_WIDGET_GAP
-const BAR_WIDGET_GAP_COMPACT = 1;   // HBAR_WIDGET_GAP_COMPACT
-const SIDEBAR_V_PADDING = 8;         // REGION_V_PADDING_DEFAULT
-const SIDEBAR_V_PADDING_COMPACT = 4; // REGION_V_PADDING_COMPACT
+/*
+ * Both previews draw in the platform's real screen pixels, taking their
+ * region geometry from platformMetrics() / arcMetrics() -- the one place
+ * the config page mirrors sidebar_layout.h -- and let CSS scale the SVG to
+ * whatever box it's shown in.
+ *
+ * The clock's digits are sized off the clock area's height, as
+ * update_clock_area_layer() does (its font size is 4/7 of that height),
+ * calibrated so that a full-height basalt clock draws 80px tall glyph
+ * boxes.
+ */
+const TIME_GLYPH_H_PER_CLOCK_H = 80 / 168;
+const TIME_GLYPH_ASPECT = 109 / 81;  // the TIME_PATHS viewBox
 
 /** Render a rectangular (basalt/diorite/emery) TimeStyle face */
 const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabilities }> = ({
@@ -257,13 +274,15 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
 
-    const W = 144, H = 168;
+    const m = platformMetrics(capabilities, s.largeSidebarFont);
+    const W = m.screenW, H = m.screenH;
+    const textScale = previewTextScale(m.fontSize);
 
     // the bar is on screen exactly when it holds a widget, the same rule
     // sidebar_buildRegions() applies on the watch
     const barSlotIds = [
         s.bottomBarWidget0Id, s.bottomBarWidget1Id, s.bottomBarWidget2Id,
-    ].slice(0, barSlotCap(capabilities.EMERY));
+    ].slice(0, m.barSlots);
     const hasBar = barHasWidgets(barSlotIds);
 
     // the sidebar always wears the accent color; the bottom bar draws on
@@ -273,8 +292,8 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     const sidebarOnLeft = layoutSidebarOnLeft(s.layout);
 
-    const SIDEBAR_W = s.wideSidebar ? SIDEBAR_W_WIDE : SIDEBAR_W_NARROW;
-    const barH = hasBar ? BAR_H : 0;
+    const SIDEBAR_W = s.wideSidebar ? m.vbarWide : m.vbarNarrow;
+    const barH = hasBar ? m.barHeight : 0;
 
     const sidebarX = sidebarOnLeft ? 0 : W - SIDEBAR_W;
     const mainX = sidebarOnLeft ? SIDEBAR_W : 0;
@@ -291,28 +310,31 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
      * size and its only concession to a full sidebar is tightening the end
      * padding, after which widgets simply crowd into each other. Mirroring
      * that is what keeps this preview honest with the budget meter: an
-     * over-budget config has to *look* over-budget here too. */
+     * over-budget config has to *look* over-budget here too.
+     *
+     * So the stack is laid out with the watch's own widget heights (the
+     * same ones the fit budget sums), and each stylized widget is drawn
+     * centered in its slot. */
     const renderSidebar = () => {
-        const slotIds = (capabilities.EMERY
-            ? [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
-            : [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id]
-        ).filter((id) => id !== 0);
+        const slotIds = [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
+            .slice(0, m.sidebarSlots)
+            .filter((id) => id !== 0);
 
         if (slotIds.length === 0) {
             return <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />;
         }
 
         const maxW = SIDEBAR_W - 2;
-        const specs = slotIds.map((id) => getWidgetSpec(id, s));
+        const specs = slotIds.map((id) => getWidgetSpec(id, s, false, textScale));
         const baseScales = specs.map((spec) => (spec.w > 0 ? Math.min(maxW / spec.w, 1) : 1));
 
-        const heights = specs.map((spec, i) => spec.h * baseScales[i]);
+        const heights = slotIds.map((id) => stackedWidgetHeight(id, s, capabilities));
         const naturalTotal = heights.reduce((a, b) => a + b, 0);
 
         // the watch's one concession to a crowded stack: tighter end padding
-        const vPadding = naturalTotal > H - SIDEBAR_V_PADDING * 2
-            ? SIDEBAR_V_PADDING_COMPACT
-            : SIDEBAR_V_PADDING;
+        const vPadding = naturalTotal > H - m.vPadding * 2
+            ? REGION_V_PADDING_COMPACT
+            : m.vPadding;
 
         const cx = sidebarX + SIDEBAR_W / 2;
         const last = slotIds.length - 1;
@@ -343,7 +365,9 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                 <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />
                 {slotIds.map((id, i) => (
                     <g key={`sidebar-${i}`}>
-                        {renderItemsStacked(getWidgetItems(id, s), cx, tops[i], baseScales[i], colors)}
+                        {renderItemsStacked(specs[i].items, cx,
+                                            tops[i] + (heights[i] - specs[i].h * baseScales[i]) / 2,
+                                            baseScales[i], colors, textScale)}
                     </g>
                 ))}
             </>
@@ -353,7 +377,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     /* Bottom bar: yields its corner to the sidebar with a small gap. Its
      * widgets cluster as one centered group with a fixed gap. */
     const renderBottomBar = () => {
-        const reserved = SIDEBAR_W + BAR_SIDEBAR_GAP;
+        const reserved = SIDEBAR_W + WATCH_BAR_VBAR_GAP;
         const barX = sidebarOnLeft ? reserved : 0;
         const barW = W - reserved;
         const barY = H - barH;
@@ -363,24 +387,24 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
             .filter((id) => id !== 0)
             .map((id) => getInlineParts(id, s))
             .filter((p): p is InlineParts => p !== null);
-        const widths = parts.map(measureInline);
+        const widths = parts.map((p) => measureInline(p, textScale));
         const totalW = widths.reduce((a, b) => a + b, 0);
-        const contentW = barW - BAR_PADDING_X * 2;
+        const contentW = barW - WATCH_BAR_PADDING_X * 2;
         const gapCount = parts.length - 1;
 
-        let gap = BAR_WIDGET_GAP;
+        let gap = m.barWidgetGap;
         if (gapCount > 0 && totalW + gap * gapCount > contentW) {
-            gap = Math.max(BAR_WIDGET_GAP_COMPACT, (contentW - totalW) / gapCount);
+            gap = Math.max(WATCH_BAR_WIDGET_GAP_COMPACT, (contentW - totalW) / gapCount);
         }
 
         let x = Math.max(
-            barX + BAR_PADDING_X_COMPACT,
+            barX + WATCH_BAR_PADDING_X_COMPACT,
             barX + (barW - (totalW + gap * gapCount)) / 2
         );
 
         const content = parts.map((p, i) => {
             const node = (
-                <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + barH / 2, barColors)}</g>
+                <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + barH / 2, barColors, textScale)}</g>
             );
             x += widths[i] + gap;
             return node;
@@ -396,9 +420,10 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     /* Time: centered in the area left over by the regions. */
     const renderTime = () => {
-        const availH = H - barH;
-        const SVG_W = Math.min(108, mainW - 6, Math.floor(((availH - 6) / 2) * 109 / 81));
-        const SVG_H = Math.round(SVG_W * 81 / 109);
+        // a bar lends the clock the padding above its widgets
+        const availH = H - (hasBar ? barH - m.barClockEncroach : 0);
+        const SVG_H = Math.round(availH * TIME_GLYPH_H_PER_CLOCK_H);
+        const SVG_W = Math.round(SVG_H * TIME_GLYPH_ASPECT);
         const timeX = mainX + (mainW - SVG_W) / 2;
         const timeY = (availH - SVG_H * 2) / 2;
         return (
@@ -421,6 +446,9 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                     width={W}
                     height={H}
                     viewBox={`0 0 ${W} ${H}`}
+                    // the preview box is basalt-shaped; emery is ~2% wider
+                    // for its height, so stretch rather than letterbox
+                    preserveAspectRatio="none"
                     fill="none"
                     className="halite-watch-preview"
                 >
@@ -439,21 +467,26 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
     );
 };
 
-/* ── Round arc geometry (mirrors the ROUND_ARC_* block, in chalk units) ── */
-
-const ARC_W = 40;               // ROUND_ARC_WIDTH
-const ARC_CONTENT_W = 30;       // ROUND_ARC_CONTENT_WIDTH
-const ARC_INNER_MARGIN = 3;     // ROUND_ARC_INNER_MARGIN
-const ARC_WIDGET_GAP = 2;       // ROUND_ARC_WIDGET_GAP
+/* update_clock_area_layer() insets the round clock by this, top and bottom */
+const ROUND_VERTICAL_PADDING = 15;
 
 /** Render a round (chalk/gabbro) TimeStyle face */
-const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSettings: s }) => {
+const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabilities }> = ({
+    effectiveSettings: s,
+    capabilities,
+}) => {
     const bg = getHex(s.colorBackground);
     const timeColor = getHex(s.colorTime);
 
     const { hourPath, minutePath } = getTimePaths(s.clockFont);
 
-    const CX = 90, CY = 90, R = 90;
+    const arc = arcMetrics(capabilities);
+    // ROUND_ARC_CONTENT_BAND is the same figure, rounded down
+    const band = Math.floor(arcContentBand(capabilities));
+    const textScale = previewTextScale(sidebarFontSize(capabilities, s.largeSidebarFont));
+
+    const S = arc.screen;
+    const CX = S / 2, CY = S / 2, R = S / 2;
 
     const slotIds = [
         s.widget0Id, s.widget1Id, s.widget2Id,
@@ -477,32 +510,41 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
             : slotIds.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2)
         ).filter((id) => id !== 0);
 
-        // the widget column sits ARC_INNER_MARGIN in from the arc's
-        // inner edge, so its center is a fixed inset from the screen edge
-        const inset = ARC_W - ARC_INNER_MARGIN - ARC_CONTENT_W / 2;
-        const cx = side === 'left' ? inset : 180 - inset;
+        // the widget column is centered across the arc, nudged towards the
+        // screen center (ROUND_ARC_CONTENT_INSET), straight down the arc
+        const inset = arc.width / 2 + ARC_INWARD_NUDGE;
+        const cx = side === 'left' ? inset : S - inset;
 
-        const specs = ids.map((id) => getWidgetSpec(id, s));
-        const scales = specs.map((spec) => (spec.w > 0 ? Math.min(ARC_CONTENT_W / spec.w, 1) : 1));
-        const heights = specs.map((spec, i) => spec.h * scales[i]);
-        const totalH =
-            heights.reduce((a, b) => a + b, 0) + ARC_WIDGET_GAP * Math.max(0, ids.length - 1);
+        const specs = ids.map((id) => getWidgetSpec(id, s, false, textScale));
+        const scales = specs.map((spec) => (spec.w > 0 ? Math.min(arc.contentWidth / spec.w, 1) : 1));
+        // watch heights, as in the sidebar: each stylized widget centers in
+        // the slot the watch would give it
+        const heights = ids.map((id) => stackedWidgetHeight(id, s, capabilities));
+        const contentH = heights.reduce((a, b) => a + b, 0);
+
+        // spread the stack out, but never past the band it has to fit
+        // in — the watch tightens a crowded arc's gaps the same way
+        const gapCount = Math.max(0, ids.length - 1);
+        let gap = arc.widgetGap;
+        if (gapCount > 0 && contentH + gap * gapCount > band) {
+            gap = Math.max(ARC_WIDGET_GAP_COMPACT, (band - contentH) / gapCount);
+        }
 
         // the stack centers on the arc's waist
-        let y = CY - totalH / 2;
+        let y = CY - (contentH + gap * gapCount) / 2;
 
         return (
             <>
                 {accent && (
-                    <circle cx={side === 'left' ? ARC_W - 180 : 180 + (180 - ARC_W)}
-                            cy={CY} r={180} fill={colors.background} />
+                    <circle cx={side === 'left' ? arc.width - S : 2 * S - arc.width}
+                            cy={CY} r={S} fill={colors.background} />
                 )}
                 {specs.map((spec, i) => {
-                    const top = y;
-                    y += heights[i] + ARC_WIDGET_GAP;
+                    const top = y + (heights[i] - spec.h * scales[i]) / 2;
+                    y += heights[i] + gap;
                     return (
                         <g key={`arc-${side}-${i}`}>
-                            {renderItemsStacked(spec.items, cx, top, scales[i], colors)}
+                            {renderItemsStacked(spec.items, cx, top, scales[i], colors, textScale)}
                         </g>
                     );
                 })}
@@ -515,9 +557,9 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
             <div className="halite-watch-face halite-watch-face--round">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width={180}
-                    height={180}
-                    viewBox="0 0 180 180"
+                    width={S}
+                    height={S}
+                    viewBox={`0 0 ${S} ${S}`}
                     fill="none"
                     className="halite-watch-preview"
                 >
@@ -526,10 +568,11 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings }> = ({ effectiveSett
 
                     {/* Time display — hours stacked above minutes */}
                     {(() => {
-                        const SVG_W = 95;
-                        const SVG_H = Math.round(SVG_W * 81 / 109);
-                        const timeX = (180 - SVG_W) / 2;
-                        const timeY = (180 - SVG_H * 2) / 2;
+                        const clockH = S - ROUND_VERTICAL_PADDING * 2;
+                        const SVG_H = Math.round(clockH * TIME_GLYPH_H_PER_CLOCK_H);
+                        const SVG_W = Math.round(SVG_H * TIME_GLYPH_ASPECT);
+                        const timeX = (S - SVG_W) / 2;
+                        const timeY = (S - SVG_H * 2) / 2;
                         return (
                             <>
                                 <svg x={timeX} y={timeY} width={SVG_W} height={SVG_H} viewBox="0 0 109 81">
@@ -561,7 +604,7 @@ export const WatchPreview: React.FC<WatchPreviewProps> = ({ overrideSettings, is
     const effectiveSettings = { ...settings, ...overrideSettings } as Settings;
 
     if (capabilities.ROUND) {
-        return <RoundPreview effectiveSettings={effectiveSettings} />;
+        return <RoundPreview effectiveSettings={effectiveSettings} capabilities={capabilities} />;
     }
     return <RectPreview effectiveSettings={effectiveSettings} capabilities={capabilities} />;
 };

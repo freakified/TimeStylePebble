@@ -3,7 +3,6 @@ import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
 import { ARC_SLOT_CAP, barSlotCap } from '../utils/layout';
-import { sidebarUnitsUsed } from '../utils/budget';
 import { assessArc, assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
 import {
     addWidget as addWidgetToRegion,
@@ -478,8 +477,8 @@ export const WidgetSelector: React.FC = () => {
                     renderWarning(
                         'primary',
                         capabilities.ROUND
-                            ? assessArc(sidebarUnitsUsed(primaryIds), capabilities, settings.largeSidebarFont)
-                            : assessSidebar(sidebarUnitsUsed(primaryIds), capabilities, settings.largeSidebarFont)
+                            ? assessArc(primaryIds, settings, capabilities)
+                            : assessSidebar(primaryIds, settings, capabilities)
                     )
                 )}
                 {renderRegion(
@@ -493,7 +492,7 @@ export const WidgetSelector: React.FC = () => {
                     renderWarning(
                         'secondary',
                         capabilities.ROUND
-                            ? assessArc(sidebarUnitsUsed(secondaryIds), capabilities, settings.largeSidebarFont)
+                            ? assessArc(secondaryIds, settings, capabilities)
                             : assessInlineBar(secondaryIds, settings, capabilities)
                     )
                 )}

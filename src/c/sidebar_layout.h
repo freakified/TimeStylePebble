@@ -38,7 +38,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 
 // rendered slot caps: the vertical sidebar has room for a stack of
 // small widgets, while the bar realistically fits two (three small on
-// emery) -- the config page's unit budget polices the rest
+// emery) -- the config page's fit budget polices the rest
 #if defined(PBL_PLATFORM_EMERY)
 #define VREGION_SLOT_CAP 6
 #define HREGION_SLOT_CAP 3
@@ -113,13 +113,12 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
  * Round watch arcs. Each arc is its own region holding a small stack of
  * widgets, centered on the arc's waist.
  *
- * An arc is a circle segment, so it is only ROUND_ARC_CONTENT_WIDTH wide
- * across a band around that waist -- towards the top and bottom of the
- * screen it tapers to nothing. That band, not the screen height, is what
- * an arc's widgets have to fit in, and it is small: roughly 65px on chalk
- * and 79px on gabbro. The config page derives the same figure in
- * arcContentBand() (utils/widgetMetrics.ts) and budgets against it; the
- * slot cap below is only the coarse backstop.
+ * An arc is a circle segment, so it is only at its full width across a
+ * band around that waist -- towards the top and bottom of the screen it
+ * tapers to nothing. That band, not the screen height, is what an arc's
+ * widgets have to fit in: ROUND_ARC_CONTENT_BAND below. The config page
+ * derives the same figure in arcContentBand() (utils/widgetMetrics.ts)
+ * and budgets against it; the slot cap is only the coarse backstop.
  */
 #if defined(PBL_PLATFORM_GABBRO)
 #define ROUND_ARC_WIDTH 56
@@ -128,7 +127,54 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define ROUND_ARC_WIDTH 40
 #define ROUND_ARC_CONTENT_WIDTH 30
 #endif
-// widgets sit closer to the screen center than to the curved outer edge
-#define ROUND_ARC_INNER_MARGIN 3
 #define ROUND_ARC_SLOT_CAP 3
-#define ROUND_ARC_WIDGET_GAP 2
+
+// The widget column is centered across the arc, nudged a pixel towards
+// the screen center: the lens's midline drifts that way away from the
+// waist, and measured off the emulator a centered stack's ink sat 1.5-2px
+// towards the rim on both platforms. The offset is into the arc from its
+// screen-center side, which is the layer's right edge on the left arc.
+#define ROUND_ARC_INWARD_NUDGE 1
+#define ROUND_ARC_CONTENT_INSET \
+  ((ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH) / 2 - ROUND_ARC_INWARD_NUDGE)
+
+/*
+ * The band an arc's widgets stack inside.
+ *
+ * An arc is a lens between two curves, and away from its waist both of
+ * them close in on the widget column: the arc's own edge (a circle of
+ * radius `screen`) and the display's rim (radius `screen / 2`, so it
+ * closes in about twice as fast and is the one that binds). The band is
+ * how far the rim can come in before it reaches a widget.
+ *
+ * What it reaches is ink, not the content column: text is centered in
+ * the column and rarely fills it, and icons are SIDEBAR_ICON_SIZE wide.
+ * So the band is sized for an icon-wide column, leaving
+ *
+ *     s = (ROUND_ARC_WIDTH - SIDEBAR_ICON_SIZE) / 2 + ROUND_ARC_INWARD_NUDGE
+ *
+ * between the ink and the rim at the waist, and reaching to
+ *
+ *     d = sqrt(R^2 - (R - s)^2),  R = screen / 2
+ *
+ * either side of it. These are 2d, rounded down. Sizing for the full
+ * content column instead cost gabbro over a third of its band (79 vs
+ * 126px) and crushed three-widget stacks to 1px gaps. The config page
+ * derives the same figures in arcContentBand().
+ */
+#if defined(PBL_PLATFORM_GABBRO)
+#define ROUND_ARC_CONTENT_BAND 126
+#else
+#define ROUND_ARC_CONTENT_BAND 76
+#endif
+
+// Arc widgets are spread by this gap where the band has room for it,
+// tightening towards the compact gap when it doesn't. On chalk that
+// means anything past two small widgets; gabbro keeps most of its gap
+// even for three. Better a crowded arc than one that spills off the lens.
+#if defined(PBL_PLATFORM_GABBRO)
+#define ROUND_ARC_WIDGET_GAP 12
+#else
+#define ROUND_ARC_WIDGET_GAP 8
+#endif
+#define ROUND_ARC_WIDGET_GAP_COMPACT 1

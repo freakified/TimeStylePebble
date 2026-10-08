@@ -125,7 +125,8 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   // if it's a round watch, EVERYTHING CHANGES
   #ifdef PBL_ROUND
-    v_adjust = ROUND_VERTICAL_PADDING;
+    // the round inset is already bounds.origin.y; adding it here too
+    // pushed the time ROUND_VERTICAL_PADDING below center
 
     if(settings.clockFontId != FONT_SETTING_LECO) {
       h_adjust = -1;

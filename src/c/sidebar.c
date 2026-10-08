@@ -168,7 +168,7 @@ static GRect hregion_frame(void) {
  * Vertical flow: the slots form a packed widget list (EMPTY entries are
  * dropped): the first widget pins to the top, the last pins to the
  * bottom, and the rest spread with equal gaps between them. Widgets
- * always render their full form -- the config page's unit budget is what
+ * always render their full form -- the config page's fit budget is what
  * keeps configs fitting. The only over-budget concession is shrinking
  * the end padding; past that, widgets simply crowd together.
  */
@@ -244,7 +244,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
  * Horizontal flow: the slots form a packed widget list (EMPTY entries are
  * dropped) and the widgets cluster as one group in the middle of the bar,
  * separated by a fixed gap. Widgets always render their full form -- the
- * config page's unit budget is what keeps configs fitting. The only
+ * config page's fit budget is what keeps configs fitting. The only
  * over-budget concession is tightening the gap; past that, the group
  * eats into the end padding.
  */
@@ -336,7 +336,14 @@ static void updateHRegionLayer(Layer *l, GContext *ctx) {
 /*
  * Arc flow: the slots form a packed widget list (EMPTY entries are
  * dropped) and the widgets stack as one block centered on the arc's
- * waist -- the only part of a circle segment wide enough to hold them.
+ * waist, the widest part of the lens. The column itself stays straight:
+ * the lens narrows from both sides away from the waist, but its two
+ * edges close in on each other almost symmetrically, so its midline
+ * barely moves -- by the band's ends it has drifted 2px inwards on chalk
+ * and under 4px on gabbro, with most of a stack's ink near the waist --
+ * which is why the widgets are simply centered where the waist puts
+ * them.
+ *
  * Widgets always render their full form; the config page's arc budget is
  * what keeps configs fitting, and past it they simply crowd together.
  *
@@ -345,7 +352,7 @@ static void updateHRegionLayer(Layer *l, GContext *ctx) {
  * so a filled seamless arc would punch a hole in the time.
  */
 static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
-                           int widgetXOffset) {
+                           bool onLeft) {
   const SidebarPalette *palette = r->dark
                                       ? &dynamicSettings.darkSidebarPalette
                                       : &dynamicSettings.sidebarPalette;
@@ -380,17 +387,35 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
     return;
   }
 
-  totalHeight += ROUND_ARC_WIDGET_GAP * (count - 1);
+  // spread the stack out, but never past the band it has to fit in: a
+  // crowded arc tightens its gaps before it spills off the lens
+  int gapCount = count - 1;
+  int gap = ROUND_ARC_WIDGET_GAP;
+
+  if (gapCount > 0 && totalHeight + gap * gapCount > ROUND_ARC_CONTENT_BAND) {
+    gap = (ROUND_ARC_CONTENT_BAND - totalHeight) / gapCount;
+    if (gap < ROUND_ARC_WIDGET_GAP_COMPACT) {
+      gap = ROUND_ARC_WIDGET_GAP_COMPACT;
+    }
+  }
+
+  totalHeight += gap * gapCount;
+
+  // the widget column sits ROUND_ARC_CONTENT_INSET in from the arc's
+  // screen-center side: the layer's right edge on the left arc, its left
+  // edge on the right one
+  int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH -
+                       ROUND_ARC_CONTENT_INSET
+                 : ROUND_ARC_CONTENT_INSET;
 
   // bgBounds is a square twice the arc's height, so a quarter of it is
-  // the arc's vertical center
+  // the arc's waist
   int y = bgBounds.size.h / 4 - totalHeight / 2;
 
   for (int i = 0; i < count; i++) {
-    GRect frame =
-        GRect(widgetXOffset, y, ROUND_ARC_CONTENT_WIDTH, sizes[i].h);
+    GRect frame = GRect(x, y, ROUND_ARC_CONTENT_WIDTH, sizes[i].h);
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
-    y += sizes[i].h + ROUND_ARC_WIDGET_GAP;
+    y += sizes[i].h + gap;
   }
 }
 
@@ -400,9 +425,7 @@ static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
       GRect(bounds.origin.x - bounds.size.h * 2 + bounds.size.w,
             bounds.size.h / -2, bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, &vRegion, bgBounds,
-                 ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH -
-                     ROUND_ARC_INNER_MARGIN);
+  draw_round_arc(ctx, &vRegion, bgBounds, true);
 }
 
 static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
@@ -410,7 +433,7 @@ static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
   GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2,
                          bounds.size.h * 2, bounds.size.h * 2);
 
-  draw_round_arc(ctx, &vRegion2, bgBounds, ROUND_ARC_INNER_MARGIN);
+  draw_round_arc(ctx, &vRegion2, bgBounds, false);
 }
 
 #endif
