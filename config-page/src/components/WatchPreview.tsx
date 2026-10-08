@@ -16,7 +16,6 @@ import {
     InlineParts,
     getInlineParts,
     measureInline,
-    INLINE_ICON_H,
     INLINE_GAP,
     fitText,
     PREVIEW_CAP_HEIGHT,
@@ -109,10 +108,10 @@ const darkRegionColors = (s: Settings): RegionColors => ({
 
 const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
     // match whole short or long hex colors: the Illustrator exports spell
-    // white #FFFFFF, and a bare /#fff/ would leave its tail behind
-    const tinted = svg
-        .replace(/#fff(fff)?\b/gi, colors.iconFill)
-        .replace(/#000(000)?\b/gi, colors.iconStroke);
+    // white #FFFFFF, and a bare /#fff/ would leave its tail behind. One
+    // pass, so a black fill (dark themes) isn't then re-tinted as stroke.
+    const tinted = svg.replace(/#(?:fff(?:fff)?|000(?:000)?)\b/gi, (hex) =>
+        hex[1].toLowerCase() === 'f' ? colors.iconFill : colors.iconStroke);
     return `data:image/svg+xml;utf8,${encodeURIComponent(tinted)}`;
 };
 
@@ -235,16 +234,16 @@ const renderInlineWidget = (
 
     if (parts.icon) {
         const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
-        const scale = INLINE_ICON_H / asset.h;
-        const w = asset.w * scale;
-        const top = centerY - INLINE_ICON_H / 2;
+        // full watch size, centered on the bar like the watch's
+        // SIDEBAR_ICON_SIZE icon frame
+        const top = centerY - asset.h / 2;
 
         if ('asset' in parts.icon) {
-            nodes.push(renderIconImage('icon', asset, cursor, top, w, INLINE_ICON_H, colors));
+            nodes.push(renderIconImage('icon', asset, cursor, top, asset.w, asset.h, colors));
         } else {
-            nodes.push(renderCalendar('icon', parts.icon.calendar, cursor, top, scale, colors));
+            nodes.push(renderCalendar('icon', parts.icon.calendar, cursor, top, 1, colors));
         }
-        cursor += w + (parts.text ? INLINE_GAP : 0);
+        cursor += asset.w + (parts.text ? INLINE_GAP : 0);
     }
 
     if (parts.text) {

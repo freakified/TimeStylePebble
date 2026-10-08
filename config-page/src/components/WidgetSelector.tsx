@@ -325,17 +325,13 @@ export const WidgetSelector: React.FC = () => {
    * there's no hard cliff to put a precise number against. "over" means
    * the widgets' full forms don't fit — not that anything breaks.
    */
-  const CROWD_MESSAGE = 'Widget size warning — crowd together on the watch.';
-  const overMessage = (region: WidgetRegion) =>
-    region === 'secondary' && !capabilities.ROUND
-      ? 'Too many widgets to fit — the watch will shorten their text.'
-      : CROWD_MESSAGE;
+  const OVER_MESSAGE = 'There might be too many widgets to fit.';
 
-  const renderWarning = (region: WidgetRegion, fit: FitResult) =>
+  const renderWarning = (fit: FitResult) =>
     fit.state === 'over' ? (
       <p className="widget-warning" role="status">
         <span className="widget-warning-icon" aria-hidden="true">!</span>
-        {overMessage(region)}
+        {OVER_MESSAGE}
       </p>
     ) : null;
 
@@ -475,7 +471,6 @@ export const WidgetSelector: React.FC = () => {
           primaryIds,
           primarySlotCount,
           renderWarning(
-            'primary',
             capabilities.ROUND
               ? assessArc(primaryIds, settings, capabilities)
               : assessSidebar(primaryIds, settings, capabilities)
@@ -490,7 +485,6 @@ export const WidgetSelector: React.FC = () => {
           secondaryIds,
           secondarySlotCount,
           renderWarning(
-            'secondary',
             capabilities.ROUND
               ? assessArc(secondaryIds, settings, capabilities)
               : assessInlineBar(secondaryIds, settings, capabilities)

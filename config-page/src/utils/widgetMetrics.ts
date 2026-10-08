@@ -252,8 +252,7 @@ export const getWidgetSpec = (
     return { items, sizes, w, h };
 };
 
-export const INLINE_ICON_H = 12;
-export const INLINE_GAP = 3;
+export const INLINE_GAP = 3;  // horizontal_item_gap()
 
 export interface InlineParts {
     icon?: { asset: IconAsset } | { calendar: string };
@@ -288,7 +287,7 @@ export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number =
     let w = 0;
     if (parts.icon) {
         const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
-        w += asset.w * (INLINE_ICON_H / asset.h);
+        w += asset.w;
         if (parts.text) w += INLINE_GAP;
     }
     if (parts.text) w += fitText(parts.text, 'current', fonts).w;
