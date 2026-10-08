@@ -1,6 +1,6 @@
 [
   {
-    "name": "Classic",
+    "name": "Contrast",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
@@ -10,7 +10,37 @@
     }
   },
   {
-    "name": "Inverse",
+    "name": "Timeline-Dark",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
+    }
+  },
+  {
+    "name": "Timeline",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Pure Dark",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "FFFFFF"
+    }
+  },
+  {
+    "name": "Invert",
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
@@ -20,13 +50,133 @@
     }
   },
   {
-    "name": "Slate",
+    "name": "Pure Light",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Daybreak",
     "settings": {
       "colorBackground": "000000",
-      "colorTime": "FFFFFF",
+      "colorTime": "AAAAAA",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "FFFFFF"
+    }
+  },
+  {
+    "name": "Midnight",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "AAAAAA",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "FFFFFF"
+    }
+  },
+  {
+    "name": "Shade",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "AAAAAA",
       "colorSidebar": "AAAAAA",
       "colorSidebarText": "000000",
       "colorAltSidebarText": "FFFFFF"
+    }
+  },
+  {
+    "name": "Faded",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "AAAAAA",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Torn",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "AAAAAA",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Clean",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "AAAAAA",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Cumulus",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "000000",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Storm",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "000000",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Overcast",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "000000",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Cutout",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "FFFFFF",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Carbon",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "000000",
+      "colorSidebarText": "FFFFFF",
+      "colorAltSidebarText": "000000"
+    }
+  },
+  {
+    "name": "Stencil",
+    "settings": {
+      "colorBackground": "AAAAAA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "AAAAAA",
+      "colorSidebarText": "000000",
+      "colorAltSidebarText": "000000"
     }
   }
 ]
