@@ -16,9 +16,9 @@ import iconWeather from '../assets/preview/widget_previews/icon_weather.svg?raw'
  * There is one description of what each widget shows (getWidgetItems /
  * getInlineParts) and two rulers over it:
  *
- *   - the PREVIEW ruler (measureItem, measureInline) works in the
- *     preview's own stylized units — smaller icons and text than the
- *     watch actually draws, tuned to look right in an SVG mock;
+ *   - the PREVIEW ruler (measureItem, measureInline) measures what the
+ *     preview draws: watch pixels too, but set in the preview's stand-in
+ *     font, whose widths only approximate Gothic's;
  *   - the WATCH ruler (inlineWidgetWidth, below) works in real watch
  *     pixels and mirrors horizontal_content_width() in sidebar_widgets.c.
  *
@@ -36,7 +36,7 @@ export interface IconAsset {
 }
 
 export const ICONS = {
-    battery: { svg: iconBattery, w: 25, h: 18 },
+    battery: { svg: iconBattery, w: 25, h: 14 },  // BatteryMeter_measure's icon height
     date:    { svg: iconDate,    w: 25, h: 25 },
     hrm:     { svg: iconHrm,     w: 25, h: 25 },
     // HEAVY_RAIN.pdc, the icon PrecipChance_getContent() draws
@@ -50,14 +50,22 @@ export const ICONS = {
 
 /* ── Widget content ── */
 
+/**
+ * Which of the sidebar's Gothic Bold fonts a line of text draws in, as
+ * sidebar_widgets.c picks them: values in currentSidebarFont (stepping
+ * down to the fallback when they don't fit), labels in smSidebarFont.
+ */
+export type FontRole = 'current' | 'sm' | 'md' | 'lg';
+
 export type WidgetItem =
     | { type: 'icon'; asset: IconAsset }
     | { type: 'calendar'; day: string }   // date icon with the day number inside
-    | { type: 'text'; text: string; size: number }
+    | { type: 'text'; text: string; font: FontRole }
     | { type: 'divider' };
 
-export const STACK_GAP = 2;
-export const TEXT_CHAR_W = 0.62;  // average bold advance as a fraction of font size
+// Average Roboto Condensed Bold advance as a fraction of font size,
+// averaged over typical widget strings ('40%', '12:45', 'Mon', ...)
+export const TEXT_CHAR_W = 0.49;
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -74,7 +82,7 @@ const getIsoWeek = (date: Date): number => {
 const SAMPLE_SUNRISE_MINUTE = 6 * 60 + 42;
 const SAMPLE_SUNSET_MINUTE = 20 * 60 + 14;
 
-const text = (str: string, size = 9): WidgetItem => ({ type: 'text', text: str, size });
+const text = (str: string, font: FontRole = 'current'): WidgetItem => ({ type: 'text', text: str, font });
 
 export const getWidgetItems = (widgetId: number, settings: Settings, compact = false): WidgetItem[] => {
     const now = new Date();
@@ -88,13 +96,13 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
             const label1 = findWorldTimeCity(settings.worldTime1City)
                 ? settings.worldTime1Label
                 : settings.altClockName || 'UTC';
-            return label1 ? [text(label1), text('5:42p', 8)] : [text('5:42p', 8)];
+            return label1 ? [text(label1, 'sm'), text('5:42p')] : [text('5:42p')];
         }
         case 14: {  // World Time 2
             const label2 = findWorldTimeCity(settings.worldTime2City)
                 ? settings.worldTime2Label
                 : settings.altClock2Name || 'TYO';
-            return label2 ? [text(label2), text('9:42a', 8)] : [text('9:42a', 8)];
+            return label2 ? [text(label2, 'sm'), text('9:42a')] : [text('9:42a')];
         }
         case 4: {  // Today's Date
             const items: WidgetItem[] = [
@@ -104,38 +112,38 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
             if (!compact) items.push(text(MONTH_NAMES[now.getMonth()]));
             return items;
         }
-        case 5:  // Seconds
-            return [text('30')];
+        case 5:  // Seconds: plain text draws in the large font
+            return [text('30', 'lg')];
         case 6:  // Week Number
-            return [text('Wk'), text(String(getIsoWeek(now)))];
+            return [text('Wk', 'sm'), text(String(getIsoWeek(now)))];
         case 7:  // Current Weather
             return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
         case 8:  // Today's Forecast
             return [{ type: 'icon', asset: ICONS.weather }, text('75°'), { type: 'divider' }, text('60°')];
-        case 9:  // Sleep
-            return [{ type: 'icon', asset: ICONS.sleep }, text('7h'), text('42m', 7)];
+        case 9:  // Sleep: hours always in the medium font, minutes as subtext
+            return [{ type: 'icon', asset: ICONS.sleep }, text('7h', 'md'), text('42m', 'sm')];
         case 10:  // Steps
             return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
         case 11:  // Swatch Internet Time
-            return [text('@'), text('543')];
+            return [text('@', 'sm'), text('543')];
         case 12:  // Heart Rate
             return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
         case 13:  // UV Index
-            return [text('UV'), text('6')];
+            return [text('UV', 'sm'), text('6')];
         case 15: {  // Sunrise & Sunset
             // like NextSunEvent_getContent(), show whichever comes up next
             const minute = now.getHours() * 60 + now.getMinutes();
             const sunriseNext = minute < SAMPLE_SUNRISE_MINUTE || minute >= SAMPLE_SUNSET_MINUTE;
             return sunriseNext
-                ? [{ type: 'icon', asset: ICONS.sunrise }, text('6:42a', 8)]
-                : [{ type: 'icon', asset: ICONS.sunset }, text('8:14p', 8)];
+                ? [{ type: 'icon', asset: ICONS.sunrise }, text('6:42a')]
+                : [{ type: 'icon', asset: ICONS.sunset }, text('8:14p')];
         }
         case 16: {  // Wind Speed
             // like Wind_getContent(): the full form carries the unit, which
             // the bar has room for; the narrow sidebar falls back to the
             // bare number
             const unit = settings.weatherUnits === 'c' ? 'kph' : 'mph';
-            return [text('WIND', 7), text(compact ? `12${unit}` : '12')];
+            return [text('WIND', 'sm'), text(compact ? `12${unit}` : '12')];
         }
         case 17:  // Chance of Rain
             return [{ type: 'icon', asset: ICONS.rain }, text('40%')];
@@ -144,30 +152,85 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
     }
 };
 
-/* ── Preview ruler (stylized SVG units) ── */
-
-/*
- * The preview's text sizes are drawn for Gothic 18, basalt's normal
- * sidebar font. Other platform/font-size combos scale text by their own
- * font size relative to that; icons don't scale, since the watch draws
- * them at SIDEBAR_ICON_SIZE everywhere.
+/* ── Preview ruler (watch pixels, preview font) ──
+ *
+ * The preview draws in the watch's own pixels, with Roboto Condensed
+ * Bold standing in for Gothic Bold. Its text is sized so the caps come
+ * out exactly as tall as Gothic's (GOTHIC_HEIGHT, below), and its stacks
+ * use the watch's own gaps, so a stacked widget is as tall in the preview
+ * as the slot stackedWidgetHeight() gives it on the watch.
  */
-export const previewTextScale = (fontSize: number): number => fontSize / 18;
 
-export const measureItem = (item: WidgetItem, textScale = 1): { w: number; h: number } => {
+export const PREVIEW_CAP_HEIGHT = 0.711;  // Roboto Condensed Bold, fraction of font size
+
+/** The Gothic Bold size behind each font role, per platform and setting */
+export type PreviewFonts = Record<FontRole | 'fallback', number>;
+
+export const previewFonts = (capabilities: Capabilities, largeFonts: boolean): PreviewFonts => {
+    const f = sidebarFontSet(capabilities);
+    return largeFonts
+        ? { current: f.lg, fallback: f.md, ...f }
+        : { current: f.md, fallback: f.sm, ...f };
+};
+
+/** The CSS font size at which the preview font's caps match Gothic `gothicSize`'s */
+export const previewFontSize = (gothicSize: number): number =>
+    (GOTHIC_HEIGHT[gothicSize] ?? GOTHIC_HEIGHT[18]) / PREVIEW_CAP_HEIGHT;
+
+export interface FittedText {
+    fontSize: number;
+    capH: number;
+    w: number;
+}
+
+/**
+ * Pick the font a line of text draws in, the way pick_text() does: a
+ * value that's too wide for `maxW` in currentSidebarFont steps down to
+ * the fallback font. The decision uses the watch ruler, so it's the one
+ * the watch makes. If even that doesn't fit, the preview squeezes the
+ * text to fit, standing in for the watch's shorter text candidates.
+ */
+export const fitText = (
+    str: string,
+    role: FontRole,
+    fonts: PreviewFonts,
+    maxW = Infinity
+): FittedText => {
+    const sizes = role === 'current' ? [fonts.current, fonts.fallback] : [fonts[role]];
+    const size = sizes.find((sz) => textWidth(str, sz) <= maxW) ?? sizes[sizes.length - 1];
+    let fontSize = previewFontSize(size);
+    const natural = str.length * fontSize * TEXT_CHAR_W;
+    if (natural > maxW) fontSize *= maxW / natural;
+    return { fontSize, capH: fontSize * PREVIEW_CAP_HEIGHT, w: Math.min(natural, maxW) };
+};
+
+export const measureItem = (
+    item: WidgetItem,
+    fonts: PreviewFonts,
+    maxW = Infinity
+): { w: number; h: number } => {
     switch (item.type) {
         case 'icon': return { w: item.asset.w, h: item.asset.h };
         case 'calendar': return { w: ICONS.date.w, h: ICONS.date.h };
         case 'text': {
-            const size = item.size * textScale;
-            return { w: item.text.length * size * TEXT_CHAR_W, h: size + 1 };
+            const fitted = fitText(item.text, item.font, fonts, maxW);
+            return { w: fitted.w, h: fitted.capH };
         }
-        case 'divider': return { w: 14, h: 3 };
+        case 'divider': return { w: 14, h: STACK_DIVIDER_H };
     }
+};
+
+/** The gap the watch leaves above `item` in a stack, after `prev` */
+export const stackGap = (prev: WidgetItem, item: WidgetItem): number => {
+    if (prev.type === 'icon' || prev.type === 'calendar' ||
+        item.type === 'icon' || item.type === 'calendar') return STACK_ICON_TEXT_GAP;
+    if (prev.type === 'text' && prev.font === 'sm' && item.type === 'text') return STACK_LABEL_GAP;
+    return STACK_VALUE_GAP;
 };
 
 export interface WidgetSpec {
     items: WidgetItem[];
+    sizes: { w: number; h: number }[];
     w: number;
     h: number;
 }
@@ -175,23 +238,22 @@ export interface WidgetSpec {
 export const getWidgetSpec = (
     widgetId: number,
     settings: Settings,
-    compact = false,
-    textScale = 1
+    fonts: PreviewFonts,
+    maxW = Infinity
 ): WidgetSpec => {
-    const items = getWidgetItems(widgetId, settings, compact);
+    const items = getWidgetItems(widgetId, settings);
+    const sizes = items.map((item) => measureItem(item, fonts, maxW));
     let w = 0;
     let h = 0;
-    items.forEach((item, i) => {
-        const size = measureItem(item, textScale);
+    sizes.forEach((size, i) => {
         w = Math.max(w, size.w);
-        h += size.h + (i > 0 ? STACK_GAP : 0);
+        h += size.h + (i > 0 ? stackGap(items[i - 1], items[i]) : 0);
     });
-    return { items, w, h };
+    return { items, sizes, w, h };
 };
 
 export const INLINE_ICON_H = 12;
 export const INLINE_GAP = 3;
-export const INLINE_FONT = 9;
 
 export interface InlineParts {
     icon?: { asset: IconAsset } | { calendar: string };
@@ -222,14 +284,14 @@ export const getInlineParts = (widgetId: number, settings: Settings): InlinePart
     return { icon, text: textParts.join('') };
 };
 
-export const measureInline = (parts: InlineParts, textScale = 1): number => {
+export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number => {
     let w = 0;
     if (parts.icon) {
         const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
         w += asset.w * (INLINE_ICON_H / asset.h);
         if (parts.text) w += INLINE_GAP;
     }
-    w += parts.text.length * INLINE_FONT * textScale * TEXT_CHAR_W;
+    if (parts.text) w += fitText(parts.text, 'current', fonts).w;
     return w;
 };
 

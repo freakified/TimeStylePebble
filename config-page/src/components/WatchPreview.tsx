@@ -10,21 +10,21 @@ import {
 import {
     ICONS,
     IconAsset,
-    WidgetItem,
-    STACK_GAP,
-    measureItem,
+    WidgetSpec,
     getWidgetSpec,
+    stackGap,
     InlineParts,
     getInlineParts,
     measureInline,
     INLINE_ICON_H,
     INLINE_GAP,
-    INLINE_FONT,
+    fitText,
+    PREVIEW_CAP_HEIGHT,
     platformMetrics,
     arcMetrics,
     arcContentBand,
-    sidebarFontSize,
-    previewTextScale,
+    previewFonts,
+    PreviewFonts,
     stackedWidgetHeight,
     ARC_WIDGET_GAP_COMPACT,
     ARC_INWARD_NUDGE,
@@ -69,7 +69,8 @@ function getTimePaths(clockFont: Settings['clockFont']) {
  * list.
  */
 
-const TEXT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+// Roboto Condensed Bold, bundled in index.css, stands in for Gothic Bold
+const TEXT_FONT = "'Roboto Condensed', 'Arial Narrow', sans-serif";
 
 const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
 
@@ -119,17 +120,18 @@ const textNode = (
     key: React.Key,
     str: string,
     x: number,
-    y: number,
+    capTop: number,
     fontSize: number,
     fill: string,
     anchor: 'middle' | 'start' = 'middle'
 ) => (
+    // sat on its baseline so the caps span exactly capTop..capTop+capH,
+    // the box the watch's text metrics lay out
     <text
         key={key}
         x={x}
-        y={y}
+        y={capTop + fontSize * PREVIEW_CAP_HEIGHT}
         textAnchor={anchor}
-        dominantBaseline="central"
         fill={fill}
         fontSize={fontSize}
         fontFamily={TEXT_FONT}
@@ -161,6 +163,7 @@ const renderIconImage = (
 
 // The day number sits inside the calendar body (below the binding rings).
 const CALENDAR_DAY_CENTER_Y = 14;
+const CALENDAR_DAY_FONT = 10;
 
 const renderCalendar = (
     key: React.Key,
@@ -172,47 +175,46 @@ const renderCalendar = (
 ) => (
     <g key={key}>
         {renderIconImage('bg', ICONS.date, x, y, ICONS.date.w * scale, ICONS.date.h * scale, colors)}
-        {textNode('day', day, x + (ICONS.date.w / 2) * scale, y + CALENDAR_DAY_CENTER_Y * scale,
-                  9 * scale, colors.iconStroke)}
+        {textNode('day', day, x + (ICONS.date.w / 2) * scale,
+                  y + CALENDAR_DAY_CENTER_Y * scale - (CALENDAR_DAY_FONT * PREVIEW_CAP_HEIGHT * scale) / 2,
+                  CALENDAR_DAY_FONT * scale, colors.iconStroke)}
     </g>
 );
 
 /** Draw a widget's items top-to-bottom, horizontally centered on `cx`. */
 const renderItemsStacked = (
-    items: WidgetItem[],
+    spec: WidgetSpec,
     cx: number,
     top: number,
-    scale: number,
     colors: RegionColors,
-    textScale = 1
+    fonts: PreviewFonts,
+    maxW: number
 ) => {
     let y = top;
-    return items.map((item, i) => {
-        const size = measureItem(item, textScale);
+    return spec.items.map((item, i) => {
+        if (i > 0) y += stackGap(spec.items[i - 1], item);
+        const size = spec.sizes[i];
         const itemTop = y;
-        y += (size.h + STACK_GAP) * scale;
+        y += size.h;
 
         switch (item.type) {
-            case 'icon': {
-                const w = size.w * scale;
-                const h = size.h * scale;
-                return renderIconImage(i, item.asset, cx - w / 2, itemTop, w, h, colors);
-            }
+            case 'icon':
+                return renderIconImage(i, item.asset, cx - size.w / 2, itemTop, size.w, size.h, colors);
             case 'calendar':
-                return renderCalendar(i, item.day, cx - (size.w * scale) / 2, itemTop, scale, colors);
+                return renderCalendar(i, item.day, cx - size.w / 2, itemTop, 1, colors);
             case 'text':
-                return textNode(i, item.text, cx, itemTop + (size.h * scale) / 2,
-                                item.size * textScale * scale, colors.text);
+                return textNode(i, item.text, cx, itemTop,
+                                fitText(item.text, item.font, fonts, maxW).fontSize, colors.text);
             case 'divider':
                 return (
                     <line
                         key={i}
-                        x1={cx - (size.w * scale) / 2}
-                        x2={cx + (size.w * scale) / 2}
-                        y1={itemTop + 1.5 * scale}
-                        y2={itemTop + 1.5 * scale}
+                        x1={cx - size.w / 2}
+                        x2={cx + size.w / 2}
+                        y1={itemTop + size.h / 2}
+                        y2={itemTop + size.h / 2}
                         stroke={colors.text}
-                        strokeWidth={1}
+                        strokeWidth={size.h}
                     />
                 );
         }
@@ -226,7 +228,7 @@ const renderInlineWidget = (
     x: number,
     centerY: number,
     colors: RegionColors,
-    textScale = 1
+    fonts: PreviewFonts
 ) => {
     const nodes: React.ReactNode[] = [];
     let cursor = x;
@@ -246,7 +248,9 @@ const renderInlineWidget = (
     }
 
     if (parts.text) {
-        nodes.push(textNode('text', parts.text, cursor, centerY, INLINE_FONT * textScale, colors.text, 'start'));
+        const fitted = fitText(parts.text, 'current', fonts);
+        nodes.push(textNode('text', parts.text, cursor, centerY - fitted.capH / 2,
+                            fitted.fontSize, colors.text, 'start'));
     }
 
     return nodes;
@@ -276,7 +280,8 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
     const m = platformMetrics(capabilities, s.largeSidebarFont);
     const W = m.screenW, H = m.screenH;
-    const textScale = previewTextScale(m.fontSize);
+    const fonts = previewFonts(capabilities, s.largeSidebarFont);
+    const barClipId = React.useId();
 
     // the bar is on screen exactly when it holds a widget, the same rule
     // sidebar_buildRegions() applies on the watch
@@ -325,8 +330,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         }
 
         const maxW = SIDEBAR_W - 2;
-        const specs = slotIds.map((id) => getWidgetSpec(id, s, false, textScale));
-        const baseScales = specs.map((spec) => (spec.w > 0 ? Math.min(maxW / spec.w, 1) : 1));
+        const specs = slotIds.map((id) => getWidgetSpec(id, s, fonts, maxW));
 
         const heights = slotIds.map((id) => stackedWidgetHeight(id, s, capabilities));
         const naturalTotal = heights.reduce((a, b) => a + b, 0);
@@ -365,9 +369,8 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
                 <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />
                 {slotIds.map((id, i) => (
                     <g key={`sidebar-${i}`}>
-                        {renderItemsStacked(specs[i].items, cx,
-                                            tops[i] + (heights[i] - specs[i].h * baseScales[i]) / 2,
-                                            baseScales[i], colors, textScale)}
+                        {renderItemsStacked(specs[i], cx, tops[i] + (heights[i] - specs[i].h) / 2,
+                                            colors, fonts, maxW)}
                     </g>
                 ))}
             </>
@@ -387,7 +390,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
             .filter((id) => id !== 0)
             .map((id) => getInlineParts(id, s))
             .filter((p): p is InlineParts => p !== null);
-        const widths = parts.map((p) => measureInline(p, textScale));
+        const widths = parts.map((p) => measureInline(p, fonts));
         const totalW = widths.reduce((a, b) => a + b, 0);
         const contentW = barW - WATCH_BAR_PADDING_X * 2;
         const gapCount = parts.length - 1;
@@ -404,7 +407,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
 
         const content = parts.map((p, i) => {
             const node = (
-                <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + barH / 2, barColors, textScale)}</g>
+                <g key={`bar-${i}`}>{renderInlineWidget(p, x, barY + barH / 2, barColors, fonts)}</g>
             );
             x += widths[i] + gap;
             return node;
@@ -413,7 +416,12 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         return (
             <>
                 <rect x={barX} y={barY} width={barW} height={barH} fill={barColors.background} />
-                {content}
+                {/* the watch clips an overfull bar at its edges rather than
+                    letting it run into the sidebar */}
+                <clipPath id={barClipId}>
+                    <rect x={barX} y={barY} width={barW} height={barH} />
+                </clipPath>
+                <g clipPath={`url(#${barClipId})`}>{content}</g>
             </>
         );
     };
@@ -483,7 +491,7 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
     const arc = arcMetrics(capabilities);
     // ROUND_ARC_CONTENT_BAND is the same figure, rounded down
     const band = Math.floor(arcContentBand(capabilities));
-    const textScale = previewTextScale(sidebarFontSize(capabilities, s.largeSidebarFont));
+    const fonts = previewFonts(capabilities, s.largeSidebarFont);
 
     const S = arc.screen;
     const CX = S / 2, CY = S / 2, R = S / 2;
@@ -515,8 +523,7 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
         const inset = arc.width / 2 + ARC_INWARD_NUDGE;
         const cx = side === 'left' ? inset : S - inset;
 
-        const specs = ids.map((id) => getWidgetSpec(id, s, false, textScale));
-        const scales = specs.map((spec) => (spec.w > 0 ? Math.min(arc.contentWidth / spec.w, 1) : 1));
+        const specs = ids.map((id) => getWidgetSpec(id, s, fonts, arc.contentWidth));
         // watch heights, as in the sidebar: each stylized widget centers in
         // the slot the watch would give it
         const heights = ids.map((id) => stackedWidgetHeight(id, s, capabilities));
@@ -540,11 +547,11 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
                             cy={CY} r={S} fill={colors.background} />
                 )}
                 {specs.map((spec, i) => {
-                    const top = y + (heights[i] - spec.h * scales[i]) / 2;
+                    const top = y + (heights[i] - spec.h) / 2;
                     y += heights[i] + gap;
                     return (
                         <g key={`arc-${side}-${i}`}>
-                            {renderItemsStacked(spec.items, cx, top, scales[i], colors, textScale)}
+                            {renderItemsStacked(spec, cx, top, colors, fonts, arc.contentWidth)}
                         </g>
                     );
                 })}

@@ -1,3 +1,13 @@
+/* Stand-in for the watch's Gothic Bold in the preview: condensed
+ * proportions close to Gothic's. License in assets/fonts/LICENSE.txt. */
+@font-face {
+  font-family: 'Roboto Condensed';
+  src: url('./assets/fonts/RobotoCondensed-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
 
