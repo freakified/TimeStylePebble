@@ -9,7 +9,7 @@ layout metrics in clock_area.c.
 Requires fontTools (pip install fonttools). Typical use:
 
     python3 tools/ttf_to_svgfont.py "EBGaramond[wght].ttf" build/garamond.svg \\
-        --id EBGaramondMedium --wght 500
+        --id EBGaramondRegular --wght 400
     ./node_modules/.bin/fctx-compiler build/garamond.svg -r "[0-9: ]"
 
 --like copies the advances and digit placement of an existing .ffont, for

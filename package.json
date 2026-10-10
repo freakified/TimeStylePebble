@@ -126,8 +126,8 @@
           ]
         },
         {
-          "file": "fonts/EBGaramondMedium.ffont",
-          "name": "GARAMOND_MEDIUM_FFONT",
+          "file": "fonts/EBGaramondRegular.ffont",
+          "name": "GARAMOND_REGULAR_FFONT",
           "type": "raw",
           "targetPlatforms": [
             "basalt",
