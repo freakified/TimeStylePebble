@@ -46,8 +46,6 @@ export interface Settings {
   colorBackground: string;
   colorTime: string;
   colorSidebar: string;
-  colorSidebarText: string;
-  colorAltSidebarText: string;  // text on "dark" regions (the bottom bar)
 
   // Widget slots (integer IDs)
   // 0=Empty, 2=Battery, 3=World Time 1, 4=Date, 5=Seconds, 6=Week Number,

@@ -4,9 +4,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FF5500",
-      "colorSidebar": "FF5500",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF5500"
     }
   },
   {
@@ -14,9 +12,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "00FFFF",
-      "colorSidebar": "00FFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00FFFF"
     }
   },
   {
@@ -24,9 +20,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "00FF00",
-      "colorSidebar": "00FF00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00FF00"
     }
   },
   {
@@ -34,9 +28,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "AA00FF",
-      "colorSidebar": "AA00FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AA00FF"
     }
   },
   {
@@ -44,9 +36,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FF00AA",
-      "colorSidebar": "FF00AA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF00AA"
     }
   },
   {
@@ -54,9 +44,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FF0000",
-      "colorSidebar": "FF0000",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF0000"
     }
   },
   {
@@ -64,9 +52,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
-      "colorSidebar": "FFAA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "FFAA00"
     }
   },
   {
@@ -74,9 +60,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
-      "colorSidebar": "00AAFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00AAFF"
     }
   },
   {
@@ -84,9 +68,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFAA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFAA00"
     }
   },
   {
@@ -94,9 +76,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "00AAFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00AAFF"
     }
   },
   {
@@ -104,9 +84,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
-      "colorSidebar": "00FF00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00FF00"
     }
   },
   {
@@ -114,9 +92,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
-      "colorSidebar": "AA0000",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "AA0000"
     }
   },
   {
@@ -124,9 +100,7 @@
     "settings": {
       "colorBackground": "555555",
       "colorTime": "FFFFFF",
-      "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAAAAA"
     }
   },
   {
@@ -134,9 +108,7 @@
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "FFFFFF",
-      "colorSidebar": "0055FF",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "0055FF"
     }
   },
   {
@@ -144,9 +116,7 @@
     "settings": {
       "colorBackground": "005500",
       "colorTime": "FFFFFF",
-      "colorSidebar": "55AA55",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "55AA55"
     }
   },
   {
@@ -154,9 +124,7 @@
     "settings": {
       "colorBackground": "FF0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "AA0000",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AA0000"
     }
   },
   {
@@ -164,9 +132,7 @@
     "settings": {
       "colorBackground": "5500FF",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFF00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFF00"
     }
   },
   {
@@ -174,9 +140,7 @@
     "settings": {
       "colorBackground": "550000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FF5500",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF5500"
     }
   },
   {
@@ -184,9 +148,7 @@
     "settings": {
       "colorBackground": "FF0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -194,9 +156,7 @@
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -204,9 +164,7 @@
     "settings": {
       "colorBackground": "005500",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -214,9 +172,7 @@
     "settings": {
       "colorBackground": "5500AA",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -224,9 +180,7 @@
     "settings": {
       "colorBackground": "FF00AA",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -234,9 +188,7 @@
     "settings": {
       "colorBackground": "AA0055",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFFF"
     }
   },
   {
@@ -244,9 +196,7 @@
     "settings": {
       "colorBackground": "55AAFF",
       "colorTime": "000000",
-      "colorSidebar": "0055AA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "0055AA"
     }
   },
   {
@@ -254,9 +204,7 @@
     "settings": {
       "colorBackground": "FFFF00",
       "colorTime": "000000",
-      "colorSidebar": "AAAA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "AAAA00"
     }
   },
   {
@@ -264,9 +212,7 @@
     "settings": {
       "colorBackground": "00FF00",
       "colorTime": "000000",
-      "colorSidebar": "00AA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00AA00"
     }
   },
   {
@@ -274,9 +220,7 @@
     "settings": {
       "colorBackground": "FFAAFF",
       "colorTime": "000000",
-      "colorSidebar": "FF55AA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "FF55AA"
     }
   },
   {
@@ -284,9 +228,7 @@
     "settings": {
       "colorBackground": "FFAA00",
       "colorTime": "000000",
-      "colorSidebar": "FF5500",
-      "colorSidebarText": "550000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "FF5500"
     }
   },
   {
@@ -294,9 +236,7 @@
     "settings": {
       "colorBackground": "AAAAFF",
       "colorTime": "000000",
-      "colorSidebar": "5555FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "5555FF"
     }
   },
   {
@@ -304,9 +244,7 @@
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "FFFFFF",
-      "colorSidebar": "AA0000",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AA0000"
     }
   },
   {
@@ -314,9 +252,7 @@
     "settings": {
       "colorBackground": "000055",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFAA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFAA00"
     }
   },
   {
@@ -324,9 +260,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFAA55",
-      "colorSidebar": "5555FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "5555FF"
     }
   },
   {
@@ -334,9 +268,7 @@
     "settings": {
       "colorBackground": "000055",
       "colorTime": "AAFFFF",
-      "colorSidebar": "5555FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "5555FF"
     }
   },
   {
@@ -344,9 +276,7 @@
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "00FF00",
-      "colorSidebar": "00FF00",
-      "colorSidebarText": "0055AA",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00FF00"
     }
   },
   {
@@ -354,9 +284,7 @@
     "settings": {
       "colorBackground": "0000FF",
       "colorTime": "00FF00",
-      "colorSidebar": "FF00FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF00FF"
     }
   },
   {
@@ -364,9 +292,7 @@
     "settings": {
       "colorBackground": "555500",
       "colorTime": "FFFFFF",
-      "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAAAAA"
     }
   },
   {
@@ -374,9 +300,7 @@
     "settings": {
       "colorBackground": "550000",
       "colorTime": "FFAAAA",
-      "colorSidebar": "FFAAAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFAAAA"
     }
   },
   {
@@ -384,9 +308,7 @@
     "settings": {
       "colorBackground": "005500",
       "colorTime": "AAFFAA",
-      "colorSidebar": "AAFFAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAFFAA"
     }
   },
   {
@@ -394,9 +316,7 @@
     "settings": {
       "colorBackground": "FF0000",
       "colorTime": "FFFF00",
-      "colorSidebar": "00AA00",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00AA00"
     }
   },
   {
@@ -404,9 +324,7 @@
     "settings": {
       "colorBackground": "AA0000",
       "colorTime": "FFFF00",
-      "colorSidebar": "FFFF00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFF00"
     }
   },
   {
@@ -414,9 +332,7 @@
     "settings": {
       "colorBackground": "0000FF",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FF5500",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF5500"
     }
   },
   {
@@ -424,9 +340,7 @@
     "settings": {
       "colorBackground": "00AA00",
       "colorTime": "000000",
-      "colorSidebar": "0055AA",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "0055AA"
     }
   },
   {
@@ -434,9 +348,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "FF0000",
-      "colorSidebar": "0000FF",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "0000FF"
     }
   },
   {
@@ -444,9 +356,7 @@
     "settings": {
       "colorBackground": "00AA00",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFAA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFAA00"
     }
   },
   {
@@ -454,9 +364,7 @@
     "settings": {
       "colorBackground": "550055",
       "colorTime": "FFFFFF",
-      "colorSidebar": "AA55FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AA55FF"
     }
   },
   {
@@ -464,9 +372,7 @@
     "settings": {
       "colorBackground": "FFAA00",
       "colorTime": "5500AA",
-      "colorSidebar": "5500AA",
-      "colorSidebarText": "FFAA00",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "5500AA"
     }
   },
   {
@@ -474,9 +380,7 @@
     "settings": {
       "colorBackground": "000055",
       "colorTime": "FF5500",
-      "colorSidebar": "FFFF00",
-      "colorSidebarText": "000055",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFF00"
     }
   },
   {
@@ -484,9 +388,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FF0000",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF0000"
     }
   },
   {
@@ -494,9 +396,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "AAAAAA",
-      "colorSidebar": "AAAAAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAAAAA"
     }
   },
   {
@@ -504,9 +404,7 @@
     "settings": {
       "colorBackground": "550000",
       "colorTime": "00FF00",
-      "colorSidebar": "00FFFF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00FFFF"
     }
   },
   {
@@ -514,9 +412,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFF00",
-      "colorSidebar": "FFFF00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFF00"
     }
   },
   {
@@ -524,9 +420,7 @@
     "settings": {
       "colorBackground": "00FFFF",
       "colorTime": "0000FF",
-      "colorSidebar": "00FFFF",
-      "colorSidebarText": "0000FF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00FFFF"
     }
   },
   {
@@ -534,9 +428,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "AAAA55",
-      "colorSidebar": "AAAA55",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAAA55"
     }
   },
   {
@@ -544,9 +436,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "00FF00",
-      "colorSidebar": "0000FF",
-      "colorSidebarText": "AAFF00",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "0000FF"
     }
   },
   {
@@ -554,9 +444,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000000",
-      "colorSidebar": "0000AA",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "0000AA"
     }
   },
   {
@@ -564,9 +452,7 @@
     "settings": {
       "colorBackground": "000055",
       "colorTime": "00FF00",
-      "colorSidebar": "AAFFAA",
-      "colorSidebarText": "000055",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "AAFFAA"
     }
   },
   {
@@ -574,9 +460,7 @@
     "settings": {
       "colorBackground": "AA0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "00AA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00AA00"
     }
   },
   {
@@ -584,9 +468,7 @@
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "FFFF00",
-      "colorSidebar": "FFFF00",
-      "colorSidebarText": "0000AA",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFF00"
     }
   },
   {
@@ -594,9 +476,7 @@
     "settings": {
       "colorBackground": "FF0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "555555",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "555555"
     }
   },
   {
@@ -604,9 +484,7 @@
     "settings": {
       "colorBackground": "FFAA00",
       "colorTime": "000000",
-      "colorSidebar": "000000",
-      "colorSidebarText": "FFAA00",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "000000"
     }
   },
   {
@@ -614,9 +492,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "55AA00",
-      "colorSidebar": "000000",
-      "colorSidebarText": "55FFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "000000"
     }
   },
   {
@@ -624,9 +500,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FF0000",
-      "colorSidebar": "000000",
-      "colorSidebarText": "FF0000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "000000"
     }
   },
   {
@@ -634,9 +508,7 @@
     "settings": {
       "colorBackground": "FFAAFF",
       "colorTime": "AA00FF",
-      "colorSidebar": "FFFFAA",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "FFFFAA"
     }
   },
   {
@@ -644,9 +516,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "0055FF",
-      "colorSidebar": "0055FF",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "0055FF"
     }
   },
   {
@@ -654,9 +524,7 @@
     "settings": {
       "colorBackground": "0055FF",
       "colorTime": "FFAA55",
-      "colorSidebar": "FF5555",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF5555"
     }
   },
   {
@@ -664,9 +532,7 @@
     "settings": {
       "colorBackground": "FFFFAA",
       "colorTime": "555500",
-      "colorSidebar": "555500",
-      "colorSidebarText": "FFFFAA",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "555500"
     }
   },
   {
@@ -674,9 +540,7 @@
     "settings": {
       "colorBackground": "0000FF",
       "colorTime": "00FFFF",
-      "colorSidebar": "00FFFF",
-      "colorSidebarText": "0000FF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00FFFF"
     }
   },
   {
@@ -684,9 +548,7 @@
     "settings": {
       "colorBackground": "FF0055",
       "colorTime": "000000",
-      "colorSidebar": "00AA00",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00AA00"
     }
   },
   {
@@ -694,9 +556,7 @@
     "settings": {
       "colorBackground": "AAFF00",
       "colorTime": "000000",
-      "colorSidebar": "5500AA",
-      "colorSidebarText": "AAFF00",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "5500AA"
     }
   },
   {
@@ -704,9 +564,7 @@
     "settings": {
       "colorBackground": "FF0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FF0000",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FF0000"
     }
   },
   {
@@ -714,9 +572,7 @@
     "settings": {
       "colorBackground": "FFFFFF",
       "colorTime": "000055",
-      "colorSidebar": "00AA55",
-      "colorSidebarText": "000000",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "00AA55"
     }
   },
   {
@@ -724,9 +580,7 @@
     "settings": {
       "colorBackground": "55AAFF",
       "colorTime": "0000AA",
-      "colorSidebar": "0000AA",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "0000AA"
     }
   },
   {
@@ -734,9 +588,7 @@
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "0000FF",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "0000FF"
     }
   },
   {
@@ -744,9 +596,7 @@
     "settings": {
       "colorBackground": "555555",
       "colorTime": "FFFFAA",
-      "colorSidebar": "FFFFAA",
-      "colorSidebarText": "555555",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "FFFFAA"
     }
   },
   {
@@ -754,9 +604,7 @@
     "settings": {
       "colorBackground": "5500AA",
       "colorTime": "FF0000",
-      "colorSidebar": "00AA00",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "FFFFFF"
+      "colorSidebar": "00AA00"
     }
   },
   {
@@ -764,9 +612,7 @@
     "settings": {
       "colorBackground": "FFFF00",
       "colorTime": "FF0000",
-      "colorSidebar": "555500",
-      "colorSidebarText": "FFFFFF",
-      "colorAltSidebarText": "000000"
+      "colorSidebar": "555500"
     }
   }
 ]

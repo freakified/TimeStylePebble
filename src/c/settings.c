@@ -24,11 +24,24 @@ void Settings_init() {
 
 void Settings_deinit() { Settings_saveToStorage(); }
 
+// an unknown widget id would still count as "something in the slot" (a
+// bottom bar with nothing drawn in it, say), so clear it instead
+static void clear_unknown_widgets() {
+  for (int i = 0; i < MAX_REGION_SLOTS; i++) {
+    if (!SidebarWidgets_isKnownType(settings.vRegionSlots[i])) {
+      settings.vRegionSlots[i] = EMPTY;
+    }
+  }
+  for (int i = 0; i < HREGION_SLOT_MAX; i++) {
+    if (!SidebarWidgets_isKnownType(settings.hRegionSlots[i])) {
+      settings.hRegionSlots[i] = EMPTY;
+    }
+  }
+}
+
 void Settings_loadFromStorage() {
   // Set defaults
   settings.timeBgColor = GColorBlack;
-  settings.sidebarTextColor = GColorBlack;
-  settings.altSidebarTextColor = GColorWhite;
 
 #ifdef PBL_COLOR
   settings.timeColor = GColorOrange;
@@ -75,16 +88,23 @@ void Settings_loadFromStorage() {
   settings.useWideSidebar = false;
   settings.colorBothArcs = false;
 
-  if (persist_exists(SETTINGS_PERSIST_KEY)) {
+  // settings are persisted as a raw struct, so a blob from any other
+  // version would load scrambled; until there's a migration path, fall
+  // back to the defaults instead
+  if (persist_exists(SETTINGS_PERSIST_KEY) &&
+      persist_read_int(SETTINGS_VERSION_PERSIST_KEY) == CURRENT_SETTINGS_VERSION) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
     settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
+    clear_unknown_widgets();
   }
 
   Settings_updateDynamicSettings();
 }
 
 void Settings_saveToStorage() {
+  // newly received settings land here before anything renders them
+  clear_unknown_widgets();
   Settings_updateDynamicSettings();
 
   // We're limited to 256 bytes, so make sure that settings fits
@@ -95,6 +115,90 @@ void Settings_saveToStorage() {
   // Write the data
   persist_write_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
   persist_write_int(SETTINGS_VERSION_PERSIST_KEY, CURRENT_SETTINGS_VERSION);
+}
+
+/*
+ * Color derivation: text and icon colors come from the region's own color.
+ * Mirrored by config-page/src/utils/colorDerivation.ts for the preview;
+ * keep the two in sync.
+ *
+ * Luminances are WCAG relative luminance scaled by 10000. Pebble channels
+ * only take four values, so the sRGB-to-linear step is a lookup.
+ */
+static const uint32_t s_linearChannel[4] = {0, 908, 4020, 10000};
+
+// regions at or below this luminance (0.03) are dark: their icons draw as
+// outlines rather than white badges
+#define DARK_REGION_LUMINANCE 300
+
+// white text wins when its contrast ratio, times this bias (1.3, in
+// tenths), is at least black's: the screen renders mid-tones darker than
+// sRGB would suggest
+#define WHITE_TEXT_BIAS_TENTHS 13
+
+// an accent needs at least 2.5:1 (5/2) against its region, or the icon
+// strokes fall back to the text color
+#define MIN_ACCENT_CONTRAST_NUM 5
+#define MIN_ACCENT_CONTRAST_DEN 2
+
+static uint32_t luminance(GColor color) {
+  return (2126 * s_linearChannel[color.r] + 7152 * s_linearChannel[color.g] +
+          722 * s_linearChannel[color.b]) / 10000;
+}
+
+// a contrast ratio as a fraction: (lighter + 0.05) / (darker + 0.05)
+typedef struct {
+  uint32_t num;
+  uint32_t den;
+} Contrast;
+
+static Contrast contrast(GColor a, GColor b) {
+  uint32_t la = luminance(a), lb = luminance(b);
+  return la > lb ? (Contrast){la + 500, lb + 500}
+                 : (Contrast){lb + 500, la + 500};
+}
+
+// whether a > b, by cross-multiplying
+static bool contrast_greater(Contrast a, Contrast b) {
+  return (uint64_t)a.num * b.den > (uint64_t)b.num * a.den;
+}
+
+// black or white, whichever reads best on the background (biased to white)
+static GColor best_text_color(GColor background) {
+  Contrast white = contrast(background, GColorWhite);
+  Contrast black = contrast(background, GColorBlack);
+  return (uint64_t)white.num * black.den * WHITE_TEXT_BIAS_TENTHS >=
+                 (uint64_t)black.num * white.den * 10
+             ? GColorWhite
+             : GColorBlack;
+}
+
+// a region's text and icon colors, from its background and the two colors
+// that could accent its icons (ties go to the first)
+static void derive_palette(SidebarPalette *palette, GColor background,
+                           GColor accent1, GColor accent2) {
+  palette->background = background;
+  palette->text = best_text_color(background);
+
+  if (luminance(background) > DARK_REGION_LUMINANCE) {
+    palette->iconFill = GColorWhite;
+    palette->iconStroke = GColorBlack;
+    return;
+  }
+
+  // on a dark region, icons are outlines in the more striking accent
+  Contrast c1 = contrast(accent1, background);
+  Contrast c2 = contrast(accent2, background);
+  bool useSecond = contrast_greater(c2, c1);
+  GColor accent = useSecond ? accent2 : accent1;
+  Contrast best = useSecond ? c2 : c1;
+
+  palette->iconFill = background;
+  palette->iconStroke =
+      (uint64_t)best.num * MIN_ACCENT_CONTRAST_DEN >=
+              (uint64_t)best.den * MIN_ACCENT_CONTRAST_NUM
+          ? accent
+          : palette->text;
 }
 
 void Settings_updateDynamicSettings() {
@@ -151,21 +255,13 @@ void Settings_updateDynamicSettings() {
     }
   }
 
-  dynamicSettings.sidebarPalette.background = settings.sidebarColor;
-  dynamicSettings.sidebarPalette.text = settings.sidebarTextColor;
+  // the sidebar wears the sidebar color; its icons can be accented with
+  // the time or watchface background color
+  derive_palette(&dynamicSettings.sidebarPalette, settings.sidebarColor,
+                 settings.timeColor, settings.timeBgColor);
 
-  // if the sidebar is black, use inverted colors for icons
-  if (gcolor_equal(settings.sidebarColor, GColorBlack)) {
-    dynamicSettings.sidebarPalette.iconFill = GColorBlack;
-    dynamicSettings.sidebarPalette.iconStroke = settings.sidebarTextColor;
-  } else {
-    dynamicSettings.sidebarPalette.iconFill = GColorWhite;
-    dynamicSettings.sidebarPalette.iconStroke = GColorBlack;
-  }
-
-  // dark regions draw directly on the watchface background
-  dynamicSettings.darkSidebarPalette.background = settings.timeBgColor;
-  dynamicSettings.darkSidebarPalette.text = settings.altSidebarTextColor;
-  dynamicSettings.darkSidebarPalette.iconFill = settings.timeBgColor;
-  dynamicSettings.darkSidebarPalette.iconStroke = settings.timeColor;
+  // dark regions (the bottom bar) draw directly on the watchface
+  // background; their icons can be accented with the time or sidebar color
+  derive_palette(&dynamicSettings.darkSidebarPalette, settings.timeBgColor,
+                 settings.timeColor, settings.sidebarColor);
 }

@@ -10,8 +10,6 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   colorBackground: '000000',
   colorTime: capabilities.BW ? 'FFFFFF' : 'FF5500',
   colorSidebar: capabilities.BW ? 'FFFFFF' : 'FF5500',
-  colorSidebarText: '000000',
-  colorAltSidebarText: 'FFFFFF',
 
   // Widget slots — a packed widget list: Current Weather on top, Date
   // pinned to the bottom. Round splits the same list between its arcs

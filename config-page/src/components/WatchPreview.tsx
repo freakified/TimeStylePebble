@@ -1,6 +1,7 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Capabilities, Settings } from '../context/types';
+import { darkRegionPalette, RegionPalette, sidebarPalette } from '../utils/colorDerivation';
 import {
     ARC_SLOT_CAP,
     arcIsAccent,
@@ -73,11 +74,6 @@ const TEXT_FONT = "'Roboto Condensed', 'Arial Narrow', sans-serif";
 
 const getHex = (color: string) => color ? (color.startsWith('#') ? color : `#${color}`) : '#000000';
 
-const isBlack = (color: string) => {
-    const normalized = color.toLowerCase();
-    return normalized === '#000' || normalized === '#000000';
-};
-
 interface RegionColors {
     background: string;  // region fill
     text: string;        // widget text color
@@ -85,26 +81,20 @@ interface RegionColors {
     iconStroke: string;
 }
 
-// "Standard" region appearance, recolored the way the watch does: white
-// fills stay white on a colored sidebar with black strokes; on a black
-// sidebar the fills go black and the strokes take the sidebar text color.
-const standardRegionColors = (s: Settings): RegionColors => {
-    const background = getHex(s.colorSidebar);
-    const text = getHex(s.colorSidebarText);
-    return isBlack(background)
-        ? { background, text, iconFill: '#000000', iconStroke: text }
-        : { background, text, iconFill: '#ffffff', iconStroke: '#000000' };
-};
-
-// "Dark" region appearance (the bottom bar): draws on the watchface
-// background, strokes icons with the time color, and uses the alt
-// sidebar text color.
-const darkRegionColors = (s: Settings): RegionColors => ({
-    background: getHex(s.colorBackground),
-    text: getHex(s.colorAltSidebarText),
-    iconFill: getHex(s.colorBackground),
-    iconStroke: getHex(s.colorTime),
+// region appearance, derived from the theme's three colors the same way
+// the watch does (see utils/colorDerivation.ts)
+const toRegionColors = (p: RegionPalette): RegionColors => ({
+    background: getHex(p.background),
+    text: getHex(p.text),
+    iconFill: getHex(p.iconFill),
+    iconStroke: getHex(p.iconStroke),
 });
+
+// "standard" regions wear the sidebar color
+const standardRegionColors = (s: Settings) => toRegionColors(sidebarPalette(s));
+
+// "dark" regions (the bottom bar) draw on the watchface background
+const darkRegionColors = (s: Settings) => toRegionColors(darkRegionPalette(s));
 
 const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
     // match whole short or long hex colors: the Illustrator exports spell

@@ -32,8 +32,6 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint32(iter, MESSAGE_KEY_SettingColorTime, color_to_hex(settings.timeColor));
   dict_write_uint32(iter, MESSAGE_KEY_SettingColorBG, color_to_hex(settings.timeBgColor));
   dict_write_uint32(iter, MESSAGE_KEY_SettingColorSidebar, color_to_hex(settings.sidebarColor));
-  dict_write_uint32(iter, MESSAGE_KEY_SettingSidebarTextColor, color_to_hex(settings.sidebarTextColor));
-  dict_write_uint32(iter, MESSAGE_KEY_SettingAltSidebarTextColor, color_to_hex(settings.altSidebarTextColor));
   dict_write_uint8(iter, MESSAGE_KEY_SettingLanguageID, settings.languageId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowLeadingZero, settings.showLeadingZero ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingClockFontId, settings.clockFontId);
@@ -164,8 +162,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *bgColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorBG);
   Tuple *sidebarColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorSidebar);
   Tuple *layoutId_tuple = dict_find(iterator, MESSAGE_KEY_SettingLayoutId);
-  Tuple *sidebarTextColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarTextColor);
-  Tuple *altSidebarTextColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltSidebarTextColor);
   Tuple *useMetric_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseMetric);
   Tuple *btVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingBluetoothVibe);
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
@@ -210,15 +206,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(sidebarColor_tuple != NULL) {
     settings.sidebarColor = GColorFromHEX(sidebarColor_tuple->value->int32);
-  }
-
-  if(sidebarTextColor_tuple != NULL) {
-    // text can only be black or white, so we'll enforce that here
-    settings.sidebarTextColor = GColorFromHEX(sidebarTextColor_tuple->value->int32);
-  }
-
-  if(altSidebarTextColor_tuple != NULL) {
-    settings.altSidebarTextColor = GColorFromHEX(altSidebarTextColor_tuple->value->int32);
   }
 
   if(layoutId_tuple != NULL) {

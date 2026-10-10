@@ -48,6 +48,13 @@ typedef enum {
   WEATHER_PRECIP_CHANCE     = 17
 } SidebarWidgetType;
 
+// whether a stored or received widget id names a real widget (EMPTY
+// included); extend this alongside the enum
+static inline bool SidebarWidgets_isKnownType(uint8_t type) {
+  return type == EMPTY ||
+         (type >= BATTERY_METER && type <= WEATHER_PRECIP_CHANCE);
+}
+
 typedef struct {
   // full is larger because it can carry a label prefix and/or day suffix
   char full[24];

@@ -173,16 +173,6 @@ export const SettingsPage: React.FC = () => {
               messageKey="colorSidebar"
               bwAllowGrey={false}
             />
-            <ColorPicker
-              label="Sidebar text color"
-              messageKey="colorSidebarText"
-              bwAllowGrey={false}
-            />
-            <ColorPicker
-              label="Alt sidebar text color"
-              messageKey="colorAltSidebarText"
-              bwAllowGrey={false}
-            />
           </>
         )}
       </Section>

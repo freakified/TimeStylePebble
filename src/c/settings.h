@@ -3,7 +3,7 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 14
+#define CURRENT_SETTINGS_VERSION 15
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -24,11 +24,11 @@ typedef enum {
 
 // Settings struct -- note, all new settings should ALWAYS be added to the bottom
 typedef struct {
-  // color settings
+  // color settings (v15: dropped the sidebar and bottom bar text colors;
+  // text and icon colors are now derived from these three)
   GColor timeColor;
   GColor timeBgColor;
   GColor sidebarColor;
-  GColor sidebarTextColor;
 
   // general settings
   uint8_t languageId;
@@ -69,10 +69,6 @@ typedef struct {
   uint8_t layoutId; // SidebarLayoutId
   uint8_t vRegionSlots[MAX_REGION_SLOTS]; // SidebarWidgetType values
   uint8_t hRegionSlots[HREGION_SLOT_MAX];
-
-  // text color for "dark" sidebar regions (the bottom bar, which draws
-  // on the watchface background color)
-  GColor altSidebarTextColor;
 
   // second world time widget (same semantics as altclockName/Offset)
   char altclock2Name[8];

@@ -81,12 +81,6 @@ function settingsFromWatchPayload(payload) {
     colorBackground: padHex(payload.SettingColorBG),
     colorTime: padHex(payload.SettingColorTime),
     colorSidebar: padHex(payload.SettingColorSidebar),
-    colorSidebarText: padHex(payload.SettingSidebarTextColor),
-    colorAltSidebarText: padHex(
-      payload.SettingAltSidebarTextColor !== undefined
-        ? payload.SettingAltSidebarTextColor
-        : 0xFFFFFF
-    ),
 
     widget0Id: getNumber(payload.SettingWidget0ID, 7),
     widget1Id: getNumber(payload.SettingWidget1ID, 0),
@@ -139,14 +133,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.colorTime) {
     dict.SettingColorTime = parseInt(configData.colorTime, 16);
-  }
-
-  if (configData.colorSidebarText) {
-    dict.SettingSidebarTextColor = parseInt(configData.colorSidebarText, 16);
-  }
-
-  if (configData.colorAltSidebarText) {
-    dict.SettingAltSidebarTextColor = parseInt(configData.colorAltSidebarText, 16);
   }
 
   if (configData.languageId !== undefined) {

@@ -92,7 +92,7 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
 
   /** Extract the TimeStyle color settings from the current live settings */
   const getVisibleSettings = (): Record<string, string> => {
-    const colorKeys: (keyof Settings)[] = ['colorBackground', 'colorTime', 'colorSidebar', 'colorSidebarText', 'colorAltSidebarText'];
+    const colorKeys: (keyof Settings)[] = ['colorBackground', 'colorTime', 'colorSidebar'];
     const colorSettings: Record<string, string> = {};
     for (const key of colorKeys) {
       colorSettings[key] = String(settings[key]);
