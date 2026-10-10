@@ -150,25 +150,50 @@ const renderIconImage = (
     />
 );
 
-// The day number sits inside the calendar body (below the binding rings).
+// The day number sits inside the calendar body (below the binding rings),
+// in the sidebar's current font like date_content_draw() draws it, scaled
+// down a touch so it sits comfortably inside the preview's icon.
 const CALENDAR_DAY_CENTER_Y = 14;
-const CALENDAR_DAY_FONT = 10;
+const CALENDAR_DAY_SCALE = 0.75;
+
+// draw_date_plain_background(): large fonts swap the calendar outline for
+// a plain box, an iconStroke border around an iconFill body
+const DATE_BOX_BORDER = 2;
+const DATE_BOX_RADIUS = 2;
 
 const renderCalendar = (
     key: React.Key,
     day: string,
     x: number,
     y: number,
-    scale: number,
-    colors: RegionColors
-) => (
-    <g key={key}>
-        {renderIconImage('bg', ICONS.date, x, y, ICONS.date.w * scale, ICONS.date.h * scale, colors)}
-        {textNode('day', day, x + (ICONS.date.w / 2) * scale,
-                  y + CALENDAR_DAY_CENTER_Y * scale - (CALENDAR_DAY_FONT * PREVIEW_CAP_HEIGHT * scale) / 2,
-                  CALENDAR_DAY_FONT * scale, colors.iconStroke)}
-    </g>
-);
+    colors: RegionColors,
+    fonts: PreviewFonts
+) => {
+    const { w, h } = ICONS.date;
+    // previewFonts() only promotes the large size to "current" in large-font mode
+    const plain = fonts.current === fonts.lg;
+    const fitted = fitText(day, 'current', fonts, w);
+    const fontSize = fitted.fontSize * CALENDAR_DAY_SCALE;
+    const centerY = plain ? h / 2 : CALENDAR_DAY_CENTER_Y;
+    return (
+        <g key={key}>
+            {plain ? (
+                <>
+                    <rect x={x} y={y} width={w} height={h}
+                          rx={DATE_BOX_RADIUS} fill={colors.iconStroke} />
+                    <rect x={x + DATE_BOX_BORDER} y={y + DATE_BOX_BORDER}
+                          width={w - DATE_BOX_BORDER * 2} height={h - DATE_BOX_BORDER * 2}
+                          fill={colors.iconFill} />
+                </>
+            ) : (
+                renderIconImage('bg', ICONS.date, x, y, w, h, colors)
+            )}
+            {textNode('day', day, x + w / 2,
+                      y + centerY - (fontSize * PREVIEW_CAP_HEIGHT) / 2,
+                      fontSize, colors.iconStroke)}
+        </g>
+    );
+};
 
 /** Draw a widget's items top-to-bottom, horizontally centered on `cx`. */
 const renderItemsStacked = (
@@ -190,7 +215,7 @@ const renderItemsStacked = (
             case 'icon':
                 return renderIconImage(i, item.asset, cx - size.w / 2, itemTop, size.w, size.h, colors);
             case 'calendar':
-                return renderCalendar(i, item.day, cx - size.w / 2, itemTop, 1, colors);
+                return renderCalendar(i, item.day, cx - size.w / 2, itemTop, colors, fonts);
             case 'text':
                 return textNode(i, item.text, cx, itemTop,
                                 fitText(item.text, item.font, fonts, maxW).fontSize, colors.text);
@@ -231,7 +256,7 @@ const renderInlineWidget = (
         if ('asset' in parts.icon) {
             nodes.push(renderIconImage('icon', asset, cursor, top, asset.w, asset.h, colors));
         } else {
-            nodes.push(renderCalendar('icon', parts.icon.calendar, cursor, top, 1, colors));
+            nodes.push(renderCalendar('icon', parts.icon.calendar, cursor, top, colors, fonts));
         }
         cursor += asset.w + (parts.text ? INLINE_GAP : 0);
     }
