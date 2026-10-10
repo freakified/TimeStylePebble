@@ -74,7 +74,6 @@ function getAndSendWeather(url) {
     var sunriseMinute = isoToMinutes(json.daily.sunrise[0]);
     var sunsetMinute = isoToMinutes(json.daily.sunset[0]);
 
-    var windSpeed = Math.round(json.current_weather.windspeed); // km/h
     var precipChance = null;
     if (json.daily.precipitation_probability_max) {
       precipChance = Math.round(json.daily.precipitation_probability_max[0]);
@@ -84,7 +83,7 @@ function getAndSendWeather(url) {
     console.log('Forecast condition code: ' + forecastCode);
     console.log('UV Index: ' + uvIndex);
     console.log('Is Night ' + isNight);
-    console.log('Wind: ' + windSpeed + 'km/h, precip chance: ' + precipChance +
+    console.log('Precip chance: ' + precipChance +
       '%, sunrise: ' + sunriseMinute + ', sunset: ' + sunsetMinute);
 
     var forecastIcon = getIconForWeatherCode(forecastCode);
@@ -95,8 +94,7 @@ function getAndSendWeather(url) {
       'WeatherForecastHighTemp': forecastHigh,
       'WeatherForecastLowTemp': forecastLow,
       'WeatherForecastCondition': forecastIcon,
-      'WeatherUVIndex': uvIndex,
-      'WeatherWindSpeed': windSpeed
+      'WeatherUVIndex': uvIndex
     };
 
     if (sunriseMinute !== null && sunsetMinute !== null) {

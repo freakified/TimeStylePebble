@@ -161,8 +161,8 @@ Pebble.addEventListener('webviewclosed', function (e) {
     ];
 
     // if none of the weather widgets are present, disable the weather
-    // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 16=wind, 17=rain chance)
-    var weatherWidgetIDs = [7, 8, 13, 15, 16, 17];
+    // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 17=rain chance)
+    var weatherWidgetIDs = [7, 8, 13, 15, 17];
     var hasWeatherWidget = widgetIDs.some(function (id) {
       return weatherWidgetIDs.indexOf(id) != -1;
     });

@@ -67,6 +67,5 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   altClock2Offset: 540,
 
   // Health
-  healthActivityMetric: 'steps',
   healthSleepType: 'total',
 });

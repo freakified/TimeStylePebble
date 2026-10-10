@@ -15,8 +15,7 @@ typedef struct {
   int todaysLowTemp;
   uint32_t forecastIconResourceID;
 
-  // current wind speed (km/h) and today's precipitation chance (%)
-  int windSpeed;
+  // today's precipitation chance (%)
   int precipChance;
 
   // today's sunrise/sunset, minutes after local midnight

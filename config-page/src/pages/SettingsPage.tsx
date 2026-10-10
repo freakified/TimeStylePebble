@@ -130,12 +130,12 @@ export const SettingsPage: React.FC = () => {
     layoutOptionSettings[option.value] = { layout: option.value };
   });
 
-  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 16, 17].includes(id));
+  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 17].includes(id));
 
   const showWorldTime1Section = activeWidgetIds.some((id) => id === 3);
   const showWorldTime2Section = activeWidgetIds.some((id) => id === 14);
 
-  const showHealthSection = activeWidgetIds.some((id) => id === 9 || id === 10);
+  const showHealthSection = activeWidgetIds.some((id) => id === 9);
 
 
   return (
@@ -344,14 +344,6 @@ export const SettingsPage: React.FC = () => {
       {/* ── Health ── */}
       {capabilities.HEALTH && showHealthSection && (
         <Section title="Health">
-          <Select
-            label="Steps widget displays"
-            messageKey="healthActivityMetric"
-            options={[
-              { label: 'Number of steps', value: 'steps' },
-              { label: 'Distance walked', value: 'distance' },
-            ]}
-          />
           <Select
             label="Sleep widget uses"
             messageKey="healthSleepType"

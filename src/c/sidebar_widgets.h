@@ -44,15 +44,17 @@ typedef enum {
   WEATHER_UV_INDEX          = 13,
   WORLD_TIME_2              = 14,
   NEXT_SUN_EVENT            = 15,
-  WEATHER_WIND              = 16,
-  WEATHER_PRECIP_CHANCE     = 17
+  // 16 was WEATHER_WIND, retired
+  WEATHER_PRECIP_CHANCE     = 17,
+  DISTANCE_WALKED           = 18,
+  ACTIVE_CALORIES           = 19
 } SidebarWidgetType;
 
 // whether a stored or received widget id names a real widget (EMPTY
 // included); extend this alongside the enum
 static inline bool SidebarWidgets_isKnownType(uint8_t type) {
   return type == EMPTY ||
-         (type >= BATTERY_METER && type <= WEATHER_PRECIP_CHANCE);
+         (type >= BATTERY_METER && type <= ACTIVE_CALORIES && type != 16);
 }
 
 typedef struct {

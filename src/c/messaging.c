@@ -58,7 +58,6 @@ void messaging_sendConfigSnapshot() {
   dict_write_cstring(iter, MESSAGE_KEY_SettingAltClock2Name, settings.altclock2Name);
   dict_write_int32(iter, MESSAGE_KEY_SettingAltClock2Offset, settings.altclock2Offset);
   dict_write_int32(iter, MESSAGE_KEY_SettingLocalUtcOffset, settings.localUtcOffset);
-  dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseDistance, settings.healthUseDistance ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseRestfulSleep, settings.healthUseRestfulSleep ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDecimalSep, settings.decimalSeparator);
 
@@ -128,12 +127,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     weatherDataUpdated = true;
   }
 
-  Tuple *weatherWindSpeed_tuple = dict_find(iterator, MESSAGE_KEY_WeatherWindSpeed);
-  if(weatherWindSpeed_tuple != NULL) {
-    Weather_weatherInfo.windSpeed = (int)weatherWindSpeed_tuple->value->int32;
-    weatherDataUpdated = true;
-  }
-
   Tuple *weatherPrecipChance_tuple = dict_find(iterator, MESSAGE_KEY_WeatherPrecipChance);
   if(weatherPrecipChance_tuple != NULL) {
     Weather_weatherInfo.precipChance = (int)weatherPrecipChance_tuple->value->int32;
@@ -189,7 +182,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *localUtcOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingLocalUtcOffset);
 
   Tuple *decimalSeparator_tuple = dict_find(iterator, MESSAGE_KEY_SettingDecimalSep);
-  Tuple *healthUseDistance_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseDistance);
   Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
 
   Tuple *enableStatusBar_tuple = dict_find(iterator, MESSAGE_KEY_SettingEnableStatusBar);
@@ -309,10 +301,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(decimalSeparator_tuple != NULL) {
     settings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
-  }
-
-  if(healthUseDistance_tuple != NULL) {
-    settings.healthUseDistance = (bool)healthUseDistance_tuple->value->int8;
   }
 
   if(healthUseRestfulSleep_tuple != NULL) {

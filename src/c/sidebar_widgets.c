@@ -36,6 +36,8 @@ GDrawCommandImage *precipImage;
 #ifdef PBL_HEALTH
 GDrawCommandImage *sleepImage;
 GDrawCommandImage *stepsImage;
+GDrawCommandImage *distanceImage;
+GDrawCommandImage *caloriesImage;
 GDrawCommandImage *heartImage;
 #endif
 
@@ -100,11 +102,12 @@ static SidebarContent WorldTime2_getContent();
 static SidebarContent NextSunEvent_getContent();
 static SidebarContent Beats_getContent();
 static SidebarContent UVIndex_getContent();
-static SidebarContent Wind_getContent();
 static SidebarContent PrecipChance_getContent();
 
 #ifdef PBL_HEALTH
 static SidebarContent StepCounter_getContent();
+static SidebarContent DistanceWalked_getContent();
+static SidebarContent ActiveCalories_getContent();
 static SidebarContent SleepTimer_getContent();
 static SidebarContent HeartRate_getContent();
 #endif
@@ -239,6 +242,10 @@ void SidebarWidgets_init() {
       gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_SLEEP);
   stepsImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_STEPS);
+  distanceImage =
+      gdraw_command_image_create_with_resource(RESOURCE_ID_DISTANCE);
+  caloriesImage =
+      gdraw_command_image_create_with_resource(RESOURCE_ID_CALORIES);
   heartImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_HEART);
 #endif
@@ -254,6 +261,8 @@ void SidebarWidgets_deinit() {
 
 #ifdef PBL_HEALTH
   gdraw_command_image_destroy(stepsImage);
+  gdraw_command_image_destroy(distanceImage);
+  gdraw_command_image_destroy(caloriesImage);
   gdraw_command_image_destroy(sleepImage);
   gdraw_command_image_destroy(heartImage);
 #endif
@@ -1507,31 +1516,6 @@ static SidebarContent NextSunEvent_getContent() {
   return content;
 }
 
-static SidebarContent Wind_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
-  content.label = "WIND";
-
-  if (Weather_weatherInfo.windSpeed == INT32_MIN) {
-    content.primary = same_text_candidates("...");
-    return content;
-  }
-
-  int windSpeed = Weather_weatherInfo.windSpeed;
-  const char *unit = "kph";
-  if (!settings.useMetric) {
-    windSpeed = roundf(windSpeed / 1.609344f);
-    unit = "mph";
-  }
-
-  snprintf(content.primary.full, sizeof(content.primary.full), "%d%s",
-           windSpeed, unit);
-  snprintf(content.primary.compact, sizeof(content.primary.compact), "%d",
-           windSpeed);
-  snprintf(content.primary.tiny, sizeof(content.primary.tiny), "%d",
-           windSpeed);
-  return content;
-}
-
 static SidebarContent PrecipChance_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
   content.iconKind = SIDEBAR_ICON_IMAGE;
@@ -1576,29 +1560,31 @@ static SidebarContent UVIndex_getContent() {
 
 #ifdef PBL_HEALTH
 
-static void format_step_candidates(int steps,
-                                   SidebarTextCandidates *candidates) {
-  snprintf(candidates->full, sizeof(candidates->full), "%i", steps);
+// a count like steps or calories: in full, then as "2.7k"/"12k", then
+// rounded to the nearest thousand
+static void format_count_candidates(int count,
+                                    SidebarTextCandidates *candidates) {
+  snprintf(candidates->full, sizeof(candidates->full), "%i", count);
 
-  if (steps < 1000) {
-    snprintf(candidates->compact, sizeof(candidates->compact), "%i", steps);
-    snprintf(candidates->tiny, sizeof(candidates->tiny), "%i", steps);
+  if (count < 1000) {
+    snprintf(candidates->compact, sizeof(candidates->compact), "%i", count);
+    snprintf(candidates->tiny, sizeof(candidates->tiny), "%i", count);
     return;
   }
 
-  int stepsThousands = steps / 1000;
-  int stepsHundreds = steps / 100 % 10;
+  int thousands = count / 1000;
+  int hundreds = count / 100 % 10;
 
-  if (steps < 10000) {
+  if (count < 10000) {
     snprintf(candidates->compact, sizeof(candidates->compact), "%i%c%ik",
-             stepsThousands, settings.decimalSeparator, stepsHundreds);
+             thousands, settings.decimalSeparator, hundreds);
   } else {
     snprintf(candidates->compact, sizeof(candidates->compact), "%ik",
-             stepsThousands);
+             thousands);
   }
 
   snprintf(candidates->tiny, sizeof(candidates->tiny), "%ik",
-           (steps + 500) / 1000);
+           (count + 500) / 1000);
 }
 
 static void format_distance_candidates(int distance,
@@ -1650,20 +1636,39 @@ static SidebarContent StepCounter_getContent() {
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = stepsImage;
 
-  if (settings.healthUseDistance) {
-    int distance = 0;
-    if (is_health_metric_accessible(HealthMetricWalkedDistanceMeters)) {
-      distance =
-          (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
-    }
-    format_distance_candidates(distance, &content.primary);
-  } else {
-    int steps = 0;
-    if (is_health_metric_accessible(HealthMetricStepCount)) {
-      steps = (int)health_service_sum_today(HealthMetricStepCount);
-    }
-    format_step_candidates(steps, &content.primary);
+  int steps = 0;
+  if (is_health_metric_accessible(HealthMetricStepCount)) {
+    steps = (int)health_service_sum_today(HealthMetricStepCount);
   }
+  format_count_candidates(steps, &content.primary);
+
+  return content;
+}
+
+static SidebarContent DistanceWalked_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
+  content.iconKind = SIDEBAR_ICON_IMAGE;
+  content.icon = distanceImage;
+
+  int distance = 0;
+  if (is_health_metric_accessible(HealthMetricWalkedDistanceMeters)) {
+    distance = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
+  }
+  format_distance_candidates(distance, &content.primary);
+
+  return content;
+}
+
+static SidebarContent ActiveCalories_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
+  content.iconKind = SIDEBAR_ICON_IMAGE;
+  content.icon = caloriesImage;
+
+  int calories = 0;
+  if (is_health_metric_accessible(HealthMetricActiveKCalories)) {
+    calories = (int)health_service_sum_today(HealthMetricActiveKCalories);
+  }
+  format_count_candidates(calories, &content.primary);
 
   return content;
 }
@@ -1767,9 +1772,6 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
     return (SidebarWidgetDefinition){WEATHER_UV_INDEX,
                                      SIDEBAR_CONTENT_LABEL_VALUE,
                                      UVIndex_getContent, NULL, NULL};
-  case WEATHER_WIND:
-    return (SidebarWidgetDefinition){WEATHER_WIND, SIDEBAR_CONTENT_LABEL_VALUE,
-                                     Wind_getContent, NULL, NULL};
   case WEATHER_PRECIP_CHANCE:
     return (SidebarWidgetDefinition){WEATHER_PRECIP_CHANCE,
                                      SIDEBAR_CONTENT_ICON_VALUE,
@@ -1778,6 +1780,14 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
   case STEP_COUNTER:
     return (SidebarWidgetDefinition){STEP_COUNTER, SIDEBAR_CONTENT_ICON_VALUE,
                                      StepCounter_getContent, NULL, NULL};
+  case DISTANCE_WALKED:
+    return (SidebarWidgetDefinition){DISTANCE_WALKED,
+                                     SIDEBAR_CONTENT_ICON_VALUE,
+                                     DistanceWalked_getContent, NULL, NULL};
+  case ACTIVE_CALORIES:
+    return (SidebarWidgetDefinition){ACTIVE_CALORIES,
+                                     SIDEBAR_CONTENT_ICON_VALUE,
+                                     ActiveCalories_getContent, NULL, NULL};
   case SLEEP_TIMER:
     return (SidebarWidgetDefinition){SLEEP_TIMER,
                                      SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT,

@@ -1,7 +1,9 @@
 import { Capabilities, Settings } from '../context/types';
 import { findWorldTimeCity } from '../data/cities';
+import iconCalories from '../assets/preview/widget_previews/icon_calories.svg?raw';
 import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
 import iconDate from '../assets/preview/widget_previews/icon_date.svg?raw';
+import iconDistance from '../assets/preview/widget_previews/icon_distance.svg?raw';
 import iconRain from '../assets/preview/widget_previews/icon_rain.svg?raw';
 import iconHrm from '../assets/preview/widget_previews/icon_hrm.svg?raw';
 import iconSleep from '../assets/preview/widget_previews/icon_sleep.svg?raw';
@@ -37,7 +39,9 @@ export interface IconAsset {
 
 export const ICONS = {
     battery: { svg: iconBattery, w: 25, h: 14 },  // BatteryMeter_measure's icon height
+    calories: { svg: iconCalories, w: 25, h: 25 },
     date:    { svg: iconDate,    w: 25, h: 25 },
+    distance: { svg: iconDistance, w: 25, h: 25 },
     hrm:     { svg: iconHrm,     w: 25, h: 25 },
     // HEAVY_RAIN.pdc, the icon PrecipChance_getContent() draws
     rain:    { svg: iconRain,    w: 25, h: 25 },
@@ -138,15 +142,14 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
                 ? [{ type: 'icon', asset: ICONS.sunrise }, text('6:42a')]
                 : [{ type: 'icon', asset: ICONS.sunset }, text('8:14p')];
         }
-        case 16: {  // Wind Speed
-            // like Wind_getContent(): the full form carries the unit, which
-            // the bar has room for; the narrow sidebar falls back to the
-            // bare number
-            const unit = settings.weatherUnits === 'c' ? 'kph' : 'mph';
-            return [text('WIND', 'sm'), text(compact ? `12${unit}` : '12')];
-        }
         case 17:  // Chance of Rain
             return [{ type: 'icon', asset: ICONS.rain }, text('40%')];
+        case 18:  // Distance Walked: format_distance_candidates() carries the unit
+            return [{ type: 'icon', asset: ICONS.distance }, text(settings.weatherUnits === 'c'
+                ? (settings.wideSidebar ? '2.1km' : '2km')
+                : (settings.wideSidebar ? '1.3mi' : '1mi'))];
+        case 19:  // Active Calories
+            return [{ type: 'icon', asset: ICONS.calories }, text('340')];
         default:
             return [];
     }
@@ -566,7 +569,7 @@ export const stackedWidgetHeight = (
         }
         case 5:  // Seconds: plain text draws in the large font
             return lg;
-        case 3: case 14: case 6: case 11: case 13: case 16: {
+        case 3: case 14: case 6: case 11: case 13: {
             // label/value: a blank label drops its line entirely
             const hasLabel = getWidgetItems(widgetId, settings).length > 1;
             return current + (hasLabel ? sm + STACK_LABEL_GAP : 0);
@@ -575,7 +578,7 @@ export const stackedWidgetHeight = (
             return iconValue + STACK_VALUE_GAP + STACK_DIVIDER_H + STACK_VALUE_GAP + current;
         case 9:  // Sleep: icon, hours, minutes subtext
             return WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP + md + STACK_VALUE_GAP + sm;
-        case 7: case 10: case 12: case 15: case 17:
+        case 7: case 10: case 12: case 15: case 17: case 18: case 19:
             return iconValue;
         default:
             return 0;

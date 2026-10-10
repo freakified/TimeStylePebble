@@ -77,7 +77,6 @@ void Weather_init() {
   Weather_weatherInfo.currentUVIndex = INT32_MIN;
   Weather_weatherInfo.todaysHighTemp = INT32_MIN;
   Weather_weatherInfo.todaysLowTemp = INT32_MIN;
-  Weather_weatherInfo.windSpeed = INT32_MIN;
   Weather_weatherInfo.precipChance = INT32_MIN;
   Weather_weatherInfo.sunriseMinute = INT32_MIN;
   Weather_weatherInfo.sunsetMinute = INT32_MIN;

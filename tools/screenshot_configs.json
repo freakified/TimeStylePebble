@@ -30,7 +30,6 @@
     "SettingAltClock2Name": "TYO",
     "SettingAltClock2Offset": 540,
     "SettingLocalUtcOffset": -420,
-    "SettingHealthUseDistance": 0,
     "SettingHealthUseRestfulSleep": 0,
     "SettingDecimalSep": 46,
     "WeatherTemperature": 21,
@@ -39,7 +38,6 @@
     "WeatherForecastHighTemp": 25,
     "WeatherForecastLowTemp": 14,
     "WeatherUVIndex": 6,
-    "WeatherWindSpeed": 19,
     "WeatherPrecipChance": 40,
     "WeatherSunriseMinute": 374,
     "WeatherSunsetMinute": 1182,
@@ -159,7 +157,7 @@
       "settings": {
         "SettingWidget0ID": "SECONDS",
         "SettingWidget1ID": "WEEK_NUMBER",
-        "SettingWidget2ID": "WEATHER_WIND",
+        "SettingWidget2ID": "BEATS",
         "SettingWidget3ID": "WORLD_TIME_1",
         "SettingWidget4ID": "WEATHER_PRECIP_CHANCE",
         "SettingWidget5ID": "WORLD_TIME_2"
@@ -246,10 +244,10 @@
       }
     },
     {
-      "name": "widgets-sun-wind-rain",
+      "name": "widgets-sun-uv-rain",
       "settings": {
         "SettingWidget0ID": "NEXT_SUN_EVENT",
-        "SettingWidget1ID": "WEATHER_WIND",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
         "SettingWidget2ID": "WEATHER_PRECIP_CHANCE",
         "SettingWidget3ID": "EMPTY"
       }
@@ -499,7 +497,7 @@
         "SettingWidget1ID": "WEATHER_UV_INDEX",
         "SettingWidget2ID": "EMPTY",
         "SettingWidget3ID": "NEXT_SUN_EVENT",
-        "SettingWidget4ID": "WEATHER_WIND"
+        "SettingWidget4ID": "WEEK_NUMBER"
       }
     },
     {
@@ -511,7 +509,7 @@
         "SettingWidget1ID": "WEATHER_UV_INDEX",
         "SettingWidget2ID": "EMPTY",
         "SettingWidget3ID": "NEXT_SUN_EVENT",
-        "SettingWidget4ID": "WEATHER_WIND"
+        "SettingWidget4ID": "WEEK_NUMBER"
       }
     },
     {
@@ -533,7 +531,7 @@
         "SettingWidget1ID": "WEATHER_UV_INDEX",
         "SettingWidget2ID": "BEATS",
         "SettingWidget3ID": "SECONDS",
-        "SettingWidget4ID": "WEATHER_WIND",
+        "SettingWidget4ID": "WORLD_TIME_1",
         "SettingWidget5ID": "WEEK_NUMBER"
       }
     },
@@ -558,9 +556,9 @@
       }
     },
     {
-      "name": "bottombar-wind-heartrate",
+      "name": "bottombar-uv-heartrate",
       "settings": {
-        "SettingBottomBarWidget0ID": "WEATHER_WIND",
+        "SettingBottomBarWidget0ID": "WEATHER_UV_INDEX",
         "SettingBottomBarWidget1ID": "HEARTRATE"
       }
     },
@@ -639,8 +637,7 @@
       "settings": {
         "SettingUseMetric": 0,
         "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
-        "SettingWidget2ID": "WEATHER_WIND"
+        "SettingWidget1ID": "WEATHER_FORECAST_TODAY"
       }
     },
     {
@@ -649,25 +646,23 @@
         "SettingUseMetric": 0,
         "SettingWidget0ID": "BATTERY_METER",
         "SettingWidget1ID": "DATE",
-        "SettingBottomBarWidget0ID": "WEATHER_WIND",
+        "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
         "SettingBottomBarWidget1ID": "WEATHER_FORECAST_TODAY"
       }
     },
     {
       "name": "health-distance-metric",
       "settings": {
-        "SettingHealthUseDistance": 1,
-        "SettingWidget0ID": "STEP_COUNTER",
+        "SettingWidget0ID": "DISTANCE_WALKED",
         "SettingWidget1ID": "DATE"
       }
     },
     {
       "name": "health-distance-imperial-comma",
       "settings": {
-        "SettingHealthUseDistance": 1,
         "SettingUseMetric": 0,
         "SettingDecimalSep": 44,
-        "SettingBottomBarWidget0ID": "STEP_COUNTER",
+        "SettingBottomBarWidget0ID": "DISTANCE_WALKED",
         "SettingWidget0ID": "BATTERY_METER",
         "SettingWidget1ID": "DATE"
       }
@@ -787,14 +782,12 @@
         "SettingWidget0ID": "WEATHER_CURRENT",
         "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
         "SettingWidget2ID": "WEATHER_UV_INDEX",
-        "SettingWidget3ID": "WEATHER_WIND",
         "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
         "SettingBottomBarWidget1ID": "WEATHER_PRECIP_CHANCE",
         "WeatherTemperature": -2147483648,
         "WeatherForecastHighTemp": -2147483648,
         "WeatherForecastLowTemp": -2147483648,
         "WeatherUVIndex": -2147483648,
-        "WeatherWindSpeed": -2147483648,
         "WeatherPrecipChance": -2147483648,
         "WeatherSunriseMinute": -2147483648,
         "WeatherSunsetMinute": -2147483648

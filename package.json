@@ -45,7 +45,6 @@
       "SettingColorSidebar",
       "SettingColorTime",
       "SettingDecimalSep",
-      "SettingHealthUseDistance",
       "SettingHealthUseRestfulSleep",
       "SettingHourlyVibe",
       "SettingLanguageID",
@@ -68,7 +67,6 @@
       "SettingAltClock2Name",
       "SettingAltClock2Offset",
       "SettingLocalUtcOffset",
-      "WeatherWindSpeed",
       "WeatherPrecipChance",
       "WeatherSunriseMinute",
       "WeatherSunsetMinute",
@@ -231,6 +229,16 @@
         {
           "file": "data/HEALTH_STEPS.pdc",
           "name": "HEALTH_STEPS",
+          "type": "raw"
+        },
+        {
+          "file": "data/DISTANCE.pdc",
+          "name": "DISTANCE",
+          "type": "raw"
+        },
+        {
+          "file": "data/CALORIES.pdc",
+          "name": "CALORIES",
           "type": "raw"
         },
         {

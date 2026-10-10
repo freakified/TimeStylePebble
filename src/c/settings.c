@@ -231,7 +231,6 @@ void Settings_updateDynamicSettings() {
         widget == WEATHER_FORECAST_TODAY ||
         widget == WEATHER_UV_INDEX ||
         widget == NEXT_SUN_EVENT ||
-        widget == WEATHER_WIND ||
         widget == WEATHER_PRECIP_CHANCE) {
       dynamicSettings.disableWeather = false;
       dynamicSettings.enablePhonePolling = true;

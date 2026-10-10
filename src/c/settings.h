@@ -3,7 +3,7 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 15
+#define CURRENT_SETTINGS_VERSION 16
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -52,7 +52,6 @@ typedef struct {
   int altclockOffset;
 
   // health widget Settings
-  bool healthUseDistance;
   bool healthUseRestfulSleep;
   char decimalSeparator;
 

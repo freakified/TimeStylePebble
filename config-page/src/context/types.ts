@@ -51,7 +51,8 @@ export interface Settings {
   // 0=Empty, 2=Battery, 3=World Time 1, 4=Date, 5=Seconds, 6=Week Number,
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
   // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index, 14=World Time 2,
-  // 15=Sunrise & Sunset, 16=Wind Speed, 17=Chance of Rain
+  // 15=Sunrise & Sunset, 17=Chance of Rain,
+  // 18=Distance Walked, 19=Active Calories
   // On round these same six slots are split between the two arcs:
   // 0..2 are the left arc's widget list, 3..5 the right arc's.
   widget0Id: number;  // first sidebar slot (top on rect, left arc top on round)
@@ -110,6 +111,5 @@ export interface Settings {
   altClock2Offset: number;
 
   // Health
-  healthActivityMetric: 'steps' | 'distance';
   healthSleepType: 'total' | 'restful';
 }

@@ -115,7 +115,6 @@ function settingsFromWatchPayload(payload) {
     altClock2Name: payload.SettingAltClock2Name || 'TYO',
     altClock2Offset: getNumber(payload.SettingAltClock2Offset, 540),
 
-    healthActivityMetric: getBoolean(payload.SettingHealthUseDistance) ? 'distance' : 'steps',
     healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
   };
 }
@@ -216,10 +215,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.decimalSeparator) {
     dict.SettingDecimalSep = configData.decimalSeparator;
-  }
-
-  if (configData.healthActivityMetric !== undefined) {
-    dict.SettingHealthUseDistance = configData.healthActivityMetric == 'distance' ? 1 : 0;
   }
 
   if (configData.healthSleepType !== undefined) {
