@@ -249,19 +249,23 @@ export const SettingsPage: React.FC = () => {
           label="Font"
           messageKey="clockFont"
           options={[
-            { label: 'Default', value: 'default' },
-            { label: 'Bold', value: 'bold' },
-            { label: 'Bold (hours only)', value: 'bold-h' },
-            { label: 'Bold (minutes only)', value: 'bold-m' },
+            { label: 'Avenir', value: 'avenir' },
             { label: 'LECO', value: 'leco' },
+            { label: 'Garamond', value: 'garamond' },
           ]}
           optionSettings={{
-            default: { clockFont: 'default' },
-            bold: { clockFont: 'bold' },
-            'bold-h': { clockFont: 'bold-h' },
-            'bold-m': { clockFont: 'bold-m' },
+            avenir: { clockFont: 'avenir' },
             leco: { clockFont: 'leco' },
+            garamond: { clockFont: 'garamond' },
           }}
+        />
+        <Toggle
+          label="Bold hours"
+          messageKey="boldHours"
+        />
+        <Toggle
+          label="Bold minutes"
+          messageKey="boldMinutes"
         />
         <Toggle
           label="Show leading zero"

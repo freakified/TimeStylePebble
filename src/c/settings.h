@@ -3,18 +3,24 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 16
+#define CURRENT_SETTINGS_VERSION 17
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
 #define SETTINGS_VERSION_PERSIST_KEY 4
 #define MIGRATION_EMERY_FONT_PERSIST_KEY 200
 
-#define FONT_SETTING_DEFAULT 0
-#define FONT_SETTING_LECO    1
-#define FONT_SETTING_BOLD    2
-#define FONT_SETTING_BOLD_H  3
-#define FONT_SETTING_BOLD_M  4
+// clockFontId picks the typeface; hoursBold / minutesBold pick each
+// line's weight independently
+#define FONT_SETTING_AVENIR   0
+#define FONT_SETTING_LECO     1
+#define FONT_SETTING_GARAMOND 5
+
+// pre-v7.12 ids that baked Avenir's weights into the font id; only ever
+// found in old persisted settings, which load migrates
+#define FONT_SETTING_LEGACY_BOLD   2
+#define FONT_SETTING_LEGACY_BOLD_H 3
+#define FONT_SETTING_LEGACY_BOLD_M 4
 
 typedef enum {
   NO_VIBE = 0,
@@ -90,6 +96,10 @@ typedef struct {
   // and the other blends into the watchface, which is what layoutId
   // picks between. This fills both, the way every arc used to look.
   bool colorBothArcs;
+
+  // clock digit weights: bold or light, per line (v17)
+  bool hoursBold;
+  bool minutesBold;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

@@ -35,6 +35,8 @@ void messaging_sendConfigSnapshot() {
   dict_write_uint8(iter, MESSAGE_KEY_SettingLanguageID, settings.languageId);
   dict_write_uint8(iter, MESSAGE_KEY_SettingShowLeadingZero, settings.showLeadingZero ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingClockFontId, settings.clockFontId);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingClockHoursBold, settings.hoursBold ? 1 : 0);
+  dict_write_uint8(iter, MESSAGE_KEY_SettingClockMinutesBold, settings.minutesBold ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingBluetoothVibe, settings.btVibe ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHourlyVibe, settings.hourlyVibe);
   dict_write_uint8(iter, MESSAGE_KEY_SettingWidget0ID, settings.vRegionSlots[0]);
@@ -160,6 +162,8 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
   Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
+  Tuple *hoursBold_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockHoursBold);
+  Tuple *minutesBold_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockMinutesBold);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
   Tuple *useWideSidebar_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseWideSidebar);
@@ -218,6 +222,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(clockFont_tuple != NULL) {
     settings.clockFontId = clockFont_tuple->value->int8;
+  }
+
+  if(hoursBold_tuple != NULL) {
+    settings.hoursBold = (bool)hoursBold_tuple->value->int8;
+  }
+
+  if(minutesBold_tuple != NULL) {
+    settings.minutesBold = (bool)minutesBold_tuple->value->int8;
   }
 
   if(useLargeFonts_tuple != NULL) {

@@ -32,15 +32,13 @@ void ClockArea_redraw() {
   int offset = (Sidebar_verticalEdge() == REGION_EDGE_LEFT)
                    ? Sidebar_verticalThickness() : 0;
 
-  int h_font = settings.clockFontId;
-  int m_font = settings.clockFontId;
+  // the bitmap digits come in Avenir, Avenir bold and LECO only, indexed
+  // by the old font ids; Garamond falls back to Avenir
+  int h_font = settings.hoursBold ? FONT_SETTING_LEGACY_BOLD : FONT_SETTING_AVENIR;
+  int m_font = settings.minutesBold ? FONT_SETTING_LEGACY_BOLD : FONT_SETTING_AVENIR;
 
-  if (h_font == FONT_SETTING_BOLD_H) {
-    h_font = FONT_SETTING_BOLD;
-    m_font = FONT_SETTING_DEFAULT;
-  } else if (m_font == FONT_SETTING_BOLD_M) {
-    h_font = FONT_SETTING_DEFAULT;
-    m_font = FONT_SETTING_BOLD;
+  if (settings.clockFontId == FONT_SETTING_LECO) {
+    h_font = m_font = FONT_SETTING_LECO;
   }
 
   // H1

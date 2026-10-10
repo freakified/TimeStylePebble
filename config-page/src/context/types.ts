@@ -68,7 +68,9 @@ export interface Settings {
   // General display
   languageId: number;
   leadingZero: boolean;
-  clockFont: 'default' | 'bold' | 'bold-h' | 'bold-m' | 'leco';
+  clockFont: 'avenir' | 'leco' | 'garamond';
+  boldHours: boolean;    // each line of the clock picks its weight
+  boldMinutes: boolean;
   layout: Layout;
   largeSidebarFont: boolean;
   wideSidebar: boolean;  // wider sidebar: widgets show their full form

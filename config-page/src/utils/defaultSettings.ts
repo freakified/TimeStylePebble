@@ -30,7 +30,9 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   // General
   languageId: 0,
   leadingZero: false,
-  clockFont: 'default',
+  clockFont: 'avenir',
+  boldHours: false,
+  boldMinutes: false,
   layout: 'right-sidebar',
   largeSidebarFont: false,
   wideSidebar: false,

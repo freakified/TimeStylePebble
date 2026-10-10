@@ -17,60 +17,60 @@ Layer* clock_area_layer;
 FFont* hours_font;
 FFont* minutes_font;
 
-// only the faces the current font setting uses are kept in memory
-FFont* avenir;
-FFont* avenir_bold;
-FFont* leco;
+// every face, indexed [typeface][bold]; only the ones the current
+// settings use are kept in memory
+typedef enum { FACE_AVENIR, FACE_LECO, FACE_GARAMOND, FACE_COUNT } ClockFace;
+
+static const uint32_t face_resources[FACE_COUNT][2] = {
+  [FACE_AVENIR]   = { RESOURCE_ID_AVENIR_REGULAR_FFONT, RESOURCE_ID_AVENIR_BOLD_FFONT },
+  [FACE_LECO]     = { RESOURCE_ID_LECO_LIGHT_FFONT,     RESOURCE_ID_LECO_REGULAR_FFONT },
+  [FACE_GARAMOND] = { RESOURCE_ID_GARAMOND_MEDIUM_FFONT, RESOURCE_ID_GARAMOND_BOLD_FFONT },
+};
+
+static FFont* faces[FACE_COUNT][2];
 
 GRect screen_rect;
 
 // "private" functions
-static FFont* get_font(FFont** font, uint32_t resourceId, bool needed) {
+static ClockFace current_face() {
+  switch(settings.clockFontId) {
+    case FONT_SETTING_LECO:     return FACE_LECO;
+    case FONT_SETTING_GARAMOND: return FACE_GARAMOND;
+    default:                    return FACE_AVENIR;
+  }
+}
+
+static void set_face_loaded(ClockFace face, bool bold, bool needed) {
+  FFont** font = &faces[face][bold];
+
   if(needed && *font == NULL) {
-    *font = ffont_create_from_resource(resourceId);
+    *font = ffont_create_from_resource(face_resources[face][bold]);
   } else if(!needed && *font != NULL) {
     ffont_destroy(*font);
     *font = NULL;
   }
-
-  return *font;
 }
 
 void update_fonts() {
-  bool needsAvenir = settings.clockFontId == FONT_SETTING_DEFAULT ||
-                     settings.clockFontId == FONT_SETTING_BOLD_H ||
-                     settings.clockFontId == FONT_SETTING_BOLD_M;
-  bool needsBold = settings.clockFontId == FONT_SETTING_BOLD ||
-                   settings.clockFontId == FONT_SETTING_BOLD_H ||
-                   settings.clockFontId == FONT_SETTING_BOLD_M;
-  bool needsLeco = settings.clockFontId == FONT_SETTING_LECO;
+  ClockFace face = current_face();
 
-  get_font(&avenir, RESOURCE_ID_AVENIR_REGULAR_FFONT, needsAvenir);
-  get_font(&avenir_bold, RESOURCE_ID_AVENIR_BOLD_FFONT, needsBold);
-  get_font(&leco, RESOURCE_ID_LECO_REGULAR_FFONT, needsLeco);
-
-  switch(settings.clockFontId) {
-    case FONT_SETTING_DEFAULT:
-        hours_font = avenir;
-        minutes_font = avenir;
-      break;
-    case FONT_SETTING_BOLD:
-        hours_font = avenir_bold;
-        minutes_font = avenir_bold;
-      break;
-    case FONT_SETTING_BOLD_H:
-        hours_font = avenir_bold;
-        minutes_font = avenir;
-      break;
-    case FONT_SETTING_BOLD_M:
-        hours_font = avenir;
-        minutes_font = avenir_bold;
-      break;
-    case FONT_SETTING_LECO:
-        hours_font = leco;
-        minutes_font = leco;
-      break;
+  // free what's no longer used before loading anything new, so a switch
+  // never holds both the old and new faces at once
+  for(int f = 0; f < FACE_COUNT; f++) {
+    for(int bold = 0; bold < 2; bold++) {
+      bool needed = f == (int)face &&
+                    (settings.hoursBold == bold || settings.minutesBold == bold);
+      if(!needed) {
+        set_face_loaded(f, bold, false);
+      }
+    }
   }
+
+  set_face_loaded(face, settings.hoursBold, true);
+  set_face_loaded(face, settings.minutesBold, true);
+
+  hours_font = faces[face][settings.hoursBold];
+  minutes_font = faces[face][settings.minutesBold];
 }
 
 void update_clock_area_layer(Layer *l, GContext* ctx) {
@@ -184,9 +184,10 @@ void ClockArea_init(Window* window) {
 void ClockArea_deinit() {
   layer_destroy(clock_area_layer);
 
-  get_font(&avenir, RESOURCE_ID_AVENIR_REGULAR_FFONT, false);
-  get_font(&avenir_bold, RESOURCE_ID_AVENIR_BOLD_FFONT, false);
-  get_font(&leco, RESOURCE_ID_LECO_REGULAR_FFONT, false);
+  for(int f = 0; f < FACE_COUNT; f++) {
+    set_face_loaded(f, false, false);
+    set_face_loaded(f, true, false);
+  }
 }
 
 void ClockArea_redraw() {

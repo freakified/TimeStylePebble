@@ -1,17 +1,15 @@
+// ids 2-4 were Avenir weights before the weights became their own
+// settings; the watch migrates them away, so they're never sent
 var CLOCK_FONT_BY_ID = {
-  0: 'default',
+  0: 'avenir',
   1: 'leco',
-  2: 'bold',
-  3: 'bold-h',
-  4: 'bold-m'
+  5: 'garamond'
 };
 
 var CLOCK_FONT_ID_BY_NAME = {
-  'default': 0,
+  'avenir': 0,
   'leco': 1,
-  'bold': 2,
-  'bold-h': 3,
-  'bold-m': 4
+  'garamond': 5
 };
 
 var HOURLY_VIBE_BY_ID = {
@@ -94,7 +92,9 @@ function settingsFromWatchPayload(payload) {
 
     languageId: getNumber(payload.SettingLanguageID, 0),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
-    clockFont: getMappedValue(CLOCK_FONT_BY_ID, getNumber(payload.SettingClockFontId, 0), 'default'),
+    clockFont: getMappedValue(CLOCK_FONT_BY_ID, getNumber(payload.SettingClockFontId, 0), 'avenir'),
+    boldHours: getBoolean(payload.SettingClockHoursBold),
+    boldMinutes: getBoolean(payload.SettingClockMinutesBold),
     layout: getMappedValue(LAYOUT_BY_ID, getNumber(payload.SettingLayoutId, 0), 'right-sidebar'),
     largeSidebarFont: getBoolean(payload.SettingUseLargeFonts),
     wideSidebar: getBoolean(payload.SettingUseWideSidebar),
@@ -147,6 +147,14 @@ function settingsToWatchPayload(configData) {
     if (clockFontId !== undefined) {
       dict.SettingClockFontId = clockFontId;
     }
+  }
+
+  if (configData.boldHours !== undefined) {
+    dict.SettingClockHoursBold = configData.boldHours ? 1 : 0;
+  }
+
+  if (configData.boldMinutes !== undefined) {
+    dict.SettingClockMinutesBold = configData.boldMinutes ? 1 : 0;
   }
 
   if (configData.statusBarEnabled !== undefined) {

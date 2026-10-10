@@ -19,6 +19,8 @@
     "SettingBottomBarWidget1ID": "EMPTY",
     "SettingBottomBarWidget2ID": "EMPTY",
     "SettingClockFontId": 0,
+    "SettingClockHoursBold": 0,
+    "SettingClockMinutesBold": 0,
     "SettingLanguageID": 0,
     "SettingShowLeadingZero": 0,
     "SettingUseMetric": 1,
@@ -115,31 +117,72 @@
     {
       "name": "font-bold",
       "settings": {
-        "SettingClockFontId": 2
+        "SettingClockFontId": 0,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1
       }
     },
     {
       "name": "font-bold-hours",
       "settings": {
-        "SettingClockFontId": 3
+        "SettingClockFontId": 0,
+        "SettingClockHoursBold": 1
       }
     },
     {
       "name": "font-bold-minutes",
       "settings": {
-        "SettingClockFontId": 4
+        "SettingClockFontId": 0,
+        "SettingClockMinutesBold": 1
       }
     },
     {
       "name": "font-leco",
       "settings": {
+        "SettingClockFontId": 1,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1
+      }
+    },
+    {
+      "name": "font-leco-light",
+      "settings": {
         "SettingClockFontId": 1
+      }
+    },
+    {
+      "name": "font-leco-bold-hours",
+      "settings": {
+        "SettingClockFontId": 1,
+        "SettingClockHoursBold": 1
+      }
+    },
+    {
+      "name": "font-garamond",
+      "settings": {
+        "SettingClockFontId": 5
+      }
+    },
+    {
+      "name": "font-garamond-bold",
+      "settings": {
+        "SettingClockFontId": 5,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1
+      }
+    },
+    {
+      "name": "font-garamond-bold-hours",
+      "settings": {
+        "SettingClockFontId": 5,
+        "SettingClockHoursBold": 1
       }
     },
     {
       "name": "font-bold-hours-largefonts",
       "settings": {
-        "SettingClockFontId": 3,
+        "SettingClockFontId": 0,
+        "SettingClockHoursBold": 1,
         "SettingUseLargeFonts": 1
       }
     },
@@ -338,7 +381,9 @@
     {
       "name": "statusbar-leco",
       "settings": {
-        "SettingClockFontId": 1
+        "SettingClockFontId": 1,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1
       }
     },
     {

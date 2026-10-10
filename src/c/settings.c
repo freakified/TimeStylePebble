@@ -39,6 +39,33 @@ static void clear_unknown_widgets() {
   }
 }
 
+// v16 settings predate hoursBold/minutesBold and encoded the weight in
+// clockFontId: Avenir's "bold" ids, and LECO, which only had its regular
+// (now "bold") weight. The new fields may land in the old struct's tail
+// padding, so they're set explicitly rather than trusted
+static void migrate_clock_font() {
+  settings.hoursBold = false;
+  settings.minutesBold = false;
+
+  switch (settings.clockFontId) {
+    case FONT_SETTING_LEGACY_BOLD:
+      settings.hoursBold = settings.minutesBold = true;
+      break;
+    case FONT_SETTING_LEGACY_BOLD_H:
+      settings.hoursBold = true;
+      break;
+    case FONT_SETTING_LEGACY_BOLD_M:
+      settings.minutesBold = true;
+      break;
+    case FONT_SETTING_LECO:
+      settings.hoursBold = settings.minutesBold = true;
+      return;
+    default:
+      return;
+  }
+  settings.clockFontId = FONT_SETTING_AVENIR;
+}
+
 void Settings_loadFromStorage() {
   // Set defaults
   settings.timeBgColor = GColorBlack;
@@ -87,13 +114,21 @@ void Settings_loadFromStorage() {
   settings.decimalSeparator = '.';
   settings.useWideSidebar = false;
   settings.colorBothArcs = false;
+  settings.clockFontId = FONT_SETTING_AVENIR;
+  settings.hoursBold = false;
+  settings.minutesBold = false;
 
   // settings are persisted as a raw struct, so a blob from any other
   // version would load scrambled; until there's a migration path, fall
-  // back to the defaults instead
+  // back to the defaults instead. v16 only appended fields, so it loads
+  // as-is and then has its clock font migrated
+  int storedVersion = persist_read_int(SETTINGS_VERSION_PERSIST_KEY);
   if (persist_exists(SETTINGS_PERSIST_KEY) &&
-      persist_read_int(SETTINGS_VERSION_PERSIST_KEY) == CURRENT_SETTINGS_VERSION) {
+      (storedVersion == CURRENT_SETTINGS_VERSION || storedVersion == 16)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
+    if (storedVersion == 16) {
+      migrate_clock_font();
+    }
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
     settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
     clear_unknown_widgets();

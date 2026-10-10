@@ -72,7 +72,9 @@
       "WeatherSunsetMinute",
       "SettingEnableStatusBar",
       "SettingStatusShowConnection",
-      "SettingColorBothArcs"
+      "SettingColorBothArcs",
+      "SettingClockHoursBold",
+      "SettingClockMinutesBold"
     ],
     "resources": {
       "media": [
@@ -100,6 +102,45 @@
         {
           "file": "fonts/LECO1976-Regular.ffont",
           "name": "LECO_REGULAR_FFONT",
+          "type": "raw",
+          "targetPlatforms": [
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery",
+            "flint",
+            "gabbro"
+          ]
+        },
+        {
+          "file": "fonts/LECO1976-Light.ffont",
+          "name": "LECO_LIGHT_FFONT",
+          "type": "raw",
+          "targetPlatforms": [
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery",
+            "flint",
+            "gabbro"
+          ]
+        },
+        {
+          "file": "fonts/EBGaramondMedium.ffont",
+          "name": "GARAMOND_MEDIUM_FFONT",
+          "type": "raw",
+          "targetPlatforms": [
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery",
+            "flint",
+            "gabbro"
+          ]
+        },
+        {
+          "file": "fonts/EBGaramondBold.ffont",
+          "name": "GARAMOND_BOLD_FFONT",
           "type": "raw",
           "targetPlatforms": [
             "basalt",
