@@ -1,65 +1,67 @@
+import { offsetMinutes } from '../utils/timezone';
+
 // World time city list. Must stay in sync with src/pkjs/cities.js, which
-// owns the DST rules and computes each city's current UTC offset whenever
-// the phone talks to the watch. `std` (standard-time offset from UTC, in
-// minutes) is only used here to sort and annotate the dropdown.
+// computes each city's current UTC offset from its IANA zone whenever the
+// phone talks to the watch. `std` (standard-time offset from UTC, in
+// minutes) is the order the dropdown lists them in.
 
 export interface WorldTimeCity {
     name: string;   // stable identifier, matches pkjs cities.js
     label: string;  // default 3-letter label shown on the watch
-    std: number;    // standard-time UTC offset in minutes (display only)
-    hasDst: boolean;
+    tz: string;     // IANA zone
+    std: number;    // standard-time UTC offset in minutes
 }
 
 export const WORLD_TIME_CITIES: WorldTimeCity[] = [
-    { name: 'PAGO PAGO',      label: 'PPG', std: -660, hasDst: false },
-    { name: 'HONOLULU',       label: 'HNL', std: -600, hasDst: false },
-    { name: 'ANCHORAGE',      label: 'ANC', std: -540, hasDst: true },
-    { name: 'VANCOUVER',      label: 'YVR', std: -480, hasDst: true },
-    { name: 'SAN FRANCISCO',  label: 'SFO', std: -480, hasDst: true },
-    { name: 'EDMONTON',       label: 'YEG', std: -420, hasDst: true },
-    { name: 'DENVER',         label: 'DEN', std: -420, hasDst: true },
-    { name: 'MEXICO CITY',    label: 'MEX', std: -360, hasDst: false },
-    { name: 'CHICAGO',        label: 'CHI', std: -360, hasDst: true },
-    { name: 'NEW YORK',       label: 'NYC', std: -300, hasDst: true },
-    { name: 'SANTIAGO',       label: 'SCL', std: -240, hasDst: true },
-    { name: 'HALIFAX',        label: 'YHZ', std: -240, hasDst: true },
-    { name: 'ST. JOHNS',      label: 'YYT', std: -210, hasDst: true },
-    { name: 'RIO DE JANEIRO', label: 'RIO', std: -180, hasDst: false },
-    { name: 'F. DE NORONHA',  label: 'FDN', std: -120, hasDst: false },
-    { name: 'PRAIA',          label: 'RAI', std: -60,  hasDst: false },
-    { name: 'UTC',            label: 'UTC', std: 0,    hasDst: false },
-    { name: 'LISBON',         label: 'LIS', std: 0,    hasDst: true },
-    { name: 'LONDON',         label: 'LON', std: 0,    hasDst: true },
-    { name: 'MADRID',         label: 'MAD', std: 60,   hasDst: true },
-    { name: 'PARIS',          label: 'PAR', std: 60,   hasDst: true },
-    { name: 'ROME',           label: 'ROM', std: 60,   hasDst: true },
-    { name: 'BERLIN',         label: 'BER', std: 60,   hasDst: true },
-    { name: 'STOCKHOLM',      label: 'STO', std: 60,   hasDst: true },
-    { name: 'ATHENS',         label: 'ATH', std: 120,  hasDst: true },
-    { name: 'CAIRO',          label: 'CAI', std: 120,  hasDst: false },
-    { name: 'JERUSALEM',      label: 'JRS', std: 120,  hasDst: true },
-    { name: 'MOSCOW',         label: 'MOW', std: 180,  hasDst: false },
-    { name: 'JEDDAH',         label: 'JED', std: 180,  hasDst: false },
-    { name: 'TEHRAN',         label: 'THR', std: 210,  hasDst: true },
-    { name: 'DUBAI',          label: 'DXB', std: 240,  hasDst: false },
-    { name: 'KABUL',          label: 'KBL', std: 270,  hasDst: false },
-    { name: 'KARACHI',        label: 'KHI', std: 300,  hasDst: false },
-    { name: 'DELHI',          label: 'DEL', std: 330,  hasDst: false },
-    { name: 'KATHMANDU',      label: 'KTM', std: 345,  hasDst: false },
-    { name: 'DHAKA',          label: 'DAC', std: 360,  hasDst: false },
-    { name: 'YANGON',         label: 'RGN', std: 390,  hasDst: false },
-    { name: 'BANGKOK',        label: 'BKK', std: 420,  hasDst: false },
-    { name: 'SINGAPORE',      label: 'SIN', std: 480,  hasDst: false },
-    { name: 'HONG KONG',      label: 'HKG', std: 480,  hasDst: false },
-    { name: 'BEIJING',        label: 'BJS', std: 480,  hasDst: false },
-    { name: 'TAIPEI',         label: 'TPE', std: 480,  hasDst: false },
-    { name: 'SEOUL',          label: 'SEL', std: 540,  hasDst: false },
-    { name: 'TOKYO',          label: 'TYO', std: 540,  hasDst: false },
-    { name: 'ADELAIDE',       label: 'ADL', std: 570,  hasDst: true },
-    { name: 'GUAM',           label: 'GUM', std: 600,  hasDst: false },
-    { name: 'SYDNEY',         label: 'SYD', std: 600,  hasDst: true },
-    { name: 'NOUMEA',         label: 'NOU', std: 660,  hasDst: false },
-    { name: 'WELLINGTON',     label: 'WLG', std: 720,  hasDst: true },
+    { name: 'PAGO PAGO',     label: 'PPG', tz: 'Pacific/Pago_Pago',   std: -660 },
+    { name: 'HONOLULU',      label: 'HNL', tz: 'Pacific/Honolulu',    std: -600 },
+    { name: 'ANCHORAGE',     label: 'ANC', tz: 'America/Anchorage',   std: -540 },
+    { name: 'VANCOUVER',     label: 'YVR', tz: 'America/Vancouver',   std: -480 },
+    { name: 'SAN FRANCISCO', label: 'SFO', tz: 'America/Los_Angeles', std: -480 },
+    { name: 'EDMONTON',      label: 'YEG', tz: 'America/Edmonton',    std: -420 },
+    { name: 'DENVER',        label: 'DEN', tz: 'America/Denver',      std: -420 },
+    { name: 'MEXICO CITY',   label: 'MEX', tz: 'America/Mexico_City', std: -360 },
+    { name: 'CHICAGO',       label: 'CHI', tz: 'America/Chicago',     std: -360 },
+    { name: 'NEW YORK',      label: 'NYC', tz: 'America/New_York',    std: -300 },
+    { name: 'SANTIAGO',      label: 'SCL', tz: 'America/Santiago',    std: -240 },
+    { name: 'HALIFAX',       label: 'YHZ', tz: 'America/Halifax',     std: -240 },
+    { name: 'ST. JOHNS',     label: 'YYT', tz: 'America/St_Johns',    std: -210 },
+    { name: 'RIO DE JANEIRO',label: 'RIO', tz: 'America/Sao_Paulo',   std: -180 },
+    { name: 'F. DE NORONHA', label: 'FDN', tz: 'America/Noronha',     std: -120 },
+    { name: 'PRAIA',         label: 'RAI', tz: 'Atlantic/Cape_Verde', std: -60 },
+    { name: 'UTC',           label: 'UTC', tz: 'UTC',                 std: 0 },
+    { name: 'LISBON',        label: 'LIS', tz: 'Europe/Lisbon',       std: 0 },
+    { name: 'LONDON',        label: 'LON', tz: 'Europe/London',       std: 0 },
+    { name: 'MADRID',        label: 'MAD', tz: 'Europe/Madrid',       std: 60 },
+    { name: 'PARIS',         label: 'PAR', tz: 'Europe/Paris',        std: 60 },
+    { name: 'ROME',          label: 'ROM', tz: 'Europe/Rome',         std: 60 },
+    { name: 'BERLIN',        label: 'BER', tz: 'Europe/Berlin',       std: 60 },
+    { name: 'STOCKHOLM',     label: 'STO', tz: 'Europe/Stockholm',    std: 60 },
+    { name: 'ATHENS',        label: 'ATH', tz: 'Europe/Athens',       std: 120 },
+    { name: 'CAIRO',         label: 'CAI', tz: 'Africa/Cairo',        std: 120 },
+    { name: 'JERUSALEM',     label: 'JRS', tz: 'Asia/Jerusalem',      std: 120 },
+    { name: 'MOSCOW',        label: 'MOW', tz: 'Europe/Moscow',       std: 180 },
+    { name: 'JEDDAH',        label: 'JED', tz: 'Asia/Riyadh',         std: 180 },
+    { name: 'TEHRAN',        label: 'THR', tz: 'Asia/Tehran',         std: 210 },
+    { name: 'DUBAI',         label: 'DXB', tz: 'Asia/Dubai',          std: 240 },
+    { name: 'KABUL',         label: 'KBL', tz: 'Asia/Kabul',          std: 270 },
+    { name: 'KARACHI',       label: 'KHI', tz: 'Asia/Karachi',        std: 300 },
+    { name: 'DELHI',         label: 'DEL', tz: 'Asia/Kolkata',        std: 330 },
+    { name: 'KATHMANDU',     label: 'KTM', tz: 'Asia/Kathmandu',      std: 345 },
+    { name: 'DHAKA',         label: 'DAC', tz: 'Asia/Dhaka',          std: 360 },
+    { name: 'YANGON',        label: 'RGN', tz: 'Asia/Yangon',         std: 390 },
+    { name: 'BANGKOK',       label: 'BKK', tz: 'Asia/Bangkok',        std: 420 },
+    { name: 'SINGAPORE',     label: 'SIN', tz: 'Asia/Singapore',      std: 480 },
+    { name: 'HONG KONG',     label: 'HKG', tz: 'Asia/Hong_Kong',      std: 480 },
+    { name: 'BEIJING',       label: 'BJS', tz: 'Asia/Shanghai',       std: 480 },
+    { name: 'TAIPEI',        label: 'TPE', tz: 'Asia/Taipei',         std: 480 },
+    { name: 'SEOUL',         label: 'SEL', tz: 'Asia/Seoul',          std: 540 },
+    { name: 'TOKYO',         label: 'TYO', tz: 'Asia/Tokyo',          std: 540 },
+    { name: 'ADELAIDE',      label: 'ADL', tz: 'Australia/Adelaide',  std: 570 },
+    { name: 'GUAM',          label: 'GUM', tz: 'Pacific/Guam',        std: 600 },
+    { name: 'SYDNEY',        label: 'SYD', tz: 'Australia/Sydney',    std: 600 },
+    { name: 'NOUMEA',        label: 'NOU', tz: 'Pacific/Noumea',      std: 660 },
+    { name: 'WELLINGTON',    label: 'WLG', tz: 'Pacific/Auckland',    std: 720 },
 ];
 
 const formatOffset = (minutes: number): string => {
@@ -70,8 +72,9 @@ const formatOffset = (minutes: number): string => {
     return `UTC${sign}${hours}${mins ? ':' + String(mins).padStart(2, '0') : ''}`;
 };
 
+// labelled with each city's offset right now, so a city in DST says so
 export const WORLD_TIME_CITY_OPTIONS = WORLD_TIME_CITIES.map((city) => ({
-    label: `${city.name} (${formatOffset(city.std)}${city.hasDst ? ', DST' : ''})`,
+    label: `${city.name} (${formatOffset(offsetMinutes(city.tz, city.std))})`,
     value: city.name,
 }));
 
