@@ -8,8 +8,9 @@ export const TextField: React.FC<{
   description?: string;
   messageKey: keyof Settings;
   maxLength?: number;
+  placeholder?: string;
   transformValue?: (value: string) => string;
-}> = ({ label, description, messageKey, maxLength, transformValue }) => {
+}> = ({ label, description, messageKey, maxLength, placeholder, transformValue }) => {
   const { settings, updateSetting } = useConfig();
   const inputId = React.useId();
   const value = settings[messageKey];
@@ -22,6 +23,7 @@ export const TextField: React.FC<{
         className="halite-input"
         value={String(value ?? '')}
         maxLength={maxLength}
+        placeholder={placeholder}
         onChange={(e) => {
           const nextValue = transformValue ? transformValue(e.target.value) : e.target.value;
           updateSetting(messageKey, nextValue as Settings[keyof Settings]);

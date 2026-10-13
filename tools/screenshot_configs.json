@@ -271,7 +271,7 @@
       "name": "widgets-worldtime-nolabel",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
-        "SettingAltClockName": "",
+        "SettingWidgetHideMarker": ["WORLD_TIME_1"],
         "SettingWidget0ID": "WORLD_TIME_1",
         "SettingWidget1ID": "DATE",
         "SettingWidget2ID": "EMPTY"
@@ -281,7 +281,7 @@
       "name": "widgets-worldtime-nolabel-bottombar",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
-        "SettingAltClockName": "",
+        "SettingWidgetHideMarker": ["WORLD_TIME_1"],
         "SettingBottomBarWidget0ID": "WORLD_TIME_1",
         "SettingBottomBarWidget1ID": "SECONDS"
       }

@@ -28,8 +28,10 @@ function addZoneToPayload(zoneNum, nameKey, offsetKey, dict) {
     return;
   }
 
-  // the label is exactly what the user typed; blank means no label
-  var name = String(window.localStorage.getItem(storageKey(zoneNum, 'label')) || '');
+  // a blank custom label uses the city's own (hiding the label is the
+  // widget's "Show" setting, not a blank name)
+  var label = window.localStorage.getItem(storageKey(zoneNum, 'label'));
+  var name = String(label || city.label || city.name);
   dict[nameKey] = name.toUpperCase().slice(0, MAX_LABEL_LENGTH);
   dict[offsetKey] = Cities.cityOffsetMinutes(city, new Date());
 }

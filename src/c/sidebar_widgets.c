@@ -720,7 +720,7 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = textHeight;
     } else {
-      // an empty label (e.g. a blanked world time name) drops the label
+      // a missing label (hidden by the "Show" setting) drops the label
       // line entirely instead of reserving an empty row
       height = SIDEBAR_BASIC_PADDING_TOP + textHeight +
                SIDEBAR_BASIC_PADDING_BOTTOM;

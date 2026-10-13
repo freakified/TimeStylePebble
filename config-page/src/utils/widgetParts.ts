@@ -14,15 +14,15 @@ import { Settings } from '../context/types';
  * both bits are set the watch hides the marker and keeps the detail. The
  * date is the exception -- its calendar remains either way.
  *
- * Only widgets listed here offer a choice. World times are left out on
- * purpose: a blank custom label already hides theirs.
+ * Only widgets listed here offer a choice.
  */
 
 export interface WidgetParts {
     /** what the marker is called in the "Show" options */
     marker: string;
     /** the rest of the widget, what's left when the marker is hidden:
-     *  "value", unless a plainer word names it (percentage, temperature) */
+     *  "value", unless a plainer word names it (percentage, temperature,
+     *  time) */
     value: string;
     /** whether the value can be hidden instead, leaving just the marker */
     detailHideable?: boolean;
@@ -37,6 +37,8 @@ export const WIDGET_PARTS: Record<number, WidgetParts> = {
     6:  { marker: 'label', value: 'value' },                             // Week Number
     11: { marker: 'label', value: 'value' },                             // Swatch Internet Time
     13: { marker: 'label', value: 'value' },                             // UV Index
+    3:  { marker: 'label', value: 'time' },                              // World Time 1
+    14: { marker: 'label', value: 'time' },                              // World Time 2
     9:  { marker: 'icon', value: 'value' },                              // Sleep
     10: { marker: 'icon', value: 'value' },                              // Steps
     12: { marker: 'icon', value: 'value' },                              // Heart Rate

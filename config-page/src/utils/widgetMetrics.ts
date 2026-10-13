@@ -117,18 +117,17 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
         case 2:  // Battery
             return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
         case 3: {  // World Time 1
-            // an explicit blank label means no label; the fallback chain
-            // only applies while no city has been picked yet
-            const label1 = findWorldTimeCity(settings.worldTime1City)
-                ? settings.worldTime1Label
-                : settings.altClockName || 'UTC';
-            return label1 ? [text(label1, 'sm'), text('5:42p')] : [text('5:42p')];
+            // a blank custom label uses the city's own, as worldtime.js does
+            const label1 = settings.worldTime1Label
+                || findWorldTimeCity(settings.worldTime1City)?.label
+                || settings.altClockName || 'UTC';
+            return [text(label1, 'sm'), text('5:42p')];
         }
         case 14: {  // World Time 2
-            const label2 = findWorldTimeCity(settings.worldTime2City)
-                ? settings.worldTime2Label
-                : settings.altClock2Name || 'TYO';
-            return label2 ? [text(label2, 'sm'), text('9:42a')] : [text('9:42a')];
+            const label2 = settings.worldTime2Label
+                || findWorldTimeCity(settings.worldTime2City)?.label
+                || settings.altClock2Name || 'TYO';
+            return [text(label2, 'sm'), text('9:42a')];
         }
         case 4:  // Today's Date
             return [

@@ -8,7 +8,9 @@ export const Select: React.FC<{
   description?: string;
   messageKey: keyof Settings;
   options: { label: string; value: string | number; category?: string }[];
-}> = ({ label, description, messageKey, options }) => {
+  /** called after the setting is updated, for settings that follow this one */
+  onValueChange?: (value: string | number) => void;
+}> = ({ label, description, messageKey, options, onValueChange }) => {
   const { settings, updateSetting } = useConfig();
   const value = settings[messageKey];
   const selectId = React.useId();
@@ -37,7 +39,9 @@ export const Select: React.FC<{
         onChange={(e) => {
           const val = e.target.value;
           const num = parseInt(val, 10);
-          updateSetting(messageKey, isNaN(num) ? val : num);
+          const next = isNaN(num) ? val : num;
+          updateSetting(messageKey, next);
+          onValueChange?.(next);
         }}
       >
         {groupedOptions.noCategory.map((opt) => (
