@@ -170,19 +170,19 @@ void Settings_saveToStorage() {
  */
 static const uint32_t s_linearChannel[4] = {0, 908, 4020, 10000};
 
-// regions at or below this luminance (0.03) are dark: their icons draw as
+// regions at or below this luminance (0.1) are dark: their icons draw as
 // outlines rather than white badges
-#define DARK_REGION_LUMINANCE 300
+#define DARK_REGION_LUMINANCE 1000
 
-// white text wins when its contrast ratio, times this bias (1.3, in
+// white text wins when its contrast ratio, times this bias (1.4, in
 // tenths), is at least black's: the screen renders mid-tones darker than
 // sRGB would suggest
-#define WHITE_TEXT_BIAS_TENTHS 13
+#define WHITE_TEXT_BIAS_TENTHS 14
 
-// an accent needs at least 2.5:1 (5/2) against its region, or the icon
+// an accent needs at least 4:1 (4/1) against its region, or the icon
 // strokes fall back to the text color
-#define MIN_ACCENT_CONTRAST_NUM 5
-#define MIN_ACCENT_CONTRAST_DEN 2
+#define MIN_ACCENT_CONTRAST_NUM 4
+#define MIN_ACCENT_CONTRAST_DEN 1
 
 static uint32_t luminance(GColor color) {
   return (2126 * s_linearChannel[color.r] + 7152 * s_linearChannel[color.g] +

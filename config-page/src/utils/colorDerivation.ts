@@ -10,14 +10,14 @@ import { Settings } from '../context/types';
 
 /** regions at or below this luminance are dark: their icons draw as
  *  outlines rather than white badges */
-const DARK_REGION_LUMINANCE = 0.03;
+const DARK_REGION_LUMINANCE = 0.1;
 
 /** white text wins when its contrast ratio, times this, is at least
  *  black's: the screen renders mid-tones darker than sRGB would suggest */
-const WHITE_TEXT_BIAS = 1.3;
+const WHITE_TEXT_BIAS = 1.4;
 
 /** below this contrast with its region, an accent gives way to the text color */
-const MIN_ACCENT_CONTRAST = 2.5;
+const MIN_ACCENT_CONTRAST = 4;
 
 const normalize = (hex: string) => hex.replace('#', '').toUpperCase();
 
