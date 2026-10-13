@@ -8,12 +8,17 @@ import { WatchPreview } from './WatchPreview';
 export const SelectCards: React.FC<{
   label: string;
   description?: string;
-  messageKey: keyof Settings;
+  // without a messageKey, each card stands for its optionSettings: the
+  // card whose settings all match is selected, and picking one applies them
+  messageKey?: keyof Settings;
   options: { label: string; value: string | number | boolean }[];
   optionSettings?: Record<string, Partial<Settings>>;
 }> = ({ label, description, messageKey, options, optionSettings }) => {
-  const { settings, updateSetting } = useConfig();
-  const currentValue = settings[messageKey];
+  const { settings, updateSetting, updateSettings } = useConfig();
+  const currentValue = messageKey
+    ? settings[messageKey]
+    : options.find((opt) => Object.entries(optionSettings?.[String(opt.value)] ?? {})
+        .every(([key, value]) => settings[key as keyof Settings] === value))?.value;
 
   const items = React.useMemo(
     () => options.map((opt) => ({ ...opt, id: String(opt.value) })),
@@ -25,10 +30,15 @@ export const SelectCards: React.FC<{
       <GridList
         items={items}
         selectionMode="single"
-        selectedKeys={[String(currentValue)]}
+        selectedKeys={currentValue === undefined ? [] : [String(currentValue)]}
         onSelectionChange={(keys) => {
           const selected = Array.from(keys)[0] as string;
           if (!selected) return;
+          if (!messageKey) {
+            const partial = optionSettings?.[selected];
+            if (partial) updateSettings(partial);
+            return;
+          }
           const num = parseInt(selected, 10);
           const value = selected === 'true' ? true
                       : selected === 'false' ? false

@@ -87,19 +87,19 @@ export const SettingsPage: React.FC = () => {
   // six: its two arcs split the list between them.
   const sidebarWidgetIds = capabilities.ROUND
     ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
-       settings.widget3Id, settings.widget4Id, settings.widget5Id]
+    settings.widget3Id, settings.widget4Id, settings.widget5Id]
     : capabilities.EMERY
       ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
-         settings.widget3Id, settings.widget4Id, settings.widget5Id]
+      settings.widget3Id, settings.widget4Id, settings.widget5Id]
       : [settings.widget0Id, settings.widget1Id, settings.widget2Id,
-         settings.widget3Id];
+      settings.widget3Id];
   // the bottom bar's slots are always live: holding a widget is what turns
   // the bar on, so its widgets always count as active
   const bottomBarWidgetIds = !capabilities.ROUND
     ? [
-        settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
-        settings.bottomBarWidget2Id,
-      ].slice(0, barSlotCap(capabilities.EMERY))
+      settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
+      settings.bottomBarWidget2Id,
+    ].slice(0, barSlotCap(capabilities.EMERY))
     : [];
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
@@ -109,13 +109,13 @@ export const SettingsPage: React.FC = () => {
   // are always there, so it picks which of them is filled.
   const layoutOptions: { label: string; value: Layout }[] = capabilities.ROUND
     ? [
-        { label: 'Color left arc', value: 'left-sidebar' },
-        { label: 'Color right arc', value: 'right-sidebar' },
-      ]
+      { label: 'Color left arc', value: 'left-sidebar' },
+      { label: 'Color right arc', value: 'right-sidebar' },
+    ]
     : [
-        { label: 'Left sidebar', value: 'left-sidebar' },
-        { label: 'Right sidebar', value: 'right-sidebar' },
-      ];
+      { label: 'Left sidebar', value: 'left-sidebar' },
+      { label: 'Right sidebar', value: 'right-sidebar' },
+    ];
   const layoutOptionSettings: Record<string, { layout: Layout }> = {};
   layoutOptions.forEach((option) => {
     layoutOptionSettings[option.value] = { layout: option.value };
@@ -179,6 +179,44 @@ export const SettingsPage: React.FC = () => {
         )}
       </Section>
 
+      {/* ── Time Display ── */}
+      <Section title="Time Display">
+        <SelectCards
+          label="Font"
+          messageKey="clockFont"
+          options={[
+            { label: 'Default', value: 'avenir' },
+            { label: 'LECO', value: 'leco' },
+            { label: 'Serif', value: 'garamond' },
+          ]}
+          optionSettings={{
+            avenir: { clockFont: 'avenir' },
+            leco: { clockFont: 'leco' },
+            garamond: { clockFont: 'garamond' },
+          }}
+        />
+        <SelectCards
+          label="Font weight"
+          options={[
+            { label: 'Regular', value: 'regular' },
+            { label: 'Bold', value: 'bold' },
+            { label: 'Bold hours', value: 'bold-hours' },
+            { label: 'Bold minutes', value: 'bold-minutes' },
+          ]}
+          optionSettings={{
+            regular: { boldHours: false, boldMinutes: false },
+            bold: { boldHours: true, boldMinutes: true },
+            'bold-hours': { boldHours: true, boldMinutes: false },
+            'bold-minutes': { boldHours: false, boldMinutes: true },
+          }}
+        />
+        <Toggle
+          label="Show leading zero"
+          description="Display time as 09:30 instead of 9:30"
+          messageKey="leadingZero"
+        />
+      </Section>
+
       {/* ── Layout ── */}
       <Section title="Layout">
         <SelectCards
@@ -221,36 +259,6 @@ export const SettingsPage: React.FC = () => {
       )}
 
 
-      {/* ── Time Display ── */}
-      <Section title="Time Display">
-        <SelectCards
-          label="Font"
-          messageKey="clockFont"
-          options={[
-            { label: 'Avenir', value: 'avenir' },
-            { label: 'LECO', value: 'leco' },
-            { label: 'Garamond', value: 'garamond' },
-          ]}
-          optionSettings={{
-            avenir: { clockFont: 'avenir' },
-            leco: { clockFont: 'leco' },
-            garamond: { clockFont: 'garamond' },
-          }}
-        />
-        <Toggle
-          label="Bold hours"
-          messageKey="boldHours"
-        />
-        <Toggle
-          label="Bold minutes"
-          messageKey="boldMinutes"
-        />
-        <Toggle
-          label="Show leading zero"
-          description="Display time as 09:30 instead of 9:30"
-          messageKey="leadingZero"
-        />
-      </Section>
 
       {/* ── Weather ── */}
       {showWeatherSection && (
