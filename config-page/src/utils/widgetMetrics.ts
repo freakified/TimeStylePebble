@@ -1,5 +1,6 @@
 import { Capabilities, Settings } from '../context/types';
 import { findWorldTimeCity } from '../data/cities';
+import { hiddenParts, WIDGET_PARTS } from './widgetParts';
 import iconCalories from '../assets/preview/widget_previews/icon_calories.svg?raw';
 import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
 import iconDate from '../assets/preview/widget_previews/icon_date.svg?raw';
@@ -88,7 +89,28 @@ const SAMPLE_SUNSET_MINUTE = 20 * 60 + 14;
 
 const text = (str: string, font: FontRole = 'current'): WidgetItem => ({ type: 'text', text: str, font });
 
-export const getWidgetItems = (widgetId: number, settings: Settings, compact = false): WidgetItem[] => {
+/**
+ * What a widget shows, minus any parts the user has hidden. Every widget
+ * with a marker lists it first (its icon, its label, the date's weekday),
+ * so a hidden marker drops the first item; a hidden detail leaves just
+ * the icon, or on the date drops the month. The bar shows the same parts
+ * as the sidebar.
+ */
+export const getWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
+    const items = allWidgetItems(widgetId, settings);
+    if (!WIDGET_PARTS[widgetId]) return items;
+
+    const hidden = hiddenParts(widgetId, settings);
+    if (widgetId === 4) {  // Today's Date: weekday, calendar[, month]
+        return items.filter((item, i) =>
+            !(hidden.marker && i === 0) && !(hidden.detail && i === 2));
+    }
+    if (hidden.marker) return items.slice(1);
+    if (hidden.detail) return items.slice(0, 1);
+    return items;
+};
+
+const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
     const now = new Date();
 
     switch (widgetId) {
@@ -108,14 +130,12 @@ export const getWidgetItems = (widgetId: number, settings: Settings, compact = f
                 : settings.altClock2Name || 'TYO';
             return label2 ? [text(label2, 'sm'), text('9:42a')] : [text('9:42a')];
         }
-        case 4: {  // Today's Date
-            const items: WidgetItem[] = [
+        case 4:  // Today's Date
+            return [
                 text(DAY_NAMES[now.getDay()]),
                 { type: 'calendar', day: String(now.getDate()) },
+                text(MONTH_NAMES[now.getMonth()]),
             ];
-            if (!compact) items.push(text(MONTH_NAMES[now.getMonth()]));
-            return items;
-        }
         case 5:  // Seconds: plain text draws in the large font
             return [text('30', 'lg')];
         case 6:  // Week Number
@@ -258,36 +278,45 @@ export const getWidgetSpec = (
 export const INLINE_GAP = 3;  // horizontal_item_gap()
 
 export interface InlineParts {
+    /** text drawn before the icon: only the date's weekday has any */
+    lead: string;
     icon?: { asset: IconAsset } | { calendar: string };
     text: string;
 }
 
-/* Collapse a widget's stacked item list into the inline (icon + one
- * line of text) form the narrow bottom bar draws. */
+/* Collapse a widget's stacked item list into the inline form the narrow
+ * bottom bar draws: the stack laid on its side, as an icon with a line of
+ * text after it -- and before it, for text stacked above the icon (the
+ * date's weekday, as date_content_draw() lays it out). */
 export const getInlineParts = (widgetId: number, settings: Settings): InlineParts | null => {
-    const items = getWidgetItems(widgetId, settings, true);
+    const items = getWidgetItems(widgetId, settings);
     if (items.length === 0) return null;
 
     let icon: InlineParts['icon'];
-    const textParts: string[] = [];
+    let lead = '';
+    let textParts: string[] = [];
     let pendingDivider = false;
 
     for (const item of items) {
-        if (item.type === 'icon' && !icon) icon = { asset: item.asset };
-        else if (item.type === 'calendar' && !icon) icon = { calendar: item.day };
-        else if (item.type === 'divider') pendingDivider = true;
-        else if (item.type === 'text') {
+        if ((item.type === 'icon' || item.type === 'calendar') && !icon) {
+            icon = item.type === 'icon' ? { asset: item.asset } : { calendar: item.day };
+            lead = textParts.join('');
+            textParts = [];
+        } else if (item.type === 'divider') {
+            pendingDivider = true;
+        } else if (item.type === 'text') {
             if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
             pendingDivider = false;
             textParts.push(item.text);
         }
     }
 
-    return { icon, text: textParts.join('') };
+    return { lead, icon, text: textParts.join('') };
 };
 
 export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number => {
     let w = 0;
+    if (parts.lead) w += fitText(parts.lead, 'current', fonts).w + INLINE_GAP;
     if (parts.icon) {
         const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
         w += asset.w;
@@ -312,7 +341,6 @@ export const WATCH_BAR_PADDING_X = 4;          // HBAR_SLOT_PADDING_X
 export const WATCH_BAR_PADDING_X_COMPACT = 2;  // HBAR_SLOT_PADDING_X_COMPACT
 export const WATCH_BAR_VBAR_GAP = 2;           // HBAR_VBAR_GAP
 export const WATCH_BAR_WIDGET_GAP_COMPACT = 1; // HBAR_WIDGET_GAP_COMPACT
-export const REGION_V_PADDING_COMPACT = 4;     // REGION_V_PADDING_COMPACT
 
 /*
  * Average advance width, in watch pixels per character, for the Gothic
@@ -356,7 +384,7 @@ interface PlatformMetrics {
     barHeight: number;
     /** HBAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
     barClockEncroach: number;
-    /** REGION_V_PADDING_DEFAULT */
+    /** REGION_V_PADDING */
     vPadding: number;
     barWidgetGap: number;
     fontSize: number;
@@ -461,6 +489,7 @@ export const inlineWidgetWidth = (
     if (!parts) return 0;
 
     let w = 0;
+    if (parts.lead) w += textWidth(parts.lead, fontSize) + WATCH_TEXT_ALLOWANCE + WATCH_ITEM_GAP;
     if (parts.icon) {
         w += WATCH_ICON_SIZE;
         if (parts.text) w += WATCH_ITEM_GAP;
@@ -528,8 +557,8 @@ export const assessInlineBar = (
  * widget's height doesn't depend on its text, only on its content kind
  * and the font metrics. So unlike widths, heights can be mirrored
  * exactly: this is generic_measure(), BatteryMeter_measure() and
- * date_content_measure() in sidebar_widgets.c, for the stacked (non-bar)
- * render spec both regions use.
+ * date_content_measure() in sidebar_widgets.c, for the stacked render
+ * spec both regions use, hidden widget parts included.
  */
 
 // METRIC_GOTHIC_*_HEIGHT in text_metrics.h: visible glyph height
@@ -556,16 +585,22 @@ export const stackedWidgetHeight = (
     const md = GOTHIC_HEIGHT[f.md];
     const lg = GOTHIC_HEIGHT[f.lg];
     const current = large ? lg : md;
-    const iconValue = WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP + current;
+    const hidden = hiddenParts(widgetId, settings);
+    // a hidden marker takes its icon and the gap below it along
+    const icon = hidden.marker ? 0 : WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP;
+    const iconValue = icon + current;
 
     switch (widgetId) {
-        case 2:  // Battery
+        case 2:  // Battery: meter, percentage -- either may stand alone
+            if (hidden.marker) return current;
+            if (hidden.detail) return BATTERY_ICON_H;
             return BATTERY_ICON_H + STACK_ICON_TEXT_GAP + current;
         case 4: {  // Today's Date: weekday, calendar, month
             const calendarH = large
                 ? current + DATE_PLAIN_VERTICAL_PADDING * 2
                 : DATE_DAY_TOP_PADDING + current + DATE_DAY_BOTTOM_PADDING;
-            return current + STACK_ICON_TEXT_GAP + calendarH + STACK_ICON_TEXT_GAP + current;
+            return (hidden.marker ? 0 : current + STACK_ICON_TEXT_GAP) + calendarH +
+                (hidden.detail ? 0 : STACK_ICON_TEXT_GAP + current);
         }
         case 5:  // Seconds: plain text draws in the large font
             return lg;
@@ -575,10 +610,13 @@ export const stackedWidgetHeight = (
             return current + (hasLabel ? sm + STACK_LABEL_GAP : 0);
         }
         case 8:  // Today's Forecast: icon, high, divider, low
+            if (hidden.detail) return WATCH_ICON_SIZE;
             return iconValue + STACK_VALUE_GAP + STACK_DIVIDER_H + STACK_VALUE_GAP + current;
         case 9:  // Sleep: icon, hours, minutes subtext
-            return WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP + md + STACK_VALUE_GAP + sm;
-        case 7: case 10: case 12: case 15: case 17: case 18: case 19:
+            return icon + md + STACK_VALUE_GAP + sm;
+        case 7:  // Current Weather
+            return hidden.detail ? WATCH_ICON_SIZE : iconValue;
+        case 10: case 12: case 15: case 17: case 18: case 19:
             return iconValue;
         default:
             return 0;
@@ -601,18 +639,17 @@ const stackedTotal = (widgetIds: number[], settings: Settings, capabilities: Cap
 
 /*
  * The least space between two sidebar widgets that still reads as two
- * widgets rather than one run-on stack. The watch will draw closer than
- * this -- render_vertical_flow just keeps dividing what's left -- but
- * past it the widgets visibly crowd.
+ * widgets rather than one run-on stack (REGION_MIN_WIDGET_GAP). The watch
+ * drops widgets from a sidebar too short to keep it, as when timeline
+ * quick view covers the bottom of the screen.
  */
 const SIDEBAR_MIN_GAP = 4;
 
 /**
  * How well a set of widgets fits the vertical sidebar. The sidebar is
  * always full screen height (the status bar yields its corner rather than
- * shortening it); a crowded one tightens its end padding to the compact
- * value, and "over" is when even then the widgets can't keep
- * SIDEBAR_MIN_GAP between them.
+ * shortening it), and "over" is when the widgets can't keep
+ * SIDEBAR_MIN_GAP between them inside its end padding.
  */
 export const assessSidebar = (
     widgetIds: number[],
@@ -624,7 +661,7 @@ export const assessSidebar = (
     return assessPx(
         widgetIds.length,
         stackedTotal(widgetIds, settings, capabilities) + gaps,
-        m.screenH - REGION_V_PADDING_COMPACT * 2
+        m.screenH - m.vPadding * 2
     );
 };
 

@@ -3,7 +3,7 @@ import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
 import { FormItem } from './FormItem';
 import { GridList, GridListItem, Text } from 'react-aria-components';
-import { WatchPreview, WatchPreviewProps } from './WatchPreview';
+import { WatchPreview } from './WatchPreview';
 import { SavedTheme } from '../hooks/useSavedThemes';
 import customIconUrl from '../assets/custom-icon.svg';
 
@@ -11,9 +11,8 @@ export const ThemePicker: React.FC<{
   label?: string;
   messageKey: keyof Settings;
   themes: { name: string; settings: Record<string, string> }[];
-  watchPreviewProps?: Partial<WatchPreviewProps>;
   savedThemes?: SavedTheme[];
-}> = ({ label, messageKey, themes, watchPreviewProps, savedThemes = [] }) => {
+}> = ({ label, messageKey, themes, savedThemes = [] }) => {
   const { settings, updateSetting } = useConfig();
   const capabilities = useCapabilities();
   const currentValue = settings[messageKey];
@@ -78,7 +77,7 @@ export const ThemePicker: React.FC<{
                   <img src={customIconUrl} alt="" width={40} height={38} />
                 </div>
               ) : (
-                <WatchPreview overrideSettings={item.settings} {...watchPreviewProps} />
+                <WatchPreview overrideSettings={item.settings} />
               )}
             </div>
             <Text className="halite-theme-card-label">

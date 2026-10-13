@@ -3,7 +3,7 @@
 #include "sidebar_layout.h"
 #include "sidebar_widgets.h"
 
-#define CURRENT_SETTINGS_VERSION 17
+#define CURRENT_SETTINGS_VERSION 18
 
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
@@ -100,6 +100,14 @@ typedef struct {
   // clock digit weights: bold or light, per line (v17)
   bool hoursBold;
   bool minutesBold;
+
+  // widget parts the user has hidden, one bit per SidebarWidgetType (v18).
+  // The "marker" is the part that names the widget -- its icon, its
+  // label, or the date's weekday; the "detail" is a second part some
+  // widgets can drop instead (battery percentage, weather temperatures,
+  // the date's month). sidebar_widgets.c decides which bits apply.
+  uint32_t hideWidgetMarker;
+  uint32_t hideWidgetDetail;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

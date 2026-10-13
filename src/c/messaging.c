@@ -62,6 +62,8 @@ void messaging_sendConfigSnapshot() {
   dict_write_int32(iter, MESSAGE_KEY_SettingLocalUtcOffset, settings.localUtcOffset);
   dict_write_uint8(iter, MESSAGE_KEY_SettingHealthUseRestfulSleep, settings.healthUseRestfulSleep ? 1 : 0);
   dict_write_uint8(iter, MESSAGE_KEY_SettingDecimalSep, settings.decimalSeparator);
+  dict_write_uint32(iter, MESSAGE_KEY_SettingWidgetHideMarker, settings.hideWidgetMarker);
+  dict_write_uint32(iter, MESSAGE_KEY_SettingWidgetHideDetail, settings.hideWidgetDetail);
 
   app_message_outbox_send();
 }
@@ -81,6 +83,16 @@ void messaging_init(void (*processed_callback)(void)) {
 
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "Watch messaging is started!");
   app_message_register_inbox_received(inbox_received_callback);
+}
+
+// a number as wide as it was sent: the phone may pack small values into
+// fewer than 4 bytes, and reading ->uint32 off those runs past the tuple
+static uint32_t tuple_uint32(Tuple *t) {
+  switch (t->length) {
+    case 1: return t->value->uint8;
+    case 2: return t->value->uint16;
+    default: return t->value->uint32;
+  }
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -178,6 +190,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *bottomBarWidget0Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget0ID);
   Tuple *bottomBarWidget1Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget1ID);
   Tuple *bottomBarWidget2Id_tuple = dict_find(iterator, MESSAGE_KEY_SettingBottomBarWidget2ID);
+
+  Tuple *hideWidgetMarker_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidgetHideMarker);
+  Tuple *hideWidgetDetail_tuple = dict_find(iterator, MESSAGE_KEY_SettingWidgetHideDetail);
 
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
@@ -325,6 +340,14 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(statusShowConnection_tuple != NULL) {
     settings.statusShowConnection = (bool)statusShowConnection_tuple->value->int8;
+  }
+
+  if(hideWidgetMarker_tuple != NULL) {
+    settings.hideWidgetMarker = tuple_uint32(hideWidgetMarker_tuple);
+  }
+
+  if(hideWidgetDetail_tuple != NULL) {
+    settings.hideWidgetDetail = tuple_uint32(hideWidgetDetail_tuple);
   }
 
   // save the new settings to persistent storage

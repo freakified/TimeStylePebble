@@ -117,17 +117,25 @@ void Settings_loadFromStorage() {
   settings.clockFontId = FONT_SETTING_AVENIR;
   settings.hoursBold = false;
   settings.minutesBold = false;
+  settings.hideWidgetMarker = 0;
+  settings.hideWidgetDetail = 0;
 
   // settings are persisted as a raw struct, so a blob from any other
   // version would load scrambled; until there's a migration path, fall
-  // back to the defaults instead. v16 only appended fields, so it loads
-  // as-is and then has its clock font migrated
+  // back to the defaults instead. v16 and v17 only appended fields, so
+  // they load as-is: v16 then has its clock font migrated, and both have
+  // the hidden widget parts cleared, since those may land in the old
+  // struct's tail padding
   int storedVersion = persist_read_int(SETTINGS_VERSION_PERSIST_KEY);
   if (persist_exists(SETTINGS_PERSIST_KEY) &&
-      (storedVersion == CURRENT_SETTINGS_VERSION || storedVersion == 16)) {
+      (storedVersion >= 16 && storedVersion <= CURRENT_SETTINGS_VERSION)) {
     persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
     if (storedVersion == 16) {
       migrate_clock_font();
+    }
+    if (storedVersion < 18) {
+      settings.hideWidgetMarker = 0;
+      settings.hideWidgetDetail = 0;
     }
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
     settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';

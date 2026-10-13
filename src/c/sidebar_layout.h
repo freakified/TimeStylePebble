@@ -59,14 +59,19 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 43 : 34)
 #define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 51 : 46)
 #define HBAR_HEIGHT(largeFonts) ((largeFonts) ? 43 : 34)
-#define REGION_V_PADDING_DEFAULT 9
+#define REGION_V_PADDING 9
 #else
 #define VBAR_WIDTH_NARROW(largeFonts) 30
 #define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 46 : 38)
 #define HBAR_HEIGHT(largeFonts) 30
-#define REGION_V_PADDING_DEFAULT 8
+#define REGION_V_PADDING 8
 #endif
-#define REGION_V_PADDING_COMPACT 4
+
+// the least space between two sidebar widgets that still reads as two
+// widgets rather than one run-on stack; a sidebar too short to keep it
+// (timeline quick view) drops widgets instead. The config page's fit
+// budget uses the same figure (SIDEBAR_MIN_GAP in widgetMetrics.ts).
+#define REGION_MIN_WIDGET_GAP 4
 
 // The bar draws straight on the watchface, so the clock area may reach
 // past the bar's top edge into the padding above its widgets: the
@@ -83,10 +88,10 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 
 // The horizontal bar centers its text within its own thickness, while
 // the vertical bar's last slot is bottom-anchored (pinned
-// REGION_V_PADDING_DEFAULT above the screen edge). Those two anchor
+// REGION_V_PADDING above the screen edge). Those two anchor
 // points don't naturally land on the same row, so the horizontal bar's
 // content needs a small downward nudge to line up with it. Derived from
-// ceil((HBAR_HEIGHT - textHeight) / 2) - REGION_V_PADDING_DEFAULT for
+// ceil((HBAR_HEIGHT - textHeight) / 2) - REGION_V_PADDING for
 // each platform/font-size combo.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define HBAR_TEXT_NUDGE(largeFonts) ((largeFonts) ? 4 : 1)

@@ -8,6 +8,7 @@ export * from './SelectCards';
 export * from './TextField';
 export * from './ThemePicker';
 export * from './WidgetSelector';
+export * from './WidgetDisplayOptions';
 export * from './WatchPreview';
 export * from './CustomThemePanel';
 export * from './ImportThemeModal';

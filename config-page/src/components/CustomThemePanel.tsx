@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from 'react-aria-components';
-import { WatchPreview, WatchPreviewProps } from './WatchPreview';
+import { WatchPreview } from './WatchPreview';
 import { ImportThemeModal } from './ImportThemeModal';
 import { SavedTheme } from '../hooks/useSavedThemes';
 import { useConfig } from '../context/PebbleConfigContext';
@@ -12,8 +12,6 @@ interface CustomThemePanelProps {
   themeId: string;
   /** The saved theme object, if a saved theme is selected */
   savedTheme?: SavedTheme;
-  /** Props forwarded to WatchPreview */
-  watchPreviewProps?: Partial<WatchPreviewProps>;
   /** Called to save current settings as a new theme */
   onSave: (settings: Settings) => SavedTheme;
   /** Called to delete a saved theme */
@@ -43,7 +41,6 @@ const Icon: React.FC<{ path: string }> = ({ path }) => (
 export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
   themeId,
   savedTheme,
-  watchPreviewProps,
   onSave,
   onDelete,
   onImport,
@@ -103,10 +100,7 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
   return (
     <div className="halite-custom-panel">
       <div className="halite-custom-panel-preview">
-        <WatchPreview
-          overrideSettings={isSaved ? savedTheme!.settings : undefined}
-          {...watchPreviewProps}
-        />
+        <WatchPreview overrideSettings={isSaved ? savedTheme!.settings : undefined} />
       </div>
       <div className="halite-custom-actions">
         {isCustom && (

@@ -3,7 +3,7 @@ import { useConfig } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
 import { FormItem } from './FormItem';
 import { GridList, GridListItem, Text } from 'react-aria-components';
-import { WatchPreview, WatchPreviewProps } from './WatchPreview';
+import { WatchPreview } from './WatchPreview';
 
 export const SelectCards: React.FC<{
   label: string;
@@ -11,8 +11,7 @@ export const SelectCards: React.FC<{
   messageKey: keyof Settings;
   options: { label: string; value: string | number | boolean }[];
   optionSettings?: Record<string, Partial<Settings>>;
-  watchPreviewProps?: Partial<WatchPreviewProps>;
-}> = ({ label, description, messageKey, options, optionSettings, watchPreviewProps }) => {
+}> = ({ label, description, messageKey, options, optionSettings }) => {
   const { settings, updateSetting } = useConfig();
   const currentValue = settings[messageKey];
 
@@ -47,7 +46,7 @@ export const SelectCards: React.FC<{
             textValue={item.label}
           >
             <div className="halite-select-card-preview">
-              <WatchPreview overrideSettings={optionSettings?.[String(item.value)]} {...watchPreviewProps} />
+              <WatchPreview overrideSettings={optionSettings?.[String(item.value)]} />
             </div>
             <Text className="halite-select-card-label">{item.label}</Text>
           </GridListItem>

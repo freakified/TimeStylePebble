@@ -81,7 +81,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const params = new URLSearchParams(window.location.search);
     const returnTo = params.get('return_to') || 'pebblejs://close#';
     // Strip internal UI keys that aren't watch settings
-    const { SETTING_THEME, SETTING_NIGHT_THEME, SETTING_USE_NIGHT_THEME, ...watchSettings } = settings;
+    const { SETTING_THEME, ...watchSettings } = settings;
     window.location.href = returnTo + encodeURIComponent(JSON.stringify(watchSettings));
   };
 

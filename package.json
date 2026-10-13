@@ -74,7 +74,9 @@
       "SettingStatusShowConnection",
       "SettingColorBothArcs",
       "SettingClockHoursBold",
-      "SettingClockMinutesBold"
+      "SettingClockMinutesBold",
+      "SettingWidgetHideMarker",
+      "SettingWidgetHideDetail"
     ],
     "resources": {
       "media": [

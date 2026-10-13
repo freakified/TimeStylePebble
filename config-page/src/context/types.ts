@@ -39,8 +39,6 @@ export type Layout =
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)
   SETTING_THEME: string;
-  SETTING_NIGHT_THEME: string;  // kept for future night theme support
-  SETTING_USE_NIGHT_THEME: number;  // kept for future night theme support
 
   // Colors (hex strings without '#') — day theme
   colorBackground: string;
@@ -114,4 +112,11 @@ export interface Settings {
 
   // Health
   healthSleepType: 'total' | 'restful';
+
+  // Hidden widget parts, one bit per widget id (bit n = widget id n): the
+  // "marker" names a widget (icon, label, the date's weekday), the
+  // "detail" is a second part some widgets can drop instead. What each
+  // bit means per widget lives in utils/widgetParts.ts.
+  widgetHideMarker: number;
+  widgetHideDetail: number;
 }

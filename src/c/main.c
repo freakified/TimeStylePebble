@@ -185,6 +185,17 @@ static void app_focus_changed(bool focused) {
   }
 }
 
+// timeline quick view: tell the sidebar where the screen is headed so it
+// can settle on its widgets up front; the system redraws every frame of
+// the animation itself
+static void unobstructed_will_change(GRect final_unobstructed_screen_area, void *context) {
+  Sidebar_obstructionWillChange(final_unobstructed_screen_area);
+}
+
+static void unobstructed_did_change(void *context) {
+  Sidebar_obstructionDidChange();
+}
+
 static void init() {
   setlocale(LC_ALL, "");
 
@@ -235,6 +246,11 @@ static void init() {
   health_service_events_subscribe(healthEventHandler, NULL);
 #endif
 
+  unobstructed_area_service_subscribe((UnobstructedAreaHandlers){
+    .will_change = unobstructed_will_change,
+    .did_change = unobstructed_did_change
+  }, NULL);
+
   // set up focus change handlers
   app_focus_service_subscribe_handlers((AppFocusHandlers){
     .did_focus = app_focus_changed,
@@ -253,6 +269,8 @@ static void deinit() {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+
+  unobstructed_area_service_unsubscribe();
 
 #ifdef PBL_HEALTH
   health_service_events_unsubscribe();

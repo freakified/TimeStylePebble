@@ -26,6 +26,10 @@ typedef struct {
 } SidebarRegion;
 
 static GRect screen_rect;
+
+// while timeline quick view slides in or out, the bottom edge (in screen
+// coordinates) the unobstructed area is heading for; INT16_MAX otherwise
+static int16_t obstructionTargetBottom = INT16_MAX;
 // rect: the vertical sidebar. round: the left arc.
 static SidebarRegion vRegion;
 
@@ -169,8 +173,12 @@ static GRect hregion_frame(void) {
  * dropped): the first widget pins to the top, the last pins to the
  * bottom, and the rest spread with equal gaps between them. Widgets
  * always render their full form -- the config page's fit budget is what
- * keeps configs fitting. The only over-budget concession is shrinking
- * the end padding; past that, widgets simply crowd together.
+ * keeps configs fitting at full height.
+ *
+ * When the sidebar is shorter than the stack needs (timeline quick view
+ * covering the bottom of the screen), widgets are dropped rather than
+ * crowded: interior widgets go first, last slot upwards, then the bottom
+ * widget, so the top widget is the last to go.
  */
 static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -179,34 +187,48 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarMeasure sizes[MAX_REGION_SLOTS];
   int count = 0;
 
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness);
+
+  int totalHeight = 0;
   for (int i = 0; i < r->slotCount; i++) {
     if (r->slots[i] == EMPTY) {
       continue;
     }
     widgets[count] = getSidebarWidgetByType(r->slots[i]);
+    sizes[count] = SidebarWidgets_measure(&widgets[count], &spec);
+    totalHeight += sizes[count].h;
     count++;
+  }
+
+  // choose widgets for wherever quick view is headed, so they drop once
+  // as it slides in rather than one by one as it covers them
+  int available = bounds.size.h;
+  int targetHeight = obstructionTargetBottom - bounds.origin.y;
+  if (targetHeight < available) {
+    available = targetHeight;
+  }
+  available -= REGION_V_PADDING * 2;
+
+  while (count > 1 &&
+         totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+    // the widget just above the bottom one, or the bottom one itself
+    // once only the two pinned ends remain
+    int drop = (count > 2) ? count - 2 : count - 1;
+    totalHeight -= sizes[drop].h;
+    for (int i = drop; i < count - 1; i++) {
+      widgets[i] = widgets[i + 1];
+      sizes[i] = sizes[i + 1];
+    }
+    count--;
   }
 
   if (count == 0) {
     return;
   }
 
-  SidebarRenderSpec spec =
-      SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness, false);
-
-  int totalHeight = 0;
-  for (int i = 0; i < count; i++) {
-    sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-    totalHeight += sizes[i].h;
-  }
-
-  int v_padding =
-      (totalHeight > bounds.size.h - REGION_V_PADDING_DEFAULT * 2)
-          ? REGION_V_PADDING_COMPACT
-          : REGION_V_PADDING_DEFAULT;
-
-  int topPos = v_padding;
-  int lowerPos = bounds.size.h - v_padding - sizes[count - 1].h;
+  int topPos = REGION_V_PADDING;
+  int lowerPos = bounds.size.h - REGION_V_PADDING - sizes[count - 1].h;
 
   GRect topFrame = GRect(0, topPos, r->thickness, sizes[0].h);
   SidebarWidgets_draw(ctx, &widgets[0], topFrame, &spec);
@@ -269,7 +291,7 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   }
 
   SidebarRenderSpec spec =
-      SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth, true);
+      SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth);
 
   int totalWidth = 0;
   for (int i = 0; i < count; i++) {
@@ -365,8 +387,8 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
   }
   graphics_context_set_text_color(ctx, palette->text);
 
-  SidebarRenderSpec spec = SidebarWidgets_makeRenderSpec(
-      r->widgetMode, ROUND_ARC_CONTENT_WIDTH, false);
+  SidebarRenderSpec spec =
+      SidebarWidgets_makeRenderSpec(r->widgetMode, ROUND_ARC_CONTENT_WIDTH);
 
   SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
   SidebarMeasure sizes[MAX_REGION_SLOTS];
@@ -498,6 +520,16 @@ void Sidebar_redraw() {
     layer_mark_dirty(hRegionLayer);
   }
 #endif
+}
+
+void Sidebar_obstructionWillChange(GRect finalUnobstructedArea) {
+  obstructionTargetBottom =
+      finalUnobstructedArea.origin.y + finalUnobstructedArea.size.h;
+}
+
+void Sidebar_obstructionDidChange(void) {
+  obstructionTargetBottom = INT16_MAX;
+  layer_mark_dirty(vRegionLayer);
 }
 
 void Sidebar_updateTime(struct tm *timeInfo) {

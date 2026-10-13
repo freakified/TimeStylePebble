@@ -10,6 +10,7 @@ import {
   ThemePicker,
   CustomThemePanel,
   WidgetSelector,
+  WidgetDisplayOptions,
   WeatherLocationPicker,
   FormItem,
   DonationLink,
@@ -24,6 +25,7 @@ import { prepareThemes } from '../utils/themeUtils';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { WORLD_TIME_CITY_OPTIONS } from '../data/cities';
+import { WIDGET_PARTS } from '../utils/widgetParts';
 
 const LANGUAGE_OPTIONS = [
   { label: 'English', value: 0 },
@@ -71,26 +73,15 @@ export const SettingsPage: React.FC = () => {
 
   const activeThemes = React.useMemo(() =>
     capabilities.BW
-      ? prepareThemes(lightThemesBw, darkThemesBw, false)
-      : prepareThemes(lightThemes, darkThemes, false),
+      ? prepareThemes(lightThemesBw, darkThemesBw)
+      : prepareThemes(lightThemes, darkThemes),
     [capabilities.BW]
   );
 
-  const activeNightThemes = React.useMemo(() =>
-    capabilities.BW
-      ? prepareThemes(darkThemesBw, lightThemesBw, true)
-      : prepareThemes(darkThemes, lightThemes, true),
-    [capabilities.BW]
-  );
-
-  const daySavedThemes = useSavedThemes(false);
-  const nightSavedThemes = useSavedThemes(true);
+  const daySavedThemes = useSavedThemes();
 
   const getDaySavedTheme = () =>
     daySavedThemes.savedThemes.find((t) => t.id === settings.SETTING_THEME);
-
-  const getNightSavedTheme = () =>
-    nightSavedThemes.savedThemes.find((t) => t.id === settings.SETTING_NIGHT_THEME);
 
   // Only the slots the current platform actually renders. Round uses all
   // six: its two arcs split the list between them.
@@ -137,6 +128,11 @@ export const SettingsPage: React.FC = () => {
 
   const showHealthSection = activeWidgetIds.some((id) => id === 9);
 
+  // placed widgets that have parts to hide, each listed once
+  const displayWidgetIds = activeWidgetIds.filter(
+    (id, i) => WIDGET_PARTS[id] && activeWidgetIds.indexOf(id) === i
+  );
+
 
   return (
     <Page title="TimeStyle Settings">
@@ -177,37 +173,6 @@ export const SettingsPage: React.FC = () => {
         )}
       </Section>
 
-      {/* ── Night Theme (commented out — TimeStyle does not yet support night themes) ──
-      <Section title="Night Theme">
-        <Toggle
-          label="Enable night theme"
-          description="If enabled, the selected color scheme will be shown after sunset."
-          messageKey="SETTING_USE_NIGHT_THEME"
-        />
-        {settings.SETTING_USE_NIGHT_THEME === 1 && (
-          <>
-            <ThemePicker
-              messageKey="SETTING_NIGHT_THEME"
-              label="Night theme preset"
-              themes={activeNightThemes}
-              watchPreviewProps={{ isNight: true }}
-              savedThemes={nightSavedThemes.savedThemes}
-            />
-            <CustomThemePanel
-              themeId={settings.SETTING_NIGHT_THEME}
-              savedTheme={getNightSavedTheme()}
-              watchPreviewProps={{ isNight: true }}
-              onSave={nightSavedThemes.saveTheme}
-              onDelete={nightSavedThemes.deleteTheme}
-              onImport={nightSavedThemes.importTheme}
-              onExport={nightSavedThemes.exportTheme}
-              onSelectTheme={(id) => updateSetting('SETTING_NIGHT_THEME', id)}
-            />
-          </>
-        )}
-      </Section>
-      ── */}
-
       {/* ── Layout ── */}
       <Section title="Layout">
         <SelectCards
@@ -241,6 +206,13 @@ export const SettingsPage: React.FC = () => {
       <Section title="Widgets">
         <WidgetSelector />
       </Section>
+
+      {/* ── Widget Display ── */}
+      {displayWidgetIds.length > 0 && (
+        <Section title="Widget Display">
+          <WidgetDisplayOptions widgetIds={displayWidgetIds} />
+        </Section>
+      )}
 
 
       {/* ── Time Display ── */}

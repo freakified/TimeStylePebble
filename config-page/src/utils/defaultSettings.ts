@@ -3,8 +3,6 @@ import { Settings, Capabilities } from '../context/types';
 export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   // Internal theme selectors
   SETTING_THEME: '0',
-  SETTING_NIGHT_THEME: '0',
-  SETTING_USE_NIGHT_THEME: 0,
 
   // Colors — match Jekyll config.js defaults
   colorBackground: '000000',
@@ -70,4 +68,8 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // Health
   healthSleepType: 'total',
+
+  // every widget shows all its parts
+  widgetHideMarker: 0,
+  widgetHideDetail: 0,
 });

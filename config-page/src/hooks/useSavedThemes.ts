@@ -8,17 +8,9 @@ export interface SavedTheme {
 }
 
 const STORAGE_KEY = 'timestyle-saved-themes';
-const NIGHT_STORAGE_KEY = 'timestyle-saved-themes-night';
 
-/** The color setting keys used by day themes */
-const DAY_THEME_KEYS: (keyof Settings)[] = [
-    'colorBackground',
-    'colorTime',
-    'colorSidebar',
-];
-
-/** The color setting keys used by night themes (mirrors day for now; expand when night theme support is added) */
-const NIGHT_THEME_KEYS: (keyof Settings)[] = [
+/** The color setting keys a theme holds */
+const THEME_KEYS: (keyof Settings)[] = [
     'colorBackground',
     'colorTime',
     'colorSidebar',
@@ -50,23 +42,20 @@ function generateId(): string {
     return `saved_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function useSavedThemes(isNight: boolean = false) {
-    const storageKey = isNight ? NIGHT_STORAGE_KEY : STORAGE_KEY;
-    const themeKeys = isNight ? NIGHT_THEME_KEYS : DAY_THEME_KEYS;
-
+export function useSavedThemes() {
     const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(() =>
-        loadFromStorage(storageKey)
+        loadFromStorage(STORAGE_KEY)
     );
 
     // Persist on change
     useEffect(() => {
-        saveToStorage(storageKey, savedThemes);
-    }, [savedThemes, storageKey]);
+        saveToStorage(STORAGE_KEY, savedThemes);
+    }, [savedThemes]);
 
     const saveTheme = useCallback(
         (settings: Settings): SavedTheme => {
             const colorSettings: Record<string, string> = {};
-            for (const key of themeKeys) {
+            for (const key of THEME_KEYS) {
                 colorSettings[key] = String(settings[key]);
             }
             const theme: SavedTheme = {
@@ -77,7 +66,7 @@ export function useSavedThemes(isNight: boolean = false) {
             setSavedThemes((prev) => [...prev, theme]);
             return theme;
         },
-        [savedThemes, themeKeys]
+        [savedThemes]
     );
 
     const deleteTheme = useCallback((id: string) => {
@@ -96,7 +85,7 @@ export function useSavedThemes(isNight: boolean = false) {
                         : parsed;
 
                 // Validate that at least some expected keys exist
-                const validKeys = themeKeys.filter((k) => k in settings);
+                const validKeys = THEME_KEYS.filter((k) => k in settings);
                 if (validKeys.length === 0) {
                     return {
                         success: false,
@@ -105,7 +94,7 @@ export function useSavedThemes(isNight: boolean = false) {
                 }
 
                 const colorSettings: Record<string, string> = {};
-                for (const key of themeKeys) {
+                for (const key of THEME_KEYS) {
                     if (key in settings) {
                         colorSettings[key] = String(settings[key]);
                     }
@@ -122,7 +111,7 @@ export function useSavedThemes(isNight: boolean = false) {
                 return { success: false, error: 'Invalid JSON. Please check and try again.' };
             }
         },
-        [savedThemes, themeKeys]
+        [savedThemes]
     );
 
     const exportTheme = useCallback(

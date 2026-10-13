@@ -28,7 +28,6 @@ import {
     stackedWidgetHeight,
     ARC_WIDGET_GAP_COMPACT,
     ARC_INWARD_NUDGE,
-    REGION_V_PADDING_COMPACT,
     WATCH_BAR_PADDING_X,
     WATCH_BAR_PADDING_X_COMPACT,
     WATCH_BAR_VBAR_GAP,
@@ -37,7 +36,6 @@ import {
 
 export interface WatchPreviewProps {
     overrideSettings?: Partial<Settings>;
-    isNight?: boolean;  // reserved for future night theme support
 }
 
 const TIME_PATHS = {
@@ -260,6 +258,13 @@ const renderInlineWidget = (
     const nodes: React.ReactNode[] = [];
     let cursor = x;
 
+    if (parts.lead) {
+        const fitted = fitText(parts.lead, 'current', fonts);
+        nodes.push(textNode('lead', parts.lead, cursor, centerY - fitted.capH / 2,
+                            fitted.fontSize, colors.text, 'start'));
+        cursor += fitted.w + INLINE_GAP;
+    }
+
     if (parts.icon) {
         const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
         // full watch size, centered on the bar like the watch's
@@ -360,12 +365,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         const specs = slotIds.map((id) => getWidgetSpec(id, s, fonts, maxW));
 
         const heights = slotIds.map((id) => stackedWidgetHeight(id, s, capabilities));
-        const naturalTotal = heights.reduce((a, b) => a + b, 0);
-
-        // the watch's one concession to a crowded stack: tighter end padding
-        const vPadding = naturalTotal > H - m.vPadding * 2
-            ? REGION_V_PADDING_COMPACT
-            : m.vPadding;
+        const vPadding = m.vPadding;
 
         const cx = sidebarX + SIDEBAR_W / 2;
         const last = slotIds.length - 1;
@@ -631,7 +631,7 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
     );
 };
 
-export const WatchPreview: React.FC<WatchPreviewProps> = ({ overrideSettings, isNight: _isNight = false }) => {
+export const WatchPreview: React.FC<WatchPreviewProps> = ({ overrideSettings }) => {
     const { settings } = useConfig();
     const capabilities = useCapabilities();
 

@@ -35,6 +35,14 @@ DEFAULT_PLATFORMS = ["basalt", "chalk", "diorite", "emery", "flint", "gabbro"]
 ROUND_PLATFORMS = {"chalk", "gabbro"}
 ARC_SLOT_CAP = 3  # ROUND_ARC_SLOT_CAP
 
+# widgets whose health query never returns on a platform's emulator,
+# wedging the face until the emulator is wiped: chalk's
+# health_service_sum_today(HealthMetricWalkedDistanceMeters) hangs on its
+# very first call (steps sum fine). Configs placing one are skipped there.
+EMULATOR_HANGS = {
+    "chalk": {"DISTANCE_WALKED"},
+}
+
 SIDEBAR_SLOT_KEYS = [f"SettingWidget{i}ID" for i in range(6)]
 BAR_SLOT_KEYS = [f"SettingBottomBarWidget{i}ID" for i in range(3)]
 
@@ -112,6 +120,13 @@ def resolve_value(raw):
     """Resolve a config value to (kind, int_or_str). kind: uint/int/string."""
     if isinstance(raw, bool):
         return ("uint", int(raw))
+    if isinstance(raw, list):
+        # a list of widget names is a per-widget bitmask (the hidden
+        # widget part settings): one bit per widget type
+        mask = 0
+        for name in raw:
+            mask |= 1 << WIDGETS[name]
+        return ("uint", mask)
     if isinstance(raw, int):
         return ("int", raw) if raw < 0 else ("uint", raw)
     if isinstance(raw, str):
@@ -341,6 +356,12 @@ def main():
             name = config["name"]
             merged = dict(matrix["defaults"])
             merged.update(config["settings"])
+            hangs = EMULATOR_HANGS.get(platform, set()) & {
+                merged.get(k) for k in SIDEBAR_SLOT_KEYS + BAR_SLOT_KEYS}
+            if hangs:
+                print(f"  [skip] {platform}/{name}: {', '.join(sorted(hangs))} "
+                      f"hangs the {platform} emulator")
+                continue
             if platform in ROUND_PLATFORMS:
                 merged = round_settings(name, merged)
             env = config.get("env", {})
