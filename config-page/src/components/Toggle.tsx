@@ -8,7 +8,10 @@ export const Toggle: React.FC<{
   label: string;
   description?: string;
   messageKey: keyof Settings;
-}> = ({ label, description, messageKey }) => {
+  isDisabled?: boolean;
+  // replaces the plain write of messageKey, for toggles that change more
+  onChange?: (selected: boolean) => void;
+}> = ({ label, description, messageKey, isDisabled, onChange }) => {
   const { settings, updateSetting } = useConfig();
 
   const isSelected = !!settings[messageKey];
@@ -16,7 +19,8 @@ export const Toggle: React.FC<{
   return (
     <Switch
       isSelected={isSelected}
-      onChange={(selected) => updateSetting(messageKey, selected)}
+      onChange={onChange ?? ((selected) => updateSetting(messageKey, selected))}
+      isDisabled={isDisabled}
       className="halite-item halite-toggle"
     >
       <FormItemLabel label={label} description={description} />

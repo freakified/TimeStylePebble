@@ -68,7 +68,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 export const SettingsPage: React.FC = () => {
-  const { settings, updateSetting } = useConfig();
+  const { settings, updateSetting, updateSettings } = useConfig();
   const capabilities = useCapabilities();
 
   const activeThemes = React.useMemo(() =>
@@ -232,18 +232,26 @@ export const SettingsPage: React.FC = () => {
             messageKey="colorBothArcs"
           />
         )}
-        {capabilities.RECT && (
-          <Toggle
-            label="Wider sidebar"
-            description="Give your widgets slightly more breathing room"
-            messageKey="wideSidebar"
-          />
-        )}
         <Toggle
           label="Use large sidebar text"
           description="Increases the size of widget text in the sidebar"
           messageKey="largeSidebarFont"
+          // large text needs the room: it turns the wide sidebar on, which
+          // stays on (and locked) for as long as large text is
+          onChange={(selected) => updateSettings(selected && capabilities.RECT
+            ? { largeSidebarFont: true, wideSidebar: true }
+            : { largeSidebarFont: selected })}
         />
+        {capabilities.RECT && (
+          <Toggle
+            label="Wider sidebar"
+            description={settings.largeSidebarFont
+              ? "Always on with large sidebar text"
+              : "Give your widgets slightly more breathing room"}
+            messageKey="wideSidebar"
+            isDisabled={settings.largeSidebarFont}
+          />
+        )}
       </Section>
 
       {/* ── Widgets ── */}
@@ -291,7 +299,9 @@ export const SettingsPage: React.FC = () => {
               { label: 'Celsius (°C)', value: 'c' },
             ]}
           />
-          Weather data provided by Open-Meteo (open-meteo.com)
+          <p className="halite-section-note">
+            Weather data provided by Open-Meteo (open-meteo.com)
+          </p>
         </Section>
       )}
 

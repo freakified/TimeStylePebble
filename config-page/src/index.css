@@ -142,6 +142,19 @@ button {
   word-break: break-word;
 }
 
+/* small print at the foot of a section, under its last item */
+.halite-section-note {
+  margin: 0;
+  padding: 0 1rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.halite-item:has(+ .halite-section-note) {
+  border-bottom: none;
+}
+
 .halite-item {
   display: flex;
   justify-content: space-between;
@@ -157,6 +170,11 @@ button {
 
 .halite-toggle {
   cursor: pointer;
+}
+
+.halite-toggle[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .halite-item label {
