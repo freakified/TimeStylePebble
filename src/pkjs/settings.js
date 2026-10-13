@@ -112,8 +112,8 @@ function settingsFromWatchPayload(payload) {
 
     altClockName: payload.SettingAltClockName || 'UTC',
     altClockOffset: getNumber(payload.SettingAltClockOffset, 0),
-    altClock2Name: payload.SettingAltClock2Name || 'TYO',
-    altClock2Offset: getNumber(payload.SettingAltClock2Offset, 540),
+    altClock2Name: payload.SettingAltClock2Name || 'UTC',
+    altClock2Offset: getNumber(payload.SettingAltClock2Offset, 0),
 
     healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total',
 

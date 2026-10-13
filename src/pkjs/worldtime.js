@@ -1,12 +1,13 @@
 /* world time widget support
  *
- * The phone owns the city choice (stored in localStorage, like the weather
- * location); the watch only ever sees a display label and the city's
- * *current* UTC offset in minutes. Recomputing the offset every time we
- * talk to the watch is what keeps the widgets correct across DST changes.
+ * The phone owns the zone choice (stored in localStorage, like the weather
+ * location): any IANA zone id, e.g. "America/New_York". The watch only ever
+ * sees a display label and the zone's *current* UTC offset in minutes.
+ * Recomputing the offset every time we talk to the watch is what keeps the
+ * widgets correct across DST changes.
  */
 
-var Cities = require('./cities');
+var Timezone = require('./timezone');
 
 var LAST_SENT_KEY = 'world_time_last_sent';
 
@@ -17,26 +18,34 @@ function storageKey(zoneNum, field) {
   return 'world_time_' + zoneNum + '_' + field;
 }
 
-function addZoneToPayload(zoneNum, nameKey, offsetKey, dict) {
-  var cityName = window.localStorage.getItem(storageKey(zoneNum, 'city'));
-  if (!cityName) {
-    return;
-  }
-
-  var city = Cities.findCity(cityName);
-  if (!city) {
-    return;
-  }
-
-  // a blank custom label uses the city's own (hiding the label is the
-  // widget's "Show" setting, not a blank name)
-  var label = window.localStorage.getItem(storageKey(zoneNum, 'label'));
-  var name = String(label || city.label || city.name);
-  dict[nameKey] = name.toUpperCase().slice(0, MAX_LABEL_LENGTH);
-  dict[offsetKey] = Cities.cityOffsetMinutes(city, new Date());
+// the label a zone gets until the user types their own: the first three
+// letters of its city ("America/New_York" -> "NEW"). Must match
+// worldTimeDefaultLabel() in config-page/src/data/worldTimes.ts.
+function defaultLabel(tz) {
+  return tz.split('/').pop().replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
 }
 
-// dict of watch settings for the currently-selected cities (empty if the
+function addZoneToPayload(zoneNum, nameKey, offsetKey, dict) {
+  var tz = window.localStorage.getItem(storageKey(zoneNum, 'zone'));
+  if (!tz) {
+    return;
+  }
+
+  // a blank custom label uses the zone's own (hiding the label is the
+  // widget's "Show" setting, not a blank name)
+  var label = window.localStorage.getItem(storageKey(zoneNum, 'label'));
+  var name = String(label || defaultLabel(tz));
+  dict[nameKey] = name.toUpperCase().slice(0, MAX_LABEL_LENGTH);
+
+  // without Intl (the emulator) the offset is left out, and the watch
+  // keeps whichever one it last had
+  var offset = Timezone.offsetMinutes(tz, new Date());
+  if (offset !== null) {
+    dict[offsetKey] = offset;
+  }
+}
+
+// dict of watch settings for the currently-selected zones (empty if the
 // user has never configured a world time widget)
 function buildWatchPayload() {
   var dict = {};
@@ -52,16 +61,16 @@ function buildWatchPayload() {
   return dict;
 }
 
-// remembers the city selections from a config page result and returns the
+// remembers the zone selections from a config page result and returns the
 // watch payload entries for them
 function storeConfig(configData) {
-  if (configData.worldTime1City !== undefined) {
-    window.localStorage.setItem(storageKey(1, 'city'), configData.worldTime1City);
+  if (configData.worldTime1Zone !== undefined) {
+    window.localStorage.setItem(storageKey(1, 'zone'), configData.worldTime1Zone);
     window.localStorage.setItem(storageKey(1, 'label'), configData.worldTime1Label || '');
   }
 
-  if (configData.worldTime2City !== undefined) {
-    window.localStorage.setItem(storageKey(2, 'city'), configData.worldTime2City);
+  if (configData.worldTime2Zone !== undefined) {
+    window.localStorage.setItem(storageKey(2, 'zone'), configData.worldTime2Zone);
     window.localStorage.setItem(storageKey(2, 'label'), configData.worldTime2Label || '');
   }
 
@@ -72,15 +81,15 @@ function storeConfig(configData) {
 function getConfigSettings() {
   var settings = {};
 
-  var city1 = window.localStorage.getItem(storageKey(1, 'city'));
-  if (city1) {
-    settings.worldTime1City = city1;
+  var zone1 = window.localStorage.getItem(storageKey(1, 'zone'));
+  if (zone1) {
+    settings.worldTime1Zone = zone1;
     settings.worldTime1Label = window.localStorage.getItem(storageKey(1, 'label')) || '';
   }
 
-  var city2 = window.localStorage.getItem(storageKey(2, 'city'));
-  if (city2) {
-    settings.worldTime2City = city2;
+  var zone2 = window.localStorage.getItem(storageKey(2, 'zone'));
+  if (zone2) {
+    settings.worldTime2Zone = zone2;
     settings.worldTime2Label = window.localStorage.getItem(storageKey(2, 'label')) || '';
   }
 

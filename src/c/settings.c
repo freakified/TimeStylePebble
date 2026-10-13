@@ -108,8 +108,8 @@ void Settings_loadFromStorage() {
   settings.statusShowConnection = false;
   strncpy(settings.altclockName, "UTC", sizeof(settings.altclockName));
   settings.altclockOffset = 0;
-  strncpy(settings.altclock2Name, "TYO", sizeof(settings.altclock2Name));
-  settings.altclock2Offset = 540;
+  strncpy(settings.altclock2Name, "UTC", sizeof(settings.altclock2Name));
+  settings.altclock2Offset = 0;
   settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
   settings.useWideSidebar = false;

@@ -1,5 +1,5 @@
 import { Capabilities, Settings } from '../context/types';
-import { findWorldTimeCity } from '../data/cities';
+import { worldTimeDefaultLabel } from '../data/worldTimes';
 import { hiddenParts, WIDGET_PARTS } from './widgetParts';
 import iconCalories from '../assets/preview/widget_previews/icon_calories.svg?raw';
 import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
@@ -119,14 +119,14 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
         case 3: {  // World Time 1
             // a blank custom label uses the city's own, as worldtime.js does
             const label1 = settings.worldTime1Label
-                || findWorldTimeCity(settings.worldTime1City)?.label
+                || worldTimeDefaultLabel(settings.worldTime1Zone)
                 || settings.altClockName || 'UTC';
             return [text(label1, 'sm'), text('5:42p')];
         }
         case 14: {  // World Time 2
             const label2 = settings.worldTime2Label
-                || findWorldTimeCity(settings.worldTime2City)?.label
-                || settings.altClock2Name || 'TYO';
+                || worldTimeDefaultLabel(settings.worldTime2Zone)
+                || settings.altClock2Name || 'UTC';
             return [text(label2, 'sm'), text('9:42a')];
         }
         case 4:  // Today's Date

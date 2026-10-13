@@ -97,13 +97,13 @@ export interface Settings {
   weatherDataSource: string;
   weatherApiKey: string;
 
-  // World time (city names match config-page/src/data/cities.ts and
-  // src/pkjs/cities.js; the phone recomputes DST-aware offsets from them).
-  // altClockName/altClockOffset are the watch's current label + offset in
-  // minutes — read-only echoes used as fallbacks, not edited directly.
-  worldTime1City: string;
+  // World time: any IANA zone id (data/worldTimes.ts); the phone
+  // recomputes DST-aware offsets from it. altClockName/altClockOffset are
+  // the watch's current label + offset in minutes — read-only echoes used
+  // as fallbacks, not edited directly.
+  worldTime1Zone: string;
   worldTime1Label: string;  // optional custom label, max 4 chars
-  worldTime2City: string;
+  worldTime2Zone: string;
   worldTime2Label: string;
   altClockName: string;
   altClockOffset: number;

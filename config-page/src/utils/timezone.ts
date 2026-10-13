@@ -14,7 +14,7 @@ const formatterFor = (tz: string): Intl.DateTimeFormat => {
 
 /**
  * A zone's UTC offset in minutes at `date`, from the browser's tz database.
- * Same approach as intlOffsetMinutes in src/pkjs/cities.js. Falls back to
+ * Same approach as intlOffsetMinutes in src/pkjs/timezone.js. Falls back to
  * `fallback` if the browser doesn't know the zone.
  */
 export const offsetMinutes = (tz: string, fallback: number, date: Date = new Date()): number => {
@@ -27,5 +27,26 @@ export const offsetMinutes = (tz: string, fallback: number, date: Date = new Dat
         return Math.round((wallAsUtc - (date.getTime() - subMinuteMs)) / 60000);
     } catch {
         return fallback;
+    }
+};
+
+const isUsableZone = (tz: string): boolean => {
+    try {
+        formatterFor(tz);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+/** Every zone the browser knows (empty if it can't list them). */
+export const allTimeZones = (): string[] => {
+    const supportedValuesOf = (Intl as { supportedValuesOf?: (key: string) => string[] })
+        .supportedValuesOf;
+    if (!supportedValuesOf) return [];
+    try {
+        return supportedValuesOf('timeZone').filter(isUsableZone);
+    } catch {
+        return [];
     }
 };

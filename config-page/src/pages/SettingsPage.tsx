@@ -24,7 +24,7 @@ import darkThemesBw from '../data/dark-themes-bw.json';
 import { prepareThemes } from '../utils/themeUtils';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
-import { WORLD_TIME_CITY_OPTIONS, findWorldTimeCity } from '../data/cities';
+import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
 import { WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
 
 const LANGUAGE_OPTIONS = [
@@ -128,9 +128,9 @@ export const SettingsPage: React.FC = () => {
   // the custom label only matters while the widget shows its label
   const showWorldTime1Label = !hiddenParts(3, settings).marker;
   const showWorldTime2Label = !hiddenParts(14, settings).marker;
-  // picking a city relabels the widget with that city's code, which the
+  // picking a zone relabels the widget with its default label, which the
   // user can then edit; a blank label still falls back to it on the phone
-  const cityLabel = (city: string | number) => findWorldTimeCity(String(city))?.label ?? '';
+  const worldTimeZoneOptions = React.useMemo(() => worldTimeOptions(), []);
 
   const showHealthSection = activeWidgetIds.some((id) => id === 9);
 
@@ -291,11 +291,11 @@ export const SettingsPage: React.FC = () => {
       {showWorldTime1Section && (
         <Section title="World Time 1">
           <Select
-            label="City"
-            messageKey="worldTime1City"
+            label="Time zone"
+            messageKey="worldTime1Zone"
             description="Daylight Saving Time is handled automatically"
-            options={WORLD_TIME_CITY_OPTIONS}
-            onValueChange={(city) => updateSetting('worldTime1Label', cityLabel(city))}
+            options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime1Zone)}
+            onValueChange={(tz) => updateSetting('worldTime1Label', worldTimeDefaultLabel(String(tz)))}
           />
           {showWorldTime1Label && (
             <TextField
@@ -303,7 +303,7 @@ export const SettingsPage: React.FC = () => {
               description="Up to 4 characters shown above the time"
               messageKey="worldTime1Label"
               maxLength={4}
-              placeholder={cityLabel(settings.worldTime1City)}
+              placeholder={worldTimeDefaultLabel(settings.worldTime1Zone)}
               transformValue={(value) => value.toUpperCase()}
             />
           )}
@@ -312,11 +312,11 @@ export const SettingsPage: React.FC = () => {
       {showWorldTime2Section && (
         <Section title="World Time 2">
           <Select
-            label="City"
-            messageKey="worldTime2City"
+            label="Time zone"
+            messageKey="worldTime2Zone"
             description="Daylight Saving Time is handled automatically"
-            options={WORLD_TIME_CITY_OPTIONS}
-            onValueChange={(city) => updateSetting('worldTime2Label', cityLabel(city))}
+            options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime2Zone)}
+            onValueChange={(tz) => updateSetting('worldTime2Label', worldTimeDefaultLabel(String(tz)))}
           />
           {showWorldTime2Label && (
             <TextField
@@ -324,7 +324,7 @@ export const SettingsPage: React.FC = () => {
               description="Up to 4 characters shown above the time"
               messageKey="worldTime2Label"
               maxLength={4}
-              placeholder={cityLabel(settings.worldTime2City)}
+              placeholder={worldTimeDefaultLabel(settings.worldTime2Zone)}
               transformValue={(value) => value.toUpperCase()}
             />
           )}

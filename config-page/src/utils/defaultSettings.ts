@@ -57,14 +57,14 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   weatherApiKey: '',
 
   // World time
-  worldTime1City: 'UTC',
+  worldTime1Zone: 'UTC',
   worldTime1Label: '',
-  worldTime2City: 'TOKYO',
+  worldTime2Zone: 'UTC',
   worldTime2Label: '',
   altClockName: 'UTC',
   altClockOffset: 0,
-  altClock2Name: 'TYO',
-  altClock2Offset: 540,
+  altClock2Name: 'UTC',
+  altClock2Offset: 0,
 
   // Health
   healthSleepType: 'total',
