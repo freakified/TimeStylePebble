@@ -1328,6 +1328,11 @@ input[type='checkbox'] {
   color: #d0342c;
 }
 
+.widget-warning a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .widget-warning-icon {
   flex-shrink: 0;
   width: 1.05rem;

@@ -6,15 +6,17 @@ import { Capabilities } from '../context/types';
 export interface WidgetOption {
     value: number;
     label: string;
-    category: 'General' | 'Time & Date' | 'Weather' | 'Health';
+    category: 'Status' | 'Time & Date' | 'Weather' | 'Health';
     requiresHealth?: boolean;
     requiresHRM?: boolean;
+    requiresAlarms?: boolean;
 }
 
 // Widget id 0 (EMPTY) is deliberately absent: slots form a packed list
 // in the config UI (add/remove), and EMPTY is only wire padding.
 export const ALL_WIDGET_OPTIONS: WidgetOption[] = [
-    { value: 2,  label: 'Battery', category: 'General' },
+    { value: 2,  label: 'Battery', category: 'Status' },
+    { value: 20, label: 'Next Alarm', category: 'Status', requiresAlarms: true },
     { value: 3,  label: 'World Time 1', category: 'Time & Date' },
     { value: 14, label: 'World Time 2', category: 'Time & Date' },
     { value: 4,  label: "Today's Date", category: 'Time & Date' },
@@ -38,6 +40,7 @@ export function getWidgetOptions(capabilities: Capabilities): WidgetOption[] {
         if (w.requiresHealth && !capabilities.HEALTH) return false;
         // HRM is only available on diorite and emery — no dedicated capability flag
         if (w.requiresHRM && !capabilities.DIORITE && !capabilities.EMERY) return false;
+        if (w.requiresAlarms && !capabilities.ALARMS) return false;
         return true;
     });
 }

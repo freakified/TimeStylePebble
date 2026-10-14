@@ -1,6 +1,7 @@
 import { Capabilities, Settings } from '../context/types';
 import { worldTimeDefaultLabel } from '../data/worldTimes';
 import { hiddenParts, WIDGET_PARTS } from './widgetParts';
+import iconAlarm from '../assets/preview/widget_previews/icon_alarm.svg?raw';
 import iconCalories from '../assets/preview/widget_previews/icon_calories.svg?raw';
 import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
 import iconDate from '../assets/preview/widget_previews/icon_date.svg?raw';
@@ -39,6 +40,7 @@ export interface IconAsset {
 }
 
 export const ICONS = {
+    alarm:   { svg: iconAlarm,   w: 25, h: 25 },
     battery: { svg: iconBattery, w: 25, h: 14 },  // BatteryMeter_measure's icon height
     calories: { svg: iconCalories, w: 25, h: 25 },
     date:    { svg: iconDate,    w: 25, h: 25 },
@@ -169,6 +171,8 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
                 : (settings.wideSidebar ? '1.3mi' : '1mi'))];
         case 19:  // Active Calories
             return [{ type: 'icon', asset: ICONS.calories }, text('340')];
+        case 20:  // Next Alarm
+            return [{ type: 'icon', asset: ICONS.alarm }, text('7:00a')];
         default:
             return [];
     }

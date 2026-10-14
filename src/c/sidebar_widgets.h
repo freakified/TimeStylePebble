@@ -1,6 +1,13 @@
 #pragma once
 #include <pebble.h>
 
+// the next-alarm widget (alarm_service_peek_next) is only offered on the
+// newer watches
+#if defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_EMERY) || \
+    defined(PBL_PLATFORM_GABBRO)
+#define SIDEBAR_HAS_ALARMS
+#endif
+
 typedef enum {
   SIDEBAR_LAYOUT_STACKED = 0,
   SIDEBAR_LAYOUT_INLINE = 2
@@ -47,14 +54,15 @@ typedef enum {
   // 16 was WEATHER_WIND, retired
   WEATHER_PRECIP_CHANCE     = 17,
   DISTANCE_WALKED           = 18,
-  ACTIVE_CALORIES           = 19
+  ACTIVE_CALORIES           = 19,
+  NEXT_ALARM                = 20
 } SidebarWidgetType;
 
 // whether a stored or received widget id names a real widget (EMPTY
 // included); extend this alongside the enum
 static inline bool SidebarWidgets_isKnownType(uint8_t type) {
   return type == EMPTY ||
-         (type >= BATTERY_METER && type <= ACTIVE_CALORIES && type != 16);
+         (type >= BATTERY_METER && type <= NEXT_ALARM && type != 16);
 }
 
 typedef struct {

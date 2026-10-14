@@ -20,6 +20,8 @@ const CAPABILITY_MAP: Record<keyof Capabilities, string[]> = {
   SMARTSTRAP: ['basalt', 'chalk', 'diorite', 'emery'],
   SMARTSTRAP_POWER: ['basalt', 'chalk', 'emery'],
   HEALTH: ['basalt', 'chalk', 'diorite', 'emery', 'flint', 'gabbro'],
+  // alarm_service_peek_next(); see SIDEBAR_HAS_ALARMS on the watch
+  ALARMS: ['emery', 'flint', 'gabbro'],
 };
 
 const getCapabilitiesForPlatform = (platform: string): Capabilities => {

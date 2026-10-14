@@ -14,6 +14,7 @@ import {
   WidgetRegion,
 } from '../utils/widgetSlots';
 import { Settings } from '../context/types';
+import { WIDGET_DISPLAY_SECTION_ID, WIDGET_PARTS } from '../utils/widgetParts';
 
 /*
  * Every platform has two widget regions — a sidebar and a bottom bar on
@@ -57,7 +58,7 @@ const ALL_BAR_SLOT_KEYS = [
   'bottomBarWidget2Id',
 ] as const;
 
-const WIDGET_CATEGORY_ORDER = ['General', 'Time & Date', 'Weather', 'Health'] as const;
+const WIDGET_CATEGORY_ORDER = ['Status', 'Time & Date', 'Weather', 'Health'] as const;
 
 /** Where a drag would land: null while the pointer is over nowhere useful. */
 interface DropTarget {
@@ -291,9 +292,6 @@ export const WidgetSelector: React.FC = () => {
 
   /* ── Rendering ── */
 
-  const usedIds = new Set([...primaryIds, ...secondaryIds]);
-  const addableOptions = widgetOptions.filter((option) => !usedIds.has(option.value));
-
   const groupOptions = (options: typeof widgetOptions) =>
     WIDGET_CATEGORY_ORDER.map((category) => ({
       category,
@@ -325,13 +323,21 @@ export const WidgetSelector: React.FC = () => {
    * there's no hard cliff to put a precise number against. "over" means
    * the widgets' full forms don't fit — not that anything breaks.
    */
-  const OVER_MESSAGE = 'There might be too many widgets to fit.';
+  //
+  // The Widget Display section only exists while some placed widget has
+  // parts to hide, so the pointer to it only appears then too.
+  const canHideParts = [...primaryIds, ...secondaryIds].some((id) => WIDGET_PARTS[id]);
 
   const renderWarning = (fit: FitResult) =>
     fit.state === 'over' ? (
       <p className="widget-warning" role="status">
         <span className="widget-warning-icon" aria-hidden="true">!</span>
-        {OVER_MESSAGE}
+        <span>
+          There might be too many widgets to fit
+          {canHideParts ? (
+            <>; consider <a href={`#${WIDGET_DISPLAY_SECTION_ID}`}>hiding some labels</a>.</>
+          ) : '.'}
+        </span>
       </p>
     ) : null;
 
@@ -399,7 +405,7 @@ export const WidgetSelector: React.FC = () => {
   };
 
   const renderAddWidget = (region: WidgetRegion, count: number, cap: number) => {
-    if (count >= cap || addableOptions.length === 0) {
+    if (count >= cap) {
       return null;
     }
 
@@ -415,7 +421,9 @@ export const WidgetSelector: React.FC = () => {
           className="halite-select-input widget-add-select"
         >
           <option value="" disabled>+ Add widget…</option>
-          {groupOptions(addableOptions).map((group) => (
+          {/* every widget is offered: adding one that's already placed
+              moves it here (addWidgetToRegion drops the old instance) */}
+          {groupedWidgetOptions.map((group) => (
             <optgroup key={group.category} label={group.category}>
               {group.options.map((opt) => (
                 <option key={opt.value} value={opt.value}>

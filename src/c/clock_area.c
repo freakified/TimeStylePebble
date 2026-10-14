@@ -9,6 +9,7 @@
 #include "fctx/ffont.h"
 
 #define ROUND_VERTICAL_PADDING 15
+#define ROUND_OBSTRUCTED_PADDING 4
 
 char time_hours[3];
 char time_minutes[3];
@@ -166,7 +167,17 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
 
   #ifdef PBL_ROUND
-    bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, screen_rect.size.h - ROUND_VERTICAL_PADDING * 2);
+    // the sidebar stays put under timeline quick view; only the time
+    // shrinks to fit above it. the obstruction's top edge is a wide chord
+    // of the circle, so it needs much less padding than the screen's edge
+    int bottom = screen_rect.size.h - ROUND_VERTICAL_PADDING;
+    int obstructedBottom = bounds.origin.y + bounds.size.h - ROUND_OBSTRUCTED_PADDING;
+
+    if (bottom > obstructedBottom) {
+      bottom = obstructedBottom;
+    }
+
+    bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, bottom - ROUND_VERTICAL_PADDING);
   #else
     // reserve space for top/bottom sidebar regions, combining with any
     // system obstruction (timeline quick view) already in the bounds

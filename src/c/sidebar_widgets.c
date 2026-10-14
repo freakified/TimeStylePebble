@@ -41,6 +41,10 @@ GDrawCommandImage *caloriesImage;
 GDrawCommandImage *heartImage;
 #endif
 
+#ifdef SIDEBAR_HAS_ALARMS
+GDrawCommandImage *alarmImage;
+#endif
+
 GFont smSidebarFont;
 GFont mdSidebarFont;
 GFont lgSidebarFont;
@@ -111,6 +115,10 @@ static SidebarContent DistanceWalked_getContent();
 static SidebarContent ActiveCalories_getContent();
 static SidebarContent SleepTimer_getContent();
 static SidebarContent HeartRate_getContent();
+#endif
+
+#ifdef SIDEBAR_HAS_ALARMS
+static SidebarContent NextAlarm_getContent();
 #endif
 
 static SidebarTextMetrics gothic_metrics(int fontSize) {
@@ -250,6 +258,11 @@ void SidebarWidgets_init() {
   heartImage =
       gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_HEART);
 #endif
+
+#ifdef SIDEBAR_HAS_ALARMS
+  alarmImage =
+      gdraw_command_image_create_with_resource(RESOURCE_ID_ALARM_CLOCK);
+#endif
 }
 
 void SidebarWidgets_deinit() {
@@ -266,6 +279,10 @@ void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(caloriesImage);
   gdraw_command_image_destroy(sleepImage);
   gdraw_command_image_destroy(heartImage);
+#endif
+
+#ifdef SIDEBAR_HAS_ALARMS
+  gdraw_command_image_destroy(alarmImage);
 #endif
 }
 
@@ -1893,6 +1910,33 @@ static SidebarContent HeartRate_getContent() {
 
 #endif
 
+#ifdef SIDEBAR_HAS_ALARMS
+static SidebarContent NextAlarm_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
+  content.iconKind = SIDEBAR_ICON_IMAGE;
+  content.icon = alarmImage;
+
+  // the system only tells us about the soonest enabled alarm; there's no
+  // subscription, so peeking on every redraw is how we notice changes
+  time_t now = time(NULL);
+  time_t alarmTime;
+  if (!alarm_service_peek_next(&alarmTime) || alarmTime < now) {
+    content.primary = same_text_candidates("--");
+    return content;
+  }
+
+  // within a day the time alone is unambiguous; further out, name the day
+  struct tm alarmInfo = *localtime(&alarmTime);
+  bool moreThanADayAway = alarmTime - now >= SECONDS_PER_DAY;
+  format_time_candidates(
+      alarmInfo.tm_hour, alarmInfo.tm_min,
+      moreThanADayAway ? dayNames[settings.languageId][alarmInfo.tm_wday]
+                       : NULL,
+      &content.primary);
+  return content;
+}
+#endif
+
 SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
   switch (type) {
   case BATTERY_METER:
@@ -1952,6 +1996,11 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
   case HEARTRATE:
     return (SidebarWidgetDefinition){HEARTRATE, SIDEBAR_CONTENT_ICON_VALUE,
                                      HeartRate_getContent, NULL, NULL};
+#endif
+#ifdef SIDEBAR_HAS_ALARMS
+  case NEXT_ALARM:
+    return (SidebarWidgetDefinition){NEXT_ALARM, SIDEBAR_CONTENT_ICON_VALUE,
+                                     NextAlarm_getContent, NULL, NULL};
 #endif
   case BEATS:
     return (SidebarWidgetDefinition){BEATS, SIDEBAR_CONTENT_LABEL_VALUE,

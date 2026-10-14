@@ -28,6 +28,7 @@ export interface Capabilities {
   SMARTSTRAP: boolean;
   SMARTSTRAP_POWER: boolean;
   HEALTH: boolean;
+  ALARMS: boolean;
 }
 
 // which side the vertical sidebar sits on; the bottom bar isn't a layout
@@ -50,7 +51,7 @@ export interface Settings {
   // 7=Current Weather, 8=Today's Forecast, 9=Sleep, 10=Steps,
   // 11=Swatch Internet Time, 12=Heart Rate, 13=UV Index, 14=World Time 2,
   // 15=Sunrise & Sunset, 17=Chance of Rain,
-  // 18=Distance Walked, 19=Active Calories
+  // 18=Distance Walked, 19=Active Calories, 20=Next Alarm
   // On round these same six slots are split between the two arcs:
   // 0..2 are the left arc's widget list, 3..5 the right arc's.
   widget0Id: number;  // first sidebar slot (top on rect, left arc top on round)

@@ -290,6 +290,16 @@
           "type": "raw"
         },
         {
+          "file": "data/ALARM_CLOCK.pdc",
+          "name": "ALARM_CLOCK",
+          "type": "raw",
+          "targetPlatforms": [
+            "flint",
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
           "file": "images/digit_leco_9.png",
           "name": "CLOCK_DIGIT_LECO_9",
           "type": "bitmap",

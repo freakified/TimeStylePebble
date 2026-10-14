@@ -46,8 +46,12 @@ export const WIDGET_PARTS: Record<number, WidgetParts> = {
     17: { marker: 'icon', value: 'value' },                              // Chance of Rain
     18: { marker: 'icon', value: 'value' },                              // Distance Walked
     19: { marker: 'icon', value: 'value' },                              // Active Calories
+    20: { marker: 'icon', value: 'time' },                               // Next Alarm
     4:  { marker: 'weekday', value: 'month', independent: true },        // Today's Date
 };
+
+/** anchor for the Widget Display section, which the fit warning links to */
+export const WIDGET_DISPLAY_SECTION_ID = 'widget-display';
 
 export interface HiddenParts {
     marker: boolean;
