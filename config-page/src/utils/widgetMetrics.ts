@@ -448,14 +448,17 @@ interface ArcMetrics {
     contentWidth: number;
     /** ROUND_ARC_WIDGET_GAP */
     widgetGap: number;
+    /** the least gap the arc budget allows between widgets */
+    minGap: number;
 }
+
+export const ARC_WIDGET_GAP_COMPACT = 1;      // ROUND_ARC_WIDGET_GAP_COMPACT
 
 export const arcMetrics = (capabilities: Capabilities): ArcMetrics =>
     capabilities.DISPLAY_260x260_ROUND
-        ? { screen: 260, width: 56, contentWidth: 42, widgetGap: 12 }
-        : { screen: 180, width: 40, contentWidth: 30, widgetGap: 8 };
+        ? { screen: 260, width: 56, contentWidth: 42, widgetGap: 12, minGap: 8 }
+        : { screen: 180, width: 40, contentWidth: 30, widgetGap: 8, minGap: ARC_WIDGET_GAP_COMPACT };
 
-export const ARC_WIDGET_GAP_COMPACT = 1;      // ROUND_ARC_WIDGET_GAP_COMPACT
 /** ROUND_ARC_INWARD_NUDGE: the column sits this far towards the screen
  * center from the arc's middle */
 export const ARC_INWARD_NUDGE = 1;
@@ -619,7 +622,7 @@ export const stackedWidgetHeight = (
             return icon + md + STACK_VALUE_GAP + sm;
         case 7:  // Current Weather
             return hidden.detail ? WATCH_ICON_SIZE : iconValue;
-        case 10: case 12: case 15: case 17: case 18: case 19:
+        case 10: case 12: case 15: case 17: case 18: case 19: case 20:
             return iconValue;
         default:
             return 0;
@@ -670,16 +673,19 @@ export const assessSidebar = (
 
 /**
  * How well a set of widgets fits one round arc: the watch tightens the
- * arc's gaps down to the compact gap to keep the stack inside the arc's
- * content band, and "over" is when even that isn't enough and the stack
- * spills off the lens.
+ * arc's gaps to keep the stack inside the arc's content band, and "over"
+ * is when that would squeeze them below the arc's minimum gap. On chalk
+ * that's the compact gap, so "over" means the stack spills off the lens;
+ * gabbro's band is big enough to take three widgets that way, but at a
+ * couple of pixels apart they read as one cramped run, so it budgets for
+ * a real gap instead.
  */
 export const assessArc = (
     widgetIds: number[],
     settings: Settings,
     capabilities: Capabilities
 ): FitResult => {
-    const gaps = Math.max(0, widgetIds.length - 1) * ARC_WIDGET_GAP_COMPACT;
+    const gaps = Math.max(0, widgetIds.length - 1) * arcMetrics(capabilities).minGap;
     return assessPx(
         widgetIds.length,
         stackedTotal(widgetIds, settings, capabilities) + gaps,

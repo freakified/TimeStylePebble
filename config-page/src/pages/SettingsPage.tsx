@@ -25,7 +25,7 @@ import { prepareThemes } from '../utils/themeUtils';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
-import { WIDGET_DISPLAY_SECTION_ID, WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
+import { WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
 
 const LANGUAGE_OPTIONS = [
   { label: 'English', value: 0 },
@@ -261,7 +261,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* ── Widget Display ── */}
       {displayWidgetIds.length > 0 && (
-        <Section title="Widget Display" id={WIDGET_DISPLAY_SECTION_ID}>
+        <Section title="Widget Display">
           <WidgetDisplayOptions widgetIds={displayWidgetIds} />
         </Section>
       )}

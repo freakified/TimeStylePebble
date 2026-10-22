@@ -175,8 +175,10 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 
 // Arc widgets are spread by this gap where the band has room for it,
 // tightening towards the compact gap when it doesn't. On chalk that
-// means anything past two small widgets; gabbro keeps most of its gap
-// even for three. Better a crowded arc than one that spills off the lens.
+// means anything past two small widgets. Gabbro's config page budget
+// keeps at least 8px between them (arcMetrics().minGap), so it only
+// tightens that far for configs the page flagged as over. Better a
+// crowded arc than one that spills off the lens.
 #if defined(PBL_PLATFORM_GABBRO)
 #define ROUND_ARC_WIDGET_GAP 12
 #else

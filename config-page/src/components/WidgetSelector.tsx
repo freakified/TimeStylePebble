@@ -14,7 +14,6 @@ import {
   WidgetRegion,
 } from '../utils/widgetSlots';
 import { Settings } from '../context/types';
-import { WIDGET_DISPLAY_SECTION_ID, WIDGET_PARTS } from '../utils/widgetParts';
 
 /*
  * Every platform has two widget regions — a sidebar and a bottom bar on
@@ -323,20 +322,12 @@ export const WidgetSelector: React.FC = () => {
    * there's no hard cliff to put a precise number against. "over" means
    * the widgets' full forms don't fit — not that anything breaks.
    */
-  //
-  // The Widget Display section only exists while some placed widget has
-  // parts to hide, so the pointer to it only appears then too.
-  const canHideParts = [...primaryIds, ...secondaryIds].some((id) => WIDGET_PARTS[id]);
-
   const renderWarning = (fit: FitResult) =>
     fit.state === 'over' ? (
       <p className="widget-warning" role="status">
         <span className="widget-warning-icon" aria-hidden="true">!</span>
         <span>
-          There might be too many widgets to fit
-          {canHideParts ? (
-            <>; consider <a href={`#${WIDGET_DISPLAY_SECTION_ID}`}>hiding some labels</a>.</>
-          ) : '.'}
+          There might be too many widgets to fit.
         </span>
       </p>
     ) : null;
