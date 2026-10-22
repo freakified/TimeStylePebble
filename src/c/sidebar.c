@@ -10,10 +10,11 @@
  * fits, and distributes the widgets along the region's main axis.
  *
  * On rect watches the regions are edges: a vertical sidebar (left/right)
- * and a horizontal bottom bar. On round they are the two arcs, which
- * split the vertical slot list between them -- slots 0..2 to the left
- * arc, 3..5 to the right -- and draw on top of the clock area rather
- * than reserving an edge.
+ * and a horizontal bottom bar. On round the vertical region is the two
+ * arcs, which split the vertical slot list between them -- slots 0..2 to
+ * the left arc, 3..5 to the right -- and draw on top of the clock area
+ * rather than reserving an edge; the bottom bar is a single widget
+ * centered between the arcs' tapered ends.
  */
 
 typedef struct {
@@ -39,10 +40,10 @@ static Layer *vRegionLayer;
 // round: the right arc
 static SidebarRegion vRegion2;
 static Layer *vRegionLayer2;
-#else
+#endif
+
 static SidebarRegion hRegion;
 static Layer *hRegionLayer;
-#endif
 
 static void sidebar_buildRegions(void) {
 #ifdef PBL_ROUND
@@ -89,6 +90,7 @@ static void sidebar_buildRegions(void) {
   for (int i = 0; i < VREGION_SLOT_CAP; i++) {
     vRegion.slots[i] = (SidebarWidgetType)settings.vRegionSlots[i];
   }
+#endif
 
   // the bar exists exactly when it has something to show: an empty bar
   // would draw nothing while still costing the clock its height
@@ -106,32 +108,36 @@ static void sidebar_buildRegions(void) {
       // the bar blends into the watchface so the accent color stays with
       // the sidebar
       .dark = true,
+#ifdef PBL_ROUND
+      .thickness = ROUND_BAR_HEIGHT,
+#else
       .thickness = HBAR_HEIGHT(settings.useLargeFonts),
+#endif
       .slotCount = HREGION_SLOT_CAP,
   };
 
   for (int i = 0; i < hRegion.slotCount; i++) {
     hRegion.slots[i] = (SidebarWidgetType)settings.hRegionSlots[i];
   }
-#endif
 }
 
 int Sidebar_reservedTop(void) {
-#ifndef PBL_ROUND
   if (hRegion.edge == REGION_EDGE_TOP) {
     return hRegion.thickness;
   }
-#endif
   return 0;
 }
 
 int Sidebar_reservedBottom(void) {
-#ifndef PBL_ROUND
   if (hRegion.edge == REGION_EDGE_BOTTOM) {
     // a bar on the watchface lends the clock the padding above its widgets
+#ifdef PBL_ROUND
+    return hRegion.thickness + ROUND_BAR_BOTTOM_PADDING -
+           ROUND_BAR_CLOCK_ENCROACH;
+#else
     return hRegion.thickness - HBAR_CLOCK_ENCROACH;
-  }
 #endif
+  }
   return 0;
 }
 
@@ -142,16 +148,23 @@ int Sidebar_verticalThickness(void) {
 }
 
 #ifndef PBL_ROUND
-
 static GRect vregion_frame(void) {
   int x = (vRegion.edge == REGION_EDGE_LEFT)
               ? 0
               : screen_rect.size.w - vRegion.thickness;
   return GRect(x, 0, vRegion.thickness, screen_rect.size.h);
 }
+#endif
 
-// the horizontal bar yields its corner to the vertical region
+// rect: the horizontal bar yields its corner to the vertical region.
+// round: the bar is centered across the chord its widget sits on
 static GRect hregion_frame(void) {
+#ifdef PBL_ROUND
+  return GRect((screen_rect.size.w - ROUND_BAR_WIDTH) / 2,
+               screen_rect.size.h - ROUND_BAR_BOTTOM_PADDING -
+                   hRegion.thickness,
+               ROUND_BAR_WIDTH, hRegion.thickness);
+#else
   int reserved = (vRegion.edge == REGION_EDGE_NONE)
                      ? 0
                      : vRegion.thickness + HBAR_VBAR_GAP;
@@ -166,7 +179,10 @@ static GRect hregion_frame(void) {
               ? 0
               : screen_rect.size.h - hRegion.thickness;
   return GRect(x, y, width, hRegion.thickness);
+#endif
 }
+
+#ifndef PBL_ROUND
 
 /*
  * Vertical flow: the slots form a packed widget list (EMPTY entries are
@@ -261,6 +277,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     y += sizes[i].h;
   }
 }
+#endif
 
 /*
  * Horizontal flow: the slots form a packed widget list (EMPTY entries are
@@ -334,26 +351,34 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
                                       : &dynamicSettings.sidebarPalette;
   SidebarWidgets_setActivePalette(palette);
 
+  // round's bar skips its fill: it sits over the arcs' tapered ends,
+  // and like a dark arc it would only paint the watchface over them
+#ifndef PBL_ROUND
   graphics_context_set_fill_color(ctx, palette->background);
   graphics_fill_rect(ctx, layer_get_bounds(l), 0, GCornerNone);
+#endif
   graphics_context_set_text_color(ctx, palette->text);
 
+#ifdef PBL_ROUND
+  render_horizontal_flow(r, l, ctx);
+#else
   if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
     render_horizontal_flow(r, l, ctx);
   } else {
     render_vertical_flow(r, l, ctx);
   }
-}
-
-static void updateVRegionLayer(Layer *l, GContext *ctx) {
-  region_render(&vRegion, l, ctx);
+#endif
 }
 
 static void updateHRegionLayer(Layer *l, GContext *ctx) {
   region_render(&hRegion, l, ctx);
 }
 
-#else /* PBL_ROUND */
+#ifndef PBL_ROUND
+static void updateVRegionLayer(Layer *l, GContext *ctx) {
+  region_render(&vRegion, l, ctx);
+}
+#else
 
 /*
  * Arc flow: the slots form a packed widget list (EMPTY entries are
@@ -482,12 +507,12 @@ void Sidebar_init(Window *window) {
   vRegionLayer = layer_create(vregion_frame());
   layer_set_update_proc(vRegionLayer, updateVRegionLayer);
   layer_add_child(root, vRegionLayer);
+#endif
 
   hRegionLayer = layer_create(hregion_frame());
   layer_set_update_proc(hRegionLayer, updateHRegionLayer);
   layer_add_child(root, hRegionLayer);
   layer_set_hidden(hRegionLayer, hRegion.edge == REGION_EDGE_NONE);
-#endif
 }
 
 void Sidebar_deinit() {
@@ -495,9 +520,8 @@ void Sidebar_deinit() {
 
 #ifdef PBL_ROUND
   layer_destroy(vRegionLayer2);
-#else
-  layer_destroy(hRegionLayer);
 #endif
+  layer_destroy(hRegionLayer);
 
   SidebarWidgets_deinit();
 }
@@ -507,19 +531,18 @@ void Sidebar_redraw() {
 
 #ifndef PBL_ROUND
   layer_set_frame(vRegionLayer, vregion_frame());
+#endif
   layer_set_frame(hRegionLayer, hregion_frame());
   layer_set_hidden(hRegionLayer, hRegion.edge == REGION_EDGE_NONE);
-#endif
 
   layer_mark_dirty(vRegionLayer);
 
 #ifdef PBL_ROUND
   layer_mark_dirty(vRegionLayer2);
-#else
+#endif
   if (hRegion.edge != REGION_EDGE_NONE) {
     layer_mark_dirty(hRegionLayer);
   }
-#endif
 }
 
 void Sidebar_obstructionWillChange(GRect finalUnobstructedArea) {

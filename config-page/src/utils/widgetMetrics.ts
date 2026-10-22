@@ -482,6 +482,29 @@ export const arcContentBand = (capabilities: Capabilities): number => {
     return 2 * Math.sqrt(r * r - (r - slack) ** 2);
 };
 
+/* ── Round bottom bar ─────────────────────────────────────────────────
+ *
+ * Mirrors the ROUND_BAR_* block in sidebar_layout.h: one inline widget,
+ * centered below the time, in a bar only as wide as the screen's chord
+ * through it.
+ */
+
+interface RoundBarMetrics {
+    /** ROUND_BAR_HEIGHT */
+    height: number;
+    /** ROUND_BAR_WIDTH */
+    width: number;
+    /** ROUND_BAR_BOTTOM_PADDING: between the bar and the screen's bottom */
+    bottomPadding: number;
+    /** ROUND_BAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
+    clockEncroach: number;
+}
+
+export const roundBarMetrics = (capabilities: Capabilities): RoundBarMetrics =>
+    capabilities.DISPLAY_260x260_ROUND
+        ? { height: 40, width: 140, bottomPadding: 8, clockEncroach: 10 }
+        : { height: 30, width: 100, bottomPadding: 6, clockEncroach: 6 };
+
 const textWidth = (str: string, fontSize: number): number =>
     str.length * (GOTHIC_ADVANCE[fontSize] ?? GOTHIC_ADVANCE[24]);
 
@@ -555,6 +578,26 @@ export const assessInlineBar = (
     const usedPx = widths.reduce((a, b) => a + b, 0) + gaps;
 
     return assessPx(widgetIds.length, usedPx, capacityPx);
+};
+
+/**
+ * How well a widget fits round's bottom bar. The bar is a single slot, so
+ * this only asks whether the widget's full form is wider than the bar.
+ */
+export const assessRoundBar = (
+    widgetIds: number[],
+    settings: Settings,
+    capabilities: Capabilities
+): FitResult => {
+    const fontSize = sidebarFontSize(capabilities, settings.largeSidebarFont);
+    const usedPx = widgetIds.reduce(
+        (sum, id) => sum + inlineWidgetWidth(id, settings, fontSize), 0);
+
+    return assessPx(
+        widgetIds.length,
+        usedPx,
+        roundBarMetrics(capabilities).width - WATCH_BAR_PADDING_X * 2
+    );
 };
 
 /* ── Stacked heights (real watch pixels) ─────────────────────────────

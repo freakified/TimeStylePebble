@@ -6,6 +6,7 @@ import {
     ARC_SLOT_CAP,
     arcIsAccent,
     barHasWidgets,
+    barSlotCap,
     layoutSidebarOnLeft,
 } from '../utils/layout';
 import {
@@ -23,6 +24,7 @@ import {
     platformMetrics,
     arcMetrics,
     arcContentBand,
+    roundBarMetrics,
     previewFonts,
     PreviewFonts,
     stackedWidgetHeight,
@@ -542,6 +544,12 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
         s.widget3Id, s.widget4Id, s.widget5Id,
     ];
 
+    // the bar is on screen exactly when it holds a widget, as on rect
+    const bar = roundBarMetrics(capabilities);
+    const barIds = [s.bottomBarWidget0Id, s.bottomBarWidget1Id, s.bottomBarWidget2Id]
+        .slice(0, barSlotCap(capabilities));
+    const hasBar = barHasWidgets(barIds);
+
     /*
      * Each arc is a circle the size of the screen, offset so only a
      * sliver shows down its edge — the same construction draw_round_arc
@@ -600,6 +608,46 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
         );
     };
 
+    /* Bottom bar: its one widget centers below the time, on the watchface
+     * background, the same as render_horizontal_flow draws it. */
+    const renderBottomBar = () => {
+        const parts = barIds
+            .filter((id) => id !== 0)
+            .map((id) => getInlineParts(id, s))
+            .find((p): p is InlineParts => p !== null);
+        if (!parts) return null;
+
+        const barY = S - bar.bottomPadding - bar.height;
+        const x = Math.max(
+            (S - bar.width) / 2 + WATCH_BAR_PADDING_X_COMPACT,
+            (S - measureInline(parts, fonts)) / 2
+        );
+        return <g>{renderInlineWidget(parts, x, barY + bar.height / 2, darkRegionColors(s), fonts)}</g>;
+    };
+
+    /* Time: update_clock_area_layer() insets the round clock top and
+     * bottom, and a bar takes the place of the bottom inset */
+    const renderTime = () => {
+        const bottomInset = hasBar
+            ? Math.max(ROUND_VERTICAL_PADDING, bar.height + bar.bottomPadding - bar.clockEncroach)
+            : ROUND_VERTICAL_PADDING;
+        const clockH = S - ROUND_VERTICAL_PADDING - bottomInset;
+        const SVG_H = Math.round(clockH * TIME_GLYPH_H_PER_CLOCK_H);
+        const SVG_W = Math.round(SVG_H * TIME_GLYPH_ASPECT);
+        const timeX = (S - SVG_W) / 2;
+        const timeY = ROUND_VERTICAL_PADDING + (clockH - SVG_H * 2) / 2;
+        return (
+            <>
+                <svg x={timeX} y={timeY} width={SVG_W} height={SVG_H} viewBox="0 0 109 81" overflow="visible">
+                    <path d={hourPath} fill={timeColor} />
+                </svg>
+                <svg x={timeX} y={timeY + SVG_H} width={SVG_W} height={SVG_H} viewBox="0 0 109 81" overflow="visible">
+                    <path d={minutePath} fill={timeColor} />
+                </svg>
+            </>
+        );
+    };
+
     return (
         <div className="halite-watch-preview-container">
             <div className="halite-watch-face halite-watch-face--round">
@@ -615,27 +663,12 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
                     <circle cx={CX} cy={CY} r={R} fill={bg} />
 
                     {/* Time display — hours stacked above minutes */}
-                    {(() => {
-                        const clockH = S - ROUND_VERTICAL_PADDING * 2;
-                        const SVG_H = Math.round(clockH * TIME_GLYPH_H_PER_CLOCK_H);
-                        const SVG_W = Math.round(SVG_H * TIME_GLYPH_ASPECT);
-                        const timeX = (S - SVG_W) / 2;
-                        const timeY = (S - SVG_H * 2) / 2;
-                        return (
-                            <>
-                                <svg x={timeX} y={timeY} width={SVG_W} height={SVG_H} viewBox="0 0 109 81" overflow="visible">
-                                    <path d={hourPath} fill={timeColor} />
-                                </svg>
-                                <svg x={timeX} y={timeY + SVG_H} width={SVG_W} height={SVG_H} viewBox="0 0 109 81" overflow="visible">
-                                    <path d={minutePath} fill={timeColor} />
-                                </svg>
-                            </>
-                        );
-                    })()}
+                    {renderTime()}
 
                     {/* Arcs draw over the clock area, as they do on the watch */}
                     {renderArc('left')}
                     {renderArc('right')}
+                    {hasBar && renderBottomBar()}
 
                     {/* Circle border */}
                     <circle cx={CX} cy={CY} r={R - 0.5} stroke="#333333" strokeWidth="1" fill="none" />

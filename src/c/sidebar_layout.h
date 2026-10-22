@@ -38,10 +38,14 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 
 // rendered slot caps: the vertical sidebar has room for a stack of
 // small widgets, while the bar realistically fits two (three small on
-// emery) -- the config page's fit budget polices the rest
+// emery, one on round) -- the config page's fit budget polices the rest.
+// Round's vertical cap is the two arcs' combined ROUND_ARC_SLOT_CAPs.
 #if defined(PBL_PLATFORM_EMERY)
 #define VREGION_SLOT_CAP 6
 #define HREGION_SLOT_CAP 3
+#elif defined(PBL_ROUND)
+#define VREGION_SLOT_CAP 6
+#define HREGION_SLOT_CAP 1
 #else
 #define VREGION_SLOT_CAP 4
 #define HREGION_SLOT_CAP 2
@@ -185,3 +189,22 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define ROUND_ARC_WIDGET_GAP 8
 #endif
 #define ROUND_ARC_WIDGET_GAP_COMPACT 1
+
+/*
+ * Round bottom bar: a single widget centered between the arcs' tapered
+ * ends, drawn straight on the watchface like the rect bar. The bottom of
+ * a round screen is a narrowing chord, so the bar is only as wide as the
+ * chord through its middle row (less some margin), and holds one widget.
+ * The clock area gives up the bar's height less ROUND_BAR_CLOCK_ENCROACH.
+ */
+#if defined(PBL_PLATFORM_GABBRO)
+#define ROUND_BAR_HEIGHT 40
+#define ROUND_BAR_WIDTH 140
+#define ROUND_BAR_BOTTOM_PADDING 8
+#define ROUND_BAR_CLOCK_ENCROACH 10
+#else
+#define ROUND_BAR_HEIGHT 30
+#define ROUND_BAR_WIDTH 100
+#define ROUND_BAR_BOTTOM_PADDING 6
+#define ROUND_BAR_CLOCK_ENCROACH 6
+#endif

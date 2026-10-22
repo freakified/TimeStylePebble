@@ -169,8 +169,13 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   #ifdef PBL_ROUND
     // the sidebar stays put under timeline quick view; only the time
     // shrinks to fit above it. the obstruction's top edge is a wide chord
-    // of the circle, so it needs much less padding than the screen's edge
-    int bottom = screen_rect.size.h - ROUND_VERTICAL_PADDING;
+    // of the circle, so it needs much less padding than the screen's edge.
+    // a bottom bar widget takes the place of the bottom padding
+    int bottomPadding = Sidebar_reservedBottom();
+    if (bottomPadding < ROUND_VERTICAL_PADDING) {
+      bottomPadding = ROUND_VERTICAL_PADDING;
+    }
+    int bottom = screen_rect.size.h - bottomPadding;
     int obstructedBottom = bounds.origin.y + bounds.size.h - ROUND_OBSTRUCTED_PADDING;
 
     if (bottom > obstructedBottom) {

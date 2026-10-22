@@ -3,12 +3,19 @@ import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
 import { ARC_SLOT_CAP, barSlotCap } from '../utils/layout';
-import { assessArc, assessInlineBar, assessSidebar, FitResult } from '../utils/widgetMetrics';
+import {
+  assessArc,
+  assessInlineBar,
+  assessRoundBar,
+  assessSidebar,
+  FitResult,
+} from '../utils/widgetMetrics';
 import {
   addWidget as addWidgetToRegion,
   moveWidget,
   removeWidgetAt,
   setWidgetAt,
+  WIDGET_REGIONS,
   DropPosition,
   WidgetLists,
   WidgetRegion,
@@ -16,9 +23,9 @@ import {
 import { Settings } from '../context/types';
 
 /*
- * Every platform has two widget regions — a sidebar and a bottom bar on
- * rect, the left and right arcs on round — and each is presented as a
- * packed widget list: N rows for the N configured widgets, plus an "add
+ * Rect has two widget regions — a sidebar and a bottom bar — and round
+ * three: the left and right arcs, and a one-widget bottom bar. Each is
+ * presented as a packed widget list: N rows for the N configured widgets, plus an "add
  * widget" dropdown and per-row remove buttons. On the watch the sidebar
  * pins its first widget to the top and its last to the bottom, while the
  * bar and the arcs center their widgets as one group, so an "empty slot"
@@ -57,6 +64,8 @@ const ALL_BAR_SLOT_KEYS = [
   'bottomBarWidget2Id',
 ] as const;
 
+type SlotKey = typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number];
+
 const WIDGET_CATEGORY_ORDER = ['Status', 'Time & Date', 'Weather', 'Health'] as const;
 
 /** Where a drag would land: null while the pointer is over nowhere useful. */
@@ -92,56 +101,59 @@ export const WidgetSelector: React.FC = () => {
   /*
    * Which wire slots each region owns, and how many of them the watch
    * actually renders (the caps mirror sidebar_layout.h). Rect keeps the
-   * two key groups apart — sidebar keys and bar keys. Round has no bar,
-   * so its two arcs split the sidebar keys down the middle instead:
-   * slots 0..2 are the left arc, 3..5 the right.
+   * two key groups apart — sidebar keys and bar keys — and has no
+   * tertiary region. Round's two arcs split the sidebar keys down the
+   * middle instead (slots 0..2 are the left arc, 3..5 the right), and its
+   * bar takes the bar keys.
    */
-  const primaryKeys = capabilities.ROUND
-    ? ALL_SIDEBAR_SLOT_KEYS.slice(0, ARC_SLOT_CAP)
-    : ALL_SIDEBAR_SLOT_KEYS;
-  const secondaryKeys = capabilities.ROUND
-    ? ALL_SIDEBAR_SLOT_KEYS.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2)
-    : ALL_BAR_SLOT_KEYS;
+  const regionKeys: Record<WidgetRegion, readonly SlotKey[]> = capabilities.ROUND
+    ? {
+      primary: ALL_SIDEBAR_SLOT_KEYS.slice(0, ARC_SLOT_CAP),
+      secondary: ALL_SIDEBAR_SLOT_KEYS.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2),
+      tertiary: ALL_BAR_SLOT_KEYS,
+    }
+    : { primary: ALL_SIDEBAR_SLOT_KEYS, secondary: ALL_BAR_SLOT_KEYS, tertiary: [] };
 
-  const primarySlotCount = capabilities.ROUND
-    ? ARC_SLOT_CAP
-    : capabilities.EMERY ? 6 : 4;
-  const secondarySlotCount = capabilities.ROUND
-    ? ARC_SLOT_CAP
-    : barSlotCap(capabilities.EMERY);
+  const regionCaps: Record<WidgetRegion, number> = capabilities.ROUND
+    ? { primary: ARC_SLOT_CAP, secondary: ARC_SLOT_CAP, tertiary: barSlotCap(capabilities) }
+    : {
+      primary: capabilities.EMERY ? 6 : 4,
+      secondary: barSlotCap(capabilities),
+      tertiary: 0,
+    };
 
-  type SlotKey = typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number];
+  const readIds = (region: WidgetRegion) =>
+    regionKeys[region]
+      .slice(0, regionCaps[region])
+      .map((key) => settings[key])
+      .filter((id) => id !== 0);
 
-  const readIds = (keys: readonly SlotKey[], count: number) =>
-    keys.slice(0, count).map((key) => settings[key]).filter((id) => id !== 0);
-
-  const primaryIds = readIds(primaryKeys, primarySlotCount);
-  const secondaryIds = readIds(secondaryKeys, secondarySlotCount);
-
-  const lists: WidgetLists = { primary: primaryIds, secondary: secondaryIds };
-  const idsOf = (region: WidgetRegion) => (region === 'primary' ? primaryIds : secondaryIds);
-  const capOf = (region: WidgetRegion) =>
-    region === 'primary' ? primarySlotCount : secondarySlotCount;
+  const lists: WidgetLists = {
+    primary: readIds('primary'),
+    secondary: readIds('secondary'),
+    tertiary: readIds('tertiary'),
+  };
+  const idsOf = (region: WidgetRegion) => lists[region];
+  const capOf = (region: WidgetRegion) => regionCaps[region];
   // regions in the order they appear on screen, which is the order the
   // drag hit-test and the keyboard nudge both walk
-  const shownRegions: WidgetRegion[] = ['primary', 'secondary'];
+  const shownRegions = WIDGET_REGIONS.filter((region) => regionCaps[region] > 0);
 
-  // write both regions back packed, zero-padding every wire slot so
+  // write every region back packed, zero-padding every wire slot so
   // stale ids can't hide in slots the current layout doesn't show.
-  // Together the two key groups cover every slot key on this platform,
-  // and both land in one state update, so a widget is never momentarily
-  // in two places (or neither) while moving between them.
+  // Together the key groups cover every slot key on this platform, and
+  // all land in one state update, so a widget is never momentarily in
+  // two places (or neither) while moving between them.
   //
   // Nothing else needs writing: the bottom bar is on exactly when its
   // slots hold a widget, so filling or emptying them is the whole of
   // turning the bar on and off, on the watch as well as here.
   const commit = (next: WidgetLists) => {
     const partial: Partial<Settings> = {};
-    primaryKeys.forEach((key, i) => {
-      partial[key] = next.primary[i] !== undefined ? next.primary[i] : 0;
-    });
-    secondaryKeys.forEach((key, i) => {
-      partial[key] = next.secondary[i] !== undefined ? next.secondary[i] : 0;
+    WIDGET_REGIONS.forEach((region) => {
+      regionKeys[region].forEach((key, i) => {
+        partial[key] = next[region][i] !== undefined ? next[region][i] : 0;
+      });
     });
     updateSettings(partial);
   };
@@ -299,11 +311,13 @@ export const WidgetSelector: React.FC = () => {
 
   const groupedWidgetOptions = groupOptions(widgetOptions);
 
+  const barRegion: WidgetRegion = capabilities.ROUND ? 'tertiary' : 'secondary';
+
   // the bar is the one region whose widgets read left-to-right; the
   // sidebar and both arcs stack, so their rows are named by height
   const rowLabel = (region: WidgetRegion, index: number, count: number) => {
-    if (region === 'secondary' && !capabilities.ROUND) {
-      return `Bar widget ${index + 1}`;
+    if (region === barRegion) {
+      return regionCaps[region] > 1 ? `Bar widget ${index + 1}` : 'Bar widget';
     }
     if (count <= 1) {
       return capabilities.ROUND ? 'Arc widget' : 'Sidebar widget';
@@ -452,6 +466,36 @@ export const WidgetSelector: React.FC = () => {
     </div>
   );
 
+  const barInfo = {
+    heading: 'Bottom bar',
+    hint: capabilities.ROUND
+      ? 'Add a widget here to show it below the time.'
+      : 'Add a widget here to turn the bottom bar on.',
+    fit: capabilities.ROUND ? assessRoundBar : assessInlineBar,
+  };
+  const arcInfo = { hint: 'No widgets in this arc.', fit: assessArc };
+
+  const regionInfo: Record<WidgetRegion, {
+    heading: string;
+    hint: string;
+    fit: (ids: number[], s: Settings, c: typeof capabilities) => FitResult;
+  }> = capabilities.ROUND
+    ? {
+      primary: { heading: 'Left arc', ...arcInfo },
+      secondary: { heading: 'Right arc', ...arcInfo },
+      tertiary: barInfo,
+    }
+    : {
+      primary: {
+        heading: 'Sidebar',
+        hint: 'No widgets — the sidebar shows as a plain band.',
+        fit: assessSidebar,
+      },
+      secondary: barInfo,
+      // rect has no third region; it is never shown
+      tertiary: barInfo,
+    };
+
   return (
     <div className="widget-selector-container">
       <div className="widget-selector-preview">
@@ -461,34 +505,21 @@ export const WidgetSelector: React.FC = () => {
         className={`widget-selector-controls${drag ? ' widget-selector-controls--dragging' : ''}`}
         ref={controlsRef}
       >
-        {renderRegion(
-          'primary',
-          capabilities.ROUND ? 'Left arc' : 'Sidebar',
-          capabilities.ROUND
-            ? 'No widgets in this arc.'
-            : 'No widgets — the sidebar shows as a plain band.',
-          primaryIds,
-          primarySlotCount,
-          renderWarning(
-            capabilities.ROUND
-              ? assessArc(primaryIds, settings, capabilities)
-              : assessSidebar(primaryIds, settings, capabilities)
-          )
-        )}
-        {renderRegion(
-          'secondary',
-          capabilities.ROUND ? 'Right arc' : 'Bottom bar',
-          capabilities.ROUND
-            ? 'No widgets in this arc.'
-            : 'Add a widget here to turn the bottom bar on.',
-          secondaryIds,
-          secondarySlotCount,
-          renderWarning(
-            capabilities.ROUND
-              ? assessArc(secondaryIds, settings, capabilities)
-              : assessInlineBar(secondaryIds, settings, capabilities)
-          )
-        )}
+        {shownRegions.map((region) => {
+          const { heading, hint, fit } = regionInfo[region];
+          return (
+            <React.Fragment key={region}>
+              {renderRegion(
+                region,
+                heading,
+                hint,
+                lists[region],
+                regionCaps[region],
+                renderWarning(fit(lists[region], settings, capabilities))
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );

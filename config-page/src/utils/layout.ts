@@ -1,4 +1,4 @@
-import { Layout } from '../context/types';
+import { Capabilities, Layout } from '../context/types';
 
 /*
  * A layout says only which side the vertical sidebar goes on. Whether
@@ -32,5 +32,7 @@ export const ARC_SLOT_CAP = 3;
 export const barHasWidgets = (barWidgetIds: number[]): boolean =>
   barWidgetIds.some((id) => id !== 0);
 
-/** Rendered bar slots: HREGION_SLOT_CAP in sidebar_layout.h. */
-export const barSlotCap = (isEmery: boolean): number => (isEmery ? 3 : 2);
+/** Rendered bar slots: HREGION_SLOT_CAP in sidebar_layout.h. Round's bar
+ * holds a single widget, centered below the time. */
+export const barSlotCap = (capabilities: Capabilities): number =>
+  capabilities.ROUND ? 1 : capabilities.EMERY ? 3 : 2;

@@ -60,7 +60,7 @@ export interface Settings {
   widget3Id: number;  // fourth sidebar slot (bottom on non-emery rects; right arc top on round)
   widget4Id: number;  // fifth sidebar slot (emery only on rect)
   widget5Id: number;  // sixth sidebar slot (bottom on emery)
-  bottomBarWidget0Id: number;  // bar slot 1 (rect only)
+  bottomBarWidget0Id: number;  // bar slot 1 (round's only bar slot)
   bottomBarWidget1Id: number;  // bar slot 2 (rect only)
   bottomBarWidget2Id: number;  // bar slot 3 (emery only)
 

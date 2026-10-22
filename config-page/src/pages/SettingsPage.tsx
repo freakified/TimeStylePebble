@@ -95,12 +95,10 @@ export const SettingsPage: React.FC = () => {
       settings.widget3Id];
   // the bottom bar's slots are always live: holding a widget is what turns
   // the bar on, so its widgets always count as active
-  const bottomBarWidgetIds = !capabilities.ROUND
-    ? [
-      settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
-      settings.bottomBarWidget2Id,
-    ].slice(0, barSlotCap(capabilities.EMERY))
-    : [];
+  const bottomBarWidgetIds = [
+    settings.bottomBarWidget0Id, settings.bottomBarWidget1Id,
+    settings.bottomBarWidget2Id,
+  ].slice(0, barSlotCap(capabilities));
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
   // the layout picks which side the accent-colored band sits on and

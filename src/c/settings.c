@@ -252,16 +252,11 @@ void Settings_updateDynamicSettings() {
   dynamicSettings.enablePhonePolling = false;
 
   // scan the widget slots that can actually render
-#ifdef PBL_ROUND
-  // both arcs draw from the vertical slot list
-  int vSlotCount = MAX_REGION_SLOTS;
-  int hSlotCount = 0;
-#else
+  // on round both arcs draw from the vertical slot list. The bar needs
+  // no presence test of its own: it renders whatever these slots hold,
+  // and empty slots contribute nothing to the scan either way
   int vSlotCount = VREGION_SLOT_CAP;
-  // the bar needs no presence test of its own: it renders whatever these
-  // slots hold, and empty slots contribute nothing to the scan either way
   int hSlotCount = HREGION_SLOT_CAP;
-#endif
 
   for (int i = 0; i < vSlotCount + hSlotCount; i++) {
     SidebarWidgetType widget =

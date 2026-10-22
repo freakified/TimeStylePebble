@@ -1,23 +1,29 @@
 /*
- * Slot math for the widget selector's two packed lists.
+ * Slot math for the widget selector's packed lists.
  *
- * Every platform has exactly two widget regions, so they are named for
- * their rank rather than their shape: on rect the primary is the sidebar
- * and the secondary the bottom bar, on round they are the left and right
- * arcs.
+ * The widget regions are named for their rank rather than their shape:
+ * on rect the primary is the sidebar and the secondary the bottom bar
+ * (there is no tertiary), on round they are the left and right arcs and
+ * the tertiary is the single-widget bottom bar.
  *
- * Both regions are edited as one unit: a widget lives in exactly one place,
- * so every edit rewrites BOTH lists, and the caller commits them together.
+ * All regions are edited as one unit: a widget lives in exactly one place,
+ * so every edit rewrites EVERY list, and the caller commits them together.
  * Keeping the arithmetic here (rather than inside the component's closures)
  * is what makes the drop-index behavior legible.
  */
 
-export type WidgetRegion = 'primary' | 'secondary';
+export const WIDGET_REGIONS = ['primary', 'secondary', 'tertiary'] as const;
 
-export interface WidgetLists {
-    primary: number[];
-    secondary: number[];
-}
+export type WidgetRegion = typeof WIDGET_REGIONS[number];
+
+export type WidgetLists = Record<WidgetRegion, number[]>;
+
+/** Every list with `widgetId` dropped, so it can be placed somewhere new. */
+const without = (lists: WidgetLists, widgetId: number): WidgetLists => ({
+    primary: lists.primary.filter((id) => id !== widgetId),
+    secondary: lists.secondary.filter((id) => id !== widgetId),
+    tertiary: lists.tertiary.filter((id) => id !== widgetId),
+});
 
 export type DropPosition = 'before' | 'after';
 
@@ -44,10 +50,7 @@ export const moveWidget = (
         return lists;
     }
 
-    const next: WidgetLists = {
-        primary: lists.primary.filter((id) => id !== widgetId),
-        secondary: lists.secondary.filter((id) => id !== widgetId),
-    };
+    const next = without(lists, widgetId);
     const list = next[region];
 
     const at = targetWidgetId === null ? -1 : list.indexOf(targetWidgetId);
@@ -57,22 +60,21 @@ export const moveWidget = (
     return next;
 };
 
-/** Place `widgetId` in one region's slot `index`, dropping it from the other. */
+/** Place `widgetId` in one region's slot `index`, dropping it from the others. */
 export const setWidgetAt = (
     lists: WidgetLists,
     widgetId: number,
     region: WidgetRegion,
     index: number
 ): WidgetLists => {
-    const primary = [...lists.primary];
-    const secondary = [...lists.secondary];
-    (region === 'primary' ? primary : secondary)[index] = widgetId;
-
     // a widget lives in one place: drop any other occurrence
-    return {
-        primary: primary.filter((id, i) => id !== widgetId || (region === 'primary' && i === index)),
-        secondary: secondary.filter((id, i) => id !== widgetId || (region === 'secondary' && i === index)),
+    const keep = (r: WidgetRegion) => {
+        const list = [...lists[r]];
+        if (r === region) list[index] = widgetId;
+        return list.filter((id, i) => id !== widgetId || (r === region && i === index));
     };
+
+    return { primary: keep('primary'), secondary: keep('secondary'), tertiary: keep('tertiary') };
 };
 
 /** Append `widgetId` to a region, dropping it from wherever it was. */
@@ -81,20 +83,17 @@ export const addWidget = (
     widgetId: number,
     region: WidgetRegion
 ): WidgetLists => {
-    const next: WidgetLists = {
-        primary: lists.primary.filter((id) => id !== widgetId),
-        secondary: lists.secondary.filter((id) => id !== widgetId),
-    };
+    const next = without(lists, widgetId);
     next[region].push(widgetId);
     return next;
 };
 
-/** Drop the widget at `index` from one region, leaving the other untouched. */
+/** Drop the widget at `index` from one region, leaving the others untouched. */
 export const removeWidgetAt = (
     lists: WidgetLists,
     region: WidgetRegion,
     index: number
 ): WidgetLists => ({
-    primary: region === 'primary' ? lists.primary.filter((_, i) => i !== index) : lists.primary,
-    secondary: region === 'secondary' ? lists.secondary.filter((_, i) => i !== index) : lists.secondary,
+    ...lists,
+    [region]: lists[region].filter((_, i) => i !== index),
 });
