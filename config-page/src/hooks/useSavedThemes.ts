@@ -38,14 +38,17 @@ function getNextName(themes: SavedTheme[]): string {
     return `Saved Theme ${max + 1}`;
 }
 
+/** The user's saved themes as last persisted */
+export function loadSavedThemes(): SavedTheme[] {
+    return loadFromStorage(STORAGE_KEY);
+}
+
 function generateId(): string {
     return `saved_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function useSavedThemes() {
-    const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(() =>
-        loadFromStorage(STORAGE_KEY)
-    );
+    const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(loadSavedThemes);
 
     // Persist on change
     useEffect(() => {

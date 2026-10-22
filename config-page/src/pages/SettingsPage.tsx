@@ -17,11 +17,7 @@ import {
   TextField,
 } from '../components';
 import { useSavedThemes } from '../hooks/useSavedThemes';
-import lightThemes from '../data/light-themes.json';
-import darkThemes from '../data/dark-themes.json';
-import lightThemesBw from '../data/light-themes-bw.json';
-import darkThemesBw from '../data/dark-themes-bw.json';
-import { prepareThemes } from '../utils/themeUtils';
+import { getActiveThemes } from '../utils/themeUtils';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
@@ -71,11 +67,9 @@ export const SettingsPage: React.FC = () => {
   const { settings, updateSetting, updateSettings } = useConfig();
   const capabilities = useCapabilities();
 
-  const activeThemes = React.useMemo(() =>
-    capabilities.BW
-      ? prepareThemes(lightThemesBw, darkThemesBw)
-      : prepareThemes(lightThemes, darkThemes),
-    [capabilities.BW]
+  const activeThemes = React.useMemo(
+    () => getActiveThemes(capabilities),
+    [capabilities]
   );
 
   const daySavedThemes = useSavedThemes();
