@@ -1,6 +1,6 @@
 import React from 'react';
 import { useConfig, useCapabilities } from '../context/PebbleConfigContext';
-import { Settings } from '../context/types';
+import { Theme, ThemeSelectionKey } from '../utils/themeUtils';
 import { FormItem } from './FormItem';
 import { GridList, GridListItem, Text } from 'react-aria-components';
 import { WatchPreview } from './WatchPreview';
@@ -9,34 +9,26 @@ import customIconUrl from '../assets/custom-icon.svg';
 
 export const ThemePicker: React.FC<{
   label?: string;
-  messageKey: keyof Settings;
-  themes: { name: string; settings: Record<string, string> }[];
+  messageKey: ThemeSelectionKey;
+  themes: Theme[];
   savedThemes?: SavedTheme[];
 }> = ({ label, messageKey, themes, savedThemes = [] }) => {
-  const { settings, updateSetting } = useConfig();
+  const { settings, updateSetting, updateSettings } = useConfig();
   const capabilities = useCapabilities();
   const currentValue = settings[messageKey];
 
   const handleThemeChange = (themeId: string) => {
-    updateSetting(messageKey, themeId);
-
-    if (themeId === 'custom') return;
-
-    // Check saved themes first
-    const saved = savedThemes.find((t) => t.id === themeId);
-    if (saved) {
-      Object.entries(saved.settings).forEach(([key, value]) => {
-        updateSetting(key as keyof Settings, value);
-      });
+    if (themeId === 'custom') {
+      updateSetting(messageKey, themeId);
       return;
     }
 
-    const theme = themes[parseInt(themeId, 10)];
-    if (theme) {
-      Object.entries(theme.settings).forEach(([key, value]) => {
-        updateSetting(key as keyof Settings, value);
-      });
-    }
+    // Check saved themes first
+    const theme = savedThemes.find((t) => t.id === themeId) ?? themes[parseInt(themeId, 10)];
+
+    // the selection and the theme's settings land together, so nothing
+    // ever sees one without the other
+    updateSettings({ ...theme?.settings, [messageKey]: themeId });
   };
 
   const themeList = React.useMemo(() => [

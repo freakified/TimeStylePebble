@@ -5,6 +5,7 @@ import { ImportThemeModal } from './ImportThemeModal';
 import { SavedTheme } from '../hooks/useSavedThemes';
 import { useConfig } from '../context/PebbleConfigContext';
 import { Settings } from '../context/types';
+import { ThemeSettings } from '../utils/themeUtils';
 import { copyToClipboard } from '../utils/clipboard';
 
 interface CustomThemePanelProps {
@@ -19,9 +20,13 @@ interface CustomThemePanelProps {
   /** Called to import a theme from JSON */
   onImport: (json: string) => { success: boolean; error?: string };
   /** Called to export a theme to JSON string */
-  onExport: (settings: Record<string, string>) => string;
+  onExport: (settings: ThemeSettings) => string;
   /** Called when themes change and we need to select a new one */
   onSelectTheme: (themeId: string) => void;
+  /** Heading of the import dialog */
+  importTitle?: string;
+  /** Icon on the Customize button */
+  customizeIcon?: 'PALETTE' | 'EDIT';
 }
 
 const ICONS = {
@@ -29,6 +34,7 @@ const ICONS = {
   SHARE: 'M360-240q-29.7 0-50.85-21.15T288-312v-480q0-29.7 21.15-50.85T360-864h384q29.7 0 50.85 21.15T816-792v480q0 29.7-21.15 50.85T744-240zm0-72h384v-480H360zM216-96q-29.7 0-50.85-21.15T144-168v-552h72v552h456v72zm144-216v-480z',
   IMPORT: 'M444-336v-342L339-573l-51-51 192-192 192 192-51 51-105-105v342zM263.72-192Q234-192 213-213.15T192-264v-72h72v72h432v-72h72v72q0 29.7-21.16 50.85T695.96-192z',
   DELETE: 'M312-144q-29.7 0-50.85-21.15T240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144zm336-552H312v480h336zM384-288h72v-336h-72zm120 0h72v-336h-72zM312-696v480z',
+  EDIT: 'M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z',
   PALETTE: 'M480-96q-79 0-149-30t-122.5-82.5T126-331 96-480q0-80 30.5-149.5t84-122 125-82.5T488-864q78 0 146.5 27T754-763t80.5 110T864-518q0 96-67 163t-163 67h-68q-8 0-14 5t-6 13q0 15 15 25t15 53q0 37-27 66.5T480-96M306.5-461.5Q324-479 324-504t-17.5-42.5T264-564t-42.5 17.5T204-504t17.5 42.5T264-444t42.5-17.5m120-144Q444-623 444-648t-17.5-42.5T384-708t-42.5 17.5T324-648t17.5 42.5T384-588t42.5-17.5m192 0Q636-623 636-648t-17.5-42.5T576-708t-42.5 17.5T516-648t17.5 42.5T576-588t42.5-17.5m120 144Q756-479 756-504t-17.5-42.5T696-564t-42.5 17.5T636-504t17.5 42.5T696-444t42.5-17.5M480-168q11 0 17.5-8.5T504-192q0-16-15-28t-15-50 26.5-64 64.5-26h69q66 0 112-46t46-112q0-115-88.5-194.5T488-792q-134 0-227 91t-93 221 91 221 221 91',
 };
 
@@ -46,6 +52,8 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
   onImport,
   onExport,
   onSelectTheme,
+  importTitle,
+  customizeIcon = 'PALETTE',
 }) => {
   const { settings } = useConfig();
   const [importOpen, setImportOpen] = useState(false);
@@ -60,8 +68,8 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
   };
 
   const handleShare = async () => {
-    const settingsToExport = isSaved ? savedTheme!.settings : getVisibleSettings();
-    const json = onExport(settingsToExport);
+    // the hook picks this kind's settings out of the live ones
+    const json = onExport(isSaved ? savedTheme!.settings : settings);
     const success = await copyToClipboard(json);
     if (success) {
       setCopyFeedback(true);
@@ -85,16 +93,6 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
       // The imported theme is now in the list
     }
     return result;
-  };
-
-  /** Extract the TimeStyle color settings from the current live settings */
-  const getVisibleSettings = (): Record<string, string> => {
-    const colorKeys: (keyof Settings)[] = ['colorBackground', 'colorTime', 'colorSidebar'];
-    const colorSettings: Record<string, string> = {};
-    for (const key of colorKeys) {
-      colorSettings[key] = String(settings[key]);
-    }
-    return colorSettings;
   };
 
   return (
@@ -122,7 +120,7 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
         {!isCustom && (
           <>
             <Button className="halite-custom-action-btn" onPress={() => onSelectTheme('custom')}>
-              <Icon path={ICONS.PALETTE} />
+              <Icon path={ICONS[customizeIcon]} />
               Customize
             </Button>
             <Button className="halite-custom-action-btn" onPress={handleShare}>
@@ -142,6 +140,7 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
         isOpen={importOpen}
         onOpenChange={setImportOpen}
         onImport={handleImport}
+        title={importTitle}
       />
     </div>
   );

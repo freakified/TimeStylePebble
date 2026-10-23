@@ -5,12 +5,14 @@ interface ImportThemeModalProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
     onImport: (json: string) => { success: boolean; error?: string };
+    title?: string;
 }
 
 export const ImportThemeModal: React.FC<ImportThemeModalProps> = ({
     isOpen,
     onOpenChange,
     onImport,
+    title = 'Import Theme',
 }) => {
     const [jsonText, setJsonText] = useState('');
     const [error, setError] = useState('');
@@ -46,7 +48,7 @@ export const ImportThemeModal: React.FC<ImportThemeModalProps> = ({
                     {({ close }) => (
                         <>
                             <div className="halite-color-modal-header">
-                                <Heading slot="title">Import Theme</Heading>
+                                <Heading slot="title">{title}</Heading>
                                 <Button className="halite-color-modal-close" onPress={close}>
                                     ×
                                 </Button>

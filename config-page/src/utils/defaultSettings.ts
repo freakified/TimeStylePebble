@@ -3,6 +3,7 @@ import { Settings, Capabilities } from '../context/types';
 export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   // Internal theme selectors
   SETTING_THEME: '0',
+  SETTING_WIDGET_THEME: '0',
 
   // Colors — match Jekyll config.js defaults
   colorBackground: '000000',

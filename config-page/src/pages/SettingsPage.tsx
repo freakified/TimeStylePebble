@@ -17,7 +17,7 @@ import {
   TextField,
 } from '../components';
 import { useSavedThemes } from '../hooks/useSavedThemes';
-import { getActiveThemes } from '../utils/themeUtils';
+import { COLOR_THEMES, WIDGET_THEMES } from '../utils/themeKinds';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
@@ -68,14 +68,24 @@ export const SettingsPage: React.FC = () => {
   const capabilities = useCapabilities();
 
   const activeThemes = React.useMemo(
-    () => getActiveThemes(capabilities),
+    () => COLOR_THEMES.presets(capabilities),
     [capabilities]
   );
 
-  const daySavedThemes = useSavedThemes();
+  const daySavedThemes = useSavedThemes(COLOR_THEMES, capabilities);
 
   const getDaySavedTheme = () =>
     daySavedThemes.savedThemes.find((t) => t.id === settings.SETTING_THEME);
+
+  const widgetThemes = React.useMemo(
+    () => WIDGET_THEMES.presets(capabilities),
+    [capabilities]
+  );
+
+  const savedWidgetThemes = useSavedThemes(WIDGET_THEMES, capabilities);
+
+  const getSavedWidgetTheme = () =>
+    savedWidgetThemes.savedThemes.find((t) => t.id === settings.SETTING_WIDGET_THEME);
 
   // Only the slots the current platform actually renders. Round uses all
   // six: its two arcs split the list between them.
@@ -248,7 +258,25 @@ export const SettingsPage: React.FC = () => {
 
       {/* ── Widgets ── */}
       <Section title="Widgets">
-        <WidgetSelector />
+        <ThemePicker
+          messageKey="SETTING_WIDGET_THEME"
+          themes={widgetThemes}
+          savedThemes={savedWidgetThemes.savedThemes}
+          label="Widget preset"
+        />
+        <CustomThemePanel
+          themeId={settings.SETTING_WIDGET_THEME}
+          savedTheme={getSavedWidgetTheme()}
+          onSave={savedWidgetThemes.saveTheme}
+          onDelete={savedWidgetThemes.deleteTheme}
+          onImport={savedWidgetThemes.importTheme}
+          onExport={savedWidgetThemes.exportTheme}
+          onSelectTheme={(id) => updateSetting('SETTING_WIDGET_THEME', id)}
+          importTitle="Import Widgets"
+          customizeIcon="EDIT"
+        />
+        {/* the panel above already previews the live widgets */}
+        {settings.SETTING_WIDGET_THEME === 'custom' && <WidgetSelector showPreview={false} />}
       </Section>
 
       {/* ── Widget Display ── */}

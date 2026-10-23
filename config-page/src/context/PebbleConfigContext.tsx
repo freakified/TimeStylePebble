@@ -2,7 +2,8 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { Settings, WatchInfo, Capabilities } from './types';
 import { evaluateCapabilities } from '../utils/capabilities';
 import { getDefaultSettings } from '../utils/defaultSettings';
-import { getActiveThemes, matchThemeId } from '../utils/themeUtils';
+import { matchThemeId } from '../utils/themeUtils';
+import { THEME_KINDS } from '../utils/themeKinds';
 import { loadSavedThemes } from '../hooks/useSavedThemes';
 
 interface ConfigContextType {
@@ -57,6 +58,17 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const watchInfo = useMemo(() => parseWatchInfo(), []);
   const capabilities = useMemo(() => evaluateCapabilities(watchInfo), [watchInfo]);
 
+  // the theme selections aren't saved to the watch, so pick whichever
+  // theme of each kind the settings belong to
+  const withThemeSelections = (s: Settings): Settings => {
+    const selections: Partial<Settings> = {};
+    THEME_KINDS.forEach((kind) => {
+      selections[kind.selectionKey] =
+        matchThemeId(kind, s, capabilities, loadSavedThemes(kind, capabilities));
+    });
+    return { ...s, ...selections };
+  };
+
   const [settings, setSettings] = React.useState<Settings>(() => {
     let loaded: Settings;
     try {
@@ -66,12 +78,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch {
       loaded = getDefaultSettings(capabilities);
     }
-    // the theme selection isn't saved to the watch, so pick whichever
-    // theme the loaded colors belong to
-    return {
-      ...loaded,
-      SETTING_THEME: matchThemeId(loaded, getActiveThemes(capabilities), loadSavedThemes()),
-    };
+    return withThemeSelections(loaded);
   });
 
   const updateSetting = (key: keyof Settings, value: Settings[keyof Settings]) => {
@@ -83,14 +90,14 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const resetToDefaults = () => {
-    setSettings(getDefaultSettings(capabilities));
+    setSettings(withThemeSelections(getDefaultSettings(capabilities)));
   };
 
   const save = () => {
     const params = new URLSearchParams(window.location.search);
     const returnTo = params.get('return_to') || 'pebblejs://close#';
     // Strip internal UI keys that aren't watch settings
-    const { SETTING_THEME, ...watchSettings } = settings;
+    const { SETTING_THEME, SETTING_WIDGET_THEME, ...watchSettings } = settings;
     window.location.href = returnTo + encodeURIComponent(JSON.stringify(watchSettings));
   };
 

@@ -40,6 +40,7 @@ export type Layout =
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)
   SETTING_THEME: string;
+  SETTING_WIDGET_THEME: string;
 
   // Colors (hex strings without '#') — day theme
   colorBackground: string;

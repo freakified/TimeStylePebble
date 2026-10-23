@@ -2,17 +2,14 @@ import React from 'react';
 import { WatchPreview } from './WatchPreview';
 import { useCapabilities, useConfig } from '../context/PebbleConfigContext';
 import { getWidgetOptions } from '../data/widgetTypes';
-import { ARC_SLOT_CAP, barSlotCap } from '../utils/layout';
-import {
-  assessArc,
-  assessInlineBar,
-  assessRoundBar,
-  assessSidebar,
-  FitResult,
-} from '../utils/widgetMetrics';
+import { FitResult } from '../utils/widgetMetrics';
 import {
   addWidget as addWidgetToRegion,
   moveWidget,
+  packWidgetLists,
+  readWidgetLists,
+  regionFitChecks,
+  regionSlotCaps,
   removeWidgetAt,
   setWidgetAt,
   WIDGET_REGIONS,
@@ -20,7 +17,6 @@ import {
   WidgetLists,
   WidgetRegion,
 } from '../utils/widgetSlots';
-import { Settings } from '../context/types';
 
 /*
  * Rect has two widget regions — a sidebar and a bottom bar — and round
@@ -50,22 +46,6 @@ import { Settings } from '../context/types';
  * so the hit-testing stays simple.
  */
 
-const ALL_SIDEBAR_SLOT_KEYS = [
-  'widget0Id',
-  'widget1Id',
-  'widget2Id',
-  'widget3Id',
-  'widget4Id',
-  'widget5Id',
-] as const;
-const ALL_BAR_SLOT_KEYS = [
-  'bottomBarWidget0Id',
-  'bottomBarWidget1Id',
-  'bottomBarWidget2Id',
-] as const;
-
-type SlotKey = typeof ALL_SIDEBAR_SLOT_KEYS[number] | typeof ALL_BAR_SLOT_KEYS[number];
-
 const WIDGET_CATEGORY_ORDER = ['Status', 'Time & Date', 'Weather', 'Health'] as const;
 
 /** Where a drag would land: null while the pointer is over nowhere useful. */
@@ -87,7 +67,10 @@ interface DragState {
   drop: DropTarget | null;
 }
 
-export const WidgetSelector: React.FC = () => {
+export const WidgetSelector: React.FC<{
+  /** off when another preview of the same settings is already on screen */
+  showPreview?: boolean;
+}> = ({ showPreview = true }) => {
   const capabilities = useCapabilities();
   const { settings, updateSettings } = useConfig();
   const widgetOptions = getWidgetOptions(capabilities);
@@ -98,65 +81,23 @@ export const WidgetSelector: React.FC = () => {
   // nodes), so focus has to be put back on its handle afterwards
   const refocusRef = React.useRef<number | null>(null);
 
-  /*
-   * Which wire slots each region owns, and how many of them the watch
-   * actually renders (the caps mirror sidebar_layout.h). Rect keeps the
-   * two key groups apart — sidebar keys and bar keys — and has no
-   * tertiary region. Round's two arcs split the sidebar keys down the
-   * middle instead (slots 0..2 are the left arc, 3..5 the right), and its
-   * bar takes the bar keys.
-   */
-  const regionKeys: Record<WidgetRegion, readonly SlotKey[]> = capabilities.ROUND
-    ? {
-      primary: ALL_SIDEBAR_SLOT_KEYS.slice(0, ARC_SLOT_CAP),
-      secondary: ALL_SIDEBAR_SLOT_KEYS.slice(ARC_SLOT_CAP, ARC_SLOT_CAP * 2),
-      tertiary: ALL_BAR_SLOT_KEYS,
-    }
-    : { primary: ALL_SIDEBAR_SLOT_KEYS, secondary: ALL_BAR_SLOT_KEYS, tertiary: [] };
-
-  const regionCaps: Record<WidgetRegion, number> = capabilities.ROUND
-    ? { primary: ARC_SLOT_CAP, secondary: ARC_SLOT_CAP, tertiary: barSlotCap(capabilities) }
-    : {
-      primary: capabilities.EMERY ? 6 : 4,
-      secondary: barSlotCap(capabilities),
-      tertiary: 0,
-    };
-
-  const readIds = (region: WidgetRegion) =>
-    regionKeys[region]
-      .slice(0, regionCaps[region])
-      .map((key) => settings[key])
-      .filter((id) => id !== 0);
-
-  const lists: WidgetLists = {
-    primary: readIds('primary'),
-    secondary: readIds('secondary'),
-    tertiary: readIds('tertiary'),
-  };
+  const regionCaps = regionSlotCaps(capabilities);
+  const fitChecks = regionFitChecks(capabilities);
+  const lists = readWidgetLists(settings, capabilities);
   const idsOf = (region: WidgetRegion) => lists[region];
   const capOf = (region: WidgetRegion) => regionCaps[region];
   // regions in the order they appear on screen, which is the order the
   // drag hit-test and the keyboard nudge both walk
   const shownRegions = WIDGET_REGIONS.filter((region) => regionCaps[region] > 0);
 
-  // write every region back packed, zero-padding every wire slot so
-  // stale ids can't hide in slots the current layout doesn't show.
-  // Together the key groups cover every slot key on this platform, and
-  // all land in one state update, so a widget is never momentarily in
-  // two places (or neither) while moving between them.
+  // write every region back packed in one state update, so a widget is
+  // never momentarily in two places (or neither) while moving between
+  // them.
   //
   // Nothing else needs writing: the bottom bar is on exactly when its
   // slots hold a widget, so filling or emptying them is the whole of
   // turning the bar on and off, on the watch as well as here.
-  const commit = (next: WidgetLists) => {
-    const partial: Partial<Settings> = {};
-    WIDGET_REGIONS.forEach((region) => {
-      regionKeys[region].forEach((key, i) => {
-        partial[key] = next[region][i] !== undefined ? next[region][i] : 0;
-      });
-    });
-    updateSettings(partial);
-  };
+  const commit = (next: WidgetLists) => updateSettings(packWidgetLists(next, capabilities));
 
   const changeWidget = (region: WidgetRegion, index: number, widgetId: number) =>
     commit(setWidgetAt(lists, widgetId, region, index));
@@ -471,15 +412,10 @@ export const WidgetSelector: React.FC = () => {
     hint: capabilities.ROUND
       ? 'Add a widget here to show it below the time.'
       : 'Add a widget here to turn the bottom bar on.',
-    fit: capabilities.ROUND ? assessRoundBar : assessInlineBar,
   };
-  const arcInfo = { hint: 'No widgets in this arc.', fit: assessArc };
+  const arcInfo = { hint: 'No widgets in this arc.' };
 
-  const regionInfo: Record<WidgetRegion, {
-    heading: string;
-    hint: string;
-    fit: (ids: number[], s: Settings, c: typeof capabilities) => FitResult;
-  }> = capabilities.ROUND
+  const regionInfo: Record<WidgetRegion, { heading: string; hint: string }> = capabilities.ROUND
     ? {
       primary: { heading: 'Left arc', ...arcInfo },
       secondary: { heading: 'Right arc', ...arcInfo },
@@ -489,7 +425,6 @@ export const WidgetSelector: React.FC = () => {
       primary: {
         heading: 'Sidebar',
         hint: 'No widgets — the sidebar shows as a plain band.',
-        fit: assessSidebar,
       },
       secondary: barInfo,
       // rect has no third region; it is never shown
@@ -498,15 +433,18 @@ export const WidgetSelector: React.FC = () => {
 
   return (
     <div className="widget-selector-container">
-      <div className="widget-selector-preview">
-        <WatchPreview />
-      </div>
+      {showPreview && (
+        <div className="widget-selector-preview">
+          <WatchPreview />
+        </div>
+      )}
       <div
         className={`widget-selector-controls${drag ? ' widget-selector-controls--dragging' : ''}`}
         ref={controlsRef}
       >
         {shownRegions.map((region) => {
-          const { heading, hint, fit } = regionInfo[region];
+          const { heading, hint } = regionInfo[region];
+          const fit = fitChecks[region];
           return (
             <React.Fragment key={region}>
               {renderRegion(

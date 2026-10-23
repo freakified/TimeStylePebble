@@ -1,20 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
-import { Settings } from '../context/types';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { Capabilities, Settings } from '../context/types';
+import { ThemeKind, ThemeSettings } from '../utils/themeUtils';
 
 export interface SavedTheme {
     id: string;
     name: string;
-    settings: Record<string, string>;
+    settings: ThemeSettings;
+    /** the kind's scope it was saved under; absent for unscoped kinds */
+    scope?: string;
 }
-
-const STORAGE_KEY = 'timestyle-saved-themes';
-
-/** The color setting keys a theme holds */
-const THEME_KEYS: (keyof Settings)[] = [
-    'colorBackground',
-    'colorTime',
-    'colorSidebar',
-];
 
 function loadFromStorage(key: string): SavedTheme[] {
     try {
@@ -29,51 +23,65 @@ function saveToStorage(key: string, themes: SavedTheme[]) {
     localStorage.setItem(key, JSON.stringify(themes));
 }
 
-function getNextName(themes: SavedTheme[]): string {
+function getNextName(themes: SavedTheme[], prefix: string): string {
     let max = 0;
     for (const t of themes) {
-        const match = t.name.match(/^Saved Theme (\d+)$/);
+        const match = t.name.match(new RegExp(`^${prefix} (\\d+)$`));
         if (match) max = Math.max(max, parseInt(match[1], 10));
     }
-    return `Saved Theme ${max + 1}`;
+    return `${prefix} ${max + 1}`;
 }
 
-/** The user's saved themes as last persisted */
-export function loadSavedThemes(): SavedTheme[] {
-    return loadFromStorage(STORAGE_KEY);
+/** The user's saved themes of one kind, as last persisted, for this watch */
+export function loadSavedThemes(kind: ThemeKind, capabilities: Capabilities): SavedTheme[] {
+    const scope = kind.scope?.(capabilities);
+    return loadFromStorage(kind.storageKey).filter((t) => t.scope === scope);
 }
 
 function generateId(): string {
     return `saved_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function useSavedThemes() {
-    const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(loadSavedThemes);
+export function useSavedThemes(kind: ThemeKind, capabilities: Capabilities) {
+    // every saved theme of this kind, including other scopes', so saving
+    // never drops themes another watch can see
+    const [allThemes, setAllThemes] = useState<SavedTheme[]>(() =>
+        loadFromStorage(kind.storageKey)
+    );
 
     // Persist on change
     useEffect(() => {
-        saveToStorage(STORAGE_KEY, savedThemes);
-    }, [savedThemes]);
+        saveToStorage(kind.storageKey, allThemes);
+    }, [kind.storageKey, allThemes]);
 
-    const saveTheme = useCallback(
-        (settings: Settings): SavedTheme => {
-            const colorSettings: Record<string, string> = {};
-            for (const key of THEME_KEYS) {
-                colorSettings[key] = String(settings[key]);
-            }
+    const scope = kind.scope?.(capabilities);
+    const savedThemes = useMemo(
+        () => allThemes.filter((t) => t.scope === scope),
+        [allThemes, scope]
+    );
+
+    const addTheme = useCallback(
+        (settings: ThemeSettings, name?: string): SavedTheme => {
             const theme: SavedTheme = {
                 id: generateId(),
-                name: getNextName(savedThemes),
-                settings: colorSettings,
+                name: name || getNextName(savedThemes, kind.savedNamePrefix),
+                settings,
+                ...(scope !== undefined && { scope }),
             };
-            setSavedThemes((prev) => [...prev, theme]);
+            setAllThemes((prev) => [...prev, theme]);
             return theme;
         },
-        [savedThemes]
+        [savedThemes, kind.savedNamePrefix, scope]
+    );
+
+    const saveTheme = useCallback(
+        (settings: Settings): SavedTheme =>
+            addTheme(kind.normalize({ ...settings }, capabilities) ?? {}),
+        [addTheme, kind, capabilities]
     );
 
     const deleteTheme = useCallback((id: string) => {
-        setSavedThemes((prev) => prev.filter((t) => t.id !== id));
+        setAllThemes((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
     const importTheme = useCallback(
@@ -81,47 +89,49 @@ export function useSavedThemes() {
             try {
                 const parsed = JSON.parse(json);
 
-                // Accept either { settings: { ... } } or just { color_bg: ..., ... }
-                const settings: Record<string, string> =
+                // Accept either { settings: { ... } } or just { colorBackground: ..., ... }
+                const settings: Record<string, unknown> =
                     parsed.settings && typeof parsed.settings === 'object'
                         ? parsed.settings
                         : parsed;
 
-                // Validate that at least some expected keys exist
-                const validKeys = THEME_KEYS.filter((k) => k in settings);
-                if (validKeys.length === 0) {
+                // a scoped theme only makes sense on the kind of watch it
+                // was made for
+                const theirScope = parsed.scope ?? settings.scope;
+                if (theirScope !== undefined && theirScope !== scope) {
+                    return {
+                        success: false,
+                        error: 'This theme was made for a different kind of watch.',
+                    };
+                }
+
+                const themeSettings = kind.normalize(settings, capabilities);
+                if (!themeSettings) {
                     return {
                         success: false,
                         error: 'No valid theme settings found in the pasted JSON.',
                     };
                 }
 
-                const colorSettings: Record<string, string> = {};
-                for (const key of THEME_KEYS) {
-                    if (key in settings) {
-                        colorSettings[key] = String(settings[key]);
-                    }
-                }
-
-                const theme: SavedTheme = {
-                    id: generateId(),
-                    name: parsed.name || getNextName(savedThemes),
-                    settings: colorSettings,
-                };
-                setSavedThemes((prev) => [...prev, theme]);
+                const theme = addTheme(themeSettings, parsed.name);
                 return { success: true, theme };
             } catch {
                 return { success: false, error: 'Invalid JSON. Please check and try again.' };
             }
         },
-        [savedThemes]
+        [addTheme, kind, capabilities, scope]
     );
 
     const exportTheme = useCallback(
-        (settings: Record<string, string>): string => {
-            return JSON.stringify(settings, null, 2);
+        (settings: ThemeSettings): string => {
+            const themeSettings = kind.normalize({ ...settings }, capabilities) ?? {};
+            return JSON.stringify(
+                scope !== undefined ? { scope, ...themeSettings } : themeSettings,
+                null,
+                2
+            );
         },
-        []
+        [kind, capabilities, scope]
     );
 
     return { savedThemes, saveTheme, deleteTheme, importTheme, exportTheme };
