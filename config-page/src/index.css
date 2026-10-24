@@ -138,6 +138,17 @@ button {
   transition: color 0.3s ease;
 }
 
+/* a titled group inside a section, set smaller than the section's own */
+.halite-subsection-title {
+  padding: 1rem 1rem 0;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .halite-section-content {
   word-break: break-word;
 }

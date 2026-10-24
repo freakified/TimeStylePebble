@@ -2,6 +2,7 @@ import { Capabilities, Settings } from '../context/types';
 import { FormFactor, RectWidgets, RoundWidgets, WidgetPreset, WIDGET_PRESETS } from '../data/widgetThemes';
 import { getWidgetOptions } from '../data/widgetTypes';
 import { getDefaultSettings } from './defaultSettings';
+import { hiddenParts } from './widgetParts';
 import { prepareThemes, Theme, ThemeSettings } from './themeUtils';
 import {
   ALL_SLOT_KEYS,
@@ -28,11 +29,32 @@ const toLists = (widgets: RectWidgets | RoundWidgets): WidgetLists =>
 const supportedWidgets = (capabilities: Capabilities) =>
   new Set(getWidgetOptions(capabilities).map((option) => option.value));
 
+type PartMasks = Pick<Settings, 'widgetHideMarker' | 'widgetHideDetail'>;
+
+const maskOf = (ids: number[]) => ids.reduce((mask, id) => (mask | (1 << id)) >>> 0, 0);
+
+/**
+ * The hidden-part masks as the watch reads them (hidden_parts()), cut
+ * down to the widgets actually placed. A widget theme's masks then only
+ * say what its own widgets look like: a bit left over on a widget that
+ * isn't showing can't stop the theme from matching, and applying the
+ * theme clears it.
+ */
+const placedPartMasks = (masks: Partial<PartMasks>, lists: WidgetLists): PartMasks => {
+  const placed = [...lists.primary, ...lists.secondary, ...lists.tertiary];
+  const parts = placed.map((id) => ({ id, hidden: hiddenParts(id, masks as Settings) }));
+  return {
+    widgetHideMarker: maskOf(parts.filter((p) => p.hidden.marker).map((p) => p.id)),
+    widgetHideDetail: maskOf(parts.filter((p) => p.hidden.detail).map((p) => p.id)),
+  };
+};
+
 /**
  * A preset's slot settings on this watch, or null when the watch can't
  * show it at all.
  *
- * Each region takes its candidates in order, skipping widgets the watch
+ * Each region takes its candidates in order (the preset's essential
+ * widgets first), skipping widgets the watch
  * can't show or that another region already holds, until it reaches its
  * slot cap. A candidate that would push the region over its fit is
  * skipped rather than ending the fill, so a smaller widget further down
@@ -40,7 +62,8 @@ const supportedWidgets = (capabilities: Capabilities) =>
  *
  * Fit is measured against the default display settings, not the user's:
  * a preset then resolves the same way however the font size and sidebar
- * width are set, so the picker keeps recognizing it when they change.
+ * width are set, so the picker keeps recognizing it when they change. The
+ * preset's own hidden parts do count, since they're part of the preset.
  */
 export const resolveWidgetPreset = (
   preset: WidgetPreset,
@@ -56,17 +79,31 @@ export const resolveWidgetPreset = (
   const supported = supportedWidgets(capabilities);
   const caps = regionSlotCaps(capabilities);
   const fits = regionFitChecks(capabilities);
-  const reference = getDefaultSettings(capabilities);
+  const masks = {
+    widgetHideMarker: maskOf(preset.hide?.marker ?? []),
+    widgetHideDetail: maskOf(preset.hide?.detail ?? []),
+  };
+  const reference = { ...getDefaultSettings(capabilities), ...masks };
 
   const placed = new Set<number>();
   const lists: WidgetLists = { primary: [], secondary: [], tertiary: [] };
 
+  // essential widgets get first claim on the room, but every region still
+  // shows its widgets in the order the preset lists them
+  const essential = new Set(preset.essential ?? []);
+
   WIDGET_REGIONS.forEach((region) => {
-    for (const id of candidates[region]) {
+    const listed = candidates[region];
+    const fillOrder = [
+      ...listed.filter((id) => essential.has(id)),
+      ...listed.filter((id) => !essential.has(id)),
+    ];
+
+    for (const id of fillOrder) {
       if (lists[region].length >= caps[region]) break;
       if (!supported.has(id) || placed.has(id)) continue;
 
-      const next = [...lists[region], id];
+      const next = listed.filter((other) => other === id || lists[region].includes(other));
       if (!exact && fits[region](next, reference, capabilities).state === 'over') continue;
 
       lists[region] = next;
@@ -74,7 +111,7 @@ export const resolveWidgetPreset = (
     }
   });
 
-  return packWidgetLists(lists, capabilities);
+  return { ...packWidgetLists(lists, capabilities), ...placedPartMasks(masks, lists) };
 };
 
 /** The widget preset list for this watch, default first */
@@ -89,7 +126,8 @@ export const getWidgetThemes = (capabilities: Capabilities): Theme[] =>
 /**
  * The slot settings out of anything theme-shaped, as this watch would
  * show them: packed, zero-padded, and without widgets it can't show or
- * duplicates. Null when there's no slot setting in it at all.
+ * duplicates, plus the hidden-part masks of the widgets left. Null when
+ * there's no slot setting in it at all.
  */
 export const normalizeWidgetTheme = (
   raw: Record<string, unknown>,
@@ -113,13 +151,15 @@ export const normalizeWidgetTheme = (
     return true;
   };
 
-  const lists = readWidgetLists(slots, capabilities);
-  return packWidgetLists(
-    {
-      primary: lists.primary.filter(keep),
-      secondary: lists.secondary.filter(keep),
-      tertiary: lists.tertiary.filter(keep),
-    },
-    capabilities
-  );
+  const read = readWidgetLists(slots, capabilities);
+  const lists = {
+    primary: read.primary.filter(keep),
+    secondary: read.secondary.filter(keep),
+    tertiary: read.tertiary.filter(keep),
+  };
+  const masks = {
+    widgetHideMarker: Number(raw.widgetHideMarker ?? 0) || 0,
+    widgetHideDetail: Number(raw.widgetHideDetail ?? 0) || 0,
+  };
+  return { ...packWidgetLists(lists, capabilities), ...placedPartMasks(masks, lists) };
 };

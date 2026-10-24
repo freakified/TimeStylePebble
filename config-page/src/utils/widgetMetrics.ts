@@ -539,8 +539,8 @@ const textWidth = (str: string, fontSize: number): number => {
  * The text a widget's inline form can show, where its width varies with
  * the time or the watch's state: the budget has to hold on the widget's
  * widest day, not just the preview's sample, so it measures the widest
- * candidate. Digits are all one width, so a time's widest is its widest
- * digit count. The date's names are the English ones, in the caps the
+ * candidate. Digits are all one width, so a time's or a heart rate's
+ * widest is its widest digit count. The date's names are the English ones, in the caps the
  * watch draws them in; which is widest depends on the font size.
  */
 const TIME_WIDEST = ['12:42p'];
@@ -551,6 +551,7 @@ const INLINE_TEXT_CANDIDATES: Record<number, { lead?: string[]; text?: string[] 
         lead: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
         text: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
     },
+    12: { text: ['188'] },          // Heart Rate, mid-workout
     14: { text: TIME_WIDEST },      // World Time 2
     15: { text: TIME_WIDEST },      // Sunrise & Sunset
     20: { text: TIME_WIDEST },      // Next Alarm

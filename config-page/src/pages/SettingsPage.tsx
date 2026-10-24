@@ -275,16 +275,21 @@ export const SettingsPage: React.FC = () => {
           importTitle="Import Widgets"
           customizeIcon="EDIT"
         />
-        {/* the panel above already previews the live widgets */}
-        {settings.SETTING_WIDGET_THEME === 'custom' && <WidgetSelector showPreview={false} />}
+        {/* the panel above already previews the live widgets. Which parts
+            each widget shows is part of the preset too, so it's edited
+            alongside the widgets themselves */}
+        {settings.SETTING_WIDGET_THEME === 'custom' && (
+          <>
+            <WidgetSelector showPreview={false} />
+            {displayWidgetIds.length > 0 && (
+              <>
+                <h3 className="halite-subsection-title">Widget display</h3>
+                <WidgetDisplayOptions widgetIds={displayWidgetIds} />
+              </>
+            )}
+          </>
+        )}
       </Section>
-
-      {/* ── Widget Display ── */}
-      {displayWidgetIds.length > 0 && (
-        <Section title="Widget Display">
-          <WidgetDisplayOptions widgetIds={displayWidgetIds} />
-        </Section>
-      )}
 
 
 
