@@ -53,20 +53,22 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // the widest any platform's bar gets, so the slot array is one shape
 #define HREGION_SLOT_MAX 3
 
-// Region thicknesses. The wide sidebar is sized off the widest thing a
-// widget routinely says -- a world time's "23:59" -- plus a pixel of
-// margin on each side, so it is exactly as wide as it needs to be for a
-// widget to show its full form. Measured with
-// graphics_text_layout_get_content_size on the bold gothic the sidebar
-// draws with: 36px at 18, 44px at 24, 49px at 28.
+// Region thicknesses. The wide sidebar gives widgets room for more of
+// their full form (a world time's HH:MM, an unabbreviated step count)
+// but is held to roughly the same share of the screen on every
+// platform, so a widget that still doesn't fit falls back to its
+// compact form rather than eating the clock's room. For reference, a
+// world time's "23:59" measures (graphics_text_layout_get_content_size,
+// bold gothic) 36px at 18, 44px at 24, 49px at 28. Large text always
+// turns the wide sidebar on (the config page locks it).
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 43 : 34)
-#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 51 : 46)
+#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 43 : 46)
 #define HBAR_HEIGHT(largeFonts) ((largeFonts) ? 43 : 34)
 #define REGION_V_PADDING 9
 #else
 #define VBAR_WIDTH_NARROW(largeFonts) 30
-#define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 46 : 38)
+#define VBAR_WIDTH_WIDE(largeFonts) 35
 #define HBAR_HEIGHT(largeFonts) 30
 #define REGION_V_PADDING 8
 #endif

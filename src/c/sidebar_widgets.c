@@ -25,6 +25,9 @@
 #define DATE_CALENDAR_DAY_TOP_PADDING_LARGE 6
 #define DATE_CALENDAR_DAY_BOTTOM_PADDING_LARGE 4
 #define DATE_PLAIN_VERTICAL_PADDING 4
+#define DATE_PLAIN_BOX_EXTRA_WIDTH 7
+// stacked, the box has the column to itself and can afford more room
+#define DATE_STACKED_BOX_EXTRA_WIDTH 2
 
 GDrawCommandImage *dateImage;
 GDrawCommandImage *batteryImage;
@@ -1286,17 +1289,30 @@ static int date_day_bottom_padding() {
 #endif
 }
 
+// the plain box is sized to the day number rather than an icon square.
+// Measured against "00" so the box keeps its width as the day changes
+static GSize date_plain_box_size() {
+  int digitsWidth =
+      text_content_width("00", currentSidebarFont, fontMetrics.current);
+  return GSize(digitsWidth + DATE_PLAIN_BOX_EXTRA_WIDTH,
+               fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2);
+}
+
 static int date_calendar_width() {
+  if (settings.useLargeFonts) {
+    return date_plain_box_size().w + DATE_STACKED_BOX_EXTRA_WIDTH;
+  }
+
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
   return 28;
 #else
-  return settings.useLargeFonts ? 26 : SIDEBAR_ICON_SIZE;
+  return SIDEBAR_ICON_SIZE;
 #endif
 }
 
 static int date_calendar_height() {
   if (settings.useLargeFonts) {
-    return fontMetrics.current.height + DATE_PLAIN_VERTICAL_PADDING * 2;
+    return date_plain_box_size().h;
   }
 
   return date_day_top_padding() + fontMetrics.current.height +
@@ -1357,17 +1373,16 @@ static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
   // inline, the stacked date is laid on its side: weekday, calendar,
   // month, left to right
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
-    int textHeight = single_text_height();
-    int width = SIDEBAR_ICON_SIZE;
+    GSize box = date_plain_box_size();
+    int height = box.h > SIDEBAR_ICON_SIZE ? box.h : SIDEBAR_ICON_SIZE;
+    int width = box.w;
     if (metrics.showWeekday) {
       width += date_inline_word_width(currentDayName) + horizontal_item_gap();
     }
     if (metrics.showMonth) {
       width += horizontal_item_gap() + date_inline_word_width(currentMonth);
     }
-    return (SidebarMeasure){clamp_horizontal_width(width, spec),
-                            SIDEBAR_ICON_SIZE > textHeight ? SIDEBAR_ICON_SIZE
-                                                            : textHeight};
+    return (SidebarMeasure){clamp_horizontal_width(width, spec), height};
   }
 
   return (SidebarMeasure){spec->contentWidth, metrics.height};
@@ -1424,46 +1439,13 @@ static void resize_date_calendar_image(GRect frame) {
                                                        frame.size.h));
 }
 
-static void draw_date_calendar_background_fallback(GContext *ctx, GRect frame) {
-  int bodyTop = frame.origin.y + 2;
-  int bodyHeight = frame.size.h - 2;
-  int bindingY = frame.origin.y;
-  int bindingBottom = frame.origin.y + 6;
-  int leftBindingX = frame.origin.x + frame.size.w / 3;
-  int rightBindingX = frame.origin.x + frame.size.w * 2 / 3;
-
-  graphics_context_set_fill_color(ctx, activePalette.iconFill);
-  graphics_fill_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
-                                bodyHeight),
-                     0, GCornerNone);
-
-  graphics_context_set_stroke_color(ctx, activePalette.iconStroke);
-  graphics_context_set_stroke_width(ctx, 2);
-  graphics_draw_rect(ctx, GRect(frame.origin.x, bodyTop, frame.size.w,
-                                bodyHeight));
-
-  graphics_draw_line(ctx, GPoint(leftBindingX, bindingY),
-                     GPoint(leftBindingX, bindingBottom));
-  graphics_draw_line(ctx, GPoint(rightBindingX, bindingY),
-                     GPoint(rightBindingX, bindingBottom));
-  graphics_draw_line(ctx, GPoint(leftBindingX - 2, bindingBottom),
-                     GPoint(leftBindingX + 2, bindingBottom));
-  graphics_draw_line(ctx, GPoint(rightBindingX - 2, bindingBottom),
-                     GPoint(rightBindingX + 2, bindingBottom));
-  graphics_context_set_stroke_width(ctx, 1);
-}
-
-static void draw_date_calendar_background(GContext *ctx, GRect frame) {
-  if (!dateImage) {
-    draw_date_calendar_background_fallback(ctx, frame);
-    return;
-  }
-
-  resize_date_calendar_image(frame);
-  gdraw_command_image_recolor(dateImage, activePalette.iconFill,
-                              activePalette.iconStroke);
-  gdraw_command_image_draw(ctx, dateImage, GPoint(frame.origin.x,
-                                                 frame.origin.y));
+// on dark regions icons are outlines filled with the background
+// (derive_palette), so the day number inside them reads as text and takes
+// the text color; inside a white-filled icon it keeps the stroke color
+static GColor date_day_text_color() {
+  return gcolor_equal(activePalette.iconFill, activePalette.background)
+             ? activePalette.text
+             : activePalette.iconStroke;
 }
 
 static void draw_date_plain_background(GContext *ctx, GRect frame) {
@@ -1475,6 +1457,19 @@ static void draw_date_plain_background(GContext *ctx, GRect frame) {
                      GRect(frame.origin.x + 2, frame.origin.y + 2,
                            frame.size.w - 4, frame.size.h - 4),
                      0, GCornersAll);
+}
+
+static void draw_date_calendar_background(GContext *ctx, GRect frame) {
+  if (!dateImage) {
+    draw_date_plain_background(ctx, frame);
+    return;
+  }
+
+  resize_date_calendar_image(frame);
+  gdraw_command_image_recolor(dateImage, activePalette.iconFill,
+                              activePalette.iconStroke);
+  gdraw_command_image_draw(ctx, dateImage, GPoint(frame.origin.x,
+                                                 frame.origin.y));
 }
 
 static void draw_date_background(GContext *ctx, GRect frame) {
@@ -1504,20 +1499,20 @@ static void date_content_draw(GContext *ctx, GRect frame,
       x += width + horizontal_item_gap();
     }
 
+    GSize box = date_plain_box_size();
     GRect calendarFrame =
-        GRect(x, frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
-              SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+        GRect(x, frame.origin.y + (frame.size.h - box.h) / 2, box.w, box.h);
     // the day number sits on the same row as the words beside it:
     // centering it within the calendar instead rounds differently from
     // centering text in the bar, leaving it a pixel high on emery
     int dayTop = textTop;
 
-    draw_date_background(ctx, calendarFrame);
+    draw_date_plain_background(ctx, calendarFrame);
     draw_literal_text_at_visible_top(ctx, currentDayNum, calendarFrame.origin.x,
                                      dayTop, calendarFrame.size.w,
                                      currentSidebarFont, fontMetrics.current,
-                                     activePalette.iconStroke);
-    x += SIDEBAR_ICON_SIZE + horizontal_item_gap();
+                                     date_day_text_color());
+    x += box.w + horizontal_item_gap();
 
     if (metrics.showMonth) {
       // draw_literal_text_at_visible_top set the day number's color
@@ -1536,7 +1531,7 @@ static void date_content_draw(GContext *ctx, GRect frame,
   int calendarX =
       frame.origin.x + (frame.size.w - metrics.calendarWidth + 1) / 2;
   int calendarY = frame.origin.y + metrics.calendarTop;
-  GColor dayTextColor = activePalette.iconStroke;
+  GColor dayTextColor = date_day_text_color();
 
   if (metrics.showWeekday) {
     draw_literal_text_at_visible_top(
