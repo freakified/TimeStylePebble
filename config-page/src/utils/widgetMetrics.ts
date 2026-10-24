@@ -346,19 +346,35 @@ export const WATCH_BAR_VBAR_GAP = 2;           // HBAR_VBAR_GAP
 export const WATCH_BAR_WIDGET_GAP_COMPACT = 1; // HBAR_WIDGET_GAP_COMPACT
 
 /*
- * Average advance width, in watch pixels per character, for the Gothic
- * Bold system fonts the sidebar uses. Measured off the watch itself:
- * temporary APP_LOG instrumentation in render_horizontal_flow dumped
- * SidebarWidgets_measure() widths for every bottom-bar widget across
- * basalt and emery at both font sizes, and these are the per-character
- * averages that best fit that data (median absolute error ~1px per
- * widget). Real advances vary by glyph -- '%' is wide, ':' is narrow --
- * so this is deliberately an average, not a per-glyph table.
+ * Advance widths, in watch pixels, of the Gothic Bold glyphs the sidebar
+ * draws, per font size. Measured off the emery emulator: temporary
+ * APP_LOG instrumentation logged graphics_text_layout_get_content_size()
+ * for each glyph alone and repeated, and Gothic has no kerning, so a
+ * string's width is exactly the sum of its glyphs' ("100%" at 24 is
+ * 10+10+10+17 = 47). The sizes are what matter, not the platform.
  *
- * The sizes are what matter, not the platform: basalt at large fonts and
- * emery at normal fonts both use Gothic 24 and measured byte-identical.
+ * Glyphs outside the table (accents, the degree sign) fall back to
+ * GOTHIC_AVG_ADVANCE, an average over typical widget strings.
  */
-const GOTHIC_ADVANCE: Record<number, number> = {
+const GOTHIC_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:.-/@ ';
+const GOTHIC_GLYPH_WIDTHS: Record<number, number[]> = {
+    18: [
+        9, 9, 9, 9, 8, 8, 9, 9, 4, 7, 8, 8, 12, 9, 9, 9, 9, 9, 9, 8, 9, 9, 12, 9, 10, 8,
+        8, 8, 8, 8, 8, 6, 8, 8, 4, 3, 7, 4, 12, 8, 8, 8, 8, 6, 7, 6, 8, 8, 12, 8, 8, 7,
+        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 14, 4, 4, 7, 8, 12, 4,
+    ],
+    24: [
+        10, 10, 10, 10, 9, 9, 10, 10, 4, 7, 8, 9, 12, 10, 10, 9, 10, 10, 10, 10, 10, 10, 12, 9, 9, 9,
+        9, 9, 9, 9, 9, 7, 9, 9, 4, 4, 8, 4, 14, 9, 9, 9, 9, 6, 7, 7, 9, 9, 12, 9, 9, 8,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 17, 4, 4, 6, 9, 16, 4,
+    ],
+    28: [
+        13, 12, 12, 12, 10, 10, 12, 12, 5, 8, 11, 10, 16, 12, 12, 11, 12, 12, 12, 11, 12, 13, 20, 12, 12, 10,
+        11, 11, 11, 11, 11, 8, 11, 11, 5, 5, 11, 5, 17, 11, 11, 11, 11, 8, 10, 9, 11, 11, 16, 10, 11, 10,
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 20, 5, 5, 8, 10, 19, 5,
+    ],
+};
+const GOTHIC_AVG_ADVANCE: Record<number, number> = {
     18: 7.5,
     24: 8.8,
     28: 10.0,
@@ -498,15 +514,69 @@ interface RoundBarMetrics {
     bottomPadding: number;
     /** ROUND_BAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
     clockEncroach: number;
+    /** ROUND_BAR_PADDING_X: the bar is already inset to the chord, so its
+     * widget only keeps the compact end padding */
+    paddingX: number;
 }
 
 export const roundBarMetrics = (capabilities: Capabilities): RoundBarMetrics =>
     capabilities.DISPLAY_260x260_ROUND
-        ? { height: 40, width: 140, bottomPadding: 8, clockEncroach: 10 }
-        : { height: 30, width: 100, bottomPadding: 6, clockEncroach: 6 };
+        ? { height: 40, width: 140, bottomPadding: 8, clockEncroach: 10, paddingX: WATCH_BAR_PADDING_X_COMPACT }
+        : { height: 30, width: 100, bottomPadding: 6, clockEncroach: 6, paddingX: WATCH_BAR_PADDING_X_COMPACT };
 
-const textWidth = (str: string, fontSize: number): number =>
-    str.length * (GOTHIC_ADVANCE[fontSize] ?? GOTHIC_ADVANCE[24]);
+const textWidth = (str: string, fontSize: number): number => {
+    const widths = GOTHIC_GLYPH_WIDTHS[fontSize] ?? GOTHIC_GLYPH_WIDTHS[24];
+    const fallback = GOTHIC_AVG_ADVANCE[fontSize] ?? GOTHIC_AVG_ADVANCE[24];
+    let w = 0;
+    for (const ch of str) {
+        const i = GOTHIC_GLYPHS.indexOf(ch);
+        w += i >= 0 ? widths[i] : fallback;
+    }
+    return w;
+};
+
+/*
+ * The text a widget's inline form can show, where its width varies with
+ * the time or the watch's state: the budget has to hold on the widget's
+ * widest day, not just the preview's sample, so it measures the widest
+ * candidate. Digits are all one width, so a time's widest is its widest
+ * digit count. The date's names are the English ones, in the caps the
+ * watch draws them in; which is widest depends on the font size.
+ */
+const TIME_WIDEST = ['12:42p'];
+const INLINE_TEXT_CANDIDATES: Record<number, { lead?: string[]; text?: string[] }> = {
+    2: { text: ['100%'] },          // Battery at full charge
+    3: { text: TIME_WIDEST },       // World Time 1
+    4: {                            // Today's Date
+        lead: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+        text: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+    },
+    14: { text: TIME_WIDEST },      // World Time 2
+    15: { text: TIME_WIDEST },      // Sunrise & Sunset
+    20: { text: TIME_WIDEST },      // Next Alarm
+};
+
+const widestText = (candidates: string[], fontSize: number): string =>
+    candidates.reduce((widest, str) =>
+        textWidth(str, fontSize) > textWidth(widest, fontSize) ? str : widest);
+
+/** A widget's inline parts at their widest, for the budget */
+const widestInlineParts = (
+    widgetId: number,
+    settings: Settings,
+    fontSize: number
+): InlineParts | null => {
+    const parts = getInlineParts(widgetId, settings);
+    const candidates = INLINE_TEXT_CANDIDATES[widgetId];
+    if (!parts || !candidates) return parts;
+
+    // hidden parts stay hidden
+    return {
+        ...parts,
+        lead: parts.lead && candidates.lead ? widestText(candidates.lead, fontSize) : parts.lead,
+        text: parts.text && candidates.text ? widestText(candidates.text, fontSize) : parts.text,
+    };
+};
 
 /** A widget's full-form width in the inline bottom bar, in watch pixels. */
 export const inlineWidgetWidth = (
@@ -514,7 +584,7 @@ export const inlineWidgetWidth = (
     settings: Settings,
     fontSize: number
 ): number => {
-    const parts = getInlineParts(widgetId, settings);
+    const parts = widestInlineParts(widgetId, settings, fontSize);
     if (!parts) return 0;
 
     let w = 0;
@@ -593,11 +663,8 @@ export const assessRoundBar = (
     const usedPx = widgetIds.reduce(
         (sum, id) => sum + inlineWidgetWidth(id, settings, fontSize), 0);
 
-    return assessPx(
-        widgetIds.length,
-        usedPx,
-        roundBarMetrics(capabilities).width - WATCH_BAR_PADDING_X * 2
-    );
+    const bar = roundBarMetrics(capabilities);
+    return assessPx(widgetIds.length, usedPx, bar.width - bar.paddingX * 2);
 };
 
 /* ── Stacked heights (real watch pixels) ─────────────────────────────

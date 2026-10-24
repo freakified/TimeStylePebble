@@ -289,7 +289,11 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
  */
 static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
+#ifdef PBL_ROUND
+  int contentWidth = bounds.size.w - ROUND_BAR_PADDING_X * 2;
+#else
   int contentWidth = bounds.size.w - HBAR_SLOT_PADDING_X * 2;
+#endif
 
   SidebarWidgetDefinition widgets[MAX_REGION_SLOTS];
   SidebarMeasure sizes[MAX_REGION_SLOTS];

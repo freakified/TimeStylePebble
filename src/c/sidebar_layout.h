@@ -210,3 +210,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define ROUND_BAR_BOTTOM_PADDING 6
 #define ROUND_BAR_CLOCK_ENCROACH 6
 #endif
+// the bar is already inset to the chord, so its widget only keeps the
+// compact padding at its ends: chalk's widest date ("MON 24 MAY") needs
+// 94 of its 100px
+#define ROUND_BAR_PADDING_X HBAR_SLOT_PADDING_X_COMPACT
