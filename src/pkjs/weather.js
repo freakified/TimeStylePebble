@@ -1,5 +1,8 @@
 /* general utility stuff related to weather */
 
+var userLocation = require('./location');
+var SunCalc = require('./suncalc');
+
 var weatherProviders = {
   'openmeteo': require('./weather_openmeteo')
 };
@@ -49,12 +52,31 @@ function fetchedRecently() {
   return lastFetch > 0 && (Date.now() - lastFetch) < MIN_FETCH_INTERVAL_MS;
 }
 
+// today's sunrise/sunset at pos, in minutes after the phone's local
+// midnight (the watch's clock), or null where the sun doesn't rise or set
+function getSunTimes(pos) {
+  var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+  if (isNaN(times.sunrise) || isNaN(times.sunset)) {
+    return null;
+  }
+
+  return {
+    'WeatherSunriseMinute': times.sunrise.getHours() * 60 + times.sunrise.getMinutes(),
+    'WeatherSunsetMinute': times.sunset.getHours() * 60 + times.sunset.getMinutes()
+  };
+}
+
+// sun times computed for the update in progress, sent along with the weather
+var pendingSunTimes = null;
+
 function updateWeather(forceUpdate) {
-  var weatherDisabled = window.localStorage.getItem('disable_weather');
+  var weatherDisabled = window.localStorage.getItem('disable_weather') === 'yes';
+  var sunDisabled = window.localStorage.getItem('disable_sun') === 'yes';
 
-  console.log("Get weather function called! DisableWeather is '" + weatherDisabled + "'");
+  console.log('Get weather function called! Weather disabled: ' + weatherDisabled +
+    ', sun disabled: ' + sunDisabled);
 
-  if(weatherDisabled === "yes") {
+  if(weatherDisabled && sunDisabled) {
     return;
   }
 
@@ -63,25 +85,19 @@ function updateWeather(forceUpdate) {
     return;
   }
 
-  var weatherLoc = window.localStorage.getItem('weather_loc');
+  userLocation.getPosition(function (pos) {
+    pendingSunTimes = sunDisabled ? null : getSunTimes(pos);
+    console.log('Sun times: ' + JSON.stringify(pendingSunTimes));
 
-  if(weatherLoc) { // do we have a stored location?
-    var storedLat = window.localStorage.getItem('weather_loc_lat');
-    var storedLng = window.localStorage.getItem('weather_loc_lng');
-
-    // only use it if it has coordinates
-    if(storedLat && storedLng) {
-      getCurrentWeatherProvider().getWeatherFromCoords({
-        coords: {
-          latitude: storedLat,
-          longitude: storedLng
-        }
-      });
+    if(weatherDisabled) {
+      // sunrise/sunset alone don't need the weather service
+      if(pendingSunTimes) {
+        sendWeatherToPebble({});
+      }
+    } else {
+      getCurrentWeatherProvider().getWeatherFromCoords(pos);
     }
-  } else {
-    // if we don't have a stored location, get the GPS location
-    getLocation();
-  }
+  }, locationError);
 }
 
 // retries a failed update after a few seconds, up to MAX_FAILURES times
@@ -100,23 +116,15 @@ function retryAfterFailure(what) {
   }
 }
 
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    {timeout: 15000, maximumAge: 60000}
-  );
-}
-
 function locationError(err) {
   retryAfterFailure('Location lookup');
 }
 
-function locationSuccess(pos) {
-  getCurrentWeatherProvider().getWeatherFromCoords(pos);
-}
-
 function sendWeatherToPebble(dictionary) {
+  for (var key in pendingSunTimes) {
+    dictionary[key] = pendingSunTimes[key];
+  }
+
   Pebble.sendAppMessage(dictionary,
     function(e) {
       console.log('Weather info sent to Pebble successfully!');

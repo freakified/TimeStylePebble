@@ -48,12 +48,14 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   // Notifications
   hourlyVibe: 'none',
 
+  // Location
+  useGpsLocation: true,
+  locationName: '',
+  locationLat: 0,
+  locationLng: 0,
+
   // Weather
   weatherUnits: 'f',
-  weatherLocation: '',
-  weatherLocationLat: '',
-  weatherLocationLng: '',
-  weatherMode: true,
   weatherDataSource: 'openmeteo',
   weatherApiKey: '',
 

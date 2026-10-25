@@ -12,5 +12,5 @@ export * from './WidgetDisplayOptions';
 export * from './WatchPreview';
 export * from './CustomThemePanel';
 export * from './ImportThemeModal';
-export * from './WeatherLocationPicker';
+export * from './LocationSection';
 export * from './DonationLink';

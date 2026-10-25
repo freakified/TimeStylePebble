@@ -11,7 +11,7 @@ function getWeatherFromCoords(pos) {
     lat + '&longitude=' + lon +
     '&current_weather=true' +
     '&daily=temperature_2m_max,temperature_2m_min,uv_index_max,weathercode' +
-      ',sunrise,sunset,precipitation_probability_max' +
+      ',precipitation_probability_max' +
     '&hourly=uv_index' +
     '&forecast_days=1' +
     '&timezone=auto';
@@ -71,20 +71,6 @@ function getAndSendWeather(url) {
 
     var uvIndex = getCurrentUVFromHourly(json);
 
-    // sunrise/sunset arrive as ISO local time strings like "2026-07-11T05:42";
-    // parse the wall-clock time directly to avoid timezone reinterpretation
-    function isoToMinutes(isoString) {
-      var timePart = String(isoString).split('T')[1];
-      if (!timePart) {
-        return null;
-      }
-      var pieces = timePart.split(':');
-      return parseInt(pieces[0], 10) * 60 + parseInt(pieces[1], 10);
-    }
-
-    var sunriseMinute = isoToMinutes(json.daily.sunrise[0]);
-    var sunsetMinute = isoToMinutes(json.daily.sunset[0]);
-
     var precipChance = null;
     if (json.daily.precipitation_probability_max) {
       precipChance = Math.round(json.daily.precipitation_probability_max[0]);
@@ -94,8 +80,7 @@ function getAndSendWeather(url) {
     console.log('Forecast condition code: ' + forecastCode);
     console.log('UV Index: ' + uvIndex);
     console.log('Is Night ' + isNight);
-    console.log('Precip chance: ' + precipChance +
-      '%, sunrise: ' + sunriseMinute + ', sunset: ' + sunsetMinute);
+    console.log('Precip chance: ' + precipChance + '%');
 
     var forecastIcon = getIconForWeatherCode(forecastCode);
 
@@ -107,11 +92,6 @@ function getAndSendWeather(url) {
       'WeatherForecastCondition': forecastIcon,
       'WeatherUVIndex': uvIndex
     };
-
-    if (sunriseMinute !== null && sunsetMinute !== null) {
-      dictionary.WeatherSunriseMinute = sunriseMinute;
-      dictionary.WeatherSunsetMinute = sunsetMinute;
-    }
 
     if (precipChance !== null && !isNaN(precipChance)) {
       dictionary.WeatherPrecipChance = precipChance;

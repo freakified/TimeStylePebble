@@ -925,132 +925,59 @@ input[type='checkbox'] {
   border-color: rgba(231, 76, 60, 0.5);
 }
 
-/* Weather Location Picker */
-.halite-location-picker {
-  align-items: flex-start;
-  gap: 16px;
+/* Location */
+.halite-location-search {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
 }
 
-.halite-location-picker .halite-item-label {
-  padding-top: 11px;
-}
-
-.halite-location-combobox {
-  position: relative;
-  width: min(100%, 420px);
-}
-
-.halite-location-search-field {
-  display: block;
-  width: 100%;
-}
-
-.halite-combobox-popover {
-  display: none;
-}
-
-.halite-combobox-popover[data-open] {
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  margin-top: 4px;
-  overflow: hidden;
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  background: var(--bg-surface-elevated);
-  box-shadow: var(--shadow-md);
-}
-
-.halite-combobox-listbox {
-  max-height: 220px;
-  margin: 0;
-  padding: 4px;
-  overflow-y: auto;
-  list-style: none;
-}
-
-.halite-combobox-item {
-  padding: 8px 10px;
-  border-radius: 6px;
-  color: var(--text-main);
-  font-size: 14px;
-  line-height: 1.35;
-  cursor: pointer;
-}
-
-.halite-combobox-item:hover,
-.halite-combobox-item[data-focused] {
-  background: var(--bg-surface-hover);
-  outline: none;
-}
-
-.halite-combobox-item[data-focused] {
-  box-shadow: inset 0 0 0 2px var(--halite-orange);
-}
-
-.halite-combobox-item-status {
-  display: block;
-  color: var(--text-subtle);
-  cursor: default;
-}
-
-.halite-location-confirmed {
+.halite-location-search-row {
   display: flex;
-  align-items: center;
-  width: min(100%, 420px);
-  min-width: 0;
-  border: 1.5px solid var(--border-strong);
-  border-radius: 10px;
-  background-color: var(--bg-surface-elevated);
-  color: var(--text-main);
-  box-shadow: var(--shadow-sm);
+  gap: 8px;
 }
 
-.halite-location-confirmed > span {
+.halite-location-search-row .halite-input {
   flex: 1;
   min-width: 0;
-  padding: 10px 0 10px 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.halite-location-clear {
+.halite-location-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.halite-location-results li + li {
+  border-top: 1px solid var(--border-color);
+}
+
+.halite-location-results button {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  width: 48px;
-  border: 0;
-  background: none;
-  color: var(--text-subtle);
-  font-size: 22px;
-  line-height: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
   cursor: pointer;
 }
 
-.halite-location-clear:hover {
-  color: var(--text-main);
+.halite-location-results button:active {
+  background-color: var(--bg-surface-hover);
 }
 
-@media (max-width: 540px) {
-  .halite-location-picker {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .halite-location-picker .halite-item-label {
-    padding-top: 0;
-  }
-
-  .halite-location-combobox,
-  .halite-location-confirmed {
-    width: 100%;
-  }
+.halite-icon-btn {
+  padding: 8px;
 }
 
 /* Import Modal */

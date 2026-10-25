@@ -11,7 +11,7 @@ import {
   CustomThemePanel,
   WidgetSelector,
   WidgetDisplayOptions,
-  WeatherLocationPicker,
+  LocationSection,
   DonationLink,
   TextField,
 } from '../components';
@@ -122,7 +122,10 @@ export const SettingsPage: React.FC = () => {
     layoutOptionSettings[option.value] = { layout: option.value };
   });
 
-  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 17].includes(id));
+  // Sunrise & Sunset (15) needs a location, but its times are computed on
+  // the phone rather than fetched with the weather
+  const showLocationSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 17].includes(id));
+  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 17].includes(id));
 
   const showWorldTime1Section = activeWidgetIds.some((id) => id === 3);
   const showWorldTime2Section = activeWidgetIds.some((id) => id === 14);
@@ -290,29 +293,12 @@ export const SettingsPage: React.FC = () => {
 
 
 
+      {/* ── Location ── */}
+      {showLocationSection && <LocationSection />}
+
       {/* ── Weather ── */}
       {showWeatherSection && (
         <Section title="Weather">
-          <Toggle
-            label="Determine location automatically"
-            description="Use GPS location for weather data"
-            messageKey="weatherMode"
-          />
-          {!settings.weatherMode && (
-            <WeatherLocationPicker
-              currentLoc={settings.weatherLocation}
-              onSelect={(loc, lat, lng) => {
-                updateSetting('weatherLocation', loc);
-                updateSetting('weatherLocationLat', lat);
-                updateSetting('weatherLocationLng', lng);
-              }}
-              onClear={() => {
-                updateSetting('weatherLocation', '');
-                updateSetting('weatherLocationLat', '');
-                updateSetting('weatherLocationLng', '');
-              }}
-            />
-          )}
           <Select
             label="Temperature units"
             messageKey="weatherUnits"

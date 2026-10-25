@@ -2,6 +2,7 @@
 var weather = require('./weather');
 var settingsMapper = require('./settings');
 var worldtime = require('./worldtime');
+var userLocation = require('./location');
 
 var USE_LOCAL_CONFIG = false;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
@@ -77,13 +78,15 @@ Pebble.addEventListener('appmessage',
       if (pendingConfigSnapshot) {
         clearTimeout(pendingConfigSnapshot.timeoutId);
 
-        // the watch only knows labels and offsets; merge in the city
-        // selections, which live on the phone
+        // the watch only knows labels and offsets; merge in the world
+        // time cities and the location, which live on the phone
         var settings = settingsMapper.settingsFromWatchPayload(msg.payload);
-        var worldTimeSettings = worldtime.getConfigSettings();
-        for (var key in worldTimeSettings) {
-          settings[key] = worldTimeSettings[key];
-        }
+        var phoneSettings = [worldtime.getConfigSettings(), userLocation.getConfigSettings()];
+        phoneSettings.forEach(function (extra) {
+          for (var key in extra) {
+            settings[key] = extra[key];
+          }
+        });
 
         openConfigPage(pendingConfigSnapshot.watchInfo, settings);
         pendingConfigSnapshot = null;
@@ -115,25 +118,15 @@ Pebble.addEventListener('webviewclosed', function (e) {
       dict[worldTimeKey] = worldTimeDict[worldTimeKey];
     }
 
-    // weather location/source configs are not the watch's concern
-    if (configData.weatherMode) {
-      window.localStorage.removeItem('weather_loc');
-      window.localStorage.removeItem('weather_loc_lat');
-      window.localStorage.removeItem('weather_loc_lng');
-    } else if (configData.weatherLocation !== undefined) {
-      window.localStorage.setItem('weather_loc', configData.weatherLocation);
-      window.localStorage.setItem('weather_loc_lat', configData.weatherLocationLat);
-      window.localStorage.setItem('weather_loc_lng', configData.weatherLocationLng);
-    }
+    // location and weather source configs are not the watch's concern
+    userLocation.storeConfig(configData);
 
     if (configData.weatherDataSource) {
       window.localStorage.setItem('weather_datasource', configData.weatherDataSource);
       window.localStorage.setItem('weather_api_key', configData.weatherApiKey);
     }
 
-    // determine whether or not the weather checking should be enabled
-    var disableWeather;
-
+    // determine whether the weather and sun times need updating at all
     // every slot the config page can fill counts: the phone doesn't know
     // which platform it's talking to, and the extra slots are only ever
     // EMPTY on watches that don't render them. (The bar's slots are
@@ -151,15 +144,17 @@ Pebble.addEventListener('webviewclosed', function (e) {
       configData.bottomBarWidget2Id
     ];
 
-    // if none of the weather widgets are present, disable the weather
-    // (7=current, 8=forecast, 13=UV, 15=sunrise/sunset, 17=rain chance)
-    var weatherWidgetIDs = [7, 8, 13, 15, 17];
+    // weather widgets: 7=current, 8=forecast, 13=UV, 17=rain chance.
+    // sunrise/sunset (15) is computed on the phone, so it only needs the
+    // location, not the weather service
+    var weatherWidgetIDs = [7, 8, 13, 17];
     var hasWeatherWidget = widgetIDs.some(function (id) {
       return weatherWidgetIDs.indexOf(id) != -1;
     });
-    disableWeather = hasWeatherWidget ? 'no' : 'yes';
+    var hasSunWidget = widgetIDs.indexOf(15) != -1;
 
-    window.localStorage.setItem('disable_weather', disableWeather);
+    window.localStorage.setItem('disable_weather', hasWeatherWidget ? 'no' : 'yes');
+    window.localStorage.setItem('disable_sun', hasSunWidget ? 'no' : 'yes');
 
     console.log('Preparing message: ', JSON.stringify(dict));
 

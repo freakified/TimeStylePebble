@@ -90,12 +90,15 @@ export interface Settings {
   // Notifications
   hourlyVibe: 'none' | 'everyHour' | 'everyHalfHour';
 
+  // Location (weather and sunrise/sunset); phone-only, never sent to the
+  // watch. Without a chosen city, GPS is used even when useGpsLocation is off.
+  useGpsLocation: boolean;
+  locationName: string;
+  locationLat: number;
+  locationLng: number;
+
   // Weather
   weatherUnits: 'f' | 'c';
-  weatherLocation: string;
-  weatherLocationLat: string;
-  weatherLocationLng: string;
-  weatherMode: boolean;
   weatherDataSource: string;
   weatherApiKey: string;
 
