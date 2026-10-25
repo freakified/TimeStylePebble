@@ -5,7 +5,6 @@ build
 
 # Ignore linked files/directories
 waf
-wscript
 include
 lib
 pebble_app.ld
@@ -16,6 +15,7 @@ serial_dump.txt
 pebble_screenshot_*
 screenshots
 compile_commands.json
+resources/data/languages.bin
 
 # Ignore Apple Files
 # General

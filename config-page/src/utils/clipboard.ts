@@ -31,7 +31,7 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
             // Explicit selection for iOS
             try {
                 textArea.setSelectionRange(0, 999999);
-            } catch (e) {
+            } catch {
                 // Ignore, may throw on some browsers
             }
 

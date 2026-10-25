@@ -20,9 +20,7 @@ typedef enum {
   SIDEBAR_CONTENT_ICON_VALUE,
   SIDEBAR_CONTENT_LABEL_VALUE,
   SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED,
-  SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT,
-  SIDEBAR_CONTENT_DATE,
-  SIDEBAR_CONTENT_CUSTOM
+  SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT
 } SidebarContentKind;
 
 typedef enum {
@@ -103,9 +101,10 @@ typedef struct {
 
 typedef struct SidebarWidgetDefinition SidebarWidgetDefinition;
 
+// a widget either supplies content for the generic layouts (getContent)
+// or measures and draws itself (measureSpecial + drawSpecial)
 struct SidebarWidgetDefinition {
   SidebarWidgetType type;
-  SidebarContentKind kind;
   SidebarContent (*getContent)();
   SidebarMeasure (*measureSpecial)(SidebarRenderSpec *spec);
   void (*drawSpecial)(GContext *ctx, GRect frame, SidebarRenderSpec *spec);

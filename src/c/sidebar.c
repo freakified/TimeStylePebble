@@ -121,13 +121,6 @@ static void sidebar_buildRegions(void) {
   }
 }
 
-int Sidebar_reservedTop(void) {
-  if (hRegion.edge == REGION_EDGE_TOP) {
-    return hRegion.thickness;
-  }
-  return 0;
-}
-
 int Sidebar_reservedBottom(void) {
   if (hRegion.edge == REGION_EDGE_BOTTOM) {
     // a bar on the watchface lends the clock the padding above its widgets
@@ -175,10 +168,8 @@ static GRect hregion_frame(void) {
     width = 0;
   }
 
-  int y = (hRegion.edge == REGION_EDGE_TOP)
-              ? 0
-              : screen_rect.size.h - hRegion.thickness;
-  return GRect(x, y, width, hRegion.thickness);
+  return GRect(x, screen_rect.size.h - hRegion.thickness, width,
+               hRegion.thickness);
 #endif
 }
 
@@ -366,7 +357,7 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
 #ifdef PBL_ROUND
   render_horizontal_flow(r, l, ctx);
 #else
-  if (r->edge == REGION_EDGE_TOP || r->edge == REGION_EDGE_BOTTOM) {
+  if (r->edge == REGION_EDGE_BOTTOM) {
     render_horizontal_flow(r, l, ctx);
   } else {
     render_vertical_flow(r, l, ctx);

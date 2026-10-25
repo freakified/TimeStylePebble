@@ -14,7 +14,6 @@ void Sidebar_obstructionWillChange(GRect finalUnobstructedArea);
 void Sidebar_obstructionDidChange(void);
 
 // screen-edge reservations, for the clock area to compute its frame
-int Sidebar_reservedTop(void);
 int Sidebar_reservedBottom(void);
 RegionEdge Sidebar_verticalEdge(void);
 int Sidebar_verticalThickness(void);

@@ -3,8 +3,7 @@ var weather = require('./weather');
 var settingsMapper = require('./settings');
 var worldtime = require('./worldtime');
 
-var CONFIG_VERSION = 9;
-var USE_LOCAL_CONFIG = true;
+var USE_LOCAL_CONFIG = false;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
 var LOCAL_CONFIG_URL = 'http://192.168.11.9:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
@@ -61,16 +60,8 @@ Pebble.addEventListener('ready',
   function (e) {
     console.log('JS component is now READY');
 
-    // if it has never been started, set the weather to enabled
-    if (window.localStorage.getItem('disable_weather') === null) {
-      window.localStorage.setItem('disable_weather', 'no');
-    }
-
-    console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');
-    // if applicable, get the weather data
-    if (window.localStorage.getItem('disable_weather') != 'yes') {
-      weather.updateWeather();
-    }
+    // updateWeather skips this if weather is disabled or still fresh
+    weather.updateWeather();
 
     // refresh world time offsets in case a DST boundary was crossed
     worldtime.sendOffsetsIfChanged();

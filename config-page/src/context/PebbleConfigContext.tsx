@@ -97,6 +97,7 @@ export const PebbleConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const params = new URLSearchParams(window.location.search);
     const returnTo = params.get('return_to') || 'pebblejs://close#';
     // Strip internal UI keys that aren't watch settings
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { SETTING_THEME, SETTING_WIDGET_THEME, ...watchSettings } = settings;
     window.location.href = returnTo + encodeURIComponent(JSON.stringify(watchSettings));
   };

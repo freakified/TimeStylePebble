@@ -55,6 +55,21 @@ static void recolor_icon(GBitmap *icon, GColor color) {
   }
 }
 
+// the bar draws directly on the watchface background, matching the time
+// color; the palettes are only rewritten when that color changes
+static GColor iconColor;
+
+static void update_icon_color(void) {
+  if (gcolor_equal(iconColor, settings.timeColor)) {
+    return;
+  }
+
+  iconColor = settings.timeColor;
+  recolor_icon(dndIcon, iconColor);
+  recolor_icon(connectedIcon, iconColor);
+  recolor_icon(disconnectedIcon, iconColor);
+}
+
 static void draw_icon(GContext *ctx, GBitmap *icon, int x, int centerY) {
   GSize size = gbitmap_get_bounds(icon).size;
   GRect iconRect = GRect(x, centerY - size.h / 2, size.w, size.h);
@@ -74,14 +89,6 @@ static void status_bar_update(Layer *l, GContext *ctx) {
   }
 
   GRect bounds = layer_get_bounds(l);
-
-  // the bar draws directly on the watchface background, matching the
-  // time color
-  GColor color = settings.timeColor;
-
-  recolor_icon(dndIcon, color);
-  recolor_icon(connectedIcon, color);
-  recolor_icon(disconnectedIcon, color);
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
 
@@ -135,6 +142,8 @@ void StatusBar_init(Window *window) {
   connectedIcon = gbitmap_create_with_resource(RESOURCE_ID_STATUS_CONNECTED);
   disconnectedIcon =
       gbitmap_create_with_resource(RESOURCE_ID_STATUS_DISCONNECTED);
+  iconColor = GColorClear; // fresh bitmaps; the time is never clear
+  update_icon_color();
 
 #ifdef PBL_ROUND
   statusBarLayer = layer_create(
@@ -157,6 +166,8 @@ void StatusBar_deinit(void) {
 }
 
 void StatusBar_redraw(void) {
+  update_icon_color();
+
 #ifndef PBL_ROUND
   layer_set_frame(statusBarLayer, statusbar_frame());
 #endif

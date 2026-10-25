@@ -13,6 +13,7 @@ function getWeatherFromCoords(pos) {
     '&daily=temperature_2m_max,temperature_2m_min,uv_index_max,weathercode' +
       ',sunrise,sunset,precipitation_probability_max' +
     '&hourly=uv_index' +
+    '&forecast_days=1' +
     '&timezone=auto';
 
   console.log(url);
@@ -22,7 +23,17 @@ function getWeatherFromCoords(pos) {
 
 function getAndSendWeather(url) {
   weatherCommon.xhrRequest(url, 'GET', function(responseText) {
-    var json = JSON.parse(responseText);
+    var json = null;
+    try {
+      json = responseText && JSON.parse(responseText);
+    } catch (e) {
+      json = null;
+    }
+
+    if (!json || !json.current_weather || !json.daily || !json.hourly) {
+      weatherCommon.retryAfterFailure('Weather request');
+      return;
+    }
 
     // Handle current weather
     var temperature = Math.round(json.current_weather.temperature);

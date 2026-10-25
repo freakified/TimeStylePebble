@@ -1,49 +1,28 @@
 #pragma once
+#include <pebble.h>
 
+// language ids index resources/data/languages.json; only the ones the
+// code special-cases are named here
 #define LANGUAGE_EN 0
-#define LANGUAGE_FR 1
-#define LANGUAGE_DE 2
-#define LANGUAGE_ES 3
-#define LANGUAGE_IT 4
-#define LANGUAGE_NL 5
 #define LANGUAGE_TR 6
-#define LANGUAGE_CZ 7
-#define LANGUAGE_PT 8
-#define LANGUAGE_GK 9
-#define LANGUAGE_SE 10
-#define LANGUAGE_PL 11
-#define LANGUAGE_SK 12
-#define LANGUAGE_VN 13
-#define LANGUAGE_RO 14
-#define LANGUAGE_CA 15
-#define LANGUAGE_NO 16
-#define LANGUAGE_RU 17
-#define LANGUAGE_EE 18
-#define LANGUAGE_EU 19
-#define LANGUAGE_FI 20
-#define LANGUAGE_DA 21
-#define LANGUAGE_LT 22
-#define LANGUAGE_SL 23
-#define LANGUAGE_HU 24
-#define LANGUAGE_HR 25
-#define LANGUAGE_GA 26
-#define LANGUAGE_LV 27
-#define LANGUAGE_SR 28
-#define LANGUAGE_CN 29
-#define LANGUAGE_ID 30
-#define LANGUAGE_UK 31
-#define LANGUAGE_CY 32 // welsh
-#define LANGUAGE_GL 33 // gallacian
-#define LANGUAGE_JP 34 // japanese
-#define LANGUAGE_KR 35 // korean
-#define LANGUAGE_IW 36 // hebrew
+#define LANGUAGE_COUNT 37
 
-/* day names in many different languages! */
-extern const char dayNames[37][7][8];
+// must match tools/gen_languages.py, which packs the LANGUAGES resource
+#define LANGUAGE_NAME_SIZE 8
+#define LANGUAGE_WEEK_SIZE 12
 
-/* month names in many different languages! */
-extern const char monthNames[37][12][8];
+// one language's strings, as stored in the LANGUAGES resource. Only the
+// selected language's are kept in RAM.
+typedef struct {
+  char dayNames[7][LANGUAGE_NAME_SIZE];
+  char monthNames[12][LANGUAGE_NAME_SIZE];
+  // all of these are taken from:
+  // http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
+  char wordForWeek[LANGUAGE_WEEK_SIZE];
+} LanguageStrings;
 
-// all of these are taken from:
-// http://www.unicode.org/cldr/charts/28/by_type/date_&_time.fields.html#521165cf49647551
-extern const char wordForWeek[37][12];
+extern LanguageStrings Language_strings;
+
+// loads a language's strings into Language_strings; cheap when that
+// language is already loaded
+void Language_load(uint8_t languageId);

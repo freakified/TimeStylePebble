@@ -1,19 +1,22 @@
 #pragma once
 #include <pebble.h>
 
-// persistent storage
-#define WEATHER_PERSIST_KEY 223
+// persistent storage. 223 held the pre-v8 struct, which stored icon
+// resource ids; those shift whenever resources are added, so that blob is
+// discarded rather than read
+#define WEATHER_PERSIST_KEY 224
+#define WEATHER_LEGACY_PERSIST_KEY 223
 
 typedef struct {
   // current weather
   int currentTemp;
-  uint32_t currentIconResourceID;
+  int currentCondition; // WeatherCondition, or -1 for none yet
   int currentUVIndex;
 
   // today's forecast
   int todaysHighTemp;
   int todaysLowTemp;
-  uint32_t forecastIconResourceID;
+  int forecastCondition; // WeatherCondition, or -1 for none yet
 
   // today's precipitation chance (%)
   int precipChance;

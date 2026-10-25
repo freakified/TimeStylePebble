@@ -4,6 +4,7 @@
 # Feel free to customize this to your needs.
 #
 import os.path
+import sys
 
 top = '.'
 out = 'build'
@@ -24,6 +25,12 @@ def configure(ctx):
 
 
 def build(ctx):
+    # the LANGUAGES resource is generated from its JSON source
+    sys.path.insert(0, ctx.path.find_dir('tools').abspath())
+    import gen_languages
+    gen_languages.generate(ctx.path.find_node('resources/data/languages.json').abspath(),
+                           os.path.join(ctx.path.abspath(), 'resources/data/languages.bin'))
+
     ctx.load('pebble_sdk')
 
     build_worker = os.path.exists('worker_src')

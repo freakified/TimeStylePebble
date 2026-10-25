@@ -1,4 +1,3 @@
-#ifndef PBL_PLATFORM_APLITE
 #include <pebble.h>
 
 #include "clock_area.h"
@@ -11,12 +10,12 @@
 #define ROUND_VERTICAL_PADDING 15
 #define ROUND_OBSTRUCTED_PADDING 4
 
-char time_hours[3];
-char time_minutes[3];
+static char time_hours[3];
+static char time_minutes[3];
 
-Layer* clock_area_layer;
-FFont* hours_font;
-FFont* minutes_font;
+static Layer* clock_area_layer;
+static FFont* hours_font;
+static FFont* minutes_font;
 
 // every face, indexed [typeface][bold]; only the ones the current
 // settings use are kept in memory
@@ -30,9 +29,7 @@ static const uint32_t face_resources[FACE_COUNT][2] = {
 
 static FFont* faces[FACE_COUNT][2];
 
-GRect screen_rect;
-
-// "private" functions
+static GRect screen_rect;
 
 typedef struct {
   fixed_t left, right;  // from the pen origin
@@ -176,7 +173,7 @@ static void set_face_loaded(ClockFace face, bool bold, bool needed) {
   }
 }
 
-void update_fonts() {
+static void update_fonts() {
   ClockFace face = current_face();
 
   // free what's no longer used before loading anything new, so a switch
@@ -198,7 +195,7 @@ void update_fonts() {
   minutes_font = faces[face][settings.minutesBold];
 }
 
-void update_clock_area_layer(Layer *l, GContext* ctx) {
+static void update_clock_area_layer(Layer *l, GContext* ctx) {
   // check layer bounds
   GRect bounds = layer_get_unobstructed_bounds(l);
 
@@ -220,9 +217,9 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
     bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, bottom - ROUND_VERTICAL_PADDING);
   #else
-    // reserve space for top/bottom sidebar regions, combining with any
-    // system obstruction (timeline quick view) already in the bounds
-    int top = bounds.origin.y + Sidebar_reservedTop();
+    // reserve space for the bottom bar, combining with any system
+    // obstruction (timeline quick view) already in the bounds
+    int top = bounds.origin.y;
     int bottom = bounds.origin.y + bounds.size.h;
     int bottomLimit = screen_rect.size.h - Sidebar_reservedBottom();
 
@@ -253,7 +250,6 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   // avenir + avenir bold metrics
   int v_padding = bounds.size.h / 16;
   int h_adjust = 0;
-  int v_adjust = 0;
 
   // alternate metrics for LECO
   if(settings.clockFontId == FONT_SETTING_LECO) {
@@ -303,11 +299,11 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   } else {
     fctx_set_text_em_height(&fctx, hours_font, font_size);
     draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
-                             INT_TO_FIXED(bounds.origin.y + v_padding + v_adjust), FTextAnchorTop);
+                             INT_TO_FIXED(bounds.origin.y + v_padding), FTextAnchorTop);
 
     fctx_set_text_em_height(&fctx, minutes_font, font_size);
     draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
-                             INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding + v_adjust), FTextAnchorBaseline);
+                             INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding), FTextAnchorBaseline);
   }
 
   fctx_deinit_context(&fctx);
@@ -358,5 +354,3 @@ void ClockArea_update_time(struct tm* time_info) {
   // minutes
   strftime(time_minutes, sizeof(time_minutes), "%M", time_info);
 }
-
-#endif

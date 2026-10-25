@@ -6,112 +6,82 @@ WeatherInfo Weather_weatherInfo;
 GDrawCommandImage* Weather_currentWeatherIcon;
 GDrawCommandImage* Weather_forecastWeatherIcon;
 
-uint32_t getConditionIcon(WeatherCondition conditionCode) {
-  uint32_t iconToLoad;
+static const uint32_t s_conditionIcons[] = {
+  [CLEAR_DAY]           = RESOURCE_ID_WEATHER_CLEAR_DAY,
+  [CLEAR_NIGHT]         = RESOURCE_ID_WEATHER_CLEAR_NIGHT,
+  [CLOUDY_DAY]          = RESOURCE_ID_WEATHER_CLOUDY,
+  [HEAVY_RAIN]          = RESOURCE_ID_WEATHER_HEAVY_RAIN,
+  [HEAVY_SNOW]          = RESOURCE_ID_WEATHER_HEAVY_SNOW,
+  [LIGHT_RAIN]          = RESOURCE_ID_WEATHER_LIGHT_RAIN,
+  [LIGHT_SNOW]          = RESOURCE_ID_WEATHER_LIGHT_SNOW,
+  [PARTLY_CLOUDY_NIGHT] = RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT,
+  [PARTLY_CLOUDY]       = RESOURCE_ID_WEATHER_PARTLY_CLOUDY,
+  [RAINING_AND_SNOWING] = RESOURCE_ID_WEATHER_RAINING_AND_SNOWING,
+  [THUNDERSTORM]        = RESOURCE_ID_WEATHER_THUNDERSTORM,
+  [WEATHER_GENERIC]     = RESOURCE_ID_WEATHER_GENERIC,
+};
 
-  switch(conditionCode) {
-    case CLEAR_DAY:
-      iconToLoad = RESOURCE_ID_WEATHER_CLEAR_DAY;
-      break;
-    case CLEAR_NIGHT:
-      iconToLoad = RESOURCE_ID_WEATHER_CLEAR_NIGHT;
-      break;
-    case CLOUDY_DAY:
-      iconToLoad = RESOURCE_ID_WEATHER_CLOUDY;
-      break;
-    case HEAVY_RAIN:
-      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_RAIN;
-      break;
-    case HEAVY_SNOW:
-      iconToLoad = RESOURCE_ID_WEATHER_HEAVY_SNOW;
-      break;
-    case LIGHT_RAIN:
-      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_RAIN;
-      break;
-    case LIGHT_SNOW:
-      iconToLoad = RESOURCE_ID_WEATHER_LIGHT_SNOW;
-      break;
-    case PARTLY_CLOUDY_NIGHT:
-      iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY_NIGHT;
-      break;
-    case PARTLY_CLOUDY:
-      iconToLoad = RESOURCE_ID_WEATHER_PARTLY_CLOUDY;
-      break;
-    case RAINING_AND_SNOWING:
-      iconToLoad = RESOURCE_ID_WEATHER_RAINING_AND_SNOWING;
-      break;
-    case THUNDERSTORM:
-      iconToLoad = RESOURCE_ID_WEATHER_THUNDERSTORM;
-      break;
-    default:
-      iconToLoad = RESOURCE_ID_WEATHER_GENERIC;
-      break;
+// swaps *icon for the given condition's icon (NULL for no condition)
+static void load_condition_icon(GDrawCommandImage** icon, int conditionCode) {
+  gdraw_command_image_destroy(*icon);
+  *icon = NULL;
+
+  if (conditionCode < 0) {
+    return;
   }
 
-  return iconToLoad;
+  uint32_t resourceId = (conditionCode < (int)ARRAY_LENGTH(s_conditionIcons))
+                            ? s_conditionIcons[conditionCode]
+                            : RESOURCE_ID_WEATHER_GENERIC;
+  *icon = gdraw_command_image_create_with_resource(resourceId);
 }
 
 void Weather_setCurrentCondition(int conditionCode) {
-
-  uint32_t currentWeatherIcon = getConditionIcon(conditionCode);
-
-  // ok, now load the new icon:
-  gdraw_command_image_destroy(Weather_currentWeatherIcon);
-  Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(currentWeatherIcon);
-
-  Weather_weatherInfo.currentIconResourceID = currentWeatherIcon;
+  Weather_weatherInfo.currentCondition = conditionCode;
+  load_condition_icon(&Weather_currentWeatherIcon, conditionCode);
 }
 
 void Weather_setForecastCondition(int conditionCode) {
-  uint32_t forecastWeatherIcon = getConditionIcon(conditionCode);
-
-  gdraw_command_image_destroy(Weather_forecastWeatherIcon);
-  Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(forecastWeatherIcon);
-
-  Weather_weatherInfo.forecastIconResourceID = forecastWeatherIcon;
+  Weather_weatherInfo.forecastCondition = conditionCode;
+  load_condition_icon(&Weather_forecastWeatherIcon, conditionCode);
 }
 
 void Weather_init() {
   // initialize weather with default values
-  Weather_weatherInfo.currentTemp = INT32_MIN;
-  Weather_weatherInfo.currentUVIndex = INT32_MIN;
-  Weather_weatherInfo.todaysHighTemp = INT32_MIN;
-  Weather_weatherInfo.todaysLowTemp = INT32_MIN;
-  Weather_weatherInfo.precipChance = INT32_MIN;
-  Weather_weatherInfo.sunriseMinute = INT32_MIN;
-  Weather_weatherInfo.sunsetMinute = INT32_MIN;
+  Weather_weatherInfo = (WeatherInfo){
+    .currentTemp = INT32_MIN,
+    .currentCondition = -1,
+    .currentUVIndex = INT32_MIN,
+    .todaysHighTemp = INT32_MIN,
+    .todaysLowTemp = INT32_MIN,
+    .forecastCondition = -1,
+    .precipChance = INT32_MIN,
+    .sunriseMinute = INT32_MIN,
+    .sunsetMinute = INT32_MIN,
+  };
 
-  // if possible, load weather data from persistent storage; a blob saved
-  // by an older version may be smaller than the struct, in which case the
-  // newer fields keep the defaults set above
+  if (persist_exists(WEATHER_LEGACY_PERSIST_KEY)) {
+    persist_delete(WEATHER_LEGACY_PERSIST_KEY);
+  }
+
+  // if possible, load weather data from persistent storage
   if (persist_exists(WEATHER_PERSIST_KEY)) {
     persist_read_data(WEATHER_PERSIST_KEY, &Weather_weatherInfo,
                       sizeof(Weather_weatherInfo));
   }
-  
-  // load icon if needed
-  if (Weather_weatherInfo.currentIconResourceID > 0) {
-    Weather_currentWeatherIcon = gdraw_command_image_create_with_resource(Weather_weatherInfo.currentIconResourceID);
-  } else {
-    Weather_currentWeatherIcon = NULL;
-  }
-  
-  if (Weather_weatherInfo.forecastIconResourceID > 0) {
-    Weather_forecastWeatherIcon = gdraw_command_image_create_with_resource(Weather_weatherInfo.forecastIconResourceID);
-  } else {
-    Weather_forecastWeatherIcon = NULL;
-  }
+
+  load_condition_icon(&Weather_currentWeatherIcon,
+                      Weather_weatherInfo.currentCondition);
+  load_condition_icon(&Weather_forecastWeatherIcon,
+                      Weather_weatherInfo.forecastCondition);
 }
 
+// called whenever new weather arrives, which is the only time it changes
 void Weather_saveData() {
   persist_write_data(WEATHER_PERSIST_KEY, &Weather_weatherInfo, sizeof(WeatherInfo));
 }
 
 void Weather_deinit() {
-  // save weather data to persistent storage
-  Weather_saveData();
-
-  // free memory
   gdraw_command_image_destroy(Weather_currentWeatherIcon);
   gdraw_command_image_destroy(Weather_forecastWeatherIcon);
 }

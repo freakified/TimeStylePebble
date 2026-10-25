@@ -12,8 +12,7 @@ typedef enum {
   REGION_EDGE_NONE   = 0,
   REGION_EDGE_RIGHT  = 1,
   REGION_EDGE_LEFT   = 2,
-  REGION_EDGE_BOTTOM = 3,
-  REGION_EDGE_TOP    = 4
+  REGION_EDGE_BOTTOM = 3
 } RegionEdge;
 
 /*

@@ -1,0 +1,52 @@
+"""Packs resources/data/languages.json into the LANGUAGES raw resource.
+
+One fixed-size record per language, in id order, laid out like the C
+LanguageStrings struct (languages.h): 7 day names and 12 month names of
+LANGUAGE_NAME_SIZE bytes each, then the word for "week" in
+LANGUAGE_WEEK_SIZE bytes. Strings are UTF-8, NUL-padded.
+
+The watch loads only the selected language's record, rather than keeping
+every language's strings in app RAM. wscript runs this on every build.
+"""
+import json
+import os
+
+NAME_SIZE = 8  # LANGUAGE_NAME_SIZE
+WEEK_SIZE = 12  # LANGUAGE_WEEK_SIZE
+
+
+def pack(text, size, where):
+    data = text.encode('utf-8')
+    if len(data) >= size:
+        raise ValueError('%s: "%s" is %d bytes, max %d' % (where, text, len(data), size - 1))
+    return data + b'\0' * (size - len(data))
+
+
+def generate(json_path, bin_path):
+    with open(json_path, encoding='utf-8') as f:
+        languages = json.load(f)
+
+    out = bytearray()
+    for index, lang in enumerate(languages):
+        where = 'language %d (%s)' % (index, lang['code'])
+        if lang['id'] != index:
+            raise ValueError('%s: listed out of id order' % where)
+        if len(lang['days']) != 7 or len(lang['months']) != 12:
+            raise ValueError('%s: needs 7 days and 12 months' % where)
+        for name in lang['days'] + lang['months']:
+            out += pack(name, NAME_SIZE, where)
+        out += pack(lang['week'], WEEK_SIZE, where)
+
+    # skip the write when nothing changed, so waf doesn't rebuild resources
+    if os.path.exists(bin_path):
+        with open(bin_path, 'rb') as f:
+            if f.read() == out:
+                return
+    with open(bin_path, 'wb') as f:
+        f.write(out)
+
+
+if __name__ == '__main__':
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+    generate(os.path.join(root, 'resources/data/languages.json'),
+             os.path.join(root, 'resources/data/languages.bin'))

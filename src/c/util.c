@@ -2,7 +2,7 @@
 #include "util.h"
 
 
-bool recolor_iterator_cb(GDrawCommand *command, uint32_t index, void *context) {
+static bool recolor_iterator_cb(GDrawCommand *command, uint32_t index, void *context) {
   GColor *colors = (GColor *)context;
 
   gdraw_command_set_fill_color(command, colors[0]);
@@ -75,24 +75,4 @@ bool is_health_metric_accessible(HealthMetric metric) {
   return mask & HealthServiceAccessibilityMaskAvailable;
 }
 
-bool is_user_sleeping() {
-  // currently disabled
-  return false;
-  //
-  //  time_t now = time(NULL);
-  //
-    //  HealthActivityMask activities = HealthActivitySleep | HealthActivityRestfulSleep;
-  //
-    //  HealthServiceAccessibilityMask mask = health_service_any_activity_accessible(activities, now, now);
-    //  bool sleep_access_available = mask & HealthServiceAccessibilityMaskAvailable;
-  //
-  //  if(sleep_access_available) {
-  //    uint32_t current_activities = health_service_peek_current_activities();
-    //    bool sleeping = current_activities & HealthActivitySleep || current_activities & HealthActivityRestfulSleep;
-  //
-  //    return sleeping;
-  //  } else {
-  //    return false;
-  //  }
-}
 #endif

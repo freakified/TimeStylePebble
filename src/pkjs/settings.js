@@ -81,8 +81,8 @@ function settingsFromWatchPayload(payload) {
     colorSidebar: padHex(payload.SettingColorSidebar),
 
     widget0Id: getNumber(payload.SettingWidget0ID, 7),
-    widget1Id: getNumber(payload.SettingWidget1ID, 0),
-    widget2Id: getNumber(payload.SettingWidget2ID, 4),
+    widget1Id: getNumber(payload.SettingWidget1ID, 4),
+    widget2Id: getNumber(payload.SettingWidget2ID, 0),
     widget3Id: getNumber(payload.SettingWidget3ID, 0),
     widget4Id: getNumber(payload.SettingWidget4ID, 0),
     widget5Id: getNumber(payload.SettingWidget5ID, 0),

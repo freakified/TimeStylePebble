@@ -116,6 +116,7 @@ typedef struct {
   bool updateScreenEverySecond;
   bool enableBeats;
   bool enableAltTimeZone;
+  bool enableHeartRate;
 
   // whether the watch should periodically ping the phone (weather
   // updates, and world-time DST offset refreshes)
@@ -129,7 +130,6 @@ extern Settings settings;
 extern DynamicSettings dynamicSettings;
 
 void Settings_init();
-void Settings_deinit();
 void Settings_loadFromStorage();
 void Settings_saveToStorage();
 void Settings_updateDynamicSettings();

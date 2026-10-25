@@ -12,7 +12,6 @@ import {
   WidgetSelector,
   WidgetDisplayOptions,
   WeatherLocationPicker,
-  FormItem,
   DonationLink,
   TextField,
 } from '../components';
@@ -53,14 +52,14 @@ const LANGUAGE_OPTIONS = [
   { label: 'Gaeilge', value: 26 },
   { label: 'Latviešu', value: 27 },
   { label: 'Srpski', value: 28 },
-  { label: '中文', value: 29 },
+  { label: '中文 (requires language pack)', value: 29 },
   { label: 'Bahasa Indonesia', value: 30 },
   { label: 'Українська', value: 31 },
   { label: 'Cymraeg', value: 32 },
   { label: 'Galego', value: 33 },
-  { label: '日本語', value: 34 },
-  { label: '한국어', value: 35 },
-  { label: 'עברית', value: 36 },
+  { label: '日本語 (requires language pack)', value: 34 },
+  { label: '한국어 (requires language pack)', value: 35 },
+  { label: '‏עברית‏ (requires language pack)', value: 36 },
 ];
 
 export const SettingsPage: React.FC = () => {

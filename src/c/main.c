@@ -17,16 +17,13 @@ static bool isPhoneConnected;
 // current time service subscription
 static bool updatingEverySecond;
 
-// try to randomize when watches call the weather API
+// try to randomize when watches call the weather API (0-29; the phone is
+// pinged at this minute and 30 past it)
 static uint8_t weatherRefreshMinute;
 
-void update_clock();
-void redrawScreen();
-void tick_handler(struct tm *tick_time, TimeUnits units_changed);
-void bluetoothStateChanged(bool newConnectionState);
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
-
-void update_clock() {
+static void update_clock() {
   time_t rawTime;
   struct tm* timeInfo;
 
@@ -51,7 +48,7 @@ void update_clock() {
 }
 
 /* forces everything on screen to be redrawn -- perfect for keeping track of settings! */
-void redrawScreen() {
+static void redrawScreen() {
 
   // check if the tick handler frequency should be changed
   if(dynamicSettings.updateScreenEverySecond != updatingEverySecond) {
@@ -100,10 +97,10 @@ static void main_window_unload(Window *window) {
 }
 
 
-void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // every 30 minutes, ping the phone (weather data, world time DST offsets)
   if(dynamicSettings.enablePhonePolling) {
-    if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == 0) {
+    if(tick_time->tm_min % 30 == weatherRefreshMinute && tick_time->tm_sec == 0) {
       messaging_requestNewWeatherData();
     }
   }
@@ -131,7 +128,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   ClockArea_redraw();
 }
 
-void bluetoothStateChanged(bool newConnectionState) {
+static void bluetoothStateChanged(bool newConnectionState) {
   // if the phone was connected but isn't anymore and the user has opted in,
   // trigger a vibration
   if(!quiet_time_is_active() && isPhoneConnected && !newConnectionState && settings.btVibe) {
@@ -155,7 +152,7 @@ void bluetoothStateChanged(bool newConnectionState) {
 }
 
 // force the sidebar and status bar to redraw any time the battery state changes
-void batteryStateChanged(BatteryChargeState charge_state) {
+static void batteryStateChanged(BatteryChargeState charge_state) {
   Sidebar_redraw();
   StatusBar_redraw();
 }
@@ -164,7 +161,7 @@ void batteryStateChanged(BatteryChargeState charge_state) {
 // heart rate readings arrive asynchronously; without this the heart rate
 // widget only refreshed on the minute tick, showing stale or no data
 static void healthEventHandler(HealthEventType event, void *context) {
-  if(event == HealthEventHeartRateUpdate) {
+  if(event == HealthEventHeartRateUpdate && dynamicSettings.enableHeartRate) {
     Sidebar_redraw();
   }
 }
@@ -201,7 +198,7 @@ static void init() {
 
   srand(time(NULL));
 
-  weatherRefreshMinute = rand() % 60;
+  weatherRefreshMinute = rand() % 30;
 
   // init settings
   Settings_init();
@@ -235,8 +232,9 @@ static void init() {
     updatingEverySecond = false;
   }
 
-  bool connected = bluetooth_connection_service_peek();
-  bluetoothStateChanged(connected);
+  // no weather request here: the phone fetches it on its own when the
+  // app's JS starts up
+  isPhoneConnected = bluetooth_connection_service_peek();
   bluetooth_connection_service_subscribe(bluetoothStateChanged);
 
   // register with battery service
@@ -264,7 +262,6 @@ static void deinit() {
 
   // unload weather stuff
   Weather_deinit();
-  Settings_deinit();
 
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();

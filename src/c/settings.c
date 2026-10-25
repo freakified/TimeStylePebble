@@ -22,8 +22,6 @@ void Settings_init() {
 #endif
 }
 
-void Settings_deinit() { Settings_saveToStorage(); }
-
 // an unknown widget id would still count as "something in the slot" (a
 // bottom bar with nothing drawn in it, say), so clear it instead
 static void clear_unknown_widgets() {
@@ -153,7 +151,6 @@ void Settings_saveToStorage() {
   // We're limited to 256 bytes, so make sure that settings fits
   _Static_assert(sizeof(Settings) <= PERSIST_DATA_MAX_LENGTH,
                  "Warning: settings struct is too large!");
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Current settings size %d", sizeof(settings));
 
   // Write the data
   persist_write_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
@@ -249,6 +246,7 @@ void Settings_updateDynamicSettings() {
   dynamicSettings.updateScreenEverySecond = false;
   dynamicSettings.enableBeats = false;
   dynamicSettings.enableAltTimeZone = false;
+  dynamicSettings.enableHeartRate = false;
   dynamicSettings.enablePhonePolling = false;
 
   // scan the widget slots that can actually render
@@ -282,6 +280,12 @@ void Settings_updateDynamicSettings() {
     // if any widget is "beats", enable the beats calculation
     if (widget == BEATS) {
       dynamicSettings.enableBeats = true;
+    }
+
+    // heart rate readings arrive asynchronously, and only the heart rate
+    // widget needs a redraw for them
+    if (widget == HEARTRATE) {
+      dynamicSettings.enableHeartRate = true;
     }
 
     // world time widgets need the shifted-clock calculation, plus periodic
