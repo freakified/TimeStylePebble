@@ -34,16 +34,27 @@ GRect screen_rect;
 
 // "private" functions
 
-// the horizontal ink extent of a string, in the same units (and from the
-// same origin) fctx_draw_string uses with left alignment. fctx centers by
-// advance width, but digit side bearings are lopsided (LECO's overhang
-// their right edge, Avenir's "1" sits well right of its box), which
-// pushes the time visibly off center (most of all on round watches)
+typedef struct {
+  fixed_t left, right;  // from the pen origin
+  fixed_t bottom, top;  // from the baseline, y up
+} InkBox;
+
+static void ink_include(InkBox* box, fixed_t x, fixed_t y, bool has_x, bool has_y) {
+  if(has_x && x < box->left)   box->left = x;
+  if(has_x && x > box->right)  box->right = x;
+  if(has_y && y < box->bottom) box->bottom = y;
+  if(has_y && y > box->top)    box->top = y;
+}
+
+// the ink extent of a string, in font units from the origin
+// fctx_draw_string uses with left alignment. fctx centers by advance
+// width, but digit side bearings are lopsided (LECO's overhang their
+// right edge, Avenir's "1" sits well right of its box), which pushes the
+// time visibly off center (most of all on round watches)
 // (the strings here are all ASCII digits and spaces, so no utf8 decoding)
-static void string_ink_extent(const char* text, FFont* font, fixed_t* left, fixed_t* right) {
+static void string_ink_extent(const char* text, FFont* font, InkBox* box) {
   fixed_t pen = 0;
-  *left = INT32_MAX;
-  *right = INT32_MIN;
+  *box = (InkBox){ INT32_MAX, INT32_MIN, INT32_MAX, INT32_MIN };
 
   for(const char* p = text; *p; p++) {
     FGlyph* glyph = ffont_glyph_info(font, (uint8_t)*p);
@@ -57,15 +68,18 @@ static void string_ink_extent(const char* text, FFont* font, fixed_t* left, fixe
     while(data < end) {
       FPathDrawCommand* cmd = data;
       fixed16_t* param = cmd->params;
-      int x_count = 0;  // x params come first in each point pair
       int pairs = 0;
 
       switch(cmd->code) {
         case 'M': case 'L': case 'T': pairs = 1; break;
         case 'S': case 'Q':           pairs = 2; break;
         case 'C':                     pairs = 3; break;
-        case 'H':                     x_count = 1; break;
-        case 'V':                     param++; break;
+        case 'H':
+          ink_include(box, pen + *param++, 0, true, false);
+          break;
+        case 'V':
+          ink_include(box, 0, *param++, false, true);
+          break;
         case 'Z':                     break;
         default:                      return;  // fctx would bail too
       }
@@ -73,11 +87,8 @@ static void string_ink_extent(const char* text, FFont* font, fixed_t* left, fixe
       // every curve point stays inside its control polygon, so the
       // control points bound the outline (tightly, for well-formed
       // fonts, which put on-curve points at the extremes)
-      for(int i = 0; i < pairs + x_count; i++) {
-        fixed_t x = pen + *param;
-        param += pairs ? 2 : 1;
-        if(x < *left)  *left = x;
-        if(x > *right) *right = x;
+      for(int i = 0; i < pairs; i++, param += 2) {
+        ink_include(box, pen + param[0], param[1], true, true);
       }
 
       data = param;
@@ -86,9 +97,18 @@ static void string_ink_extent(const char* text, FFont* font, fixed_t* left, fixe
     pen += glyph->horiz_adv_x;
   }
 
-  if(*left > *right) {
-    *left = *right = 0;
+  if(box->left > box->right) {
+    box->left = box->right = 0;
   }
+  if(box->bottom > box->top) {
+    box->bottom = box->top = 0;
+  }
+}
+
+// font units -> screen pixels (fixed), the same scaling fctx_string_width
+// applies; the em height must already be set for this font
+static fixed_t font_units_to_screen(FContext* fctx, fixed_t units) {
+  return units * fctx->transform_scale_to.x / fctx->transform_scale_from.x;
 }
 
 // draws text with its ink, not its advance box, centered on center_x.
@@ -109,16 +129,32 @@ static void draw_string_ink_centered(FContext* fctx, const char* text, FFont* fo
     lead += zero->horiz_adv_x;
   }
 
-  fixed_t left, right;
-  string_ink_extent(measured, font, &left, &right);
+  InkBox ink;
+  string_ink_extent(measured, font, &ink);
 
-  // font units -> screen, the same scaling fctx_string_width applies
-  fixed_t x = (lead - (left + right) / 2) * fctx->transform_scale_to.x / fctx->transform_scale_from.x;
+  fixed_t x = font_units_to_screen(fctx, lead - (ink.left + ink.right) / 2);
 
   fctx_begin_fill(fctx);
   fctx_set_offset(fctx, FPoint(center_x + x, y));
   fctx_draw_string(fctx, text, font, GTextAlignmentLeft, anchor);
   fctx_end_fill(fctx);
+}
+
+// the "0" glyph's ink in screen pixels (still y up from the baseline), and
+// the blank space between two adjacent "0"s. measured on "0" rather than the
+// time itself so the layout doesn't shift from minute to minute
+static void digit_metrics(FContext* fctx, FFont* font, InkBox* ink, fixed_t* gap) {
+  InkBox units;
+  string_ink_extent("0", font, &units);
+
+  FGlyph* zero = ffont_glyph_info(font, '0');
+  fixed_t advance = zero ? zero->horiz_adv_x : units.right - units.left;
+
+  ink->left = font_units_to_screen(fctx, units.left);
+  ink->right = font_units_to_screen(fctx, units.right);
+  ink->top = font_units_to_screen(fctx, units.top);
+  ink->bottom = font_units_to_screen(fctx, units.bottom);
+  *gap = font_units_to_screen(fctx, advance - (units.right - units.left));
 }
 
 static ClockFace current_face() {
@@ -222,7 +258,6 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   // alternate metrics for LECO
   if(settings.clockFontId == FONT_SETTING_LECO) {
     font_size = 4 * bounds.size.h / 7 + 6;
-    v_padding = bounds.size.h / 20;
   }
 
   #ifndef PBL_ROUND
@@ -238,13 +273,42 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   // coverage buffer only ever spans one line of digits
   fixed_t center_x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
 
-  fctx_set_text_em_height(&fctx, hours_font, font_size);
-  draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
-                           INT_TO_FIXED(bounds.origin.y + v_padding + v_adjust), FTextAnchorTop);
+  if(settings.clockFontId == FONT_SETTING_LECO) {
+    // LECO reads as one solid block when the rows are spaced like the
+    // digits within them, so lay the two rows out as a single block,
+    // with a row gap equal to the gap between digits, centered vertically
+    InkBox hours_ink, minutes_ink;
+    fixed_t hours_gap, minutes_gap;
 
-  fctx_set_text_em_height(&fctx, minutes_font, font_size);
-  draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
-                           INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding + v_adjust), FTextAnchorBaseline);
+    fctx_set_text_em_height(&fctx, hours_font, font_size);
+    digit_metrics(&fctx, hours_font, &hours_ink, &hours_gap);
+    fctx_set_text_em_height(&fctx, minutes_font, font_size);
+    digit_metrics(&fctx, minutes_font, &minutes_ink, &minutes_gap);
+
+    fixed_t row_gap = (hours_gap + minutes_gap) / 2;
+    fixed_t block_h = (hours_ink.top - hours_ink.bottom) + row_gap +
+                      (minutes_ink.top - minutes_ink.bottom);
+    fixed_t block_top = INT_TO_FIXED(bounds.origin.y) + (INT_TO_FIXED(bounds.size.h) - block_h) / 2;
+
+    fixed_t hours_baseline = block_top + hours_ink.top;
+    fixed_t minutes_baseline = hours_baseline - hours_ink.bottom + row_gap + minutes_ink.top;
+
+    fctx_set_text_em_height(&fctx, hours_font, font_size);
+    draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
+                             hours_baseline, FTextAnchorBaseline);
+
+    fctx_set_text_em_height(&fctx, minutes_font, font_size);
+    draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
+                             minutes_baseline, FTextAnchorBaseline);
+  } else {
+    fctx_set_text_em_height(&fctx, hours_font, font_size);
+    draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
+                             INT_TO_FIXED(bounds.origin.y + v_padding + v_adjust), FTextAnchorTop);
+
+    fctx_set_text_em_height(&fctx, minutes_font, font_size);
+    draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
+                             INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding + v_adjust), FTextAnchorBaseline);
+  }
 
   fctx_deinit_context(&fctx);
 }
