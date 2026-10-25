@@ -57,8 +57,15 @@ static void recolor_icon(GBitmap *icon, GColor color) {
 
 static void draw_icon(GContext *ctx, GBitmap *icon, int x, int centerY) {
   GSize size = gbitmap_get_bounds(icon).size;
-  graphics_draw_bitmap_in_rect(
-      ctx, icon, GRect(x, centerY - size.h / 2, size.w, size.h));
+  GRect iconRect = GRect(x, centerY - size.h / 2, size.w, size.h);
+
+  // knock out a 1px background margin so the icon stays legible where
+  // large clock fonts reach up into it
+  graphics_context_set_fill_color(ctx, settings.timeBgColor);
+  graphics_fill_rect(ctx, grect_inset(iconRect, GEdgeInsets(-1)), 0,
+                     GCornerNone);
+
+  graphics_draw_bitmap_in_rect(ctx, icon, iconRect);
 }
 
 static void status_bar_update(Layer *l, GContext *ctx) {
