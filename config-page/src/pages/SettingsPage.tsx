@@ -170,12 +170,10 @@ export const SettingsPage: React.FC = () => {
             <ColorPicker
               label="Time color"
               messageKey="colorTime"
-              bwAllowGrey={false}
             />
             <ColorPicker
               label="Sidebar color"
               messageKey="colorSidebar"
-              bwAllowGrey={false}
             />
           </>
         )}
