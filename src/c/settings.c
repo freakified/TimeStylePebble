@@ -6,20 +6,6 @@ DynamicSettings dynamicSettings;
 
 void Settings_init() {
   Settings_loadFromStorage();
-
-  // for anyone who already installed timestyle on an emery, reset
-  // their large font setting, since the old "large" setting is
-  // roughly equivalent to the new default, and the new "large"
-  // setting is EVEN LARGER
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-  if (!persist_exists(MIGRATION_EMERY_FONT_PERSIST_KEY)) {
-    if (settings.useLargeFonts) {
-      settings.useLargeFonts = false;
-      Settings_saveToStorage();
-    }
-    persist_write_bool(MIGRATION_EMERY_FONT_PERSIST_KEY, true);
-  }
-#endif
 }
 
 // an unknown widget id would still count as "something in the slot" (a
@@ -37,10 +23,8 @@ static void clear_unknown_widgets() {
   }
 }
 
-// v16 settings predate hoursBold/minutesBold and encoded the weight in
-// clockFontId: Avenir's "bold" ids, and LECO, which only had its regular
-// (now "bold") weight. The new fields may land in the old struct's tail
-// padding, so they're set explicitly rather than trusted
+// master encoded the clock digits' weight in clockFontId: Avenir's "bold"
+// ids, and LECO, which only had its regular (now "bold") weight
 static void migrate_clock_font() {
   settings.hoursBold = false;
   settings.minutesBold = false;
@@ -62,6 +46,129 @@ static void migrate_clock_font() {
       return;
   }
   settings.clockFontId = FONT_SETTING_AVENIR;
+}
+
+/*
+ * Migration from master (7.x). Master persisted this struct raw, so it's
+ * frozen here exactly as master declared it. arm-none-eabi packs enums
+ * into a byte, hence the uint8_t fields standing in for master's enums.
+ */
+typedef struct {
+  GColor timeColor;
+  GColor timeBgColor;
+  GColor sidebarColor;
+  GColor sidebarTextColor;
+  uint8_t languageId;
+  bool showLeadingZero;
+  uint8_t clockFontId;
+  bool btVibe;
+  uint8_t hourlyVibe;
+  uint8_t widgets[3];
+  bool sidebarOnLeft;
+  bool useLargeFonts;
+  bool activateDisconnectIcon;
+  bool useMetric;
+  bool showBatteryPct;
+  bool disableAutobattery;
+  char altclockName[8];
+  int altclockOffset; // whole hours from UTC
+  bool healthUseDistance;
+  bool healthUseRestfulSleep;
+  char decimalSeparator;
+} MasterSettings;
+
+_Static_assert(sizeof(MasterSettings) == 36,
+               "MasterSettings must match master's persisted layout");
+
+// master's bluetooth disconnection widget, since replaced by the status bar
+#define MASTER_WIDGET_BLUETOOTH_DISCONNECT 1
+
+// a flag master's emery font migration left behind
+#define MASTER_EMERY_FONT_PERSIST_KEY 200
+
+static uint8_t migrate_widget(uint8_t widget, bool healthUseDistance) {
+  if (widget == MASTER_WIDGET_BLUETOOTH_DISCONNECT) {
+    return EMPTY;
+  }
+
+  // master's step counter could show distance instead, which is now its
+  // own widget
+  if (widget == STEP_COUNTER && healthUseDistance) {
+    return DISTANCE_WALKED;
+  }
+
+  return widget;
+}
+
+// translates master's persisted settings onto the defaults already in
+// `settings`. Settings master didn't have keep their defaults; master's
+// sidebar text color and auto-battery setting have no equivalent
+static void migrate_from_master() {
+  MasterSettings old;
+  persist_read_data(SETTINGS_PERSIST_KEY, &old, sizeof(old));
+
+  settings.timeColor = old.timeColor;
+  settings.timeBgColor = old.timeBgColor;
+  settings.sidebarColor = old.sidebarColor;
+
+  settings.languageId = old.languageId;
+  settings.showLeadingZero = old.showLeadingZero;
+  settings.clockFontId = old.clockFontId;
+  migrate_clock_font();
+
+  settings.btVibe = old.btVibe;
+  settings.hourlyVibe = (VibeIntervalType)old.hourlyVibe;
+
+  settings.layoutId =
+      old.sidebarOnLeft ? LAYOUT_SIDEBAR_LEFT : LAYOUT_SIDEBAR_RIGHT;
+  settings.useLargeFonts = old.useLargeFonts;
+  settings.useMetric = old.useMetric;
+  settings.healthUseRestfulSleep = old.healthUseRestfulSleep;
+  settings.decimalSeparator = old.decimalSeparator;
+
+  // the world time keeps master's fixed offset until the user picks a
+  // city; the phone supplies localUtcOffset, which the shifted clock
+  // also needs
+  memcpy(settings.altclockName, old.altclockName, sizeof(old.altclockName));
+  settings.altclockOffset = old.altclockOffset * 60;
+
+  // master's widgets were top / middle / bottom, with empty slots holding
+  // their place; the new list is packed, its last widget pinned to the
+  // bottom. Master's round face drew only the first (left arc) and the
+  // last (right arc)
+  for (int i = 0; i < MAX_REGION_SLOTS; i++) {
+    settings.vRegionSlots[i] = EMPTY;
+  }
+#ifdef PBL_ROUND
+  settings.vRegionSlots[0] =
+      migrate_widget(old.widgets[0], old.healthUseDistance);
+  settings.vRegionSlots[ROUND_ARC_SLOT_CAP] =
+      migrate_widget(old.widgets[2], old.healthUseDistance);
+#else
+  int slot = 0;
+  for (int i = 0; i < 3; i++) {
+    uint8_t widget = migrate_widget(old.widgets[i], old.healthUseDistance);
+    if (widget != EMPTY) {
+      settings.vRegionSlots[slot++] = widget;
+    }
+  }
+#endif
+
+  // the status bar took over the disconnection icon, and the widget
+  bool hadDisconnectWidget = false;
+  for (int i = 0; i < 3; i++) {
+    if (old.widgets[i] == MASTER_WIDGET_BLUETOOTH_DISCONNECT) {
+      hadDisconnectWidget = true;
+    }
+  }
+  settings.enableStatusBar = old.activateDisconnectIcon || hadDisconnectWidget;
+
+  // the battery percentage is now one of the widget's hideable parts
+  if (!old.showBatteryPct) {
+    settings.hideWidgetDetail |= 1u << BATTERY_METER;
+  }
+
+  persist_delete(MASTER_EMERY_FONT_PERSIST_KEY);
 }
 
 void Settings_loadFromStorage() {
@@ -119,25 +226,22 @@ void Settings_loadFromStorage() {
   settings.hideWidgetDetail = 0;
 
   // settings are persisted as a raw struct, so a blob from any other
-  // version would load scrambled; until there's a migration path, fall
-  // back to the defaults instead. v16 and v17 only appended fields, so
-  // they load as-is: v16 then has its clock font migrated, and both have
-  // the hidden widget parts cleared, since those may land in the old
-  // struct's tail padding
-  int storedVersion = persist_read_int(SETTINGS_VERSION_PERSIST_KEY);
-  if (persist_exists(SETTINGS_PERSIST_KEY) &&
-      (storedVersion >= 16 && storedVersion <= CURRENT_SETTINGS_VERSION)) {
-    persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
-    if (storedVersion == 16) {
-      migrate_clock_font();
-    }
-    if (storedVersion < 18) {
-      settings.hideWidgetMarker = 0;
-      settings.hideWidgetDetail = 0;
+  // version would load scrambled: master's is migrated, and anything else
+  // (an unreleased development version) falls back to the defaults
+  if (persist_exists(SETTINGS_PERSIST_KEY)) {
+    int storedVersion = persist_read_int(SETTINGS_VERSION_PERSIST_KEY);
+    if (storedVersion == CURRENT_SETTINGS_VERSION) {
+      persist_read_data(SETTINGS_PERSIST_KEY, &settings, sizeof(settings));
+    } else if (storedVersion == SETTINGS_VERSION_MASTER) {
+      migrate_from_master();
     }
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
     settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
     clear_unknown_widgets();
+
+    if (storedVersion == SETTINGS_VERSION_MASTER) {
+      Settings_saveToStorage();
+    }
   }
 
   Settings_updateDynamicSettings();

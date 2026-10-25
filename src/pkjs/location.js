@@ -9,6 +9,31 @@ var NAME_KEY = 'location_name';
 var LAT_KEY = 'location_lat';
 var LNG_KEY = 'location_lng';
 
+// master kept a chosen city under these keys (an empty name meant GPS).
+// They're left in place: the aplite legacy build still reads them
+var MASTER_NAME_KEY = 'weather_loc';
+var MASTER_LAT_KEY = 'weather_loc_lat';
+var MASTER_LNG_KEY = 'weather_loc_lng';
+
+// carries master's chosen city over, the first time this version runs
+function migrateFromMaster() {
+  if (window.localStorage.getItem(USE_GPS_KEY) !== null) {
+    return;
+  }
+
+  var name = window.localStorage.getItem(MASTER_NAME_KEY);
+  var lat = window.localStorage.getItem(MASTER_LAT_KEY);
+  var lng = window.localStorage.getItem(MASTER_LNG_KEY);
+  if (!name || !lat || !lng || isNaN(Number(lat)) || isNaN(Number(lng))) {
+    return;
+  }
+
+  window.localStorage.setItem(USE_GPS_KEY, 'no');
+  window.localStorage.setItem(NAME_KEY, name);
+  window.localStorage.setItem(LAT_KEY, lat);
+  window.localStorage.setItem(LNG_KEY, lng);
+}
+
 // remembers the location choice from a config page result
 function storeConfig(configData) {
   if (configData.useGpsLocation === undefined) {
@@ -70,6 +95,7 @@ function getPosition(onSuccess, onError) {
   );
 }
 
+module.exports.migrateFromMaster = migrateFromMaster;
 module.exports.storeConfig = storeConfig;
 module.exports.getConfigSettings = getConfigSettings;
 module.exports.getPosition = getPosition;

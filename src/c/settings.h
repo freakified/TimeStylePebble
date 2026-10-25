@@ -8,7 +8,10 @@
 // persistent storage keys
 #define SETTINGS_PERSIST_KEY 100
 #define SETTINGS_VERSION_PERSIST_KEY 4
-#define MIGRATION_EMERY_FONT_PERSIST_KEY 200
+
+// the settings version every master (7.x) release saved; the only older
+// shape load migrates from (see settings.c)
+#define SETTINGS_VERSION_MASTER 7
 
 // clockFontId picks the typeface; hoursBold / minutesBold pick each
 // line's weight independently
@@ -16,8 +19,8 @@
 #define FONT_SETTING_LECO     1
 #define FONT_SETTING_GARAMOND 5
 
-// pre-v7.12 ids that baked Avenir's weights into the font id; only ever
-// found in old persisted settings, which load migrates
+// master's ids that baked Avenir's weights into the font id; only ever
+// found in master's persisted settings, which load migrates
 #define FONT_SETTING_LEGACY_BOLD   2
 #define FONT_SETTING_LEGACY_BOLD_H 3
 #define FONT_SETTING_LEGACY_BOLD_M 4
@@ -61,10 +64,7 @@ typedef struct {
   bool healthUseRestfulSleep;
   char decimalSeparator;
 
-  // sidebar layout settings (v13: replaced the v12 vRegionEdge /
-  // hRegionEdge / hRegionStyle fields with a single layout preset; old
-  // persisted blobs are NOT translated yet -- a migration system for
-  // pre-v13 settings comes later)
+  // sidebar layout settings
   // the layout only picks the sidebar's side: there is always a sidebar,
   // and the bottom bar is on exactly when hRegionSlots holds a widget
   // sidebar width: the "wide" sidebar trades clock room for widgets that

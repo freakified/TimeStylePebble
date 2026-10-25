@@ -38,6 +38,9 @@ static GDrawCommandImage *precipImage;
 static GDrawCommandImage *sleepImage;
 static GDrawCommandImage *stepsImage;
 static GDrawCommandImage *distanceImage;
+#ifdef PBL_HEALTH
+static MeasurementSystem distanceUnits;
+#endif
 static GDrawCommandImage *caloriesImage;
 static GDrawCommandImage *heartImage;
 #endif
@@ -378,6 +381,10 @@ static void update_world_time(const struct tm *localTime, int utcOffsetMinutes,
       out);
 }
 
+#ifdef PBL_HEALTH
+static void refresh_health();
+#endif
+
 void SidebarWidgets_updateTime(struct tm *timeInfo) {
   // a no-op unless the language setting changed
   Language_load(settings.languageId);
@@ -395,7 +402,15 @@ void SidebarWidgets_updateTime(struct tm *timeInfo) {
 
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
 
-  currentMinuteOfDay = timeInfo->tm_hour * 60 + timeInfo->tm_min;
+  int minuteOfDay = timeInfo->tm_hour * 60 + timeInfo->tm_min;
+
+  currentMinuteOfDay = minuteOfDay;
+
+#ifdef PBL_HEALTH
+  // also runs on every settings change, so a newly added health widget
+  // finds its value cached before it first draws
+  refresh_health();
+#endif
 
   if (dynamicSettings.enableBeats) {
     snprintf(currentBeats, sizeof(currentBeats), "%i",
@@ -1737,6 +1752,51 @@ static int cached_health_sum_today(HealthMetric metric) {
   return entry->value;
 }
 
+static bool is_widget_shown(SidebarWidgetType type) {
+  for (int i = 0; i < VREGION_SLOT_CAP; i++) {
+    if (settings.vRegionSlots[i] == type) {
+      return true;
+    }
+  }
+  for (int i = 0; i < HREGION_SLOT_CAP; i++) {
+    if (settings.hRegionSlots[i] == type) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/*
+ * Reads this minute's health values for the widgets on screen, from the
+ * time update rather than while drawing. Health syscalls overflow the
+ * stack when made from deep in the render path, which freezes the watch
+ * (distance on basalt), so the widgets' getContent should only ever hit
+ * the values this caches. Each is read at most once a minute.
+ */
+static void refresh_health() {
+  static int unitsMinute = -1;
+
+  if (is_widget_shown(STEP_COUNTER)) {
+    cached_health_sum_today(HealthMetricStepCount);
+  }
+  if (is_widget_shown(DISTANCE_WALKED)) {
+    cached_health_sum_today(HealthMetricWalkedDistanceMeters);
+    if (unitsMinute != currentMinuteOfDay) {
+      unitsMinute = currentMinuteOfDay;
+      distanceUnits = health_service_get_measurement_system_for_display(
+          HealthMetricWalkedDistanceMeters);
+    }
+  }
+  if (is_widget_shown(ACTIVE_CALORIES)) {
+    cached_health_sum_today(HealthMetricActiveKCalories);
+  }
+  if (is_widget_shown(SLEEP_TIMER)) {
+    cached_health_sum_today(settings.healthUseRestfulSleep
+                                ? HealthMetricSleepRestfulSeconds
+                                : HealthMetricSleepSeconds);
+  }
+}
+
 // a count like steps or calories: in full, then as "2.7k"/"12k", then
 // rounded to the nearest thousand
 static void format_count_candidates(int count,
@@ -1766,9 +1826,7 @@ static void format_count_candidates(int count,
 
 static void format_distance_candidates(int distance,
                                        SidebarTextCandidates *candidates) {
-  MeasurementSystem unitSystem =
-      health_service_get_measurement_system_for_display(
-          HealthMetricWalkedDistanceMeters);
+  MeasurementSystem unitSystem = distanceUnits;
 
   if (unitSystem == MeasurementSystemMetric) {
     if (distance < 1000) {

@@ -61,6 +61,8 @@ Pebble.addEventListener('ready',
   function (e) {
     console.log('JS component is now READY');
 
+    userLocation.migrateFromMaster();
+
     // updateWeather skips this if weather is disabled or still fresh
     weather.updateWeather();
 
@@ -81,7 +83,7 @@ Pebble.addEventListener('appmessage',
         // the watch only knows labels and offsets; merge in the world
         // time cities and the location, which live on the phone
         var settings = settingsMapper.settingsFromWatchPayload(msg.payload);
-        var phoneSettings = [worldtime.getConfigSettings(), userLocation.getConfigSettings()];
+        var phoneSettings = [worldtime.getConfigSettings(settings), userLocation.getConfigSettings()];
         phoneSettings.forEach(function (extra) {
           for (var key in extra) {
             settings[key] = extra[key];

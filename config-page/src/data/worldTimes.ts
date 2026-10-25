@@ -43,10 +43,16 @@ export const worldTimeOptions = (): WorldTimeOption[] => {
     return [{ label: 'UTC', value: 'UTC' }, ...zones];
 };
 
+// a saved zone's label. Etc/GMT zones (a world time migrated from master's
+// fixed offsets) get their offset instead, since POSIX inverts their sign:
+// Etc/GMT-5 is UTC+5
+const savedZoneLabel = (tz: string) =>
+    tz.startsWith('Etc/') ? formatOffset(offsetMinutes(tz, 0)) : zonePlace(tz);
+
 /** The options, plus `value` if this browser doesn't list it (a zone saved
  *  under another spelling, e.g. Asia/Kolkata where Chrome says Calcutta),
  *  so the select shows what's saved rather than its first option. */
 export const withWorldTimeValue = (options: WorldTimeOption[], value: string): WorldTimeOption[] =>
     !value || options.some((option) => option.value === value)
         ? options
-        : [{ label: zonePlace(value), value, category: 'Saved' }, ...options];
+        : [{ label: savedZoneLabel(value), value, category: 'Saved' }, ...options];

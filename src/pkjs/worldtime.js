@@ -45,18 +45,18 @@ function addZoneToPayload(zoneNum, nameKey, offsetKey, dict) {
   }
 }
 
-// dict of watch settings for the currently-selected zones (empty if the
-// user has never configured a world time widget)
+// dict of watch settings for the currently-selected zones, plus the local
+// UTC offset. That goes even without a selected zone: a world time
+// migrated from master has only a fixed offset, which the watch shifts
+// relative to local time too
 function buildWatchPayload() {
   var dict = {};
   addZoneToPayload(1, 'SettingAltClockName', 'SettingAltClockOffset', dict);
   addZoneToPayload(2, 'SettingAltClock2Name', 'SettingAltClock2Offset', dict);
 
-  if (Object.keys(dict).length > 0) {
-    // the watch can't reliably determine its own UTC offset (tm_gmtoff's
-    // sign convention varies), so send the phone's
-    dict.SettingLocalUtcOffset = -new Date().getTimezoneOffset();
-  }
+  // the watch can't reliably determine its own UTC offset (tm_gmtoff's
+  // sign convention varies), so send the phone's
+  dict.SettingLocalUtcOffset = -new Date().getTimezoneOffset();
 
   return dict;
 }
@@ -77,14 +77,39 @@ function storeConfig(configData) {
   return buildWatchPayload();
 }
 
-// current selections, for prefilling the config page
-function getConfigSettings() {
+// master's world time was a fixed whole-hour offset rather than a zone;
+// the matching Etc/GMT zone keeps it (note POSIX's inverted sign:
+// Etc/GMT-5 is UTC+5), or null if there's no such zone
+function fixedOffsetZone(offsetMinutes) {
+  var hours = offsetMinutes / 60;
+  if (hours !== Math.round(hours) || hours < -12 || hours > 14) {
+    return null;
+  }
+  if (hours === 0) {
+    return 'UTC';
+  }
+  return 'Etc/GMT' + (hours > 0 ? '-' : '+') + Math.abs(hours);
+}
+
+// current selections, for prefilling the config page. watchSettings is
+// the watch's snapshot, which stands in for the first zone when the
+// phone has none: a world time migrated from master
+function getConfigSettings(watchSettings) {
   var settings = {};
 
   var zone1 = window.localStorage.getItem(storageKey(1, 'zone'));
   if (zone1) {
     settings.worldTime1Zone = zone1;
     settings.worldTime1Label = window.localStorage.getItem(storageKey(1, 'label')) || '';
+  } else if (watchSettings) {
+    var migratedZone = fixedOffsetZone(watchSettings.altClockOffset);
+    if (migratedZone) {
+      // a label that's just the zone's default stays blank, so it keeps
+      // following the zone if the user picks another
+      var label = watchSettings.altClockName;
+      settings.worldTime1Zone = migratedZone;
+      settings.worldTime1Label = label === defaultLabel(migratedZone) ? '' : label;
+    }
   }
 
   var zone2 = window.localStorage.getItem(storageKey(2, 'zone'));
@@ -101,10 +126,6 @@ function getConfigSettings() {
 // get picked up within half an hour)
 function sendOffsetsIfChanged() {
   var dict = buildWatchPayload();
-  if (Object.keys(dict).length === 0) {
-    return;
-  }
-
   var serialized = JSON.stringify(dict);
   if (window.localStorage.getItem(LAST_SENT_KEY) === serialized) {
     return;
