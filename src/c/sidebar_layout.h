@@ -85,11 +85,14 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // lower bound (v_padding plus the font's baseline slop), so reserving
 // the bar's full thickness shrinks the time far more than the bar
 // actually costs. Reclaiming that slack keeps the digits near their
-// no-bar size.
+// no-bar size. The limit is the bar's icons (25px tall, so only a few px
+// under a 30px bar's edge). Emery's large-fonts bar is 9px taller with
+// its widgets set lower, so it lends the difference back: the clock comes
+// out the same size, and as far from the icons, as with normal fonts.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-#define HBAR_CLOCK_ENCROACH 10
+#define HBAR_CLOCK_ENCROACH(largeFonts) ((largeFonts) ? 18 : 10)
 #else
-#define HBAR_CLOCK_ENCROACH 0
+#define HBAR_CLOCK_ENCROACH(largeFonts) 6
 #endif
 
 // The horizontal bar centers its text within its own thickness, while

@@ -135,7 +135,7 @@ int Sidebar_reservedBottom(void) {
     return hRegion.thickness + ROUND_BAR_BOTTOM_PADDING -
            ROUND_BAR_CLOCK_ENCROACH;
 #else
-    return hRegion.thickness - HBAR_CLOCK_ENCROACH;
+    return hRegion.thickness - HBAR_CLOCK_ENCROACH(settings.useLargeFonts);
 #endif
   }
   return 0;

@@ -145,6 +145,17 @@
       }
     },
     {
+      "name": "font-leco-bottombar",
+      "settings": {
+        "SettingClockFontId": 1,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1,
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY",
+        "SettingBottomBarWidget1ID": "STEP_COUNTER"
+      }
+    },
+    {
       "name": "font-leco-light",
       "settings": {
         "SettingClockFontId": 1
@@ -316,6 +327,16 @@
       "name": "bottombar-sleep-weather",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingBottomBarWidget0ID": "SLEEP_TIMER",
+        "SettingBottomBarWidget1ID": "WEATHER_CURRENT",
+        "SettingWidget0ID": "BATTERY_METER"
+      }
+    },
+    {
+      "name": "bottombar-sleep-weather-largefonts",
+      "settings": {
+        "SettingLayoutId": "SIDEBAR_RIGHT",
+        "SettingUseLargeFonts": 1,
         "SettingBottomBarWidget0ID": "SLEEP_TIMER",
         "SettingBottomBarWidget1ID": "WEATHER_CURRENT",
         "SettingWidget0ID": "BATTERY_METER"
