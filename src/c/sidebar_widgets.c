@@ -98,9 +98,14 @@ static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec);
 static void BatteryMeter_draw(GContext *ctx, GRect frame,
                               SidebarRenderSpec *spec);
 static SidebarContent Date_getContent();
-static SidebarMeasure date_content_measure(SidebarRenderSpec *spec);
+// kept out of line: inlined, the date's locals would sit in the frame of
+// every widget's measure/draw, deepening the stack under each widget's
+// graphics_draw_text (see scratchContent)
+static SidebarMeasure date_content_measure(SidebarRenderSpec *spec)
+    __attribute__((noinline));
 static void date_content_draw(GContext *ctx, GRect frame,
-                              SidebarRenderSpec *spec);
+                              SidebarRenderSpec *spec)
+    __attribute__((noinline));
 static SidebarContent CurrentWeather_getContent();
 static SidebarContent WeatherForecast_getContent();
 static SidebarContent WeekNumber_getContent();
@@ -786,6 +791,12 @@ static void draw_loading_text(GContext *ctx, int x, int visibleTop,
                                    metrics, activePalette.text);
 }
 
+// generic_draw's layouts are kept out of line so that drawing a widget
+// only puts its own layout's locals on the stack, not every layout's
+// (see scratchContent below)
+#define NOINLINE_DRAW __attribute__((noinline))
+
+NOINLINE_DRAW
 static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
                             SidebarRenderSpec *spec) {
   int textWidth = render_width(spec);
@@ -825,6 +836,7 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
                                               : GTextAlignmentCenter);
 }
 
+NOINLINE_DRAW
 static void draw_label_value(GContext *ctx, SidebarContent *content,
                              GRect frame, SidebarRenderSpec *spec) {
   int textWidth = render_width(spec);
@@ -881,6 +893,7 @@ static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
   }
 }
 
+NOINLINE_DRAW
 static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
                                          GRect frame, SidebarRenderSpec *spec) {
   GRect iconFrame;
@@ -959,6 +972,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
                            fontMetrics.current, fallback_current_metrics());
 }
 
+NOINLINE_DRAW
 static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
                                          GRect frame, SidebarRenderSpec *spec) {
   int textWidth = render_width(spec);
@@ -1139,15 +1153,30 @@ static void hide_content_parts(SidebarWidgetType type,
   }
 }
 
+// the content being measured or drawn. It lives here rather than on the
+// stack because the text drawing underneath runs on the app's stack too:
+// on flint and chalk the firmware's text rendering needs enough of it
+// that a few dozen more bytes of frames above it overflowed the stack and
+// froze the watch. Widgets are only ever measured and drawn one at a
+// time, so a single copy is enough
+static SidebarContent scratchContent;
+
+// fetched out of line, since getContent returns through a stack temporary
+// that would otherwise stay in the caller's frame for the whole draw
+NOINLINE_DRAW
+static void load_scratch_content(SidebarWidgetDefinition *widget) {
+  scratchContent = widget->getContent();
+  hide_content_parts(widget->type, &scratchContent);
+}
+
 SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,
                                       SidebarRenderSpec *spec) {
   if (widget->measureSpecial) {
     return widget->measureSpecial(spec);
   }
 
-  SidebarContent content = widget->getContent();
-  hide_content_parts(widget->type, &content);
-  return generic_measure(&content, spec);
+  load_scratch_content(widget);
+  return generic_measure(&scratchContent, spec);
 }
 
 void SidebarWidgets_draw(GContext *ctx, SidebarWidgetDefinition *widget,
@@ -1157,9 +1186,8 @@ void SidebarWidgets_draw(GContext *ctx, SidebarWidgetDefinition *widget,
     return;
   }
 
-  SidebarContent content = widget->getContent();
-  hide_content_parts(widget->type, &content);
-  generic_draw(ctx, &content, frame, spec);
+  load_scratch_content(widget);
+  generic_draw(ctx, &scratchContent, frame, spec);
 }
 
 static SidebarContent Empty_getContent() {
