@@ -76,7 +76,13 @@
       "SettingClockHoursBold",
       "SettingClockMinutesBold",
       "SettingWidgetHideMarker",
-      "SettingWidgetHideDetail"
+      "SettingWidgetHideDetail",
+      "SettingDisableAutobattery",
+      "SettingDisconnectIcon",
+      "SettingHealthUseDistance",
+      "SettingShowBatteryPct",
+      "SettingSidebarOnLeft",
+      "SettingSidebarTextColor"
     ],
     "resources": {
       "media": [
