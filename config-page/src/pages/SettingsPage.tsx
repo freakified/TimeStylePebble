@@ -21,6 +21,7 @@ import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
 import { WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
+import customWidgetsIconUrl from '../assets/custom-widgets-icon.svg';
 
 const LANGUAGE_OPTIONS = [
   { label: 'English', value: 0 },
@@ -263,6 +264,7 @@ export const SettingsPage: React.FC = () => {
           themes={widgetThemes}
           savedThemes={savedWidgetThemes.savedThemes}
           label="Widget preset"
+          customIcon={customWidgetsIconUrl}
         />
         <CustomThemePanel
           themeId={settings.SETTING_WIDGET_THEME}
@@ -273,7 +275,6 @@ export const SettingsPage: React.FC = () => {
           onExport={savedWidgetThemes.exportTheme}
           onSelectTheme={(id) => updateSetting('SETTING_WIDGET_THEME', id)}
           importTitle="Import Widgets"
-          customizeIcon="EDIT"
         />
         {/* the panel above already previews the live widgets. Which parts
             each widget shows is part of the preset too, so it's edited

@@ -12,7 +12,9 @@ export const ThemePicker: React.FC<{
   messageKey: ThemeSelectionKey;
   themes: Theme[];
   savedThemes?: SavedTheme[];
-}> = ({ label, messageKey, themes, savedThemes = [] }) => {
+  /** Image on the Custom card */
+  customIcon?: string;
+}> = ({ label, messageKey, themes, savedThemes = [], customIcon = customIconUrl }) => {
   const { settings, updateSetting, updateSettings } = useConfig();
   const capabilities = useCapabilities();
   const currentValue = settings[messageKey];
@@ -66,7 +68,7 @@ export const ThemePicker: React.FC<{
             <div className="halite-theme-card-preview">
               {item.id === 'custom' ? (
                 <div className={`halite-custom-icon${capabilities.ROUND ? ' halite-custom-icon--round' : ''}`}>
-                  <img src={customIconUrl} alt="" width={40} height={38} />
+                  <img src={customIcon} alt="" width={40} height={40} />
                 </div>
               ) : (
                 <WatchPreview overrideSettings={item.settings} />

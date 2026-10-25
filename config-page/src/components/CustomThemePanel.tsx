@@ -26,8 +26,6 @@ interface CustomThemePanelProps {
   onSelectTheme: (themeId: string) => void;
   /** Heading of the import dialog */
   importTitle?: string;
-  /** Icon on the Customize button */
-  customizeIcon?: 'SETTINGS' | 'EDIT';
 }
 
 export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
@@ -39,7 +37,6 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
   onExport,
   onSelectTheme,
   importTitle,
-  customizeIcon = 'SETTINGS',
 }) => {
   const { settings } = useConfig();
   const [importOpen, setImportOpen] = useState(false);
@@ -106,7 +103,7 @@ export const CustomThemePanel: React.FC<CustomThemePanelProps> = ({
         {!isCustom && (
           <>
             <Button className="halite-custom-action-btn" onPress={() => onSelectTheme('custom')}>
-              <Icon path={ICONS[customizeIcon]} />
+              <Icon path={ICONS.EDIT} />
               Customize
             </Button>
             <Button className="halite-custom-action-btn" onPress={handleShare}>
