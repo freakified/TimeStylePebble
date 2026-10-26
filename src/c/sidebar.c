@@ -445,10 +445,13 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
 
   // the widget column sits ROUND_ARC_CONTENT_INSET in from the arc's
   // screen-center side: the layer's right edge on the left arc, its left
-  // edge on the right one
-  int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH -
-                       ROUND_ARC_CONTENT_INSET
-                 : ROUND_ARC_CONTENT_INSET;
+  // edge on the right one. a dark arc's column sits further in still
+  int inset = ROUND_ARC_CONTENT_INSET;
+  if (r->dark) {
+    inset -= ROUND_ARC_DARK_INWARD_SHIFT;
+  }
+  int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH - inset
+                 : inset;
 
   // bgBounds is a square twice the arc's height, so a quarter of it is
   // the arc's waist

@@ -151,6 +151,16 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define ROUND_ARC_CONTENT_INSET \
   ((ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH) / 2 - ROUND_ARC_INWARD_NUDGE)
 
+// A dark arc has no fill to sit inside, so centering its widgets on the
+// arc only leaves an empty gutter between them and the time. They move
+// this much further towards the screen center instead. That takes them
+// away from the rim too, so ROUND_ARC_CONTENT_BAND still holds.
+#if defined(PBL_PLATFORM_GABBRO)
+#define ROUND_ARC_DARK_INWARD_SHIFT 6
+#else
+#define ROUND_ARC_DARK_INWARD_SHIFT 4
+#endif
+
 /*
  * The band an arc's widgets stack inside.
  *
