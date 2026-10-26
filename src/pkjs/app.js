@@ -8,7 +8,11 @@ var USE_LOCAL_CONFIG = true;
 var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
 var LOCAL_CONFIG_URL = 'http://192.168.11.9:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
+var SETTINGS_CACHE_KEY = 'watch_settings_cache';
+var CACHE_REFRESH_RETRY_MS = 3000;
+var CACHE_REFRESH_ATTEMPTS = 3;
 var pendingConfigSnapshot = null;
+var cacheRefreshTimeoutId = null;
 
 function getWatchInfo() {
   if (Pebble.getActiveWatchInfo) {
@@ -31,6 +35,51 @@ function openConfigPage(watchInfo, settings) {
   Pebble.openURL(url);
 }
 
+// the watch is the source of truth for settings, but asking it on every
+// config page open adds a visible round trip. So the phone keeps a mirror
+// of the watch's settings payload, refreshed from a snapshot on every
+// launch and updated whenever a config save is acked; the page opens
+// straight from the mirror, and only waits on the watch when there's none
+function loadCachedWatchSettings() {
+  try {
+    return JSON.parse(window.localStorage.getItem(SETTINGS_CACHE_KEY));
+  } catch (err) {
+    return null;
+  }
+}
+
+function cacheWatchSettings(payload, merge) {
+  var cached = (merge && loadCachedWatchSettings()) || {};
+  for (var key in payload) {
+    cached[key] = payload[key];
+  }
+  window.localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(cached));
+}
+
+// the watch only knows labels and offsets; merge in the world time cities
+// and the location, which live on the phone
+function configSettingsFromWatchPayload(payload) {
+  var settings = settingsMapper.settingsFromWatchPayload(payload);
+  var phoneSettings = [worldtime.getConfigSettings(settings), userLocation.getConfigSettings()];
+  phoneSettings.forEach(function (extra) {
+    for (var key in extra) {
+      settings[key] = extra[key];
+    }
+  });
+  return settings;
+}
+
+function sendSnapshotRequest(onFailure) {
+  Pebble.sendAppMessage({ ConfigSnapshotRequest: 1 }, function () {
+    console.log('Requested config snapshot from watch.');
+  }, function () {
+    console.log('Failed to request config snapshot from watch.');
+    if (onFailure) {
+      onFailure();
+    }
+  });
+}
+
 function requestConfigSnapshot(watchInfo) {
   if (pendingConfigSnapshot && pendingConfigSnapshot.timeoutId) {
     clearTimeout(pendingConfigSnapshot.timeoutId);
@@ -44,16 +93,28 @@ function requestConfigSnapshot(watchInfo) {
     }, CONFIG_SNAPSHOT_TIMEOUT_MS)
   };
 
-  Pebble.sendAppMessage({ ConfigSnapshotRequest: 1 }, function () {
-    console.log('Requested config snapshot from watch.');
-  }, function () {
-    console.log('Failed to request config snapshot from watch.');
+  sendSnapshotRequest(function () {
     if (pendingConfigSnapshot && pendingConfigSnapshot.timeoutId) {
       clearTimeout(pendingConfigSnapshot.timeoutId);
     }
     pendingConfigSnapshot = null;
     openConfigPage(watchInfo, {});
   });
+}
+
+// refreshes the mirror in the background. The watch drops the request if
+// its outbox is busy (say, with its startup weather ping), so retry a
+// couple of times until a snapshot shows up
+function refreshSettingsCache(attemptsLeft) {
+  clearTimeout(cacheRefreshTimeoutId);
+  if (attemptsLeft <= 0) {
+    return;
+  }
+
+  sendSnapshotRequest();
+  cacheRefreshTimeoutId = setTimeout(function () {
+    refreshSettingsCache(attemptsLeft - 1);
+  }, CACHE_REFRESH_RETRY_MS);
 }
 
 // Listen for when the watchface is opened
@@ -68,6 +129,8 @@ Pebble.addEventListener('ready',
 
     // refresh world time offsets in case a DST boundary was crossed
     worldtime.sendOffsetsIfChanged();
+
+    refreshSettingsCache(CACHE_REFRESH_ATTEMPTS);
   }
 );
 
@@ -77,20 +140,12 @@ Pebble.addEventListener('appmessage',
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
 
     if (settingsMapper.isConfigSnapshot(msg.payload)) {
+      clearTimeout(cacheRefreshTimeoutId);
+      cacheWatchSettings(msg.payload, false);
+
       if (pendingConfigSnapshot) {
         clearTimeout(pendingConfigSnapshot.timeoutId);
-
-        // the watch only knows labels and offsets; merge in the world
-        // time cities and the location, which live on the phone
-        var settings = settingsMapper.settingsFromWatchPayload(msg.payload);
-        var phoneSettings = [worldtime.getConfigSettings(settings), userLocation.getConfigSettings()];
-        phoneSettings.forEach(function (extra) {
-          for (var key in extra) {
-            settings[key] = extra[key];
-          }
-        });
-
-        openConfigPage(pendingConfigSnapshot.watchInfo, settings);
+        openConfigPage(pendingConfigSnapshot.watchInfo, configSettingsFromWatchPayload(msg.payload));
         pendingConfigSnapshot = null;
       }
       return;
@@ -102,7 +157,13 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', function (e) {
-  requestConfigSnapshot(getWatchInfo());
+  var cached = loadCachedWatchSettings();
+  if (cached) {
+    console.log('Opening config page from cached settings.');
+    openConfigPage(getWatchInfo(), configSettingsFromWatchPayload(cached));
+  } else {
+    requestConfigSnapshot(getWatchInfo());
+  }
 });
 
 Pebble.addEventListener('webviewclosed', function (e) {
@@ -163,6 +224,9 @@ Pebble.addEventListener('webviewclosed', function (e) {
     // Send settings to Pebble watchapp
     Pebble.sendAppMessage(dict, function () {
       console.log('Sent config data to Pebble, now trying to get weather');
+
+      // only once acked, so the mirror never gets ahead of the watch
+      cacheWatchSettings(dict, true);
 
       // after sending config data, force a weather refresh in case that changed
       weather.updateWeather(true);
