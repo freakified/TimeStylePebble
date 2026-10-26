@@ -1,5 +1,6 @@
 #include "settings.h"
 #include <pebble.h>
+#include "languages.h"
 
 Settings settings;
 DynamicSettings dynamicSettings;
@@ -217,6 +218,7 @@ void Settings_loadFromStorage() {
   settings.altclock2Offset = 0;
   settings.localUtcOffset = 0;
   settings.decimalSeparator = '.';
+  settings.languageId = LANGUAGE_AUTO;
   settings.useWideSidebar = false;
   settings.colorBothArcs = false;
   settings.clockFontId = FONT_SETTING_AVENIR;

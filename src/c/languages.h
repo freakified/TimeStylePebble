@@ -7,9 +7,14 @@
 #define LANGUAGE_TR 6
 #define LANGUAGE_COUNT 37
 
+// not a language: follow the watch's own language, falling back to
+// English when it isn't one of ours
+#define LANGUAGE_AUTO 255
+
 // must match tools/gen_languages.py, which packs the LANGUAGES resource
 #define LANGUAGE_NAME_SIZE 8
 #define LANGUAGE_WEEK_SIZE 12
+#define LANGUAGE_LOCALE_SIZE 3
 
 // one language's strings, as stored in the LANGUAGES resource. Only the
 // selected language's are kept in RAM.
@@ -23,6 +28,10 @@ typedef struct {
 
 extern LanguageStrings Language_strings;
 
-// loads a language's strings into Language_strings; cheap when that
-// language is already loaded
+// loads a language's strings into Language_strings, resolving
+// LANGUAGE_AUTO; cheap when that language is already loaded
 void Language_load(uint8_t languageId);
+
+// the id of the language currently in Language_strings, never
+// LANGUAGE_AUTO
+uint8_t Language_loadedId();

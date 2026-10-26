@@ -27,7 +27,7 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
   bottomBarWidget2Id: 0,
 
   // General
-  languageId: 0,
+  languageId: 255,
   leadingZero: false,
   clockFont: 'avenir',
   boldHours: false,

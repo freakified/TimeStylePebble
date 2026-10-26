@@ -24,6 +24,7 @@ import { WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
 import customWidgetsIconUrl from '../assets/custom-widgets-icon.svg';
 
 const LANGUAGE_OPTIONS = [
+  { label: 'Auto (watch language)', value: 255 },
   { label: 'English', value: 0 },
   { label: 'Français', value: 1 },
   { label: 'Deutsch', value: 2 },

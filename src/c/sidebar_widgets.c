@@ -1169,7 +1169,7 @@ static SidebarContent Empty_getContent() {
 
 static void battery_text_candidates(uint8_t batteryPercent,
                                     SidebarTextCandidates *candidates) {
-  if (settings.languageId == LANGUAGE_TR) {
+  if (Language_loadedId() == LANGUAGE_TR) {
     snprintf(candidates->full, sizeof(candidates->full), "%%%d",
              batteryPercent);
   } else {

@@ -90,7 +90,7 @@ function settingsFromWatchPayload(payload) {
     bottomBarWidget1Id: getNumber(payload.SettingBottomBarWidget1ID, 0),
     bottomBarWidget2Id: getNumber(payload.SettingBottomBarWidget2ID, 0),
 
-    languageId: getNumber(payload.SettingLanguageID, 0),
+    languageId: getNumber(payload.SettingLanguageID, 255),
     leadingZero: getBoolean(payload.SettingShowLeadingZero),
     clockFont: getMappedValue(CLOCK_FONT_BY_ID, getNumber(payload.SettingClockFontId, 0), 'avenir'),
     boldHours: getBoolean(payload.SettingClockHoursBold),
