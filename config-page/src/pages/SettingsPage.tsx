@@ -105,16 +105,8 @@ export const SettingsPage: React.FC = () => {
   ].slice(0, barSlotCap(capabilities));
   const activeWidgetIds = sidebarWidgetIds.concat(bottomBarWidgetIds);
 
-  // the layout picks which side the accent-colored band sits on and
-  // nothing else. On rect that places the sidebar (whether there's a
-  // bottom bar follows from the bar's own widgets); on round both arcs
-  // are always there, so it picks which of them is filled.
-  const layoutOptions: { label: string; value: Layout }[] = capabilities.ROUND
-    ? [
-      { label: 'Color left arc', value: 'left-sidebar' },
-      { label: 'Color right arc', value: 'right-sidebar' },
-    ]
-    : [
+  const layoutOptions: { label: string; value: Layout }[] =
+    [
       { label: 'Left sidebar', value: 'left-sidebar' },
       { label: 'Right sidebar', value: 'right-sidebar' },
     ];
@@ -230,8 +222,8 @@ export const SettingsPage: React.FC = () => {
         />
         {capabilities.ROUND && (
           <Toggle
-            label="Show sidebar background color on both sides"
-            description="Fill both arcs instead of letting one blend into the watchface"
+            label="Classic appearance"
+            description="Show background color on both sidebars"
             messageKey="colorBothArcs"
           />
         )}

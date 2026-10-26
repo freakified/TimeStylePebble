@@ -445,9 +445,10 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
 
   // the widget column sits ROUND_ARC_CONTENT_INSET in from the arc's
   // screen-center side: the layer's right edge on the left arc, its left
-  // edge on the right one. a dark arc's column sits further in still
+  // edge on the right one. a dark arc's column sits further in still, as
+  // does one whose fill matches the watchface and so can't be seen
   int inset = ROUND_ARC_CONTENT_INSET;
-  if (r->dark) {
+  if (r->dark || gcolor_equal(palette->background, settings.timeBgColor)) {
     inset -= ROUND_ARC_DARK_INWARD_SHIFT;
   }
   int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH - inset
