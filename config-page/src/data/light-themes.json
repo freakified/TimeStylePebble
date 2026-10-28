@@ -8,6 +8,230 @@
     }
   },
   {
+    "name": "BIOS",
+    "settings": {
+      "colorBackground": "0000FF",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "555555"
+    }
+  },
+  {
+    "name": "Teletext",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFFF00",
+      "colorSidebar": "0000FF"
+    }
+  },
+  {
+    "name": "Windows 95",
+    "settings": {
+      "colorBackground": "00AAAA",
+      "colorTime": "000000",
+      "colorSidebar": "AAAAAA"
+    }
+  },
+  {
+    "name": "Mainframe",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "00FF55",
+      "colorSidebar": "0055AA"
+    }
+  },
+  {
+    "name": "Workbench",
+    "settings": {
+      "colorBackground": "0055AA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "FFAA00"
+    }
+  },
+  {
+    "name": "VFD",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "55FFFF",
+      "colorSidebar": "005555"
+    }
+  },
+  {
+    "name": "Fatal Exception",
+    "settings": {
+      "colorBackground": "0000AA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "AAAAAA"
+    }
+  },
+  {
+    "name": "Dot Matrix",
+    "settings": {
+      "colorBackground": "AAAA55",
+      "colorTime": "000000",
+      "colorSidebar": "555500"
+    }
+  },
+  {
+    "name": "Commodore",
+    "settings": {
+      "colorBackground": "0000AA",
+      "colorTime": "AAAAFF",
+      "colorSidebar": "5555FF"
+    }
+  },
+  {
+    "name": "Circuit Board",
+    "settings": {
+      "colorBackground": "005500",
+      "colorTime": "FFAA00",
+      "colorSidebar": "00AA00"
+    }
+  },
+  {
+    "name": "Borland",
+    "settings": {
+      "colorBackground": "0000AA",
+      "colorTime": "FFFF55",
+      "colorSidebar": "00AAAA"
+    }
+  },
+  {
+    "name": "Neon Noir",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "00FFFF",
+      "colorSidebar": "550055"
+    }
+  },
+  {
+    "name": "Pistachio",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "005500",
+      "colorSidebar": "AAFF55"
+    }
+  },
+  {
+    "name": "Ember",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFAA00",
+      "colorSidebar": "550000"
+    }
+  },
+  {
+    "name": "Steel Blue",
+    "settings": {
+      "colorBackground": "0055AA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "55AAFF"
+    }
+  },
+  {
+    "name": "Synthwave",
+    "settings": {
+      "colorBackground": "000055",
+      "colorTime": "FF55AA",
+      "colorSidebar": "550055"
+    }
+  },
+  {
+    "name": "Parchment",
+    "settings": {
+      "colorBackground": "FFFFAA",
+      "colorTime": "550000",
+      "colorSidebar": "550000"
+    }
+  },
+  {
+    "name": "Graphite",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFFF55",
+      "colorSidebar": "555555"
+    }
+  },
+  {
+    "name": "Terracotta",
+    "settings": {
+      "colorBackground": "FFAA55",
+      "colorTime": "550000",
+      "colorSidebar": "AA5500"
+    }
+  },
+  {
+    "name": "Deep Sea",
+    "settings": {
+      "colorBackground": "000055",
+      "colorTime": "55FFFF",
+      "colorSidebar": "0000AA"
+    }
+  },
+  {
+    "name": "Coral Reef",
+    "settings": {
+      "colorBackground": "005555",
+      "colorTime": "FFAAAA",
+      "colorSidebar": "FF5555"
+    }
+  },
+  {
+    "name": "Campfire",
+    "settings": {
+      "colorBackground": "550000",
+      "colorTime": "FFFF00",
+      "colorSidebar": "AA0000"
+    }
+  },
+  {
+    "name": "Lavender Fields",
+    "settings": {
+      "colorBackground": "AAAAFF",
+      "colorTime": "000055",
+      "colorSidebar": "550055"
+    }
+  },
+  {
+    "name": "Midnight Oil",
+    "settings": {
+      "colorBackground": "000055",
+      "colorTime": "FFFF55",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Sandstone",
+    "settings": {
+      "colorBackground": "FFFFAA",
+      "colorTime": "AA5500",
+      "colorSidebar": "FFAA55"
+    }
+  },
+  {
+    "name": "Bordeaux",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFAAAA",
+      "colorSidebar": "AA0055"
+    }
+  },
+  {
+    "name": "Peacock",
+    "settings": {
+      "colorBackground": "005555",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "00AAAA"
+    }
+  },
+  {
+    "name": "Undergrowth",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "AAFF55",
+      "colorSidebar": "005500"
+    }
+  },
+  {
     "name": "Blue Screen",
     "settings": {
       "colorBackground": "000000",
