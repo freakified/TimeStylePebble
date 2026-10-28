@@ -1,0 +1,11 @@
+{
+  "name": "timestyle-tools",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm"
+  },
+  "devDependencies": {
+    "pebble-fctx-compiler": "^1.2.2"
+  }
+}

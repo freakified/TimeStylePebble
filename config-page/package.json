@@ -1,9 +1,11 @@
 {
   "name": "timestyle-config-page",
   "version": "1.0.0",
+  "packageManager": "pnpm@12.15.0",
   "type": "module",
   "description": "Configuration page for TimeStyle Pebble watchface",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",

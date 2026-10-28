@@ -10,7 +10,8 @@ Requires fontTools (pip install fonttools). Typical use:
 
     python3 tools/ttf_to_svgfont.py "EBGaramond[wght].ttf" build/garamond.svg \\
         --id EBGaramondRegular --wght 400
-    ./node_modules/.bin/fctx-compiler build/garamond.svg -r "[0-9: ]"
+    (cd tools && pnpm install)
+    tools/node_modules/.bin/fctx-compiler build/garamond.svg -r "[0-9: ]"
 
 --like copies the advances and digit placement of an existing .ffont, for
 adding another weight of a font whose .ffont was built by other means
