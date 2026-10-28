@@ -1,7 +1,7 @@
 [
   {"id": 0, "code": "en", "days": ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], "months": ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"], "week": "Wk"},
   {"id": 1, "code": "fr", "days": ["DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"], "months": ["JAN", "FÉV", "MAR", "AVR", "MAI", "JUI", "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC"], "week": "Sem"},
-  {"id": 2, "code": "de", "days": ["SO", "MO", "DI", "MI", "DO", "FR", "SA"], "months": ["JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"], "week": "W"},
+  {"id": 2, "code": "de", "days": ["SO", "MO", "DI", "MI", "DO", "FR", "SA"], "months": ["JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"], "week": "KW"},
   {"id": 3, "code": "es", "days": ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"], "months": ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"], "week": "Sem"},
   {"id": 4, "code": "it", "days": ["DOM", "LUN", "MAR", "MER", "GIO", "VEN", "SAB"], "months": ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"], "week": "Sett"},
   {"id": 5, "code": "nl", "days": ["ZO", "MA", "DI", "WO", "DO", "VR", "ZA"], "months": ["JAN", "FEB", "MRT", "APR", "MEI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"], "week": "Wk"},
