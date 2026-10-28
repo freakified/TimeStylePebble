@@ -5,7 +5,7 @@ var worldtime = require('./worldtime');
 var userLocation = require('./location');
 
 var USE_LOCAL_CONFIG = true;
-var BASE_CONFIG_URL = 'https://timestylepebble.pages.dev/';
+var BASE_CONFIG_URL = 'https://timestyle-config.freakified.net/';
 var LOCAL_CONFIG_URL = 'http://192.168.11.9:3000/';
 var CONFIG_SNAPSHOT_TIMEOUT_MS = 1200;
 var SETTINGS_CACHE_KEY = 'watch_settings_cache';
