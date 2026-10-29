@@ -65,7 +65,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 export const SettingsPage: React.FC = () => {
-  const { settings, updateSetting, updateSettings } = useConfig();
+  const { settings, updateSetting } = useConfig();
   const capabilities = useCapabilities();
 
   const activeThemes = React.useMemo(
@@ -230,22 +230,19 @@ export const SettingsPage: React.FC = () => {
         )}
         <Toggle
           label="Use large sidebar text"
-          description="Increases the size of widget text in the sidebar"
           messageKey="largeSidebarFont"
-          // large text needs the room: it turns the wide sidebar on, which
-          // stays on (and locked) for as long as large text is
-          onChange={(selected) => updateSettings(selected && capabilities.RECT
-            ? { largeSidebarFont: true, wideSidebar: true }
-            : { largeSidebarFont: selected })}
         />
         {capabilities.RECT && (
           <Toggle
             label="Wider sidebar"
             description={settings.largeSidebarFont
               ? "Always on with large sidebar text"
-              : "Give your widgets slightly more breathing room"}
+              : "Give vertical widgets slightly more breathing room"}
             messageKey="wideSidebar"
             isDisabled={settings.largeSidebarFont}
+            // large text already takes that room, so the switch looks on
+            // without writing the setting underneath
+            isSelected={settings.largeSidebarFont ? true : undefined}
           />
         )}
       </Section>

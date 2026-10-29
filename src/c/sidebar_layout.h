@@ -58,8 +58,9 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // platform, so a widget that still doesn't fit falls back to its
 // compact form rather than eating the clock's room. For reference, a
 // world time's "23:59" measures (graphics_text_layout_get_content_size,
-// bold gothic) 36px at 18, 44px at 24, 49px at 28. Large text always
-// turns the wide sidebar on (the config page locks it).
+// bold gothic) 36px at 18, 44px at 24, 49px at 28. Large text leaves
+// the wider-sidebar setting alone; on the big screens the two widths
+// match, so that setting changes nothing there.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 43 : 34)
 #define VBAR_WIDTH_WIDE(largeFonts) ((largeFonts) ? 43 : 46)
