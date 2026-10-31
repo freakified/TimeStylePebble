@@ -346,13 +346,13 @@ export const SettingsPage: React.FC = () => {
       <Section title="Status Indicator">
         <Toggle
           label="Show status indicator"
-          description="Shows when in Quiet Time or when phone is disconnected"
+          description="Shows an icon when disconnected or in Quiet Time"
           messageKey="statusBarEnabled"
         />
         {settings.statusBarEnabled && (
           <Toggle
             label="Always show connection status"
-            description="Also show the icon while connected to your phone"
+            description="Also shows the icon while connected normally"
             messageKey="statusBarShowConnection"
           />
         )}
