@@ -77,7 +77,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // widgets rather than one run-on stack; a sidebar too short to keep it
 // (timeline quick view) drops widgets instead. The config page's fit
 // budget uses the same figure (SIDEBAR_MIN_GAP in widgetMetrics.ts).
-#define REGION_MIN_WIDGET_GAP 4
+#define REGION_MIN_WIDGET_GAP 2
 
 // The bar draws straight on the watchface, so the clock area may reach
 // past the bar's top edge into the padding above its widgets: the

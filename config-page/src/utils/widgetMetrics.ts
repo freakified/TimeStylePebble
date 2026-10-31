@@ -770,7 +770,7 @@ const stackedTotal = (widgetIds: number[], settings: Settings, capabilities: Cap
  * drops widgets from a sidebar too short to keep it, as when timeline
  * quick view covers the bottom of the screen.
  */
-const SIDEBAR_MIN_GAP = 4;
+const SIDEBAR_MIN_GAP = 2;
 
 /**
  * One sidebar slot after the layout cascade: the widget and which of its
