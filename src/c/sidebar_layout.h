@@ -67,8 +67,8 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define HBAR_HEIGHT(largeFonts) ((largeFonts) ? 43 : 34)
 #define REGION_V_PADDING 9
 #else
-#define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 35 : 30)
-#define VBAR_WIDTH_WIDE(largeFonts) 35
+#define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 33 : 30)
+#define VBAR_WIDTH_WIDE(largeFonts) 33
 #define HBAR_HEIGHT(largeFonts) 30
 #define REGION_V_PADDING 8
 #endif

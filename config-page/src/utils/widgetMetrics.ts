@@ -449,8 +449,8 @@ export const platformMetrics = (
     return {
         screenW: 144,
         screenH: 168,
-        vbarNarrow: largeFonts ? 35 : 30,
-        vbarWide: 35,
+        vbarNarrow: largeFonts ? 33 : 30,
+        vbarWide: 33,
         barHeight: 30,
         barClockEncroach: 6,
         vPadding: 8,
