@@ -269,7 +269,7 @@ static const uint32_t s_linearChannel[4] = {0, 908, 4020, 10000};
 
 // an accent needs at least 4:1 (4/1) against its region, or the icon
 // strokes fall back to the text color
-#define MIN_ACCENT_CONTRAST_NUM 4
+#define MIN_ACCENT_CONTRAST_NUM 6
 #define MIN_ACCENT_CONTRAST_DEN 1
 
 static uint32_t luminance(GColor color) {

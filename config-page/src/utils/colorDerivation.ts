@@ -17,7 +17,7 @@ const DARK_REGION_LUMINANCE = 0.1;
 const WHITE_TEXT_BIAS = 1.4;
 
 /** below this contrast with its region, an accent gives way to the text color */
-const MIN_ACCENT_CONTRAST = 4;
+const MIN_ACCENT_CONTRAST = 6;
 
 const normalize = (hex: string) => hex.replace('#', '').toUpperCase();
 

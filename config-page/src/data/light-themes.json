@@ -8,19 +8,83 @@
     }
   },
   {
-    "name": "BIOS",
+    "name": "Cyan Wire",
     "settings": {
-      "colorBackground": "0000FF",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "555555"
+      "colorBackground": "000000",
+      "colorTime": "00FFFF",
+      "colorSidebar": "00FFFF"
     }
   },
   {
-    "name": "Teletext",
+    "name": "Terminal Green",
     "settings": {
       "colorBackground": "000000",
-      "colorTime": "FFFF00",
-      "colorSidebar": "0000FF"
+      "colorTime": "00FF00",
+      "colorSidebar": "00FF00"
+    }
+  },
+  {
+    "name": "Magenta District",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FF00AA",
+      "colorSidebar": "FF00AA"
+    }
+  },
+  {
+    "name": "Timeline Past",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "FFAA00"
+    }
+  },
+  {
+    "name": "Timeline Future",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "00AAFF"
+    }
+  },
+  {
+    "name": "TimeLime",
+    "settings": {
+      "colorBackground": "FFFFFF",
+      "colorTime": "000000",
+      "colorSidebar": "00FF00"
+    }
+  },
+  {
+    "name": "Deep Blue",
+    "settings": {
+      "colorBackground": "0000AA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "0055FF"
+    }
+  },
+  {
+    "name": "Evergreen",
+    "settings": {
+      "colorBackground": "005500",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "55AA55"
+    }
+  },
+  {
+    "name": "Merlot",
+    "settings": {
+      "colorBackground": "AA0055",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "FFFFFF"
+    }
+  },
+  {
+    "name": "Dashboard",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFAA55",
+      "colorSidebar": "5555FF"
     }
   },
   {
@@ -32,71 +96,23 @@
     }
   },
   {
-    "name": "Mainframe",
+    "name": "Blue Screen",
     "settings": {
-      "colorBackground": "000000",
-      "colorTime": "00FF55",
-      "colorSidebar": "0055AA"
-    }
-  },
-  {
-    "name": "Workbench",
-    "settings": {
-      "colorBackground": "0055AA",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "FFAA00"
-    }
-  },
-  {
-    "name": "VFD",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "55FFFF",
-      "colorSidebar": "005555"
-    }
-  },
-  {
-    "name": "Fatal Exception",
-    "settings": {
-      "colorBackground": "0000AA",
+      "colorBackground": "0000FF",
       "colorTime": "FFFFFF",
       "colorSidebar": "AAAAAA"
     }
   },
   {
-    "name": "Dot Matrix",
+    "name": "Teletext",
     "settings": {
-      "colorBackground": "AAAA55",
-      "colorTime": "000000",
-      "colorSidebar": "555500"
+      "colorBackground": "000000",
+      "colorTime": "FFFF00",
+      "colorSidebar": "0000FF"
     }
   },
   {
-    "name": "Commodore",
-    "settings": {
-      "colorBackground": "0000AA",
-      "colorTime": "AAAAFF",
-      "colorSidebar": "5555FF"
-    }
-  },
-  {
-    "name": "Circuit Board",
-    "settings": {
-      "colorBackground": "005500",
-      "colorTime": "FFAA00",
-      "colorSidebar": "00AA00"
-    }
-  },
-  {
-    "name": "Borland",
-    "settings": {
-      "colorBackground": "0000AA",
-      "colorTime": "FFFF55",
-      "colorSidebar": "00AAAA"
-    }
-  },
-  {
-    "name": "Neon Noir",
+    "name": "Synthwave",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "00FFFF",
@@ -104,15 +120,47 @@
     }
   },
   {
-    "name": "Pistachio",
+    "name": "Red Alert",
     "settings": {
-      "colorBackground": "FFFFFF",
-      "colorTime": "005500",
-      "colorSidebar": "AAFF55"
+      "colorBackground": "FF0000",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "550000"
     }
   },
   {
-    "name": "Ember",
+    "name": "Luminance",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "00FF55",
+      "colorSidebar": "0055AA"
+    }
+  },
+  {
+    "name": "Desktop",
+    "settings": {
+      "colorBackground": "0055AA",
+      "colorTime": "FFFFFF",
+      "colorSidebar": "FFAA00"
+    }
+  },
+  {
+    "name": "Component",
+    "settings": {
+      "colorBackground": "005500",
+      "colorTime": "FFAA00",
+      "colorSidebar": "00AA00"
+    }
+  },
+  {
+    "name": "C++",
+    "settings": {
+      "colorBackground": "0000AA",
+      "colorTime": "FFFF00",
+      "colorSidebar": "00AAAA"
+    }
+  },
+  {
+    "name": "Embers",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFAA00",
@@ -120,31 +168,23 @@
     }
   },
   {
-    "name": "Steel Blue",
+    "name": "Notebook",
     "settings": {
-      "colorBackground": "0055AA",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "55AAFF"
-    }
-  },
-  {
-    "name": "Synthwave",
-    "settings": {
-      "colorBackground": "000055",
-      "colorTime": "FF55AA",
-      "colorSidebar": "550055"
-    }
-  },
-  {
-    "name": "Parchment",
-    "settings": {
-      "colorBackground": "FFFFAA",
-      "colorTime": "550000",
+      "colorBackground": "FFFF00",
+      "colorTime": "000000",
       "colorSidebar": "550000"
     }
   },
   {
-    "name": "Graphite",
+    "name": "Olive",
+    "settings": {
+      "colorBackground": "AAAA55",
+      "colorTime": "000000",
+      "colorSidebar": "555500"
+    }
+  },
+  {
+    "name": "Sport",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FFFF55",
@@ -152,7 +192,7 @@
     }
   },
   {
-    "name": "Terracotta",
+    "name": "Clay",
     "settings": {
       "colorBackground": "FFAA55",
       "colorTime": "550000",
@@ -160,7 +200,7 @@
     }
   },
   {
-    "name": "Deep Sea",
+    "name": "Into the Deep",
     "settings": {
       "colorBackground": "000055",
       "colorTime": "55FFFF",
@@ -216,35 +256,11 @@
     }
   },
   {
-    "name": "Peacock",
-    "settings": {
-      "colorBackground": "005555",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "00AAAA"
-    }
-  },
-  {
     "name": "Undergrowth",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "AAFF55",
       "colorSidebar": "005500"
-    }
-  },
-  {
-    "name": "Blue Screen",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "00FFFF",
-      "colorSidebar": "00FFFF"
-    }
-  },
-  {
-    "name": "Terminal Green",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "00FF00",
-      "colorSidebar": "00FF00"
     }
   },
   {
@@ -256,35 +272,11 @@
     }
   },
   {
-    "name": "Pretty in Pink",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "FF00AA",
-      "colorSidebar": "FF00AA"
-    }
-  },
-  {
     "name": "Red Velvet",
     "settings": {
       "colorBackground": "000000",
       "colorTime": "FF0000",
       "colorSidebar": "FF0000"
-    }
-  },
-  {
-    "name": "Timeline-Past",
-    "settings": {
-      "colorBackground": "FFFFFF",
-      "colorTime": "000000",
-      "colorSidebar": "FFAA00"
-    }
-  },
-  {
-    "name": "Timeline-Future",
-    "settings": {
-      "colorBackground": "FFFFFF",
-      "colorTime": "000000",
-      "colorSidebar": "00AAFF"
     }
   },
   {
@@ -304,14 +296,6 @@
     }
   },
   {
-    "name": "Lime",
-    "settings": {
-      "colorBackground": "FFFFFF",
-      "colorTime": "000000",
-      "colorSidebar": "00FF00"
-    }
-  },
-  {
     "name": "Sangria",
     "settings": {
       "colorBackground": "FFFFFF",
@@ -325,30 +309,6 @@
       "colorBackground": "555555",
       "colorTime": "FFFFFF",
       "colorSidebar": "AAAAAA"
-    }
-  },
-  {
-    "name": "Deep Blue",
-    "settings": {
-      "colorBackground": "0000AA",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "0055FF"
-    }
-  },
-  {
-    "name": "Evergreen",
-    "settings": {
-      "colorBackground": "005500",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "55AA55"
-    }
-  },
-  {
-    "name": "Cabernet",
-    "settings": {
-      "colorBackground": "FF0000",
-      "colorTime": "FFFFFF",
-      "colorSidebar": "AA0000"
     }
   },
   {
@@ -408,15 +368,15 @@
     }
   },
   {
-    "name": "Merlot",
+    "name": "Teal",
     "settings": {
-      "colorBackground": "AA0055",
+      "colorBackground": "005555",
       "colorTime": "FFFFFF",
-      "colorSidebar": "FFFFFF"
+      "colorSidebar": "00AAAA"
     }
   },
   {
-    "name": "Into the Deep",
+    "name": "Blue Hour",
     "settings": {
       "colorBackground": "55AAFF",
       "colorTime": "000000",
@@ -477,14 +437,6 @@
       "colorBackground": "000055",
       "colorTime": "FFFFFF",
       "colorSidebar": "FFAA00"
-    }
-  },
-  {
-    "name": "Dashboard",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "FFAA55",
-      "colorSidebar": "5555FF"
     }
   },
   {
@@ -684,11 +636,11 @@
     "settings": {
       "colorBackground": "AA0000",
       "colorTime": "FFFFFF",
-      "colorSidebar": "00AA00"
+      "colorSidebar": "005500"
     }
   },
   {
-    "name": "Parra",
+    "name": "Blue & Yellow",
     "settings": {
       "colorBackground": "0000AA",
       "colorTime": "FFFF00",
@@ -832,7 +784,7 @@
     }
   },
   {
-    "name": "Pika Stripe",
+    "name": "Thunder Shock",
     "settings": {
       "colorBackground": "FFFF00",
       "colorTime": "FF0000",
