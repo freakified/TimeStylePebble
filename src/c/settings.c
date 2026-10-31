@@ -1,13 +1,11 @@
 #include "settings.h"
-#include <pebble.h>
 #include "languages.h"
+#include <pebble.h>
 
 Settings settings;
 DynamicSettings dynamicSettings;
 
-void Settings_init() {
-  Settings_loadFromStorage();
-}
+void Settings_init() { Settings_loadFromStorage(); }
 
 // an unknown widget id would still count as "something in the slot" (a
 // bottom bar with nothing drawn in it, say), so clear it instead
@@ -31,20 +29,20 @@ static void migrate_clock_font() {
   settings.minutesBold = false;
 
   switch (settings.clockFontId) {
-    case FONT_SETTING_LEGACY_BOLD:
-      settings.hoursBold = settings.minutesBold = true;
-      break;
-    case FONT_SETTING_LEGACY_BOLD_H:
-      settings.hoursBold = true;
-      break;
-    case FONT_SETTING_LEGACY_BOLD_M:
-      settings.minutesBold = true;
-      break;
-    case FONT_SETTING_LECO:
-      settings.hoursBold = settings.minutesBold = true;
-      return;
-    default:
-      return;
+  case FONT_SETTING_LEGACY_BOLD:
+    settings.hoursBold = settings.minutesBold = true;
+    break;
+  case FONT_SETTING_LEGACY_BOLD_H:
+    settings.hoursBold = true;
+    break;
+  case FONT_SETTING_LEGACY_BOLD_M:
+    settings.minutesBold = true;
+    break;
+  case FONT_SETTING_LECO:
+    settings.hoursBold = settings.minutesBold = true;
+    return;
+  default:
+    return;
   }
   settings.clockFontId = FONT_SETTING_AVENIR;
 }
@@ -162,7 +160,7 @@ static void migrate_from_master() {
       hadDisconnectWidget = true;
     }
   }
-  settings.enableStatusBar = old.activateDisconnectIcon || hadDisconnectWidget;
+  settings.enableStatusBar = true;
 
   // the battery percentage is now one of the widget's hideable parts
   if (!old.showBatteryPct) {
@@ -289,7 +287,8 @@ static const uint32_t s_linearChannel[4] = {0, 908, 4020, 10000};
 
 static uint32_t luminance(GColor color) {
   return (2126 * s_linearChannel[color.r] + 7152 * s_linearChannel[color.g] +
-          722 * s_linearChannel[color.b]) / 10000;
+          722 * s_linearChannel[color.b]) /
+         10000;
 }
 
 // a contrast ratio as a fraction: (lighter + 0.05) / (darker + 0.05)
@@ -340,11 +339,10 @@ static void derive_palette(SidebarPalette *palette, GColor background,
   Contrast best = useSecond ? c2 : c1;
 
   palette->iconFill = background;
-  palette->iconStroke =
-      (uint64_t)best.num * MIN_ACCENT_CONTRAST_DEN >=
-              (uint64_t)best.den * MIN_ACCENT_CONTRAST_NUM
-          ? accent
-          : palette->text;
+  palette->iconStroke = (uint64_t)best.num * MIN_ACCENT_CONTRAST_DEN >=
+                                (uint64_t)best.den * MIN_ACCENT_CONTRAST_NUM
+                            ? accent
+                            : palette->text;
 }
 
 void Settings_updateDynamicSettings() {
@@ -369,10 +367,8 @@ void Settings_updateDynamicSettings() {
                                 : settings.hRegionSlots[i - vSlotCount]);
 
     // if there are any weather widgets, enable weather checking
-    if (widget == WEATHER_CURRENT ||
-        widget == WEATHER_FORECAST_TODAY ||
-        widget == WEATHER_UV_INDEX ||
-        widget == NEXT_SUN_EVENT ||
+    if (widget == WEATHER_CURRENT || widget == WEATHER_FORECAST_TODAY ||
+        widget == WEATHER_UV_INDEX || widget == NEXT_SUN_EVENT ||
         widget == WEATHER_PRECIP_CHANCE) {
       dynamicSettings.disableWeather = false;
       dynamicSettings.enablePhonePolling = true;
