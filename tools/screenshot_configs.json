@@ -17,7 +17,7 @@
     "SettingBottomBarWidget1ID": "EMPTY",
     "SettingBottomBarWidget2ID": "EMPTY",
     "SettingClockFontId": 0,
-    "SettingClockHoursBold": 0,
+    "SettingClockHoursBold": 1,
     "SettingClockMinutesBold": 0,
     "SettingLanguageID": 0,
     "SettingShowLeadingZero": 0,
@@ -133,6 +133,7 @@
       "name": "font-bold-minutes",
       "settings": {
         "SettingClockFontId": 0,
+        "SettingClockHoursBold": 0,
         "SettingClockMinutesBold": 1
       }
     },
@@ -158,7 +159,9 @@
     {
       "name": "font-leco-light",
       "settings": {
-        "SettingClockFontId": 1
+        "SettingClockFontId": 1,
+        "SettingClockHoursBold": 0,
+        "SettingClockMinutesBold": 0
       }
     },
     {
@@ -171,7 +174,9 @@
     {
       "name": "font-garamond",
       "settings": {
-        "SettingClockFontId": 5
+        "SettingClockFontId": 5,
+        "SettingClockHoursBold": 0,
+        "SettingClockMinutesBold": 0
       }
     },
     {

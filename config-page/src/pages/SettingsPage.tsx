@@ -194,16 +194,16 @@ export const SettingsPage: React.FC = () => {
         <SelectCards
           label="Font weight"
           options={[
+            { label: 'Bold Hours', value: 'bold-hours' },
+            { label: 'Bold Minutes', value: 'bold-minutes' },
             { label: 'Regular', value: 'regular' },
             { label: 'Bold', value: 'bold' },
-            { label: 'Bold hours', value: 'bold-hours' },
-            { label: 'Bold minutes', value: 'bold-minutes' },
           ]}
           optionSettings={{
-            regular: { boldHours: false, boldMinutes: false },
-            bold: { boldHours: true, boldMinutes: true },
             'bold-hours': { boldHours: true, boldMinutes: false },
             'bold-minutes': { boldHours: false, boldMinutes: true },
+            regular: { boldHours: false, boldMinutes: false },
+            bold: { boldHours: true, boldMinutes: true },
           }}
         />
         <Toggle

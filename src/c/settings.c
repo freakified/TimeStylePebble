@@ -222,7 +222,7 @@ void Settings_loadFromStorage() {
   settings.useWideSidebar = false;
   settings.colorBothArcs = false;
   settings.clockFontId = FONT_SETTING_AVENIR;
-  settings.hoursBold = false;
+  settings.hoursBold = true;
   settings.minutesBold = false;
   settings.hideWidgetMarker = 0;
   settings.hideWidgetDetail = 0;
