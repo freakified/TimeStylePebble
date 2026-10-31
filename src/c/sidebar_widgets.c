@@ -371,16 +371,14 @@ static void format_time_candidates(int hour, int min, const char *daySuffix,
 static void update_world_time(const struct tm *localTime, int utcOffsetMinutes,
                               SidebarTextCandidates *out) {
   time_t shifted =
-      time(NULL) +
-      ((time_t)utcOffsetMinutes - settings.localUtcOffset) * 60;
+      time(NULL) + ((time_t)utcOffsetMinutes - settings.localUtcOffset) * 60;
   struct tm altTime = *localtime(&shifted);
 
   bool differentDate = altTime.tm_yday != localTime->tm_yday ||
                        altTime.tm_year != localTime->tm_year;
   format_time_candidates(
       altTime.tm_hour, altTime.tm_min,
-      differentDate ? Language_strings.dayNames[altTime.tm_wday] : NULL,
-      out);
+      differentDate ? Language_strings.dayNames[altTime.tm_wday] : NULL, out);
 }
 
 #ifdef PBL_HEALTH
@@ -450,6 +448,18 @@ void SidebarWidgets_setActivePalette(const SidebarPalette *palette) {
   activePalette = *palette;
 }
 
+// true when the active palette is a dark region: icons there are outlines
+// filled with the background (see derive_palette)
+static bool palette_is_dark() {
+  return gcolor_equal(activePalette.iconFill, activePalette.background);
+}
+
+// the color basic widgets draw their small label line in: the icon stroke
+// (the accent color) on dark regions, the normal text color otherwise
+static GColor basic_label_color() {
+  return palette_is_dark() ? activePalette.iconStroke : activePalette.text;
+}
+
 void SidebarWidgets_resetEffectiveHideBits(void) {
   effectiveHideMarker = 0;
   effectiveHideDetail = 0;
@@ -468,8 +478,7 @@ static int render_width(SidebarRenderSpec *spec) {
 }
 
 static int text_fit_width(SidebarRenderSpec *spec, int textWidth) {
-  return spec->mode == SIDEBAR_LAYOUT_INLINE ? textWidth
-                                                 : spec->contentWidth;
+  return spec->mode == SIDEBAR_LAYOUT_INLINE ? textWidth : spec->contentWidth;
 }
 
 static int text_x(GRect frame, int width) {
@@ -550,10 +559,10 @@ static void draw_text_at_visible_top_aligned(
     SidebarTextMetrics primaryMetrics, SidebarTextMetrics fallbackMetrics,
     GTextAlignment alignment) {
   GFont selectedFont = primaryFont;
-  const char *text = pick_text(candidates, primaryFont, fallbackFont,
-                               GRect(x, visibleTop, fitWidth,
-                                     text_rect_height(primaryMetrics)),
-                               &selectedFont);
+  const char *text = pick_text(
+      candidates, primaryFont, fallbackFont,
+      GRect(x, visibleTop, fitWidth, text_rect_height(primaryMetrics)),
+      &selectedFont);
   SidebarTextMetrics selectedMetrics =
       (selectedFont == primaryFont) ? primaryMetrics : fallbackMetrics;
   GRect drawRect =
@@ -570,10 +579,9 @@ static void draw_text_at_visible_top(GContext *ctx,
                                      GFont primaryFont, GFont fallbackFont,
                                      SidebarTextMetrics primaryMetrics,
                                      SidebarTextMetrics fallbackMetrics) {
-  draw_text_at_visible_top_aligned(ctx, candidates, x, visibleTop, width,
-                                   fitWidth, primaryFont, fallbackFont,
-                                   primaryMetrics, fallbackMetrics,
-                                   GTextAlignmentCenter);
+  draw_text_at_visible_top_aligned(
+      ctx, candidates, x, visibleTop, width, fitWidth, primaryFont,
+      fallbackFont, primaryMetrics, fallbackMetrics, GTextAlignmentCenter);
 }
 
 static void draw_literal_text_at_visible_top(GContext *ctx, const char *text,
@@ -604,7 +612,7 @@ static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
   }
 
   gdraw_command_image_recolor_icon(content->icon, activePalette.iconFill,
-                              activePalette.iconStroke);
+                                   activePalette.iconStroke);
   gdraw_command_image_draw(ctx, content->icon,
                            GPoint(iconFrame.origin.x, iconFrame.origin.y));
 }
@@ -623,8 +631,7 @@ static void draw_battery_icon(GContext *ctx, GRect iconFrame,
 
   if (batteryCharging) {
     if (batteryChargeImage) {
-      gdraw_command_image_recolor(batteryChargeImage,
-                                  activePalette.iconStroke,
+      gdraw_command_image_recolor(batteryChargeImage, activePalette.iconStroke,
                                   activePalette.iconFill);
       gdraw_command_image_draw(ctx, batteryChargeImage,
                                GPoint(iconFrame.origin.x, batteryY));
@@ -678,10 +685,10 @@ static int horizontal_content_width(SidebarContent *content,
   case SIDEBAR_CONTENT_EMPTY:
     return 0;
   case SIDEBAR_CONTENT_TEXT:
-    return clamp_horizontal_width(
-        candidates_full_width(&content->primary, currentSidebarFont,
-                              fontMetrics.current),
-        spec);
+    return clamp_horizontal_width(candidates_full_width(&content->primary,
+                                                        currentSidebarFont,
+                                                        fontMetrics.current),
+                                  spec);
   case SIDEBAR_CONTENT_ICON:
     return SIDEBAR_ICON_SIZE;
   case SIDEBAR_CONTENT_ICON_VALUE:
@@ -710,11 +717,11 @@ static int horizontal_content_width(SidebarContent *content,
       snprintf(pairText.tiny, sizeof(pairText.tiny), "%s",
                content->primary.tiny);
     }
-    int textWidth = content->isLoading
-                        ? text_content_width("...", currentSidebarFont,
-                                             fontMetrics.current)
-                        : candidates_full_width(&pairText, currentSidebarFont,
-                                                fontMetrics.current);
+    int textWidth =
+        content->isLoading
+            ? text_content_width("...", currentSidebarFont, fontMetrics.current)
+            : candidates_full_width(&pairText, currentSidebarFont,
+                                    fontMetrics.current);
     return clamp_horizontal_width(
         inline_icon_advance(has_icon(content)) + textWidth, spec);
   }
@@ -741,8 +748,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     height = 0;
     break;
   case SIDEBAR_CONTENT_TEXT:
-    height = spec->mode == SIDEBAR_LAYOUT_INLINE ? textHeight
-                                                  : large_text_height();
+    height =
+        spec->mode == SIDEBAR_LAYOUT_INLINE ? textHeight : large_text_height();
     break;
   case SIDEBAR_CONTENT_ICON:
     height = SIDEBAR_ICON_SIZE;
@@ -751,8 +758,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = inlineHeight;
     } else {
-      height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
-               textHeight;
+      height =
+          stacked_icon_advance(has_icon(content), iconDrawnHeight) + textHeight;
     }
     break;
   case SIDEBAR_CONTENT_LABEL_VALUE:
@@ -772,9 +779,9 @@ static SidebarMeasure generic_measure(SidebarContent *content,
       height = inlineHeight;
     } else {
       height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
-               single_text_height() +
-               SIDEBAR_STACKED_VALUE_GAP + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
-               SIDEBAR_STACKED_VALUE_GAP + single_text_height();
+               single_text_height() + SIDEBAR_STACKED_VALUE_GAP +
+               SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT + SIDEBAR_STACKED_VALUE_GAP +
+               single_text_height();
     }
     break;
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT:
@@ -782,8 +789,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
       height = inlineHeight;
     } else {
       height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
-               medium_text_height() +
-               SIDEBAR_STACKED_VALUE_GAP + small_text_height();
+               medium_text_height() + SIDEBAR_STACKED_VALUE_GAP +
+               small_text_height();
     }
     break;
   default:
@@ -797,9 +804,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
   return (SidebarMeasure){width, height};
 }
 
-static void draw_loading_text(GContext *ctx, int x, int visibleTop,
-                              int width, GFont font,
-                              SidebarTextMetrics metrics) {
+static void draw_loading_text(GContext *ctx, int x, int visibleTop, int width,
+                              GFont font, SidebarTextMetrics metrics) {
   draw_literal_text_at_visible_top(ctx, "...", x, visibleTop, width, font,
                                    metrics, activePalette.text);
 }
@@ -819,10 +825,9 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     int iconAdvance = inline_icon_advance(has_icon(content));
-    iconFrame =
-        GRect(frame.origin.x,
-              frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
-              SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    iconFrame = GRect(frame.origin.x,
+                      frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
+                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = frame.origin.x + iconAdvance;
     textWidth = inline_text_width(frame, iconAdvance);
     textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
@@ -849,7 +854,7 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
       text_fit_width(spec, textWidth), currentSidebarFont, fallbackSidebarFont,
       fontMetrics.current, fallback_current_metrics(),
       spec->mode == SIDEBAR_LAYOUT_INLINE ? GTextAlignmentLeft
-                                              : GTextAlignmentCenter);
+                                          : GTextAlignmentCenter);
 }
 
 NOINLINE_DRAW
@@ -859,9 +864,9 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
   int textXPos = text_x(frame, textWidth);
   int labelTop = frame.origin.y;
   bool hasLabel = content->label != NULL && content->label[0] != '\0';
-  int valueTop = hasLabel
-                     ? labelTop + fontMetrics.sm.height + SIDEBAR_BASIC_LABEL_GAP
-                     : labelTop;
+  int valueTop =
+      hasLabel ? labelTop + fontMetrics.sm.height + SIDEBAR_BASIC_LABEL_GAP
+               : labelTop;
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     SidebarTextCandidates joined =
@@ -878,7 +883,7 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
   if (hasLabel) {
     draw_literal_text_at_visible_top(ctx, content->label, textXPos, labelTop,
                                      textWidth, smSidebarFont, fontMetrics.sm,
-                                     activePalette.text);
+                                     basic_label_color());
   }
   draw_text_at_visible_top(ctx, &content->primary, textXPos, valueTop,
                            textWidth, text_fit_width(spec, textWidth),
@@ -888,8 +893,8 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
 
 static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
                                   SidebarContent *content, int stackHeight,
-                                  GRect *iconFrame, int *textX,
-                                  int *textWidth, int *textTop) {
+                                  GRect *iconFrame, int *textX, int *textWidth,
+                                  int *textTop) {
   bool hasIcon = has_icon(content);
   int iconDrawnHeight = icon_drawn_height(content);
   int renderTextWidth = render_width(spec);
@@ -903,11 +908,9 @@ static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
     *textX = frame.origin.x + iconAdvance;
     *textWidth = inline_text_width(frame, iconAdvance);
   } else {
-    *iconFrame = GRect(icon_x(frame),
-                       frame.origin.y - content->iconTopRow,
+    *iconFrame = GRect(icon_x(frame), frame.origin.y - content->iconTopRow,
                        SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
-    *textTop = frame.origin.y +
-               stacked_icon_advance(hasIcon, iconDrawnHeight);
+    *textTop = frame.origin.y + stacked_icon_advance(hasIcon, iconDrawnHeight);
     *textX = text_x(frame, renderTextWidth);
     *textWidth = renderTextWidth;
   }
@@ -924,18 +927,17 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
   int dividerWidth;
   int dividerX;
   int pairHeight = single_text_height() + SIDEBAR_STACKED_VALUE_GAP +
-                   SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT + SIDEBAR_STACKED_VALUE_GAP +
-                   single_text_height();
+                   SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
+                   SIDEBAR_STACKED_VALUE_GAP + single_text_height();
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     SidebarTextCandidates pairText =
         pair_text_candidates(&content->primary, &content->secondary);
 
     int iconAdvance = inline_icon_advance(has_icon(content));
-    iconFrame =
-        GRect(frame.origin.x,
-              frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
-              SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    iconFrame = GRect(frame.origin.x,
+                      frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
+                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = frame.origin.x + iconAdvance;
     textWidth = inline_text_width(frame, iconAdvance);
     textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
@@ -955,8 +957,8 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
     return;
   }
 
-  get_icon_stack_layout(frame, spec, content, pairHeight,
-                        &iconFrame, &textXPos, &textWidth, &textTop);
+  get_icon_stack_layout(frame, spec, content, pairHeight, &iconFrame, &textXPos,
+                        &textWidth, &textTop);
   draw_icon(ctx, content, iconFrame);
 
   if (content->isLoading) {
@@ -967,8 +969,8 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
 
   draw_text_at_visible_top(ctx, &content->primary, textXPos, textTop, textWidth,
                            text_fit_width(spec, textWidth), currentSidebarFont,
-                           fallbackSidebarFont,
-                           fontMetrics.current, fallback_current_metrics());
+                           fallbackSidebarFont, fontMetrics.current,
+                           fallback_current_metrics());
 
   dividerY = textTop + fontMetrics.current.height + SIDEBAR_STACKED_VALUE_GAP;
   dividerWidth = spec->contentWidth - SIDEBAR_VALUE_PAIR_DIVIDER_MARGIN * 2;
@@ -984,12 +986,11 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
                            SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT),
                      0, GCornerNone);
 
-  draw_text_at_visible_top(ctx, &content->secondary, textXPos,
-                           dividerY + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
-                               SIDEBAR_STACKED_VALUE_GAP,
-                           textWidth, text_fit_width(spec, textWidth),
-                           currentSidebarFont, fallbackSidebarFont,
-                           fontMetrics.current, fallback_current_metrics());
+  draw_text_at_visible_top(
+      ctx, &content->secondary, textXPos,
+      dividerY + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT + SIDEBAR_STACKED_VALUE_GAP,
+      textWidth, text_fit_width(spec, textWidth), currentSidebarFont,
+      fallbackSidebarFont, fontMetrics.current, fallback_current_metrics());
 }
 
 NOINLINE_DRAW
@@ -1007,24 +1008,22 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
         pair_text_candidates(&content->primary, &content->secondary);
 
     int iconAdvance = inline_icon_advance(has_icon(content));
-    iconFrame =
-        GRect(frame.origin.x,
-              frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
-              SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    iconFrame = GRect(frame.origin.x,
+                      frame.origin.y + (frame.size.h - SIDEBAR_ICON_SIZE) / 2,
+                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     primaryX = frame.origin.x + iconAdvance;
     primaryWidth = inline_text_width(frame, iconAdvance);
     textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
 
     // the joined pair's last resort drops the minor value ("7h", never
     // an ellipsized "0h/0...")
-    snprintf(pairText.tiny, sizeof(pairText.tiny), "%s",
-             content->primary.tiny);
+    snprintf(pairText.tiny, sizeof(pairText.tiny), "%s", content->primary.tiny);
 
     draw_icon(ctx, content, iconFrame);
 
     if (content->isLoading) {
-      draw_loading_text(ctx, primaryX, textTop, primaryWidth, currentSidebarFont,
-                        fontMetrics.current);
+      draw_loading_text(ctx, primaryX, textTop, primaryWidth,
+                        currentSidebarFont, fontMetrics.current);
       return;
     }
 
@@ -1035,8 +1034,8 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
     return;
   }
 
-  get_icon_stack_layout(frame, spec, content, stackHeight,
-                        &iconFrame, &primaryX, &primaryWidth, &textTop);
+  get_icon_stack_layout(frame, spec, content, stackHeight, &iconFrame,
+                        &primaryX, &primaryWidth, &textTop);
 
   draw_icon(ctx, content, iconFrame);
 
@@ -1048,8 +1047,8 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
 
   draw_text_at_visible_top(ctx, &content->primary, primaryX, textTop,
                            primaryWidth, text_fit_width(spec, primaryWidth),
-                           mdSidebarFont, fallbackSidebarFont,
-                           fontMetrics.md, fallback_current_metrics());
+                           mdSidebarFont, fallbackSidebarFont, fontMetrics.md,
+                           fallback_current_metrics());
   draw_text_at_visible_top(
       ctx, &content->secondary, primaryX,
       textTop + fontMetrics.md.height + SIDEBAR_STACKED_VALUE_GAP, primaryWidth,
@@ -1073,9 +1072,8 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
       return;
     }
     draw_text_at_visible_top(ctx, &content->primary, text_x(frame, width),
-                             frame.origin.y, width,
-                             text_fit_width(spec, width), lgSidebarFont,
-                             fallbackSidebarFont, fontMetrics.lg,
+                             frame.origin.y, width, text_fit_width(spec, width),
+                             lgSidebarFont, fallbackSidebarFont, fontMetrics.lg,
                              fallback_current_metrics());
     return;
   }
@@ -1245,7 +1243,8 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
     iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
                       SIDEBAR_ICON_SIZE);
     textXPos = text_x(frame, textWidth);
-    textTop = frame.origin.y + (parts.showIcon ? 14 + SIDEBAR_ICON_TEXT_GAP : 0);
+    textTop =
+        frame.origin.y + (parts.showIcon ? 14 + SIDEBAR_ICON_TEXT_GAP : 0);
   }
 
   if (parts.showIcon) {
@@ -1262,7 +1261,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
       text_fit_width(spec, textWidth), currentSidebarFont, fallbackSidebarFont,
       fontMetrics.current, fallback_current_metrics(),
       spec->mode == SIDEBAR_LAYOUT_INLINE ? GTextAlignmentLeft
-                                              : GTextAlignmentCenter);
+                                          : GTextAlignmentCenter);
 }
 
 static int date_day_top_padding() {
@@ -1346,8 +1345,8 @@ static DateLayout date_layout() {
       .calendarWidth = date_calendar_width(),
       .dayNumTop = calendarTop + date_day_visible_top(calendarHeight),
       .monthTop = monthTop,
-      .height = showMonth ? monthTop + fontMetrics.current.height
-                          : calendarBottom,
+      .height =
+          showMonth ? monthTop + fontMetrics.current.height : calendarBottom,
       .showWeekday = showWeekday,
       .showMonth = showMonth,
   };
@@ -1380,15 +1379,16 @@ static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
   return (SidebarMeasure){spec->contentWidth, metrics.height};
 }
 
-static void set_command_point(GDrawCommand *command, uint16_t pointIndex,
-                              int x, int y) {
+static void set_command_point(GDrawCommand *command, uint16_t pointIndex, int x,
+                              int y) {
   if (command && pointIndex < gdraw_command_get_num_points(command)) {
     gdraw_command_set_point(command, pointIndex, GPoint(x, y));
   }
 }
 
 static void resize_date_calendar_image(GRect frame) {
-  GDrawCommandList *commandList = gdraw_command_image_get_command_list(dateImage);
+  GDrawCommandList *commandList =
+      gdraw_command_image_get_command_list(dateImage);
   if (!commandList || gdraw_command_list_get_num_commands(commandList) < 5) {
     return;
   }
@@ -1425,17 +1425,15 @@ static void resize_date_calendar_image(GRect frame) {
   set_command_point(rightFoot, 0, rightBindingX - footHalfWidth, bindingBottom);
   set_command_point(rightFoot, 1, rightBindingX + footHalfWidth, bindingBottom);
 
-  gdraw_command_image_set_bounds_size(dateImage, GSize(frame.size.w,
-                                                       frame.size.h));
+  gdraw_command_image_set_bounds_size(dateImage,
+                                      GSize(frame.size.w, frame.size.h));
 }
 
 // on dark regions icons are outlines filled with the background
 // (derive_palette), so the day number inside them reads as text and takes
 // the text color; inside a white-filled icon it keeps the stroke color
 static GColor date_day_text_color() {
-  return gcolor_equal(activePalette.iconFill, activePalette.background)
-             ? activePalette.text
-             : activePalette.iconStroke;
+  return palette_is_dark() ? activePalette.text : activePalette.iconStroke;
 }
 
 static void draw_date_plain_background(GContext *ctx, GRect frame) {
@@ -1458,8 +1456,8 @@ static void draw_date_calendar_background(GContext *ctx, GRect frame) {
   resize_date_calendar_image(frame);
   gdraw_command_image_recolor(dateImage, activePalette.iconFill,
                               activePalette.iconStroke);
-  gdraw_command_image_draw(ctx, dateImage, GPoint(frame.origin.x,
-                                                 frame.origin.y));
+  gdraw_command_image_draw(ctx, dateImage,
+                           GPoint(frame.origin.x, frame.origin.y));
 }
 
 static void draw_date_background(GContext *ctx, GRect frame) {
@@ -1507,11 +1505,11 @@ static void date_content_draw(GContext *ctx, GRect frame,
     if (metrics.showMonth) {
       // draw_literal_text_at_visible_top set the day number's color
       graphics_context_set_text_color(ctx, activePalette.text);
-      graphics_draw_text(
-          ctx, currentMonth, currentSidebarFont,
-          text_rect_at_visible_top(x, textTop, date_inline_word_width(currentMonth),
-                                   fontMetrics.current),
-          GTextOverflowModeFill, GTextAlignmentLeft, NULL);
+      graphics_draw_text(ctx, currentMonth, currentSidebarFont,
+                         text_rect_at_visible_top(
+                             x, textTop, date_inline_word_width(currentMonth),
+                             fontMetrics.current),
+                         GTextOverflowModeFill, GTextAlignmentLeft, NULL);
     }
     return;
   }
@@ -1539,8 +1537,7 @@ static void date_content_draw(GContext *ctx, GRect frame,
   if (metrics.showMonth) {
     draw_literal_text_at_visible_top(
         ctx, currentMonth, textXPos, frame.origin.y + metrics.monthTop,
-        textWidth, currentSidebarFont, fontMetrics.current,
-        activePalette.text);
+        textWidth, currentSidebarFont, fontMetrics.current, activePalette.text);
   }
 }
 
@@ -1722,8 +1719,8 @@ typedef struct {
 
 static int cached_health_sum_today(HealthMetric metric) {
   static HealthSumCacheEntry cache[HEALTH_SUM_CACHE_SIZE] = {
-      {.minute = -1}, {.minute = -1}, {.minute = -1}, {.minute = -1},
-      {.minute = -1},
+      {.minute = -1}, {.minute = -1}, {.minute = -1},
+      {.minute = -1}, {.minute = -1},
   };
 
   // slots fill in order and are never emptied, so the first slot that is
@@ -1974,8 +1971,7 @@ static SidebarContent NextAlarm_getContent() {
   bool moreThanADayAway = alarmTime - now >= SECONDS_PER_DAY;
   format_time_candidates(
       alarmInfo.tm_hour, alarmInfo.tm_min,
-      moreThanADayAway ? Language_strings.dayNames[alarmInfo.tm_wday]
-                       : NULL,
+      moreThanADayAway ? Language_strings.dayNames[alarmInfo.tm_wday] : NULL,
       &content.primary);
   return content;
 }
@@ -1987,40 +1983,55 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
     return (SidebarWidgetDefinition){BATTERY_METER, NULL, BatteryMeter_measure,
                                      BatteryMeter_draw};
   case DATE:
-    return (SidebarWidgetDefinition){DATE, NULL, date_content_measure, date_content_draw};
+    return (SidebarWidgetDefinition){DATE, NULL, date_content_measure,
+                                     date_content_draw};
   case WORLD_TIME_1:
-    return (SidebarWidgetDefinition){WORLD_TIME_1, WorldTime1_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WORLD_TIME_1, WorldTime1_getContent, NULL,
+                                     NULL};
   case WORLD_TIME_2:
-    return (SidebarWidgetDefinition){WORLD_TIME_2, WorldTime2_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WORLD_TIME_2, WorldTime2_getContent, NULL,
+                                     NULL};
   case NEXT_SUN_EVENT:
-    return (SidebarWidgetDefinition){NEXT_SUN_EVENT, NextSunEvent_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){NEXT_SUN_EVENT, NextSunEvent_getContent,
+                                     NULL, NULL};
   case SECONDS:
     return (SidebarWidgetDefinition){SECONDS, Seconds_getContent, NULL, NULL};
   case WEATHER_CURRENT:
-    return (SidebarWidgetDefinition){WEATHER_CURRENT, CurrentWeather_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WEATHER_CURRENT, CurrentWeather_getContent,
+                                     NULL, NULL};
   case WEATHER_FORECAST_TODAY:
-    return (SidebarWidgetDefinition){WEATHER_FORECAST_TODAY, WeatherForecast_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WEATHER_FORECAST_TODAY,
+                                     WeatherForecast_getContent, NULL, NULL};
   case WEEK_NUMBER:
-    return (SidebarWidgetDefinition){WEEK_NUMBER, WeekNumber_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WEEK_NUMBER, WeekNumber_getContent, NULL,
+                                     NULL};
   case WEATHER_UV_INDEX:
-    return (SidebarWidgetDefinition){WEATHER_UV_INDEX, UVIndex_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WEATHER_UV_INDEX, UVIndex_getContent, NULL,
+                                     NULL};
   case WEATHER_PRECIP_CHANCE:
-    return (SidebarWidgetDefinition){WEATHER_PRECIP_CHANCE, PrecipChance_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){WEATHER_PRECIP_CHANCE,
+                                     PrecipChance_getContent, NULL, NULL};
 #ifdef PBL_HEALTH
   case STEP_COUNTER:
-    return (SidebarWidgetDefinition){STEP_COUNTER, StepCounter_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){STEP_COUNTER, StepCounter_getContent, NULL,
+                                     NULL};
   case DISTANCE_WALKED:
-    return (SidebarWidgetDefinition){DISTANCE_WALKED, DistanceWalked_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){DISTANCE_WALKED, DistanceWalked_getContent,
+                                     NULL, NULL};
   case ACTIVE_CALORIES:
-    return (SidebarWidgetDefinition){ACTIVE_CALORIES, ActiveCalories_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){ACTIVE_CALORIES, ActiveCalories_getContent,
+                                     NULL, NULL};
   case SLEEP_TIMER:
-    return (SidebarWidgetDefinition){SLEEP_TIMER, SleepTimer_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){SLEEP_TIMER, SleepTimer_getContent, NULL,
+                                     NULL};
   case HEARTRATE:
-    return (SidebarWidgetDefinition){HEARTRATE, HeartRate_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){HEARTRATE, HeartRate_getContent, NULL,
+                                     NULL};
 #endif
 #ifdef SIDEBAR_HAS_ALARMS
   case NEXT_ALARM:
-    return (SidebarWidgetDefinition){NEXT_ALARM, NextAlarm_getContent, NULL, NULL};
+    return (SidebarWidgetDefinition){NEXT_ALARM, NextAlarm_getContent, NULL,
+                                     NULL};
 #endif
   case BEATS:
     return (SidebarWidgetDefinition){BEATS, Beats_getContent, NULL, NULL};

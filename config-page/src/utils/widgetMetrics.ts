@@ -66,7 +66,9 @@ export type FontRole = 'current' | 'sm' | 'md' | 'lg';
 export type WidgetItem =
     | { type: 'icon'; asset: IconAsset }
     | { type: 'calendar'; day: string }   // date icon with the day number inside
-    | { type: 'text'; text: string; font: FontRole }
+    // label: the small line above a label/value widget's value (not the
+    // subtext under a value), which dark regions draw in the icon stroke
+    | { type: 'text'; text: string; font: FontRole; label?: boolean }
     | { type: 'divider' };
 
 // Average Roboto Condensed Bold advance as a fraction of font size,
@@ -89,6 +91,9 @@ const SAMPLE_SUNRISE_MINUTE = 6 * 60 + 42;
 const SAMPLE_SUNSET_MINUTE = 20 * 60 + 14;
 
 const text = (str: string, font: FontRole = 'current'): WidgetItem => ({ type: 'text', text: str, font });
+
+// the label line of a LABEL_VALUE widget (SIDEBAR_CONTENT_LABEL_VALUE)
+const labelText = (str: string): WidgetItem => ({ type: 'text', text: str, font: 'sm', label: true });
 
 /**
  * The parts a widget draws without: the ones the vertical sidebar's
@@ -133,13 +138,13 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
             const label1 = settings.worldTime1Label
                 || worldTimeDefaultLabel(settings.worldTime1Zone)
                 || settings.altClockName || 'UTC';
-            return [text(label1, 'sm'), text('5:42p')];
+            return [labelText(label1), text('5:42p')];
         }
         case 14: {  // World Time 2
             const label2 = settings.worldTime2Label
                 || worldTimeDefaultLabel(settings.worldTime2Zone)
                 || settings.altClock2Name || 'UTC';
-            return [text(label2, 'sm'), text('9:42a')];
+            return [labelText(label2), text('9:42a')];
         }
         case 4:  // Today's Date
             return [
@@ -150,7 +155,7 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
         case 5:  // Seconds: plain text draws in the large font
             return [text('30', 'lg')];
         case 6:  // Week Number
-            return [text('Wk', 'sm'), text(String(getIsoWeek(now)))];
+            return [labelText('Wk'), text(String(getIsoWeek(now)))];
         case 7:  // Current Weather
             return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
         case 8:  // Today's Forecast
@@ -160,11 +165,11 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
         case 10:  // Steps
             return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
         case 11:  // Swatch Internet Time
-            return [text('@', 'sm'), text('543')];
+            return [labelText('@'), text('543')];
         case 12:  // Heart Rate
             return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
         case 13:  // UV Index
-            return [text('UV', 'sm'), text('6')];
+            return [labelText('UV'), text('6')];
         case 15: {  // Sunrise & Sunset
             // like NextSunEvent_getContent(), show whichever comes up next
             const minute = now.getHours() * 60 + now.getMinutes();

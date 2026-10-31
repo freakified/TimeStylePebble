@@ -124,6 +124,13 @@ const standardRegionColors = (s: Settings) => toRegionColors(sidebarPalette(s));
 // "dark" regions (the bottom bar) draw on the watchface background
 const darkRegionColors = (s: Settings) => toRegionColors(darkRegionPalette(s));
 
+// the label line of a label/value widget: the icon stroke (the accent)
+// on dark regions, the normal text color otherwise, like
+// basic_label_color() on the watch. Dark regions are the ones whose icons
+// are outlines filled with the background (see derive_palette).
+const labelColor = (c: RegionColors) =>
+    c.iconFill.toLowerCase() === c.background.toLowerCase() ? c.iconStroke : c.text;
+
 const getTintedIconDataUri = (svg: string, colors: RegionColors) => {
     // match whole short or long hex colors: the Illustrator exports spell
     // white #FFFFFF, and a bare /#fff/ would leave its tail behind. One
@@ -246,7 +253,8 @@ const renderItemsStacked = (
                 return renderCalendar(i, item.day, cx - size.w / 2, itemTop, colors, fonts);
             case 'text':
                 return textNode(i, item.text, cx, itemTop,
-                                fitText(item.text, item.font, fonts, maxW).fontSize, colors.text);
+                                fitText(item.text, item.font, fonts, maxW).fontSize,
+                                item.label ? labelColor(colors) : colors.text);
             case 'divider':
                 return (
                     <line
