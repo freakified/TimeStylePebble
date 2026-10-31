@@ -75,6 +75,13 @@ typedef struct {
   SidebarIconKind iconKind;
   GDrawCommandImage *icon;
   const char *label;
+  // icons whose PDC draws their path smaller than the 25-pixel bounds it
+  // declares (blank rows baked into the image) say here which row the
+  // drawing starts on and how many rows it spans; icons that fill their
+  // bounds leave both 0. The stacked layout shifts such an icon up by
+  // iconTopRow and reserves only iconDrawnRows before the text gap
+  uint8_t iconTopRow;
+  uint8_t iconDrawnRows;
   SidebarTextCandidates primary;
   SidebarTextCandidates secondary;
   bool isLoading;

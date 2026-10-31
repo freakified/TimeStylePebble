@@ -223,6 +223,8 @@ static SidebarContent empty_content(SidebarContentKind kind) {
       .iconKind = SIDEBAR_ICON_NONE,
       .icon = NULL,
       .label = NULL,
+      .iconTopRow = 0,
+      .iconDrawnRows = 0,
       .primary = same_text_candidates(""),
       .secondary = same_text_candidates(""),
       .isLoading = false,
@@ -483,9 +485,11 @@ static int inline_icon_advance(bool hasIcon) {
   return hasIcon ? SIDEBAR_ICON_SIZE + SIDEBAR_INLINE_ITEM_GAP : 0;
 }
 
-// how far a stacked icon pushes the text below it, if there is one
-static int stacked_icon_advance(bool hasIcon) {
-  return hasIcon ? SIDEBAR_ICON_SIZE + SIDEBAR_ICON_TEXT_GAP : 0;
+// how far a stacked icon pushes the text below it, if there is one.
+// iconHeight is the height the icon's drawing occupies within the image
+// (iconDrawnRows; 0 = fills its declared bounds), not declared bounds
+static int stacked_icon_advance(bool hasIcon, int iconHeight) {
+  return hasIcon ? iconHeight + SIDEBAR_ICON_TEXT_GAP : 0;
 }
 
 // text width beside an inline icon (iconAdvance is 0 without one);
@@ -585,6 +589,13 @@ static void draw_literal_text_at_visible_top(GContext *ctx, const char *text,
 
 static bool has_icon(SidebarContent *content) {
   return content->iconKind == SIDEBAR_ICON_IMAGE;
+}
+
+// the height a content's icon drawing occupies within its 25-pixel image;
+// iconDrawnRows 0 means the icon fills its declared bounds
+static int icon_drawn_height(SidebarContent *content) {
+  return content->iconDrawnRows > 0 ? content->iconDrawnRows
+                                    : SIDEBAR_ICON_SIZE;
 }
 
 static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
@@ -720,6 +731,9 @@ static SidebarMeasure generic_measure(SidebarContent *content,
   int inlineHeight = (has_icon(content) && SIDEBAR_ICON_SIZE > textHeight)
                          ? SIDEBAR_ICON_SIZE
                          : textHeight;
+  // stacked layouts position their icon and text by the rows the icon
+  // actually draws; inline layouts center the image's own padding instead
+  int iconDrawnHeight = icon_drawn_height(content);
   int height = 0;
 
   switch (content->kind) {
@@ -737,7 +751,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = inlineHeight;
     } else {
-      height = stacked_icon_advance(has_icon(content)) + textHeight;
+      height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
+               textHeight;
     }
     break;
   case SIDEBAR_CONTENT_LABEL_VALUE:
@@ -756,7 +771,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = inlineHeight;
     } else {
-      height = stacked_icon_advance(has_icon(content)) + single_text_height() +
+      height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
+               single_text_height() +
                SIDEBAR_STACKED_VALUE_GAP + SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT +
                SIDEBAR_STACKED_VALUE_GAP + single_text_height();
     }
@@ -765,7 +781,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = inlineHeight;
     } else {
-      height = stacked_icon_advance(has_icon(content)) + medium_text_height() +
+      height = stacked_icon_advance(has_icon(content), iconDrawnHeight) +
+               medium_text_height() +
                SIDEBAR_STACKED_VALUE_GAP + small_text_height();
     }
     break;
@@ -810,10 +827,13 @@ static void draw_icon_value(GContext *ctx, SidebarContent *content, GRect frame,
     textWidth = inline_text_width(frame, iconAdvance);
     textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
   } else {
-    iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
-                      SIDEBAR_ICON_SIZE);
+    int iconFirstRow = content->iconTopRow;
+    int iconDrawnHeight = icon_drawn_height(content);
+    iconFrame = GRect(icon_x(frame), frame.origin.y - iconFirstRow,
+                      SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = text_x(frame, textWidth);
-    textTop = frame.origin.y + stacked_icon_advance(has_icon(content));
+    textTop = frame.origin.y +
+              stacked_icon_advance(has_icon(content), iconDrawnHeight);
   }
 
   draw_icon(ctx, content, iconFrame);
@@ -867,9 +887,11 @@ static void draw_label_value(GContext *ctx, SidebarContent *content,
 }
 
 static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
-                                  bool hasIcon, int stackHeight,
+                                  SidebarContent *content, int stackHeight,
                                   GRect *iconFrame, int *textX,
                                   int *textWidth, int *textTop) {
+  bool hasIcon = has_icon(content);
+  int iconDrawnHeight = icon_drawn_height(content);
   int renderTextWidth = render_width(spec);
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
@@ -881,9 +903,11 @@ static void get_icon_stack_layout(GRect frame, SidebarRenderSpec *spec,
     *textX = frame.origin.x + iconAdvance;
     *textWidth = inline_text_width(frame, iconAdvance);
   } else {
-    *iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
-                       SIDEBAR_ICON_SIZE);
-    *textTop = frame.origin.y + stacked_icon_advance(hasIcon);
+    *iconFrame = GRect(icon_x(frame),
+                       frame.origin.y - content->iconTopRow,
+                       SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
+    *textTop = frame.origin.y +
+               stacked_icon_advance(hasIcon, iconDrawnHeight);
     *textX = text_x(frame, renderTextWidth);
     *textWidth = renderTextWidth;
   }
@@ -931,7 +955,7 @@ static void draw_icon_value_pair_divided(GContext *ctx, SidebarContent *content,
     return;
   }
 
-  get_icon_stack_layout(frame, spec, has_icon(content), pairHeight,
+  get_icon_stack_layout(frame, spec, content, pairHeight,
                         &iconFrame, &textXPos, &textWidth, &textTop);
   draw_icon(ctx, content, iconFrame);
 
@@ -1011,7 +1035,7 @@ static void draw_icon_value_with_subtext(GContext *ctx, SidebarContent *content,
     return;
   }
 
-  get_icon_stack_layout(frame, spec, has_icon(content), stackHeight,
+  get_icon_stack_layout(frame, spec, content, stackHeight,
                         &iconFrame, &primaryX, &primaryWidth, &textTop);
 
   draw_icon(ctx, content, iconFrame);
@@ -1842,6 +1866,12 @@ static SidebarContent StepCounter_getContent() {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_ICON_VALUE);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = stepsImage;
+  // the shoe's path only draws in rows 6-20 of the 25-pixel bounds the
+  // PDC declares (a 13px-tall shoe centered in the image, blank rows
+  // from floor(min y) .. ceil(max y) of the precise-path coords, 1/8px
+  // per unit); the stacked slot must only cover the drawn rows
+  content.iconTopRow = 6;
+  content.iconDrawnRows = 15;
 
   format_count_candidates(cached_health_sum_today(HealthMetricStepCount),
                           &content.primary);
@@ -1877,6 +1907,10 @@ static SidebarContent SleepTimer_getContent() {
       empty_content(SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT);
   content.iconKind = SIDEBAR_ICON_IMAGE;
   content.icon = sleepImage;
+  // the moon only draws in rows 4-21 of the 25-pixel bounds the PDC
+  // declares -- same treatment as the steps shoe above
+  content.iconTopRow = 4;
+  content.iconDrawnRows = 18;
 
   HealthMetric metric = (settings.healthUseRestfulSleep)
                             ? HealthMetricSleepRestfulSeconds

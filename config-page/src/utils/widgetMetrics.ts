@@ -697,6 +697,15 @@ const STACK_VALUE_GAP = 5;         // SIDEBAR_STACKED_VALUE_GAP
 const STACK_LABEL_GAP = 3;         // SIDEBAR_BASIC_LABEL_GAP
 const STACK_DIVIDER_H = 1;         // SIDEBAR_VALUE_PAIR_DIVIDER_HEIGHT
 const BATTERY_ICON_H = 14;         // BatteryMeter_measure's icon height
+// Icons whose PDC draws a shorter path than the 25-pixel bounds it
+// declares, with the blank rows baked into the image: the stacked
+// layout shifts the image up and reserves only the drawn rows + gap
+// (sidebar_widgets.c's iconTopRow/iconDrawnRows; steps rows 6..20,
+// sleep rows 4..21)
+const ICON_DRAWN_ROWS: Record<number, number> = {
+    9: 18,   // Sleep: hours/minutes subtext
+    10: 15,  // Steps
+};
 const DATE_DAY_TOP_PADDING = 10;        // DATE_CALENDAR_DAY_TOP_PADDING
 const DATE_DAY_BOTTOM_PADDING = 4;      // DATE_CALENDAR_DAY_BOTTOM_PADDING(_LARGE)
 const DATE_PLAIN_VERTICAL_PADDING = 4;  // DATE_PLAIN_VERTICAL_PADDING
@@ -715,8 +724,11 @@ export const stackedWidgetHeight = (
     const md = GOTHIC_HEIGHT[f.md];
     const lg = GOTHIC_HEIGHT[f.lg];
     const current = large ? lg : md;
-    // a hidden marker takes its icon and the gap below it along
-    const icon = hidden.marker ? 0 : WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP;
+    // a hidden marker takes its icon and the gap below it along; short
+    // icons reserve their drawn rows instead of the full 25-pixel slot
+    const icon = hidden.marker
+        ? 0
+        : (ICON_DRAWN_ROWS[widgetId] ?? WATCH_ICON_SIZE) + STACK_ICON_TEXT_GAP;
     const iconValue = icon + current;
 
     switch (widgetId) {
