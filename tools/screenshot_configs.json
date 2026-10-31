@@ -1,5 +1,5 @@
 {
-  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state. Configs are written for rect watches (a packed sidebar list plus bottom-bar slots) and translated for round ones: the bar's widgets go on the right arc and the sidebar's on the left, or with no bar widgets the sidebar list is split across both arcs. Configs named 'arc-*' are written for round directly (slots 0-2 left arc, 3-5 right) and sent as-is. A list of widget names (as for SettingWidgetHideMarker / SettingWidgetHideDetail) is sent as a bitmask with one bit per widget type.",
+  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state. Configs are written for rect watches (a packed sidebar list plus bottom-bar slots) and translated for round ones: the bar's widgets go on the right arc and the sidebar's on the left, or with no bar widgets the sidebar list is split across both arcs. Configs named 'arc-*' are written for round directly (slots 0-2 left arc, 3-5 right) and sent as-is.",
   "defaults": {
     "SettingColorBG": "#000000",
     "SettingColorTime": "#FF5500",
@@ -42,9 +42,7 @@
     "WeatherSunriseMinute": 374,
     "WeatherSunsetMinute": 1182,
     "SettingColorBothArcs": 0,
-    "SettingStatusShowConnection": 0,
-    "SettingWidgetHideMarker": [],
-    "SettingWidgetHideDetail": []
+    "SettingStatusShowConnection": 0
   },
   "configs": [
     {
@@ -287,7 +285,7 @@
       "name": "widgets-worldtime-nolabel",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
-        "SettingWidgetHideMarker": ["WORLD_TIME_1"],
+        "SettingAltClockName": "",
         "SettingWidget0ID": "WORLD_TIME_1",
         "SettingWidget1ID": "DATE",
         "SettingWidget2ID": "EMPTY"
@@ -297,7 +295,7 @@
       "name": "widgets-worldtime-nolabel-bottombar",
       "settings": {
         "SettingLayoutId": "SIDEBAR_RIGHT",
-        "SettingWidgetHideMarker": ["WORLD_TIME_1"],
+        "SettingAltClockName": "",
         "SettingBottomBarWidget0ID": "WORLD_TIME_1",
         "SettingBottomBarWidget1ID": "SECONDS"
       }
@@ -902,194 +900,6 @@
         "SettingWidget1ID": "WEATHER_FORECAST_TODAY",
         "WeatherCondition": "THUNDERSTORM",
         "WeatherForecastCondition": "WEATHER_GENERIC"
-      }
-    },
-    {
-      "name": "parts-icons-hidden",
-      "settings": {
-        "SettingWidget0ID": "BATTERY_METER",
-        "SettingWidget1ID": "WEATHER_CURRENT",
-        "SettingWidget2ID": "STEP_COUNTER",
-        "SettingWidget3ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "BATTERY_METER",
-          "WEATHER_CURRENT",
-          "STEP_COUNTER",
-          "DATE"
-        ]
-      }
-    },
-    {
-      "name": "parts-details-hidden",
-      "settings": {
-        "SettingWidget0ID": "BATTERY_METER",
-        "SettingWidget1ID": "WEATHER_CURRENT",
-        "SettingWidget2ID": "WEATHER_FORECAST_TODAY",
-        "SettingWidget3ID": "DATE",
-        "SettingWidgetHideDetail": [
-          "BATTERY_METER",
-          "WEATHER_CURRENT",
-          "WEATHER_FORECAST_TODAY",
-          "DATE"
-        ]
-      }
-    },
-    {
-      "name": "parts-date-day-only",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "DATE"
-        ],
-        "SettingWidgetHideDetail": [
-          "DATE"
-        ]
-      }
-    },
-    {
-      "name": "parts-labels-hidden",
-      "settings": {
-        "SettingWidget0ID": "WEEK_NUMBER",
-        "SettingWidget1ID": "WEATHER_UV_INDEX",
-        "SettingWidget2ID": "BEATS",
-        "SettingWidget3ID": "NEXT_SUN_EVENT",
-        "SettingWidgetHideMarker": [
-          "WEEK_NUMBER",
-          "WEATHER_UV_INDEX",
-          "BEATS",
-          "NEXT_SUN_EVENT"
-        ]
-      }
-    },
-    {
-      "name": "parts-health-icons-hidden",
-      "settings": {
-        "SettingWidget0ID": "SLEEP_TIMER",
-        "SettingWidget1ID": "HEARTRATE",
-        "SettingWidget2ID": "DISTANCE_WALKED",
-        "SettingWidget3ID": "WEATHER_PRECIP_CHANCE",
-        "SettingWidgetHideMarker": [
-          "SLEEP_TIMER",
-          "HEARTRATE",
-          "DISTANCE_WALKED",
-          "WEATHER_PRECIP_CHANCE"
-        ]
-      }
-    },
-    {
-      "name": "parts-both-hidden-guard",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingWidgetHideMarker": [
-          "WEATHER_CURRENT",
-          "BATTERY_METER"
-        ],
-        "SettingWidgetHideDetail": [
-          "WEATHER_CURRENT",
-          "BATTERY_METER"
-        ]
-      }
-    },
-    {
-      "name": "parts-battery-charging-no-icon",
-      "env": {
-        "charging": true
-      },
-      "settings": {
-        "SettingWidget0ID": "BATTERY_METER",
-        "SettingWidget1ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "BATTERY_METER"
-        ]
-      }
-    },
-    {
-      "name": "parts-bottombar-markers-hidden",
-      "settings": {
-        "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
-        "SettingBottomBarWidget1ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "WEATHER_CURRENT",
-          "DATE"
-        ],
-        "SettingWidget0ID": "BATTERY_METER",
-        "SettingWidget1ID": "STEP_COUNTER"
-      }
-    },
-    {
-      "name": "parts-bottombar-details-hidden",
-      "settings": {
-        "SettingBottomBarWidget0ID": "WEATHER_CURRENT",
-        "SettingBottomBarWidget1ID": "BATTERY_METER",
-        "SettingWidgetHideDetail": [
-          "WEATHER_CURRENT",
-          "BATTERY_METER"
-        ],
-        "SettingWidget0ID": "DATE",
-        "SettingWidget1ID": "EMPTY"
-      }
-    },
-    {
-      "name": "arc-parts-hidden",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "STEP_COUNTER",
-        "SettingWidget3ID": "DATE",
-        "SettingWidget4ID": "BATTERY_METER",
-        "SettingWidgetHideMarker": [
-          "WEATHER_CURRENT",
-          "STEP_COUNTER"
-        ],
-        "SettingWidgetHideDetail": [
-          "DATE",
-          "BATTERY_METER"
-        ]
-      }
-    },
-    {
-      "name": "parts-bottombar-date-full",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingBottomBarWidget0ID": "DATE"
-      }
-    },
-    {
-      "name": "parts-bottombar-date-weekday-day",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingBottomBarWidget0ID": "DATE",
-        "SettingWidgetHideDetail": [
-          "DATE"
-        ]
-      }
-    },
-    {
-      "name": "parts-bottombar-date-day-month",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingBottomBarWidget0ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "DATE"
-        ]
-      }
-    },
-    {
-      "name": "parts-bottombar-date-day-only",
-      "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingBottomBarWidget0ID": "DATE",
-        "SettingWidgetHideMarker": [
-          "DATE"
-        ],
-        "SettingWidgetHideDetail": [
-          "DATE"
-        ]
       }
     },
     {

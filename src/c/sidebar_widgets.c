@@ -440,9 +440,7 @@ SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
 static SidebarPalette activePalette;
 
 // transient hide-bit overrides set by the layout cascade in sidebar.c;
-// these start as copies of the user's settings and may be tightened for
-// the current frame. Reset before each measure pass via
-// SidebarWidgets_resetEffectiveHideBits().
+// reset before each measure pass via SidebarWidgets_resetEffectiveHideBits().
 static uint32_t effectiveHideMarker;
 static uint32_t effectiveHideDetail;
 
@@ -451,21 +449,16 @@ void SidebarWidgets_setActivePalette(const SidebarPalette *palette) {
 }
 
 void SidebarWidgets_resetEffectiveHideBits(void) {
-  effectiveHideMarker = settings.hideWidgetMarker;
-  effectiveHideDetail = settings.hideWidgetDetail;
+  effectiveHideMarker = 0;
+  effectiveHideDetail = 0;
 }
 
-void SidebarWidgets_setEffectiveHideBit(uint32_t *field,
-                                        SidebarWidgetType type) {
-  *field |= 1u << type;
+void SidebarWidgets_hideWidgetDetail(SidebarWidgetType type) {
+  effectiveHideDetail |= 1u << type;
 }
 
-uint32_t *SidebarWidgets_effectiveHideMarker(void) {
-  return &effectiveHideMarker;
-}
-
-uint32_t *SidebarWidgets_effectiveHideDetail(void) {
-  return &effectiveHideDetail;
+void SidebarWidgets_hideWidgetMarker(SidebarWidgetType type) {
+  effectiveHideMarker |= 1u << type;
 }
 
 static int render_width(SidebarRenderSpec *spec) {
@@ -751,8 +744,8 @@ static SidebarMeasure generic_measure(SidebarContent *content,
     if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
       height = textHeight;
     } else {
-      // a missing label (hidden by the "Show" setting) drops the label
-      // line entirely instead of reserving an empty row
+      // a blank label drops the label line entirely instead of
+      // reserving an empty row
       height = textHeight;
       if (content->label != NULL && content->label[0] != '\0') {
         height += small_text_height() + SIDEBAR_BASIC_LABEL_GAP;
@@ -1092,15 +1085,7 @@ static void generic_draw(GContext *ctx, SidebarContent *content, GRect frame,
 }
 
 /*
- * Which of a widget's parts the user has hidden. Every widget has at most
- * one "marker" -- the part that names it: an icon, a label, or the date's
- * weekday. A few also have a "detail" that can go instead: the battery's
- * percentage, the weather's temperatures, the date's month.
- *
- * A widget never loses both parts, since that would leave it blank: if
- * both are set, the marker goes and the detail stays. The date is the
- * exception, because its calendar remains either way. The config page
- * mirrors these rules (widgetParts.ts) and only offers what applies.
+ * Which of a widget's parts the layout cascade has hidden.
  */
 typedef struct {
   bool marker;
@@ -1108,47 +1093,10 @@ typedef struct {
 } HiddenParts;
 
 static HiddenParts hidden_parts(SidebarWidgetType type) {
-  HiddenParts hidden = {
+  return (HiddenParts){
       .marker = (effectiveHideMarker >> type) & 1,
       .detail = (effectiveHideDetail >> type) & 1,
   };
-
-  switch (type) {
-  case DATE:
-    break;
-  case BATTERY_METER:
-  case WEATHER_CURRENT:
-  case WEATHER_FORECAST_TODAY:
-    if (hidden.marker) {
-      hidden.detail = false;
-    }
-    break;
-  default:
-    hidden.detail = false;
-    break;
-  }
-
-  return hidden;
-}
-
-// strips hidden parts from a generic widget's content: a hidden marker
-// drops its icon or label, and a hidden detail leaves just the icon. The
-// custom widgets (battery, date) read hidden_parts() themselves.
-static void hide_content_parts(SidebarWidgetType type,
-                               SidebarContent *content) {
-  HiddenParts hidden = hidden_parts(type);
-
-  if (hidden.marker) {
-    content->iconKind = SIDEBAR_ICON_NONE;
-    content->icon = NULL;
-    content->label = NULL;
-  }
-
-  if (hidden.detail &&
-      (content->kind == SIDEBAR_CONTENT_ICON_VALUE ||
-       content->kind == SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED)) {
-    content->kind = SIDEBAR_CONTENT_ICON;
-  }
 }
 
 // the content being measured or drawn. It lives here rather than on the
@@ -1164,7 +1112,6 @@ static SidebarContent scratchContent;
 NOINLINE_DRAW
 static void load_scratch_content(SidebarWidgetDefinition *widget) {
   scratchContent = widget->getContent();
-  hide_content_parts(widget->type, &scratchContent);
 }
 
 SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,

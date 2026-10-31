@@ -59,17 +59,6 @@ export interface WidgetPreset {
    */
   essential?: number[];
   /**
-   * Parts of the preset's widgets to cut down, as the "Show" options do
-   * (utils/widgetParts.ts): a hidden marker drops the icon or label, a
-   * hidden detail the battery's percentage or the date's month. Fit is
-   * measured with the parts hidden, so a slimmer widget leaves room for
-   * more.
-   */
-  hide?: {
-    marker?: number[];
-    detail?: number[];
-  };
-  /**
    * Escape hatch: the exact widgets for one form factor, placed as
    * listed rather than filled by fit (still capped, and still dropping
    * widgets the watch can't show).

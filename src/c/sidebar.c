@@ -197,7 +197,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness);
 
-  // Start from the user's persisted hide bits; the cascade may tighten
+  // Reset effective hide bits before the measure pass; the cascade may tighten
   // them below if the widgets don't fit at their current sizes.
   SidebarWidgets_resetEffectiveHideBits();
 
@@ -239,8 +239,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == BATTERY_METER) {
         int oldH = sizes[i].h;
-        SidebarWidgets_setEffectiveHideBit(
-            SidebarWidgets_effectiveHideDetail(), BATTERY_METER);
+        SidebarWidgets_hideWidgetDetail(BATTERY_METER);
         sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
         totalHeight += sizes[i].h - oldH;
         break;
@@ -253,8 +252,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == DATE) {
         int oldH = sizes[i].h;
-        SidebarWidgets_setEffectiveHideBit(
-            SidebarWidgets_effectiveHideDetail(), DATE);
+        SidebarWidgets_hideWidgetDetail(DATE);
         sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
         totalHeight += sizes[i].h - oldH;
         break;
@@ -267,8 +265,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == DATE) {
         int oldH = sizes[i].h;
-        SidebarWidgets_setEffectiveHideBit(
-            SidebarWidgets_effectiveHideMarker(), DATE);
+        SidebarWidgets_hideWidgetMarker(DATE);
         sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
         totalHeight += sizes[i].h - oldH;
         break;
@@ -290,6 +287,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   }
 
   if (count == 0) {
+    SidebarWidgets_resetEffectiveHideBits();
     return;
   }
 
@@ -326,6 +324,8 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
     y += sizes[i].h;
   }
+
+  SidebarWidgets_resetEffectiveHideBits();
 }
 #endif
 
@@ -358,6 +358,7 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   }
 
   if (count == 0) {
+    SidebarWidgets_resetEffectiveHideBits();
     return;
   }
 
@@ -485,6 +486,7 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
   }
 
   if (count == 0) {
+    SidebarWidgets_resetEffectiveHideBits();
     return;
   }
 

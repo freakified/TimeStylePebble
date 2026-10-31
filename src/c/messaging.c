@@ -73,8 +73,6 @@ static const MessageField s_settingFields[] = {
   // the phone sends this one as a one-character string; its first byte
   // is the character either way
   SETTING(SettingDecimalSep, decimalSeparator, FIELD_UINT8),
-  SETTING(SettingWidgetHideMarker, hideWidgetMarker, FIELD_UINT32),
-  SETTING(SettingWidgetHideDetail, hideWidgetDetail, FIELD_UINT32),
 };
 
 // the plain-number weather fields; the two conditions also swap icons, so

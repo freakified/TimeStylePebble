@@ -115,11 +115,7 @@ function settingsFromWatchPayload(payload) {
     altClock2Name: payload.SettingAltClock2Name || 'UTC',
     altClock2Offset: getNumber(payload.SettingAltClock2Offset, 0),
 
-    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total',
-
-    // hidden widget parts: one bit per widget id (see widgetParts.ts)
-    widgetHideMarker: getNumber(payload.SettingWidgetHideMarker, 0),
-    widgetHideDetail: getNumber(payload.SettingWidgetHideDetail, 0)
+    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
   };
 }
 
@@ -231,14 +227,6 @@ function settingsToWatchPayload(configData) {
 
   if (configData.healthSleepType !== undefined) {
     dict.SettingHealthUseRestfulSleep = configData.healthSleepType == 'restful' ? 1 : 0;
-  }
-
-  if (configData.widgetHideMarker !== undefined) {
-    dict.SettingWidgetHideMarker = configData.widgetHideMarker;
-  }
-
-  if (configData.widgetHideDetail !== undefined) {
-    dict.SettingWidgetHideDetail = configData.widgetHideDetail;
   }
 
   return dict;

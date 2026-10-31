@@ -10,7 +10,6 @@ import {
   ThemePicker,
   CustomThemePanel,
   WidgetSelector,
-  WidgetDisplayOptions,
   LocationSection,
   DonationLink,
   TextField,
@@ -20,7 +19,6 @@ import { COLOR_THEMES, WIDGET_THEMES } from '../utils/themeKinds';
 import { barSlotCap } from '../utils/layout';
 import { Layout } from '../context/types';
 import { worldTimeOptions, withWorldTimeValue, worldTimeDefaultLabel } from '../data/worldTimes';
-import { WIDGET_PARTS, hiddenParts } from '../utils/widgetParts';
 import customWidgetsIconUrl from '../assets/custom-widgets-icon.svg';
 
 const LANGUAGE_OPTIONS = [
@@ -123,19 +121,11 @@ export const SettingsPage: React.FC = () => {
 
   const showWorldTime1Section = activeWidgetIds.some((id) => id === 3);
   const showWorldTime2Section = activeWidgetIds.some((id) => id === 14);
-  // the custom label only matters while the widget shows its label
-  const showWorldTime1Label = !hiddenParts(3, settings).marker;
-  const showWorldTime2Label = !hiddenParts(14, settings).marker;
   // picking a zone relabels the widget with its default label, which the
   // user can then edit; a blank label still falls back to it on the phone
   const worldTimeZoneOptions = React.useMemo(() => worldTimeOptions(), []);
 
   const showHealthSection = activeWidgetIds.some((id) => id === 9);
-
-  // placed widgets that have parts to hide, each listed once
-  const displayWidgetIds = activeWidgetIds.filter(
-    (id, i) => WIDGET_PARTS[id] && activeWidgetIds.indexOf(id) === i
-  );
 
 
   return (
@@ -237,12 +227,6 @@ export const SettingsPage: React.FC = () => {
         {settings.SETTING_WIDGET_THEME === 'custom' && (
           <>
             <WidgetSelector showPreview={false} />
-            {displayWidgetIds.length > 0 && (
-              <>
-                <h3 className="halite-subsection-title">Widget display</h3>
-                <WidgetDisplayOptions widgetIds={displayWidgetIds} />
-              </>
-            )}
           </>
         )}
       </Section>
@@ -315,16 +299,14 @@ export const SettingsPage: React.FC = () => {
             options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime1Zone)}
             onValueChange={(tz) => updateSetting('worldTime1Label', worldTimeDefaultLabel(String(tz)))}
           />
-          {showWorldTime1Label && (
-            <TextField
-              label="Custom label"
-              description="Up to 4 characters shown above the time"
-              messageKey="worldTime1Label"
-              maxLength={4}
-              placeholder={worldTimeDefaultLabel(settings.worldTime1Zone)}
-              transformValue={(value) => value.toUpperCase()}
-            />
-          )}
+          <TextField
+            label="Custom label"
+            description="Up to 4 characters shown above the time"
+            messageKey="worldTime1Label"
+            maxLength={4}
+            placeholder={worldTimeDefaultLabel(settings.worldTime1Zone)}
+            transformValue={(value) => value.toUpperCase()}
+          />
         </Section>
       )}
       {showWorldTime2Section && (
@@ -336,16 +318,14 @@ export const SettingsPage: React.FC = () => {
             options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime2Zone)}
             onValueChange={(tz) => updateSetting('worldTime2Label', worldTimeDefaultLabel(String(tz)))}
           />
-          {showWorldTime2Label && (
-            <TextField
-              label="Custom label"
-              description="Up to 4 characters shown above the time"
-              messageKey="worldTime2Label"
-              maxLength={4}
-              placeholder={worldTimeDefaultLabel(settings.worldTime2Zone)}
-              transformValue={(value) => value.toUpperCase()}
-            />
-          )}
+          <TextField
+            label="Custom label"
+            description="Up to 4 characters shown above the time"
+            messageKey="worldTime2Label"
+            maxLength={4}
+            placeholder={worldTimeDefaultLabel(settings.worldTime2Zone)}
+            transformValue={(value) => value.toUpperCase()}
+          />
         </Section>
       )}
 

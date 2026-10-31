@@ -71,8 +71,4 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // Health
   healthSleepType: 'total',
-
-  // every widget shows all its parts
-  widgetHideMarker: 0,
-  widgetHideDetail: 0,
 });

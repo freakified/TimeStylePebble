@@ -156,11 +156,6 @@ static void migrate_from_master() {
   // the status bar took over the disconnection icon
   settings.enableStatusBar = true;
 
-  // the battery percentage is now one of the widget's hideable parts
-  if (!old.showBatteryPct) {
-    settings.hideWidgetDetail |= 1u << BATTERY_METER;
-  }
-
   persist_delete(MASTER_EMERY_FONT_PERSIST_KEY);
 }
 
@@ -216,8 +211,6 @@ void Settings_loadFromStorage() {
   settings.clockFontId = FONT_SETTING_AVENIR;
   settings.hoursBold = true;
   settings.minutesBold = false;
-  settings.hideWidgetMarker = 0;
-  settings.hideWidgetDetail = 0;
 
   // settings are persisted as a raw struct, so a blob from any other
   // version would load scrambled: master's is migrated, and anything else

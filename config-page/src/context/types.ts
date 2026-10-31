@@ -117,11 +117,4 @@ export interface Settings {
 
   // Health
   healthSleepType: 'total' | 'restful';
-
-  // Hidden widget parts, one bit per widget id (bit n = widget id n): the
-  // "marker" names a widget (icon, label, the date's weekday), the
-  // "detail" is a second part some widgets can drop instead. What each
-  // bit means per widget lives in utils/widgetParts.ts.
-  widgetHideMarker: number;
-  widgetHideDetail: number;
 }

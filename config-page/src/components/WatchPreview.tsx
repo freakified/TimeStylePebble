@@ -28,6 +28,7 @@ import {
     previewFonts,
     PreviewFonts,
     stackedWidgetHeight,
+    cascadeSidebarStack,
     ARC_WIDGET_GAP_COMPACT,
     ARC_INWARD_NUDGE,
     WATCH_BAR_PADDING_X,
@@ -360,14 +361,17 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
      *
      * Widgets are NOT scaled down to make a crowded stack fit. The watch
      * doesn't do that — render_vertical_flow draws every widget at full
-     * size and its only concession to a full sidebar is tightening the end
-     * padding, after which widgets simply crowd into each other. Mirroring
-     * that is what keeps this preview honest with the budget meter: an
-     * over-budget config has to *look* over-budget here too.
+     * size and full gap, and its concessions to a crowded sidebar are the
+     * layout cascade's: compact forms first (the battery losing its
+     * percentage, the date its month and weekday), then dropping widgets,
+     * interior ones first. cascadeSidebarStack mirrors the cascade, and
+     * rendering exactly what survives keeps this preview honest with the
+     * budget meter: a config the watch would change has to *look* changed
+     * here too.
      *
      * So the stack is laid out with the watch's own widget heights (the
-     * same ones the fit budget sums), and each stylized widget is drawn
-     * centered in its slot. */
+     * same ones the fit budget and the cascade re-measure), and each
+     * stylized widget is drawn centered in its slot. */
     const renderSidebar = () => {
         const slotIds = [s.widget0Id, s.widget1Id, s.widget2Id, s.widget3Id, s.widget4Id, s.widget5Id]
             .slice(0, m.sidebarSlots)
@@ -377,16 +381,19 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
             return <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />;
         }
 
+        const slots = cascadeSidebarStack(slotIds, s, capabilities);
         const maxW = SIDEBAR_W - 2;
-        const specs = slotIds.map((id) => getWidgetSpec(id, s, fonts, maxW));
+        const specs = slots.map((slot) =>
+            getWidgetSpec(slot.id, s, fonts, maxW, slot.hidden));
 
-        const heights = slotIds.map((id) => stackedWidgetHeight(id, s, capabilities));
+        const heights = slots.map((slot) =>
+            stackedWidgetHeight(slot.id, s, capabilities, slot.hidden));
         const vPadding = m.vPadding;
 
         const cx = sidebarX + SIDEBAR_W / 2;
-        const last = slotIds.length - 1;
+        const last = slots.length - 1;
 
-        const tops: number[] = new Array(slotIds.length).fill(0);
+        const tops: number[] = new Array(slots.length).fill(0);
         tops[0] = vPadding;
         if (last > 0) {
             tops[last] = H - vPadding - heights[last];
@@ -410,7 +417,7 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         return (
             <>
                 <rect x={sidebarX} y={0} width={SIDEBAR_W} height={H} fill={colors.background} />
-                {slotIds.map((id, i) => (
+                {slots.map((slot, i) => (
                     <g key={`sidebar-${i}`}>
                         {renderItemsStacked(specs[i], cx, tops[i] + (heights[i] - specs[i].h) / 2,
                                             colors, fonts, maxW)}

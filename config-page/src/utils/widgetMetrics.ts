@@ -1,6 +1,5 @@
 import { Capabilities, Settings } from '../context/types';
 import { worldTimeDefaultLabel } from '../data/worldTimes';
-import { hiddenParts, WIDGET_PARTS } from './widgetParts';
 import iconAlarm from '../assets/preview/widget_previews/icon_alarm.svg?raw';
 import iconCalories from '../assets/preview/widget_previews/icon_calories.svg?raw';
 import iconBattery from '../assets/preview/widget_previews/icon_battery.svg?raw';
@@ -92,17 +91,28 @@ const SAMPLE_SUNSET_MINUTE = 20 * 60 + 14;
 const text = (str: string, font: FontRole = 'current'): WidgetItem => ({ type: 'text', text: str, font });
 
 /**
- * What a widget shows, minus any parts the user has hidden. Every widget
- * with a marker lists it first (its icon, its label, the date's weekday),
- * so a hidden marker drops the first item; a hidden detail leaves just
- * the icon, or on the date drops the month. The bar shows the same parts
- * as the sidebar.
+ * The parts a widget draws without: the ones the vertical sidebar's
+ * layout cascade has hidden, mirroring the effective hide bits in
+ * sidebar_widgets.c. The cascade only ever tightens the battery's
+ * percentage text and the date's weekday/month; {marker: false,
+ * detail: false} is the full form.
  */
-export const getWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
-    const items = allWidgetItems(widgetId, settings);
-    if (!WIDGET_PARTS[widgetId]) return items;
+export interface HiddenParts {
+    marker: boolean;
+    detail: boolean;
+}
 
-    const hidden = hiddenParts(widgetId, settings);
+/**
+ * What a widget shows. Every widget with a marker lists it first (its
+ * icon, its label, the date's weekday), so a hidden marker drops the
+ * first item, and a hidden detail leaves just the icon -- or on the date
+ * drops the month. The bar shows the same parts as the sidebar.
+ */
+export const getWidgetItems = (widgetId: number, settings: Settings,
+    hidden?: HiddenParts): WidgetItem[] => {
+    const items = allWidgetItems(widgetId, settings);
+    if (!hidden || (!hidden.marker && !hidden.detail)) return items;
+
     if (widgetId === 4) {  // Today's Date: weekday, calendar[, month]
         return items.filter((item, i) =>
             !(hidden.marker && i === 0) && !(hidden.detail && i === 2));
@@ -265,9 +275,10 @@ export const getWidgetSpec = (
     widgetId: number,
     settings: Settings,
     fonts: PreviewFonts,
-    maxW = Infinity
+    maxW = Infinity,
+    hidden?: HiddenParts
 ): WidgetSpec => {
-    const items = getWidgetItems(widgetId, settings);
+    const items = getWidgetItems(widgetId, settings, hidden);
     const sizes = items.map((item) => measureItem(item, fonts, maxW));
     let w = 0;
     let h = 0;
@@ -571,7 +582,6 @@ const widestInlineParts = (
     const candidates = INLINE_TEXT_CANDIDATES[widgetId];
     if (!parts || !candidates) return parts;
 
-    // hidden parts stay hidden
     return {
         ...parts,
         lead: parts.lead && candidates.lead ? widestText(candidates.lead, fontSize) : parts.lead,
@@ -675,7 +685,8 @@ export const assessRoundBar = (
  * and the font metrics. So unlike widths, heights can be mirrored
  * exactly: this is generic_measure(), BatteryMeter_measure() and
  * date_content_measure() in sidebar_widgets.c, for the stacked render
- * spec both regions use, hidden widget parts included.
+ * spec both regions use. A crowded sidebar's layout cascade may tighten
+ * a widget's form, which shows up here as `hidden`.
  */
 
 // METRIC_GOTHIC_*_HEIGHT in text_metrics.h: visible glyph height
@@ -690,11 +701,13 @@ const DATE_DAY_TOP_PADDING = 10;        // DATE_CALENDAR_DAY_TOP_PADDING
 const DATE_DAY_BOTTOM_PADDING = 4;      // DATE_CALENDAR_DAY_BOTTOM_PADDING(_LARGE)
 const DATE_PLAIN_VERTICAL_PADDING = 4;  // DATE_PLAIN_VERTICAL_PADDING
 
-/** A widget's stacked height on the watch, in watch pixels. */
+/** A widget's stacked height on the watch, in watch pixels. `hidden`
+ *  narrows the form, as the sidebar's layout cascade does. */
 export const stackedWidgetHeight = (
     widgetId: number,
     settings: Settings,
-    capabilities: Capabilities
+    capabilities: Capabilities,
+    hidden: HiddenParts = { marker: false, detail: false }
 ): number => {
     const large = settings.largeSidebarFont;
     const f = sidebarFontSet(capabilities);
@@ -702,7 +715,6 @@ export const stackedWidgetHeight = (
     const md = GOTHIC_HEIGHT[f.md];
     const lg = GOTHIC_HEIGHT[f.lg];
     const current = large ? lg : md;
-    const hidden = hiddenParts(widgetId, settings);
     // a hidden marker takes its icon and the gap below it along
     const icon = hidden.marker ? 0 : WATCH_ICON_SIZE + STACK_ICON_TEXT_GAP;
     const iconValue = icon + current;
@@ -727,13 +739,11 @@ export const stackedWidgetHeight = (
             return current + (hasLabel ? sm + STACK_LABEL_GAP : 0);
         }
         case 8:  // Today's Forecast: icon, high, divider, low
-            if (hidden.detail) return WATCH_ICON_SIZE;
             return iconValue + STACK_VALUE_GAP + STACK_DIVIDER_H + STACK_VALUE_GAP + current;
         case 9:  // Sleep: icon, hours, minutes subtext
             return icon + md + STACK_VALUE_GAP + sm;
-        case 7:  // Current Weather
-            return hidden.detail ? WATCH_ICON_SIZE : iconValue;
-        case 10: case 12: case 15: case 17: case 18: case 19: case 20:
+        // ICON_VALUE widgets one icon tall, current text font.
+        case 7: case 10: case 12: case 15: case 17: case 18: case 19: case 20:
             return iconValue;
         default:
             return 0;
@@ -763,10 +773,79 @@ const stackedTotal = (widgetIds: number[], settings: Settings, capabilities: Cap
 const SIDEBAR_MIN_GAP = 4;
 
 /**
+ * One sidebar slot after the layout cascade: the widget and which of its
+ * parts render_vertical_flow() will have hidden by the time it draws it.
+ */
+export interface SidebarSlot {
+    id: number;
+    hidden: HiddenParts;
+}
+
+/*
+ * The vertical sidebar's layout cascade, step for step out of
+ * render_vertical_flow() in sidebar.c: before dropping any widget, the
+ * watch tries progressively more compact forms -- the battery losing its
+ * percentage text, then the date its month, then its weekday -- re-fitting
+ * the budget after each step. After the steps, whatever's still over is
+ * paid for by dropping widgets, the one just above the bottom first, so
+ * the top widget is the last to go.
+ *
+ * (The watch also runs this cascade against whatever height timeline
+ * quick view leaves it; the preview can't know that, so it works from
+ * the full sidebar like the rest of the budget.)
+ */
+export const cascadeSidebarStack = (
+    widgetIds: number[],
+    settings: Settings,
+    capabilities: Capabilities
+): SidebarSlot[] => {
+    const slots: SidebarSlot[] = widgetIds.map((id) =>
+        ({ id, hidden: { marker: false, detail: false } }));
+    if (slots.length === 0) return slots;
+
+    const m = platformMetrics(capabilities, settings.largeSidebarFont);
+    const available = m.screenH - m.vPadding * 2;
+    const stackHeight = () =>
+        slots.reduce((sum, s) =>
+            sum + stackedWidgetHeight(s.id, settings, capabilities, s.hidden), 0)
+        + SIDEBAR_MIN_GAP * (slots.length - 1);
+
+    // each step is tried exactly once, and only while the stack is over
+    // budget; whether the step's widget is present, a no-op step just
+    // leaves the stack as it was
+    if (stackHeight() > available) {   // Step 1: battery graphic-only
+        const i = slots.findIndex((s) => s.id === 2);
+        if (i >= 0) slots[i].hidden.detail = true;
+    }
+    if (stackHeight() > available) {   // Step 2: date loses its month
+        const i = slots.findIndex((s) => s.id === 4);
+        if (i >= 0) slots[i].hidden.detail = true;
+    }
+    if (stackHeight() > available) {   // Step 3: date loses its weekday
+        const i = slots.findIndex((s) => s.id === 4);
+        if (i >= 0) slots[i].hidden.marker = true;
+    }
+
+    while (slots.length > 1 && stackHeight() > available) {
+        // the widget just above the bottom one, or the bottom one itself
+        // once only the two pinned ends remain
+        slots.splice(slots.length > 2 ? slots.length - 2 : slots.length - 1, 1);
+    }
+
+    return slots;
+};
+
+/**
  * How well a set of widgets fits the vertical sidebar. The sidebar is
  * always full screen height (the status bar yields its corner rather than
- * shortening it), and "over" is when the widgets can't keep
- * SIDEBAR_MIN_GAP between them inside its end padding.
+ * shortening it).
+ *
+ * The states follow the watch's own concessions rather than the raw
+ * budget: "tight" is when the layout cascade had to hide a part, the
+ * config fitting but in a less full-bodied form, and "over" is when the
+ * cascade's last resort kicks in and the watch literally drops a widget,
+ * so what shows isn't everything the user placed. "usedPx" stays the
+ * full-form budget so the numbers mean the same as before.
  */
 export const assessSidebar = (
     widgetIds: number[],
@@ -775,11 +854,19 @@ export const assessSidebar = (
 ): FitResult => {
     const m = platformMetrics(capabilities, settings.largeSidebarFont);
     const gaps = Math.max(0, widgetIds.length - 1) * SIDEBAR_MIN_GAP;
-    return assessPx(
+    const fit = assessPx(
         widgetIds.length,
         stackedTotal(widgetIds, settings, capabilities) + gaps,
         m.screenH - m.vPadding * 2
     );
+
+    const slots = cascadeSidebarStack(widgetIds, settings, capabilities);
+    const state: FitState =
+        slots.length < widgetIds.length ? 'over'
+        : slots.some((s) => s.hidden.marker || s.hidden.detail) ? 'tight'
+        : fit.state;
+
+    return { ...fit, state };
 };
 
 /**
