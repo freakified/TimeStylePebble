@@ -439,8 +439,33 @@ SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
 // drawing, the same way it sets colors on the GContext
 static SidebarPalette activePalette;
 
+// transient hide-bit overrides set by the layout cascade in sidebar.c;
+// these start as copies of the user's settings and may be tightened for
+// the current frame. Reset before each measure pass via
+// SidebarWidgets_resetEffectiveHideBits().
+static uint32_t effectiveHideMarker;
+static uint32_t effectiveHideDetail;
+
 void SidebarWidgets_setActivePalette(const SidebarPalette *palette) {
   activePalette = *palette;
+}
+
+void SidebarWidgets_resetEffectiveHideBits(void) {
+  effectiveHideMarker = settings.hideWidgetMarker;
+  effectiveHideDetail = settings.hideWidgetDetail;
+}
+
+void SidebarWidgets_setEffectiveHideBit(uint32_t *field,
+                                        SidebarWidgetType type) {
+  *field |= 1u << type;
+}
+
+uint32_t *SidebarWidgets_effectiveHideMarker(void) {
+  return &effectiveHideMarker;
+}
+
+uint32_t *SidebarWidgets_effectiveHideDetail(void) {
+  return &effectiveHideDetail;
 }
 
 static int render_width(SidebarRenderSpec *spec) {
@@ -1084,8 +1109,8 @@ typedef struct {
 
 static HiddenParts hidden_parts(SidebarWidgetType type) {
   HiddenParts hidden = {
-      .marker = (settings.hideWidgetMarker >> type) & 1,
-      .detail = (settings.hideWidgetDetail >> type) & 1,
+      .marker = (effectiveHideMarker >> type) & 1,
+      .detail = (effectiveHideDetail >> type) & 1,
   };
 
   switch (type) {

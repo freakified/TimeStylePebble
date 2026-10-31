@@ -118,6 +118,16 @@ void SidebarWidgets_updateTime(struct tm* timeInfo);
 SidebarRenderSpec SidebarWidgets_makeRenderSpec(SidebarLayoutMode mode,
                                                 int contentWidth);
 void SidebarWidgets_setActivePalette(const SidebarPalette *palette);
+
+// Layout cascade: call resetEffectiveHideBits() before each measure pass,
+// then tighten individual bits with setEffectiveHideBit() to try smaller
+// widget forms without touching persisted settings.
+void SidebarWidgets_resetEffectiveHideBits(void);
+void SidebarWidgets_setEffectiveHideBit(uint32_t *field,
+                                        SidebarWidgetType type);
+uint32_t *SidebarWidgets_effectiveHideMarker(void);
+uint32_t *SidebarWidgets_effectiveHideDetail(void);
+
 SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type);
 SidebarMeasure SidebarWidgets_measure(SidebarWidgetDefinition *widget,
                                       SidebarRenderSpec *spec);

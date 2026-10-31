@@ -197,6 +197,10 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, r->thickness);
 
+  // Start from the user's persisted hide bits; the cascade may tighten
+  // them below if the widgets don't fit at their current sizes.
+  SidebarWidgets_resetEffectiveHideBits();
+
   int totalHeight = 0;
   for (int i = 0; i < r->slotCount; i++) {
     if (r->slots[i] == EMPTY) {
@@ -216,6 +220,61 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     available = targetHeight;
   }
   available -= REGION_V_PADDING * 2;
+
+  /*
+   * Layout cascade: before dropping any widget, try progressively more
+   * compact forms of the widgets that have them. Each step re-measures
+   * only the widget whose form changed.
+   *
+   * Step 1: battery → graphic only (hide the percentage text)
+   * Step 2: date → calendar + day number only (hide month)
+   * Step 3: date → calendar + day number only, no weekday (hide that too)
+   *
+   * Each step is tried exactly once; if tightening a widget's form still
+   * leaves the stack over budget, we move to the next step. The drop loop
+   * that follows handles whatever remains after all cascade steps.
+   */
+  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+    // Step 1: battery graphic-only
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == BATTERY_METER) {
+        int oldH = sizes[i].h;
+        SidebarWidgets_setEffectiveHideBit(
+            SidebarWidgets_effectiveHideDetail(), BATTERY_METER);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+        totalHeight += sizes[i].h - oldH;
+        break;
+      }
+    }
+  }
+
+  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+    // Step 2: date → weekday + day number (no month)
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == DATE) {
+        int oldH = sizes[i].h;
+        SidebarWidgets_setEffectiveHideBit(
+            SidebarWidgets_effectiveHideDetail(), DATE);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+        totalHeight += sizes[i].h - oldH;
+        break;
+      }
+    }
+  }
+
+  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+    // Step 3: date → day number only (no weekday either)
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == DATE) {
+        int oldH = sizes[i].h;
+        SidebarWidgets_setEffectiveHideBit(
+            SidebarWidgets_effectiveHideMarker(), DATE);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
+        totalHeight += sizes[i].h - oldH;
+        break;
+      }
+    }
+  }
 
   while (count > 1 &&
          totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {

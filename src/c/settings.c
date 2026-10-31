@@ -153,13 +153,7 @@ static void migrate_from_master() {
   }
 #endif
 
-  // the status bar took over the disconnection icon, and the widget
-  bool hadDisconnectWidget = false;
-  for (int i = 0; i < 3; i++) {
-    if (old.widgets[i] == MASTER_WIDGET_BLUETOOTH_DISCONNECT) {
-      hadDisconnectWidget = true;
-    }
-  }
+  // the status bar took over the disconnection icon
   settings.enableStatusBar = true;
 
   // the battery percentage is now one of the widget's hideable parts
