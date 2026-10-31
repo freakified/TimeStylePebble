@@ -59,7 +59,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // compact form rather than eating the clock's room. For reference, a
 // world time's "23:59" measures (graphics_text_layout_get_content_size,
 // bold gothic) 36px at 18, 44px at 24, 49px at 28. Large text leaves
-// the wider-sidebar setting alone; on the big screens the two widths
+// the wider-sidebar setting alone; with large fonts enabled the two widths
 // match, so that setting changes nothing there.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 43 : 34)
@@ -67,7 +67,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 #define HBAR_HEIGHT(largeFonts) ((largeFonts) ? 43 : 34)
 #define REGION_V_PADDING 9
 #else
-#define VBAR_WIDTH_NARROW(largeFonts) 30
+#define VBAR_WIDTH_NARROW(largeFonts) ((largeFonts) ? 35 : 30)
 #define VBAR_WIDTH_WIDE(largeFonts) 35
 #define HBAR_HEIGHT(largeFonts) 30
 #define REGION_V_PADDING 8
