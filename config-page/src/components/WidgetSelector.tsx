@@ -409,9 +409,7 @@ export const WidgetSelector: React.FC<{
 
   const barInfo = {
     heading: 'Bottom bar',
-    hint: capabilities.ROUND
-      ? 'Add a widget here to show it below the time.'
-      : 'Add a widget here to turn the bottom bar on.',
+    hint: 'Add a widget here to show it below the time'
   };
   const arcInfo = { hint: 'No widgets in this arc.' };
 
@@ -424,7 +422,7 @@ export const WidgetSelector: React.FC<{
     : {
       primary: {
         heading: 'Sidebar',
-        hint: 'No widgets — the sidebar shows as a plain band.',
+        hint: 'No widgets in the sidebar yet',
       },
       secondary: barInfo,
       // rect has no third region; it is never shown

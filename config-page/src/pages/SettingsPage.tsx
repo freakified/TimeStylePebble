@@ -208,43 +208,8 @@ export const SettingsPage: React.FC = () => {
         />
         <Toggle
           label="Show leading zero"
-          description="Display time as 09:30 instead of 9:30"
           messageKey="leadingZero"
         />
-      </Section>
-
-      {/* ── Layout ── */}
-      <Section title="Layout">
-        <SelectCards
-          label="Layout"
-          messageKey="layout"
-          options={layoutOptions}
-          optionSettings={layoutOptionSettings}
-        />
-        {capabilities.ROUND && (
-          <Toggle
-            label="Classic appearance"
-            description="Show background color on both sidebars"
-            messageKey="colorBothArcs"
-          />
-        )}
-        <Toggle
-          label="Use large sidebar text"
-          messageKey="largeSidebarFont"
-        />
-        {capabilities.RECT && (
-          <Toggle
-            label="Wider sidebar"
-            description={settings.largeSidebarFont
-              ? "Always on with large sidebar text"
-              : "Give vertical widgets slightly more breathing room"}
-            messageKey="wideSidebar"
-            isDisabled={settings.largeSidebarFont}
-            // large text already takes that room, so the switch looks on
-            // without writing the setting underneath
-            isSelected={settings.largeSidebarFont ? true : undefined}
-          />
-        )}
       </Section>
 
       {/* ── Widgets ── */}
@@ -281,6 +246,42 @@ export const SettingsPage: React.FC = () => {
           </>
         )}
       </Section>
+
+
+      {/* ── Layout ── */}
+      <Section title="Layout">
+        <SelectCards
+          label="Layout"
+          messageKey="layout"
+          options={layoutOptions}
+          optionSettings={layoutOptionSettings}
+        />
+        {capabilities.ROUND && (
+          <Toggle
+            label="Classic appearance"
+            description="Show background color on both sidebars"
+            messageKey="colorBothArcs"
+          />
+        )}
+        <Toggle
+          label="Use large sidebar text"
+          messageKey="largeSidebarFont"
+        />
+        {capabilities.RECT && (
+          <Toggle
+            label="Wider sidebar"
+            description={settings.largeSidebarFont
+              ? "Always on with large sidebar text"
+              : "Extra space for wider widgets"}
+            messageKey="wideSidebar"
+            isDisabled={settings.largeSidebarFont}
+            // large text already takes that room, so the switch looks on
+            // without writing the setting underneath
+            isSelected={settings.largeSidebarFont ? true : undefined}
+          />
+        )}
+      </Section>
+
 
 
 
@@ -362,16 +363,16 @@ export const SettingsPage: React.FC = () => {
         </Section>
       )}
 
-      <Section title="Status Icon">
+      <Section title="Status Indicator">
         <Toggle
-          label="Show quiet time and watch disconnected status icon"
-          description="Show a small icon at the top of the screen during Quiet Time or when your phone is disconnected"
+          label="Show status indicator"
+          description="Shows when in Quiet Time or when phone is disconnected"
           messageKey="statusBarEnabled"
         />
         {settings.statusBarEnabled && (
           <Toggle
             label="Always show connection status"
-            description="Also show the icon while connected to your phone, not just when disconnected"
+            description="Also show the icon while connected to your phone"
             messageKey="statusBarShowConnection"
           />
         )}

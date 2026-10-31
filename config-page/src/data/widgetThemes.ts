@@ -32,171 +32,150 @@ const CALORIES = 19;
 const NEXT_ALARM = 20;
 
 export interface RectWidgets {
-    sidebar: number[];
-    bar?: number[];
+  sidebar: number[];
+  bar?: number[];
 }
 
 export interface RoundWidgets {
-    left: number[];
-    right: number[];
-    bar?: number[];
+  left: number[];
+  right: number[];
+  bar?: number[];
 }
 
 export type FormFactor = 'small-rect' | 'large-rect' | 'small-round' | 'large-round';
 
 export interface WidgetPreset {
-    name: string;
-    /** hidden on watches missing any of these */
-    requires?: (keyof Capabilities)[];
-    rect: RectWidgets;
-    // a rect sidebar doesn't split onto two arcs by itself, so round
-    // presets name their arcs
-    round: RoundWidgets;
-    /**
-     * Widgets placed before the rest of their region's list when room is
-     * short, though still shown where the list puts them: a date listed
-     * last, at the bottom of the sidebar, is the last thing to drop.
-     */
-    essential?: number[];
-    /**
-     * Parts of the preset's widgets to cut down, as the "Show" options do
-     * (utils/widgetParts.ts): a hidden marker drops the icon or label, a
-     * hidden detail the battery's percentage or the date's month. Fit is
-     * measured with the parts hidden, so a slimmer widget leaves room for
-     * more.
-     */
-    hide?: {
-        marker?: number[];
-        detail?: number[];
-    };
-    /**
-     * Escape hatch: the exact widgets for one form factor, placed as
-     * listed rather than filled by fit (still capped, and still dropping
-     * widgets the watch can't show).
-     */
-    exact?: {
-        'small-rect'?: RectWidgets;
-        'large-rect'?: RectWidgets;
-        'small-round'?: RoundWidgets;
-        'large-round'?: RoundWidgets;
-    };
+  name: string;
+  /** hidden on watches missing any of these */
+  requires?: (keyof Capabilities)[];
+  rect: RectWidgets;
+  // a rect sidebar doesn't split onto two arcs by itself, so round
+  // presets name their arcs
+  round: RoundWidgets;
+  /**
+   * Widgets placed before the rest of their region's list when room is
+   * short, though still shown where the list puts them: a date listed
+   * last, at the bottom of the sidebar, is the last thing to drop.
+   */
+  essential?: number[];
+  /**
+   * Parts of the preset's widgets to cut down, as the "Show" options do
+   * (utils/widgetParts.ts): a hidden marker drops the icon or label, a
+   * hidden detail the battery's percentage or the date's month. Fit is
+   * measured with the parts hidden, so a slimmer widget leaves room for
+   * more.
+   */
+  hide?: {
+    marker?: number[];
+    detail?: number[];
+  };
+  /**
+   * Escape hatch: the exact widgets for one form factor, placed as
+   * listed rather than filled by fit (still capped, and still dropping
+   * widgets the watch can't show).
+   */
+  exact?: {
+    'small-rect'?: RectWidgets;
+    'large-rect'?: RectWidgets;
+    'small-round'?: RoundWidgets;
+    'large-round'?: RoundWidgets;
+  };
 }
 
-// Most presets keep the date where Classic has it, at the bottom of the
-// sidebar (or the right arc), and give the bar a single featured widget:
-// the ones with long text -- world times, step counts, sun times, the
-// battery's percentage -- read best on their own along the bar.
 export const WIDGET_PRESETS: WidgetPreset[] = [
-    {
-        name: 'Classic',
-        rect: { sidebar: [CURRENT_WEATHER, DATE] },
-        round: { left: [CURRENT_WEATHER], right: [DATE] },
+  {
+    name: 'Classic',
+    rect: { sidebar: [CURRENT_WEATHER, DATE] },
+    round: { left: [CURRENT_WEATHER], right: [DATE] },
+  },
+  {
+    name: 'Extra',
+    rect: { sidebar: [CURRENT_WEATHER, BATTERY, DATE], bar: [STEPS] },
+    round: { left: [CURRENT_WEATHER, BATTERY], right: [DATE], bar: [STEPS] },
+  },
+  {
+    name: 'Weather',
+    rect: {
+      sidebar: [FORECAST, CHANCE_OF_RAIN, DATE],
+      bar: [CURRENT_WEATHER, UV_INDEX, CHANCE_OF_RAIN],
     },
-    {
-        name: 'Classic Plus',
-        rect: { sidebar: [CURRENT_WEATHER, DATE], bar: [BATTERY] },
-        round: { left: [CURRENT_WEATHER], right: [DATE], bar: [BATTERY] },
+    round: {
+      left: [CURRENT_WEATHER, UV_INDEX],
+      right: [CHANCE_OF_RAIN, DATE],
+      bar: [FORECAST],
     },
-    {
-        name: 'Minimal',
-        rect: { sidebar: [DATE], bar: [STEPS] },
-        round: { left: [], right: [DATE], bar: [STEPS] },
+    essential: [DATE],
+  },
+  {
+    name: 'Fitness',
+    requires: ['HEALTH'],
+    rect: {
+      sidebar: [DISTANCE, CALORIES, DATE],
+      bar: [STEPS, HEART_RATE],
     },
-    {
-        name: 'Everyday',
-        rect: {
-            sidebar: [CURRENT_WEATHER, STEPS, DATE],
-            bar: [BATTERY],
-        },
-        round: {
-            left: [STEPS, CURRENT_WEATHER],
-            right: [DATE],
-            bar: [BATTERY],
-        },
+    round: {
+      left: [DISTANCE, CALORIES],
+      right: [DATE],
+      bar: [STEPS],
     },
-    {
-        name: 'Active',
-        requires: ['HEALTH'],
-        rect: {
-            sidebar: [HEART_RATE, DISTANCE, CALORIES, DATE],
-            bar: [STEPS],
-        },
-        round: {
-            left: [DISTANCE, CALORIES],
-            right: [DATE],
-            bar: [STEPS],
-        },
-        essential: [DATE],
+    essential: [DATE],
+  },
+  {
+    name: 'Well Rested',
+    requires: ['HEALTH'],
+    rect: {
+      sidebar: [SLEEP, HEART_RATE, DATE],
+      bar: [BATTERY],
     },
-    {
-        name: 'Well Rested',
-        requires: ['HEALTH'],
-        rect: {
-            sidebar: [SLEEP, HEART_RATE, DATE],
-            bar: [BATTERY],
-        },
-        round: { left: [SLEEP], right: [DATE], bar: [BATTERY] },
-        essential: [DATE],
+    round: { left: [SLEEP], right: [DATE], bar: [BATTERY] },
+    essential: [DATE],
+  },
+  {
+    name: 'Great Outdoors',
+    rect: {
+      sidebar: [CURRENT_WEATHER, UV_INDEX, DISTANCE, DATE],
+      bar: [SUNRISE_SUNSET],
     },
-    {
-        name: 'Forecaster',
-        rect: {
-            sidebar: [CURRENT_WEATHER, FORECAST, CHANCE_OF_RAIN, DATE],
-            bar: [SUNRISE_SUNSET],
-        },
-        round: {
-            left: [CURRENT_WEATHER, FORECAST],
-            right: [CHANCE_OF_RAIN, DATE],
-            bar: [SUNRISE_SUNSET],
-        },
-        essential: [DATE],
+    round: {
+      left: [CURRENT_WEATHER, UV_INDEX],
+      right: [DISTANCE, DATE],
+      bar: [SUNRISE_SUNSET],
     },
-    {
-        name: 'Great Outdoors',
-        rect: {
-            sidebar: [CURRENT_WEATHER, UV_INDEX, DISTANCE, DATE],
-            bar: [SUNRISE_SUNSET],
-        },
-        round: {
-            left: [CURRENT_WEATHER, UV_INDEX],
-            right: [DISTANCE, DATE],
-            bar: [SUNRISE_SUNSET],
-        },
-        essential: [DATE],
+    essential: [DATE],
+  },
+  {
+    name: 'Commuter',
+    rect: {
+      sidebar: [NEXT_ALARM, CURRENT_WEATHER, CHANCE_OF_RAIN, DATE],
+      bar: [BATTERY],
     },
-    {
-        name: 'Commuter',
-        rect: {
-            sidebar: [NEXT_ALARM, CURRENT_WEATHER, CHANCE_OF_RAIN, DATE],
-            bar: [BATTERY],
-        },
-        round: {
-            left: [NEXT_ALARM, CHANCE_OF_RAIN],
-            right: [CURRENT_WEATHER, DATE],
-            bar: [BATTERY],
-        },
-        essential: [DATE],
+    round: {
+      left: [NEXT_ALARM, CHANCE_OF_RAIN],
+      right: [CURRENT_WEATHER, DATE],
+      bar: [BATTERY],
     },
-    {
-        name: 'Traveler',
-        rect: {
-            sidebar: [WORLD_TIME_2, CURRENT_WEATHER, DATE],
-            bar: [WORLD_TIME_1],
-        },
-        round: {
-            left: [WORLD_TIME_2, CURRENT_WEATHER],
-            right: [DATE],
-            bar: [WORLD_TIME_1],
-        },
-        essential: [DATE],
+    essential: [DATE],
+  },
+  {
+    name: 'Traveler',
+    rect: {
+      sidebar: [WORLD_TIME_2, CURRENT_WEATHER, DATE],
+      bar: [WORLD_TIME_1],
     },
-    {
-        name: 'Time Nerd',
-        rect: {
-            sidebar: [WEEK_NUMBER, SWATCH_TIME, SECONDS, DATE],
-            bar: [WORLD_TIME_1],
-        },
-        round: { left: [WEEK_NUMBER, SWATCH_TIME], right: [SECONDS, DATE], bar: [WORLD_TIME_1] },
-        essential: [DATE],
+    round: {
+      left: [WORLD_TIME_2, CURRENT_WEATHER],
+      right: [DATE],
+      bar: [WORLD_TIME_1],
     },
+    essential: [DATE],
+  },
+  {
+    name: 'Time Nerd',
+    rect: {
+      sidebar: [WEEK_NUMBER, SWATCH_TIME, SECONDS, DATE],
+      bar: [WORLD_TIME_1],
+    },
+    round: { left: [WEEK_NUMBER, SWATCH_TIME], right: [SECONDS, DATE], bar: [WORLD_TIME_1] },
+    essential: [DATE],
+  },
 ];

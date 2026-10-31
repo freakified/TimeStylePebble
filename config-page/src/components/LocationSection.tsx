@@ -89,7 +89,7 @@ export const LocationSection: React.FC = () => {
   return (
     <Section title="Location">
       <Toggle
-        label="Automatically get location via phone GPS"
+        label="Automatic location"
         description="Used for weather and sunrise/sunset times"
         messageKey="useGpsLocation"
       />
@@ -113,10 +113,10 @@ export const LocationSection: React.FC = () => {
       {!settings.useGpsLocation && showSearch && (
         <div className="halite-item halite-location-search">
           <label htmlFor={inputId} className="halite-label-group">
-            <span>Location</span>
+            <span>Manual Location</span>
             {!hasManualLocation && (
               <span className="halite-description">
-                Phone GPS will be used until you choose a city
+                Please select a city
               </span>
             )}
           </label>
