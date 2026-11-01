@@ -5,13 +5,8 @@ export const Page: React.FC<{ title: string; children: React.ReactNode }> = ({ t
   const { resetToDefaults, save } = useConfig();
 
   const handleReset = () => {
-    const confirmed = window.confirm(
-      'Reset all settings to their defaults? This will not affect saved custom themes.'
-    );
-
-    if (confirmed) {
-      resetToDefaults();
-    }
+    // no confirmation needed, since users can just X out of the config and nothing gets sent to the watch
+    resetToDefaults();
   };
 
   return (

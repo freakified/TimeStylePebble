@@ -112,14 +112,6 @@
     }
   },
   {
-    "name": "Synthwave",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "00FFFF",
-      "colorSidebar": "550055"
-    }
-  },
-  {
     "name": "Red Alert",
     "settings": {
       "colorBackground": "FF0000",

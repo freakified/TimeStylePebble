@@ -79,14 +79,57 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
   },
   {
     name: 'Extra',
-    rect: { sidebar: [CURRENT_WEATHER, BATTERY, DATE], bar: [STEPS] },
-    round: { left: [CURRENT_WEATHER, BATTERY], right: [DATE], bar: [STEPS] },
+    rect: { sidebar: [CURRENT_WEATHER, STEPS, BATTERY, DATE] },
+    round: { left: [CURRENT_WEATHER, BATTERY], right: [DATE] },
+    exact: {
+      'small-rect': {
+        sidebar: [CURRENT_WEATHER, BATTERY, DATE]
+      }
+    }
   },
   {
-    name: 'Weather',
+    name: 'Extra 2',
+    rect: { sidebar: [CURRENT_WEATHER, UV_INDEX, BATTERY, DATE], bar: [STEPS] },
+    round: { left: [CURRENT_WEATHER, UV_INDEX, BATTERY], right: [DATE], bar: [STEPS] },
+    exact: {
+      'small-rect': {
+        sidebar: [CURRENT_WEATHER, UV_INDEX, DATE],
+        bar: [STEPS]
+      }
+    }
+  },
+  {
+    name: 'Extra 3',
     rect: {
       sidebar: [FORECAST, CHANCE_OF_RAIN, DATE],
-      bar: [CURRENT_WEATHER, UV_INDEX, CHANCE_OF_RAIN],
+      bar: [SUNRISE_SUNSET, STEPS],
+    },
+    round: {
+      left: [FORECAST, CHANCE_OF_RAIN],
+      right: [STEPS, DATE],
+      bar: [SUNRISE_SUNSET],
+    },
+    essential: [DATE],
+  },
+  {
+    name: 'Commute',
+    requires: ['ALARMS'],
+    rect: {
+      sidebar: [FORECAST, CHANCE_OF_RAIN, BATTERY, DATE],
+      bar: [NEXT_ALARM],
+    },
+    round: {
+      left: [FORECAST, CHANCE_OF_RAIN],
+      right: [DATE, BATTERY],
+      bar: [NEXT_ALARM],
+    },
+    essential: [DATE],
+  },
+  {
+    name: 'Weather Enthusiast',
+    rect: {
+      sidebar: [FORECAST, CHANCE_OF_RAIN, DATE],
+      bar: [CURRENT_WEATHER, UV_INDEX],
     },
     round: {
       left: [CURRENT_WEATHER, UV_INDEX],
@@ -110,61 +153,35 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
     essential: [DATE],
   },
   {
-    name: 'Well Rested',
-    requires: ['HEALTH'],
+    name: 'Sleep Fan',
+    requires: ['HEALTH', 'ALARMS'],
     rect: {
-      sidebar: [SLEEP, HEART_RATE, DATE],
-      bar: [BATTERY],
+      sidebar: [SLEEP, HEART_RATE, BATTERY, DATE],
+      bar: [NEXT_ALARM],
     },
     round: { left: [SLEEP], right: [DATE], bar: [BATTERY] },
     essential: [DATE],
   },
   {
-    name: 'Great Outdoors',
-    rect: {
-      sidebar: [CURRENT_WEATHER, UV_INDEX, DISTANCE, DATE],
-      bar: [SUNRISE_SUNSET],
-    },
-    round: {
-      left: [CURRENT_WEATHER, UV_INDEX],
-      right: [DISTANCE, DATE],
-      bar: [SUNRISE_SUNSET],
-    },
-    essential: [DATE],
-  },
-  {
-    name: 'Commuter',
-    rect: {
-      sidebar: [NEXT_ALARM, CURRENT_WEATHER, CHANCE_OF_RAIN, DATE],
-      bar: [BATTERY],
-    },
-    round: {
-      left: [NEXT_ALARM, CHANCE_OF_RAIN],
-      right: [CURRENT_WEATHER, DATE],
-      bar: [BATTERY],
-    },
-    essential: [DATE],
-  },
-  {
     name: 'Traveler',
     rect: {
-      sidebar: [WORLD_TIME_2, CURRENT_WEATHER, DATE],
+      sidebar: [CURRENT_WEATHER, WORLD_TIME_2, DATE],
       bar: [WORLD_TIME_1],
     },
     round: {
-      left: [WORLD_TIME_2, CURRENT_WEATHER],
+      left: [CURRENT_WEATHER, WORLD_TIME_2],
       right: [DATE],
       bar: [WORLD_TIME_1],
     },
     essential: [DATE],
   },
   {
-    name: 'Time Nerd',
+    name: 'Time Enthusiast',
     rect: {
-      sidebar: [WEEK_NUMBER, SWATCH_TIME, SECONDS, DATE],
-      bar: [WORLD_TIME_1],
+      sidebar: [WEEK_NUMBER, WORLD_TIME_1, SWATCH_TIME, DATE],
+      bar: [SECONDS],
     },
-    round: { left: [WEEK_NUMBER, SWATCH_TIME], right: [SECONDS, DATE], bar: [WORLD_TIME_1] },
+    round: { left: [WEEK_NUMBER, WORLD_TIME_1, SWATCH_TIME], right: [DATE], bar: [SECONDS] },
     essential: [DATE],
   },
 ];
