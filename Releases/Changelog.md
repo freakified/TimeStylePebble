@@ -1,5 +1,63 @@
 # TimeStyle Versions
 
+## Release-8.0
+*Published on 2026-11-01*
+v8.0 - "It's been 3,000 years"
+
+- [New feature] Bottom bar; any widget can now be displayed inline beneath the time! Perfect for LONG widgets!
+- [New feature] Mini status indication at the top of the screen! Shows when the watch is in quiet time mode or disconnected...or all the time, if you prefer!
+- [New feature] New design for round watches that looks significantly less like a tennis ball! (Classic appearance still available!) Put your Pebble Round 2 screen to use with more widgets!
+- [New feature] Serif font option for the time! For those days when you need to be slightly fancier than usual
+- [New feature] Lightweight LECO font option for the time! 
+- [New feature] Option for a wider sidebar, allowing you to fit wider widgets in there
+- [Improvement] Improved appearance and metrics for large font mode
+- [Improvement] Forget about the 3 widget limit, the sidebar can now accommodate as many widgets as you can fit! 
+- To take advantage of the new space, lots of new widget options! 
+    - Next alarm widget: see when your next alarm is! Ffor all the alarm clock fans out there!
+    - Next sunrise/sunset widget! Your favorite feature from Halcyon!
+    - Today's rain chance! Do you need an umbrella today? Probably!
+    - Calories and Distance widgets! Is Pebble's calculation of this really accurate? Now you can find out!
+    - Two true world time widgets replace the classic "alternate timezone" offset-based widget! Pick from any of 300+ timezones, with automatic daylight savings time calculation!
+- [Improvement] Modernized settings page UX, with live-updating theme-aware previews, widget presets, and more!
+
+
+## Release-7.11.2
+*Published on 2026-06-05*
+* Fix: Weather no longer continues to update when no weather widgets are selected (thanks Mugendon for the report!)
+
+
+## Release-7.11.1
+*Published on 2026-06-01*
+* Improvement: Increased the width of the sidebar on Time 2 when large fonts are selected to better fit the date widget
+
+## Release-7.11
+*Published on 2026-05-01*
+* Fix: Swatch Internet Time is no longer off by one hour for users in DST time zones
+
+## Release-7.10
+*Published on 2026-04-28*
+v7.10 ("Apparently large fonts require more space")
+* Fix: Monday is no longer shown as "M..." when large fonts are enabled on Time 2
+* Change: Sidebar is now slightly wider on Time 2 when large fonts are enabled
+* Change: Sidebar now uses a bold large font for Time 2
+
+## Release-7.9
+*Published on 2026-04-24*
+v7.9 ("Oh no I forgot to test the config page")
+* Fix: Pebble 2 Duo no longer shows the color config page
+* Fix: Pebble Round 2 now properly shows the round watch config page
+
+
+## Release-7.8
+
+*Published on 2026-04-24*
+
+Release Notes:
+v7.8 ("Higher DPI")
+
+* Improvement: Redesigned font size modes for the Pebble Time 2 and Round 2 (the era of defaulting to tiny fonts is over!)
+* Improvement: Added support for the Pebble Round 2
+
 ## Release-7.7
 _Published on 2025-08-12 00:00:00 UTC_
 
