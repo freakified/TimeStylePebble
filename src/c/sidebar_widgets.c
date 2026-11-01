@@ -454,6 +454,22 @@ static bool palette_is_dark() {
   return gcolor_equal(activePalette.iconFill, activePalette.background);
 }
 
+// On black & white watches a PDC stroke can only be black or white; gray is
+// only supported as a fill (it's halftoned). Pass the color that will be
+// drawn next to the stroke so the replacement contrasts with it.
+static GColor icon_stroke_safe(GColor stroke, GColor other) {
+#ifdef PBL_BW
+  bool drawable =
+      gcolor_equal(stroke, GColorBlack) || gcolor_equal(stroke, GColorWhite);
+  if (!drawable) {
+    return gcolor_equal(other, GColorWhite) ? GColorBlack : GColorWhite;
+  }
+#else
+  (void)other;
+#endif
+  return stroke;
+}
+
 // the color basic widgets draw their small label line in: the icon stroke
 // (the accent color) on dark regions, the normal text color otherwise
 static GColor basic_label_color() {
@@ -611,8 +627,9 @@ static void draw_icon(GContext *ctx, SidebarContent *content, GRect iconFrame) {
     return;
   }
 
-  gdraw_command_image_recolor_icon(content->icon, activePalette.iconFill,
-                                   activePalette.iconStroke);
+  gdraw_command_image_recolor_icon(
+      content->icon, activePalette.iconFill,
+      icon_stroke_safe(activePalette.iconStroke, activePalette.iconFill));
   gdraw_command_image_draw(ctx, content->icon,
                            GPoint(iconFrame.origin.x, iconFrame.origin.y));
 }
@@ -624,15 +641,17 @@ static void draw_battery_icon(GContext *ctx, GRect iconFrame,
   }
 
   int batteryY = iconFrame.origin.y - 5;
-  gdraw_command_image_recolor(batteryImage, activePalette.iconFill,
-                              activePalette.iconStroke);
+  gdraw_command_image_recolor(
+      batteryImage, activePalette.iconFill,
+      icon_stroke_safe(activePalette.iconStroke, activePalette.iconFill));
   gdraw_command_image_draw(ctx, batteryImage,
                            GPoint(iconFrame.origin.x, batteryY));
 
   if (batteryCharging) {
     if (batteryChargeImage) {
-      gdraw_command_image_recolor(batteryChargeImage, activePalette.iconStroke,
-                                  activePalette.iconFill);
+      gdraw_command_image_recolor(
+          batteryChargeImage, activePalette.iconStroke,
+          icon_stroke_safe(activePalette.iconFill, activePalette.iconStroke));
       gdraw_command_image_draw(ctx, batteryChargeImage,
                                GPoint(iconFrame.origin.x, batteryY));
     }
@@ -1454,8 +1473,9 @@ static void draw_date_calendar_background(GContext *ctx, GRect frame) {
   }
 
   resize_date_calendar_image(frame);
-  gdraw_command_image_recolor(dateImage, activePalette.iconFill,
-                              activePalette.iconStroke);
+  gdraw_command_image_recolor(
+      dateImage, activePalette.iconFill,
+      icon_stroke_safe(activePalette.iconStroke, activePalette.iconFill));
   gdraw_command_image_draw(ctx, dateImage,
                            GPoint(frame.origin.x, frame.origin.y));
 }
