@@ -261,7 +261,7 @@ export const WidgetSelector: React.FC<{
       return regionCaps[region] > 1 ? `Bar widget ${index + 1}` : 'Bar widget';
     }
     if (count <= 1) {
-      return capabilities.ROUND ? 'Arc widget' : 'Sidebar widget';
+      return capabilities.ROUND ? 'Sidebar widget' : 'Sidebar widget';
     }
     if (index === 0) {
       return 'Top widget';
@@ -411,12 +411,12 @@ export const WidgetSelector: React.FC<{
     heading: 'Bottom bar',
     hint: 'Add a widget here to show it below the time'
   };
-  const arcInfo = { hint: 'No widgets in this arc.' };
+  const arcInfo = { hint: 'No widgets in this sidebar.' };
 
   const regionInfo: Record<WidgetRegion, { heading: string; hint: string }> = capabilities.ROUND
     ? {
-      primary: { heading: 'Left arc', ...arcInfo },
-      secondary: { heading: 'Right arc', ...arcInfo },
+      primary: { heading: 'Left sidebar', ...arcInfo },
+      secondary: { heading: 'Right sidebar', ...arcInfo },
       tertiary: barInfo,
     }
     : {

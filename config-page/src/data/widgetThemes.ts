@@ -78,34 +78,23 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
     round: { left: [CURRENT_WEATHER], right: [DATE] },
   },
   {
-    name: 'Extra',
-    rect: { sidebar: [CURRENT_WEATHER, STEPS, BATTERY, DATE] },
-    round: { left: [CURRENT_WEATHER, BATTERY], right: [DATE] },
+    name: 'Full Sidebar',
+    rect: { sidebar: [CURRENT_WEATHER, UV_INDEX, STEPS, DATE] },
+    round: { left: [CURRENT_WEATHER, STEPS], right: [DATE] },
     exact: {
       'small-rect': {
-        sidebar: [CURRENT_WEATHER, BATTERY, DATE]
+        sidebar: [CURRENT_WEATHER, STEPS, DATE]
       }
     }
   },
   {
-    name: 'Extra 2',
-    rect: { sidebar: [CURRENT_WEATHER, UV_INDEX, BATTERY, DATE], bar: [STEPS] },
-    round: { left: [CURRENT_WEATHER, UV_INDEX, BATTERY], right: [DATE], bar: [STEPS] },
-    exact: {
-      'small-rect': {
-        sidebar: [CURRENT_WEATHER, UV_INDEX, DATE],
-        bar: [STEPS]
-      }
-    }
-  },
-  {
-    name: 'Extra 3',
+    name: 'Day Out',
     rect: {
-      sidebar: [FORECAST, CHANCE_OF_RAIN, DATE],
+      sidebar: [FORECAST, CURRENT_WEATHER, DATE],
       bar: [SUNRISE_SUNSET, STEPS],
     },
     round: {
-      left: [FORECAST, CHANCE_OF_RAIN],
+      left: [CURRENT_WEATHER, STEPS],
       right: [STEPS, DATE],
       bar: [SUNRISE_SUNSET],
     },
@@ -126,15 +115,22 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
     essential: [DATE],
   },
   {
-    name: 'Weather Enthusiast',
+    name: 'Weather',
     rect: {
-      sidebar: [FORECAST, CHANCE_OF_RAIN, DATE],
-      bar: [CURRENT_WEATHER, UV_INDEX],
+      sidebar: [FORECAST, CURRENT_WEATHER, CHANCE_OF_RAIN, UV_INDEX],
+      bar: [DATE],
     },
     round: {
-      left: [CURRENT_WEATHER, UV_INDEX],
-      right: [CHANCE_OF_RAIN, DATE],
-      bar: [FORECAST],
+      left: [FORECAST, CURRENT_WEATHER],
+      right: [CHANCE_OF_RAIN, UV_INDEX],
+      bar: [DATE],
+    },
+    exact: {
+      'small-round': {
+        left: [FORECAST],
+        right: [CURRENT_WEATHER, UV_INDEX],
+        bar: [DATE],
+      }
     },
     essential: [DATE],
   },
@@ -153,13 +149,13 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
     essential: [DATE],
   },
   {
-    name: 'Sleep Fan',
+    name: 'Sleep Person',
     requires: ['HEALTH', 'ALARMS'],
     rect: {
-      sidebar: [SLEEP, HEART_RATE, BATTERY, DATE],
-      bar: [NEXT_ALARM],
+      sidebar: [NEXT_ALARM, HEART_RATE, BATTERY, DATE],
+      bar: [SLEEP],
     },
-    round: { left: [SLEEP], right: [DATE], bar: [BATTERY] },
+    round: { left: [SLEEP, BATTERY], right: [DATE], bar: [NEXT_ALARM] },
     essential: [DATE],
   },
   {

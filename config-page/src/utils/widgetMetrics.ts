@@ -33,25 +33,25 @@ import iconWeather from '../assets/preview/widget_previews/icon_weather.svg?raw'
 /* ── Icons ── */
 
 export interface IconAsset {
-    svg: string;
-    w: number;
-    h: number;
+  svg: string;
+  w: number;
+  h: number;
 }
 
 export const ICONS = {
-    alarm:   { svg: iconAlarm,   w: 25, h: 25 },
-    battery: { svg: iconBattery, w: 25, h: 14 },  // BatteryMeter_measure's icon height
-    calories: { svg: iconCalories, w: 25, h: 25 },
-    date:    { svg: iconDate,    w: 25, h: 25 },
-    distance: { svg: iconDistance, w: 25, h: 25 },
-    hrm:     { svg: iconHrm,     w: 25, h: 25 },
-    // HEAVY_RAIN.pdc, the icon PrecipChance_getContent() draws
-    rain:    { svg: iconRain,    w: 25, h: 25 },
-    sleep:   { svg: iconSleep,   w: 25, h: 22 },
-    steps:   { svg: iconSteps,   w: 25, h: 18 },
-    sunrise: { svg: iconSunrise, w: 25, h: 25 },
-    sunset:  { svg: iconSunset,  w: 25, h: 25 },
-    weather: { svg: iconWeather, w: 25, h: 25 },
+  alarm: { svg: iconAlarm, w: 25, h: 25 },
+  battery: { svg: iconBattery, w: 25, h: 14 },  // BatteryMeter_measure's icon height
+  calories: { svg: iconCalories, w: 25, h: 25 },
+  date: { svg: iconDate, w: 25, h: 25 },
+  distance: { svg: iconDistance, w: 25, h: 25 },
+  hrm: { svg: iconHrm, w: 25, h: 25 },
+  // HEAVY_RAIN.pdc, the icon PrecipChance_getContent() draws
+  rain: { svg: iconRain, w: 25, h: 25 },
+  sleep: { svg: iconSleep, w: 25, h: 22 },
+  steps: { svg: iconSteps, w: 25, h: 18 },
+  sunrise: { svg: iconSunrise, w: 25, h: 25 },
+  sunset: { svg: iconSunset, w: 25, h: 25 },
+  weather: { svg: iconWeather, w: 25, h: 25 },
 } as const satisfies Record<string, IconAsset>;
 
 /* ── Widget content ── */
@@ -64,12 +64,12 @@ export const ICONS = {
 export type FontRole = 'current' | 'sm' | 'md' | 'lg';
 
 export type WidgetItem =
-    | { type: 'icon'; asset: IconAsset }
-    | { type: 'calendar'; day: string }   // date icon with the day number inside
-    // label: the small line above a label/value widget's value (not the
-    // subtext under a value), which dark regions draw in the icon stroke
-    | { type: 'text'; text: string; font: FontRole; label?: boolean }
-    | { type: 'divider' };
+  | { type: 'icon'; asset: IconAsset }
+  | { type: 'calendar'; day: string }   // date icon with the day number inside
+  // label: the small line above a label/value widget's value (not the
+  // subtext under a value), which dark regions draw in the icon stroke
+  | { type: 'text'; text: string; font: FontRole; label?: boolean }
+  | { type: 'divider' };
 
 // Average Roboto Condensed Bold advance as a fraction of font size,
 // averaged over typical widget strings ('40%', '12:45', 'Mon', ...)
@@ -79,11 +79,11 @@ const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const getIsoWeek = (date: Date): number => {
-    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = utc.getUTCDay() || 7;
-    utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
-    const yearStart = Date.UTC(utc.getUTCFullYear(), 0, 1);
-    return Math.ceil(((utc.getTime() - yearStart) / 86400000 + 1) / 7);
+  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = utc.getUTCDay() || 7;
+  utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
+  const yearStart = Date.UTC(utc.getUTCFullYear(), 0, 1);
+  return Math.ceil(((utc.getTime() - yearStart) / 86400000 + 1) / 7);
 };
 
 // sample sun times behind the Sunrise & Sunset widget's 6:42a / 8:14p
@@ -103,8 +103,8 @@ const labelText = (str: string): WidgetItem => ({ type: 'text', text: str, font:
  * detail: false} is the full form.
  */
 export interface HiddenParts {
-    marker: boolean;
-    detail: boolean;
+  marker: boolean;
+  detail: boolean;
 }
 
 /**
@@ -114,83 +114,83 @@ export interface HiddenParts {
  * drops the month. The bar shows the same parts as the sidebar.
  */
 export const getWidgetItems = (widgetId: number, settings: Settings,
-    hidden?: HiddenParts): WidgetItem[] => {
-    const items = allWidgetItems(widgetId, settings);
-    if (!hidden || (!hidden.marker && !hidden.detail)) return items;
+  hidden?: HiddenParts): WidgetItem[] => {
+  const items = allWidgetItems(widgetId, settings);
+  if (!hidden || (!hidden.marker && !hidden.detail)) return items;
 
-    if (widgetId === 4) {  // Today's Date: weekday, calendar[, month]
-        return items.filter((item, i) =>
-            !(hidden.marker && i === 0) && !(hidden.detail && i === 2));
-    }
-    if (hidden.marker) return items.slice(1);
-    if (hidden.detail) return items.slice(0, 1);
-    return items;
+  if (widgetId === 4) {  // Today's Date: weekday, calendar[, month]
+    return items.filter((item, i) =>
+      !(hidden.marker && i === 0) && !(hidden.detail && i === 2));
+  }
+  if (hidden.marker) return items.slice(1);
+  if (hidden.detail) return items.slice(0, 1);
+  return items;
 };
 
 const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
-    const now = new Date();
+  const now = new Date();
 
-    switch (widgetId) {
-        case 2:  // Battery
-            return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
-        case 3: {  // World Time 1
-            // a blank custom label uses the city's own, as worldtime.js does
-            const label1 = settings.worldTime1Label
-                || worldTimeDefaultLabel(settings.worldTime1Zone)
-                || settings.altClockName || 'UTC';
-            return [labelText(label1), text('5:42p')];
-        }
-        case 14: {  // World Time 2
-            const label2 = settings.worldTime2Label
-                || worldTimeDefaultLabel(settings.worldTime2Zone)
-                || settings.altClock2Name || 'UTC';
-            return [labelText(label2), text('9:42a')];
-        }
-        case 4:  // Today's Date
-            return [
-                text(DAY_NAMES[now.getDay()]),
-                { type: 'calendar', day: String(now.getDate()) },
-                text(MONTH_NAMES[now.getMonth()]),
-            ];
-        case 5:  // Seconds: plain text draws in the large font
-            return [text('30', 'lg')];
-        case 6:  // Week Number
-            return [labelText('Wk'), text(String(getIsoWeek(now)))];
-        case 7:  // Current Weather
-            return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
-        case 8:  // Today's Forecast
-            return [{ type: 'icon', asset: ICONS.weather }, text('75°'), { type: 'divider' }, text('60°')];
-        case 9:  // Sleep: hours always in the medium font, minutes as subtext
-            return [{ type: 'icon', asset: ICONS.sleep }, text('7h', 'md'), text('42m', 'sm')];
-        case 10:  // Steps
-            return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
-        case 11:  // Swatch Internet Time
-            return [labelText('@'), text('543')];
-        case 12:  // Heart Rate
-            return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
-        case 13:  // UV Index
-            return [labelText('UV'), text('6')];
-        case 15: {  // Sunrise & Sunset
-            // like NextSunEvent_getContent(), show whichever comes up next
-            const minute = now.getHours() * 60 + now.getMinutes();
-            const sunriseNext = minute < SAMPLE_SUNRISE_MINUTE || minute >= SAMPLE_SUNSET_MINUTE;
-            return sunriseNext
-                ? [{ type: 'icon', asset: ICONS.sunrise }, text('6:42a')]
-                : [{ type: 'icon', asset: ICONS.sunset }, text('8:14p')];
-        }
-        case 17:  // Chance of Rain
-            return [{ type: 'icon', asset: ICONS.rain }, text('40%')];
-        case 18:  // Distance Walked: format_distance_candidates() carries the unit
-            return [{ type: 'icon', asset: ICONS.distance }, text(settings.weatherUnits === 'c'
-                ? (settings.wideSidebar ? '2.1km' : '2km')
-                : (settings.wideSidebar ? '1.3mi' : '1mi'))];
-        case 19:  // Active Calories
-            return [{ type: 'icon', asset: ICONS.calories }, text('340')];
-        case 20:  // Next Alarm
-            return [{ type: 'icon', asset: ICONS.alarm }, text('7:00a')];
-        default:
-            return [];
+  switch (widgetId) {
+    case 2:  // Battery
+      return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
+    case 3: {  // World Time 1
+      // a blank custom label uses the city's own, as worldtime.js does
+      const label1 = settings.worldTime1Label
+        || worldTimeDefaultLabel(settings.worldTime1Zone)
+        || settings.altClockName || 'UTC';
+      return [labelText(label1), text('5:42p')];
     }
+    case 14: {  // World Time 2
+      const label2 = settings.worldTime2Label
+        || worldTimeDefaultLabel(settings.worldTime2Zone)
+        || settings.altClock2Name || 'UTC';
+      return [labelText(label2), text('9:42a')];
+    }
+    case 4:  // Today's Date
+      return [
+        text(DAY_NAMES[now.getDay()]),
+        { type: 'calendar', day: String(now.getDate()) },
+        text(MONTH_NAMES[now.getMonth()]),
+      ];
+    case 5:  // Seconds: plain text draws in the large font
+      return [text('30', 'lg')];
+    case 6:  // Week Number
+      return [labelText('Wk'), text(String(getIsoWeek(now)))];
+    case 7:  // Current Weather
+      return [{ type: 'icon', asset: ICONS.weather }, text('72°')];
+    case 8:  // Today's Forecast
+      return [{ type: 'icon', asset: ICONS.weather }, text('75°'), { type: 'divider' }, text('60°')];
+    case 9:  // Sleep: hours always in the medium font, minutes as subtext
+      return [{ type: 'icon', asset: ICONS.sleep }, text('7h', 'md'), text('42m', 'sm')];
+    case 10:  // Steps
+      return [{ type: 'icon', asset: ICONS.steps }, text(settings.wideSidebar ? '2700' : '2.7k')];
+    case 11:  // Swatch Internet Time
+      return [labelText('@'), text('543')];
+    case 12:  // Heart Rate
+      return [{ type: 'icon', asset: ICONS.hrm }, text('72')];
+    case 13:  // UV Index
+      return [labelText('UV'), text('6')];
+    case 15: {  // Sunrise & Sunset
+      // like NextSunEvent_getContent(), show whichever comes up next
+      const minute = now.getHours() * 60 + now.getMinutes();
+      const sunriseNext = minute < SAMPLE_SUNRISE_MINUTE || minute >= SAMPLE_SUNSET_MINUTE;
+      return sunriseNext
+        ? [{ type: 'icon', asset: ICONS.sunrise }, text('6:42a')]
+        : [{ type: 'icon', asset: ICONS.sunset }, text('8:14p')];
+    }
+    case 17:  // Chance of Rain
+      return [{ type: 'icon', asset: ICONS.rain }, text('40%')];
+    case 18:  // Distance Walked: format_distance_candidates() carries the unit
+      return [{ type: 'icon', asset: ICONS.distance }, text(settings.weatherUnits === 'c'
+        ? (settings.wideSidebar ? '2.1km' : '2km')
+        : (settings.wideSidebar ? '1.3mi' : '1mi'))];
+    case 19:  // Active Calories
+      return [{ type: 'icon', asset: ICONS.calories }, text('340')];
+    case 20:  // Next Alarm
+      return [{ type: 'icon', asset: ICONS.alarm }, text('7:00a')];
+    default:
+      return [];
+  }
 };
 
 /* ── Preview ruler (watch pixels, preview font) ──
@@ -208,20 +208,20 @@ export const PREVIEW_CAP_HEIGHT = 0.711;  // Roboto Condensed Bold, fraction of 
 export type PreviewFonts = Record<FontRole | 'fallback', number>;
 
 export const previewFonts = (capabilities: Capabilities, largeFonts: boolean): PreviewFonts => {
-    const f = sidebarFontSet(capabilities);
-    return largeFonts
-        ? { current: f.lg, fallback: f.md, ...f }
-        : { current: f.md, fallback: f.sm, ...f };
+  const f = sidebarFontSet(capabilities);
+  return largeFonts
+    ? { current: f.lg, fallback: f.md, ...f }
+    : { current: f.md, fallback: f.sm, ...f };
 };
 
 /** The CSS font size at which the preview font's caps match Gothic `gothicSize`'s */
 export const previewFontSize = (gothicSize: number): number =>
-    (GOTHIC_HEIGHT[gothicSize] ?? GOTHIC_HEIGHT[18]) / PREVIEW_CAP_HEIGHT;
+  (GOTHIC_HEIGHT[gothicSize] ?? GOTHIC_HEIGHT[18]) / PREVIEW_CAP_HEIGHT;
 
 export interface FittedText {
-    fontSize: number;
-    capH: number;
-    w: number;
+  fontSize: number;
+  capH: number;
+  w: number;
 }
 
 /**
@@ -232,75 +232,75 @@ export interface FittedText {
  * text to fit, standing in for the watch's shorter text candidates.
  */
 export const fitText = (
-    str: string,
-    role: FontRole,
-    fonts: PreviewFonts,
-    maxW = Infinity
+  str: string,
+  role: FontRole,
+  fonts: PreviewFonts,
+  maxW = Infinity
 ): FittedText => {
-    const sizes = role === 'current' ? [fonts.current, fonts.fallback] : [fonts[role]];
-    const size = sizes.find((sz) => textWidth(str, sz) <= maxW) ?? sizes[sizes.length - 1];
-    let fontSize = previewFontSize(size);
-    const natural = str.length * fontSize * TEXT_CHAR_W;
-    if (natural > maxW) fontSize *= maxW / natural;
-    return { fontSize, capH: fontSize * PREVIEW_CAP_HEIGHT, w: Math.min(natural, maxW) };
+  const sizes = role === 'current' ? [fonts.current, fonts.fallback] : [fonts[role]];
+  const size = sizes.find((sz) => textWidth(str, sz) <= maxW) ?? sizes[sizes.length - 1];
+  let fontSize = previewFontSize(size);
+  const natural = str.length * fontSize * TEXT_CHAR_W;
+  if (natural > maxW) fontSize *= maxW / natural;
+  return { fontSize, capH: fontSize * PREVIEW_CAP_HEIGHT, w: Math.min(natural, maxW) };
 };
 
 export const measureItem = (
-    item: WidgetItem,
-    fonts: PreviewFonts,
-    maxW = Infinity
+  item: WidgetItem,
+  fonts: PreviewFonts,
+  maxW = Infinity
 ): { w: number; h: number } => {
-    switch (item.type) {
-        case 'icon': return { w: item.asset.w, h: item.asset.h };
-        case 'calendar': return { w: ICONS.date.w, h: ICONS.date.h };
-        case 'text': {
-            const fitted = fitText(item.text, item.font, fonts, maxW);
-            return { w: fitted.w, h: fitted.capH };
-        }
-        case 'divider': return { w: 14, h: STACK_DIVIDER_H };
+  switch (item.type) {
+    case 'icon': return { w: item.asset.w, h: item.asset.h };
+    case 'calendar': return { w: ICONS.date.w, h: ICONS.date.h };
+    case 'text': {
+      const fitted = fitText(item.text, item.font, fonts, maxW);
+      return { w: fitted.w, h: fitted.capH };
     }
+    case 'divider': return { w: 14, h: STACK_DIVIDER_H };
+  }
 };
 
 /** The gap the watch leaves above `item` in a stack, after `prev` */
 export const stackGap = (prev: WidgetItem, item: WidgetItem): number => {
-    if (prev.type === 'icon' || prev.type === 'calendar' ||
-        item.type === 'icon' || item.type === 'calendar') return STACK_ICON_TEXT_GAP;
-    if (prev.type === 'text' && prev.font === 'sm' && item.type === 'text') return STACK_LABEL_GAP;
-    return STACK_VALUE_GAP;
+  if (prev.type === 'icon' || prev.type === 'calendar' ||
+    item.type === 'icon' || item.type === 'calendar') return STACK_ICON_TEXT_GAP;
+  if (prev.type === 'text' && prev.font === 'sm' && item.type === 'text') return STACK_LABEL_GAP;
+  return STACK_VALUE_GAP;
 };
 
 export interface WidgetSpec {
-    items: WidgetItem[];
-    sizes: { w: number; h: number }[];
-    w: number;
-    h: number;
+  items: WidgetItem[];
+  sizes: { w: number; h: number }[];
+  w: number;
+  h: number;
 }
 
 export const getWidgetSpec = (
-    widgetId: number,
-    settings: Settings,
-    fonts: PreviewFonts,
-    maxW = Infinity,
-    hidden?: HiddenParts
+  widgetId: number,
+  settings: Settings,
+  fonts: PreviewFonts,
+  maxW = Infinity,
+  hidden?: HiddenParts
 ): WidgetSpec => {
-    const items = getWidgetItems(widgetId, settings, hidden);
-    const sizes = items.map((item) => measureItem(item, fonts, maxW));
-    let w = 0;
-    let h = 0;
-    sizes.forEach((size, i) => {
-        w = Math.max(w, size.w);
-        h += size.h + (i > 0 ? stackGap(items[i - 1], items[i]) : 0);
-    });
-    return { items, sizes, w, h };
+  const items = getWidgetItems(widgetId, settings, hidden);
+  const sizes = items.map((item) => measureItem(item, fonts, maxW));
+  let w = 0;
+  let h = 0;
+  sizes.forEach((size, i) => {
+    w = Math.max(w, size.w);
+    h += size.h + (i > 0 ? stackGap(items[i - 1], items[i]) : 0);
+  });
+  return { items, sizes, w, h };
 };
 
 export const INLINE_GAP = 3;  // horizontal_item_gap()
 
 export interface InlineParts {
-    /** text drawn before the icon: only the date's weekday has any */
-    lead: string;
-    icon?: { asset: IconAsset } | { calendar: string };
-    text: string;
+  /** text drawn before the icon: only the date's weekday has any */
+  lead: string;
+  icon?: { asset: IconAsset } | { calendar: string };
+  text: string;
 }
 
 /* Collapse a widget's stacked item list into the inline form the narrow
@@ -308,41 +308,41 @@ export interface InlineParts {
  * text after it -- and before it, for text stacked above the icon (the
  * date's weekday, as date_content_draw() lays it out). */
 export const getInlineParts = (widgetId: number, settings: Settings): InlineParts | null => {
-    const items = getWidgetItems(widgetId, settings);
-    if (items.length === 0) return null;
+  const items = getWidgetItems(widgetId, settings);
+  if (items.length === 0) return null;
 
-    let icon: InlineParts['icon'];
-    let lead = '';
-    let textParts: string[] = [];
-    let pendingDivider = false;
+  let icon: InlineParts['icon'];
+  let lead = '';
+  let textParts: string[] = [];
+  let pendingDivider = false;
 
-    for (const item of items) {
-        if ((item.type === 'icon' || item.type === 'calendar') && !icon) {
-            icon = item.type === 'icon' ? { asset: item.asset } : { calendar: item.day };
-            lead = textParts.join('');
-            textParts = [];
-        } else if (item.type === 'divider') {
-            pendingDivider = true;
-        } else if (item.type === 'text') {
-            if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
-            pendingDivider = false;
-            textParts.push(item.text);
-        }
+  for (const item of items) {
+    if ((item.type === 'icon' || item.type === 'calendar') && !icon) {
+      icon = item.type === 'icon' ? { asset: item.asset } : { calendar: item.day };
+      lead = textParts.join('');
+      textParts = [];
+    } else if (item.type === 'divider') {
+      pendingDivider = true;
+    } else if (item.type === 'text') {
+      if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
+      pendingDivider = false;
+      textParts.push(item.text);
     }
+  }
 
-    return { lead, icon, text: textParts.join('') };
+  return { lead, icon, text: textParts.join('') };
 };
 
 export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number => {
-    let w = 0;
-    if (parts.lead) w += fitText(parts.lead, 'current', fonts).w + INLINE_GAP;
-    if (parts.icon) {
-        const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
-        w += asset.w;
-        if (parts.text) w += INLINE_GAP;
-    }
-    if (parts.text) w += fitText(parts.text, 'current', fonts).w;
-    return w;
+  let w = 0;
+  if (parts.lead) w += fitText(parts.lead, 'current', fonts).w + INLINE_GAP;
+  if (parts.icon) {
+    const asset = 'asset' in parts.icon ? parts.icon.asset : ICONS.date;
+    w += asset.w;
+    if (parts.text) w += INLINE_GAP;
+  }
+  if (parts.text) w += fitText(parts.text, 'current', fonts).w;
+  return w;
 };
 
 /* ── Watch ruler (real watch pixels) ──────────────────────────────────
@@ -374,26 +374,26 @@ export const WATCH_BAR_WIDGET_GAP_COMPACT = 1; // HBAR_WIDGET_GAP_COMPACT
  */
 const GOTHIC_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:.-/@ ';
 const GOTHIC_GLYPH_WIDTHS: Record<number, number[]> = {
-    18: [
-        9, 9, 9, 9, 8, 8, 9, 9, 4, 7, 8, 8, 12, 9, 9, 9, 9, 9, 9, 8, 9, 9, 12, 9, 10, 8,
-        8, 8, 8, 8, 8, 6, 8, 8, 4, 3, 7, 4, 12, 8, 8, 8, 8, 6, 7, 6, 8, 8, 12, 8, 8, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 14, 4, 4, 7, 8, 12, 4,
-    ],
-    24: [
-        10, 10, 10, 10, 9, 9, 10, 10, 4, 7, 8, 9, 12, 10, 10, 9, 10, 10, 10, 10, 10, 10, 12, 9, 9, 9,
-        9, 9, 9, 9, 9, 7, 9, 9, 4, 4, 8, 4, 14, 9, 9, 9, 9, 6, 7, 7, 9, 9, 12, 9, 9, 8,
-        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 17, 4, 4, 6, 9, 16, 4,
-    ],
-    28: [
-        13, 12, 12, 12, 10, 10, 12, 12, 5, 8, 11, 10, 16, 12, 12, 11, 12, 12, 12, 11, 12, 13, 20, 12, 12, 10,
-        11, 11, 11, 11, 11, 8, 11, 11, 5, 5, 11, 5, 17, 11, 11, 11, 11, 8, 10, 9, 11, 11, 16, 10, 11, 10,
-        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 20, 5, 5, 8, 10, 19, 5,
-    ],
+  18: [
+    9, 9, 9, 9, 8, 8, 9, 9, 4, 7, 8, 8, 12, 9, 9, 9, 9, 9, 9, 8, 9, 9, 12, 9, 10, 8,
+    8, 8, 8, 8, 8, 6, 8, 8, 4, 3, 7, 4, 12, 8, 8, 8, 8, 6, 7, 6, 8, 8, 12, 8, 8, 7,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 14, 4, 4, 7, 8, 12, 4,
+  ],
+  24: [
+    10, 10, 10, 10, 9, 9, 10, 10, 4, 7, 8, 9, 12, 10, 10, 9, 10, 10, 10, 10, 10, 10, 12, 9, 9, 9,
+    9, 9, 9, 9, 9, 7, 9, 9, 4, 4, 8, 4, 14, 9, 9, 9, 9, 6, 7, 7, 9, 9, 12, 9, 9, 8,
+    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 17, 4, 4, 6, 9, 16, 4,
+  ],
+  28: [
+    13, 12, 12, 12, 10, 10, 12, 12, 5, 8, 11, 10, 16, 12, 12, 11, 12, 12, 12, 11, 12, 13, 20, 12, 12, 10,
+    11, 11, 11, 11, 11, 8, 11, 11, 5, 5, 11, 5, 17, 11, 11, 11, 11, 8, 10, 9, 11, 11, 16, 10, 11, 10,
+    11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 20, 5, 5, 8, 10, 19, 5,
+  ],
 };
 const GOTHIC_AVG_ADVANCE: Record<number, number> = {
-    18: 7.5,
-    24: 8.8,
-    28: 10.0,
+  18: 7.5,
+  24: 8.8,
+  28: 10.0,
 };
 
 /**
@@ -401,69 +401,69 @@ const GOTHIC_AVG_ADVANCE: Record<number, number> = {
  * in sidebar_widgets.c, where emery and gabbro step every size up.
  */
 const sidebarFontSet = (capabilities: Capabilities) =>
-    capabilities.EMERY || capabilities.DISPLAY_260x260_ROUND
-        ? { sm: 18, md: 24, lg: 28 }
-        : { sm: 14, md: 18, lg: 24 };
+  capabilities.EMERY || capabilities.DISPLAY_260x260_ROUND
+    ? { sm: 18, md: 24, lg: 28 }
+    : { sm: 14, md: 18, lg: 24 };
 
 export const sidebarFontSize = (capabilities: Capabilities, largeFonts: boolean): number => {
-    const f = sidebarFontSet(capabilities);
-    return largeFonts ? f.lg : f.md;
+  const f = sidebarFontSet(capabilities);
+  return largeFonts ? f.lg : f.md;
 };
 
 interface PlatformMetrics {
-    screenW: number;
-    screenH: number;
-    vbarNarrow: number;
-    vbarWide: number;
-    /** HBAR_HEIGHT */
-    barHeight: number;
-    /** HBAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
-    barClockEncroach: number;
-    /** REGION_V_PADDING */
-    vPadding: number;
-    barWidgetGap: number;
-    fontSize: number;
-    /** rendered sidebar slots (VREGION_SLOT_CAP) */
-    sidebarSlots: number;
-    /** rendered bar slots (HREGION_SLOT_CAP) */
-    barSlots: number;
+  screenW: number;
+  screenH: number;
+  vbarNarrow: number;
+  vbarWide: number;
+  /** HBAR_HEIGHT */
+  barHeight: number;
+  /** HBAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
+  barClockEncroach: number;
+  /** REGION_V_PADDING */
+  vPadding: number;
+  barWidgetGap: number;
+  fontSize: number;
+  /** rendered sidebar slots (VREGION_SLOT_CAP) */
+  sidebarSlots: number;
+  /** rendered bar slots (HREGION_SLOT_CAP) */
+  barSlots: number;
 }
 
 /** Per-platform geometry, mirroring the #ifdefs in sidebar_layout.h. */
 export const platformMetrics = (
-    capabilities: Capabilities,
-    largeFonts: boolean
+  capabilities: Capabilities,
+  largeFonts: boolean
 ): PlatformMetrics => {
-    const fontSize = sidebarFontSize(capabilities, largeFonts);
-    if (capabilities.EMERY) {
-        return {
-            screenW: 200,
-            screenH: 228,
-            vbarNarrow: largeFonts ? 43 : 34,
-            vbarWide: largeFonts ? 43 : 46,
-            barHeight: largeFonts ? 43 : 34,
-            barClockEncroach: largeFonts ? 18 : 10,
-            vPadding: 9,
-            barWidgetGap: 6,
-            fontSize,
-            sidebarSlots: 6,
-            barSlots: 3,
-        };
-    }
-    // basalt / diorite / flint
+  const fontSize = sidebarFontSize(capabilities, largeFonts);
+  if (capabilities.EMERY) {
     return {
-        screenW: 144,
-        screenH: 168,
-        vbarNarrow: largeFonts ? 33 : 30,
-        vbarWide: 33,
-        barHeight: 30,
-        barClockEncroach: 6,
-        vPadding: 8,
-        barWidgetGap: 4,
-        fontSize,
-        sidebarSlots: 4,
-        barSlots: 2,
+      screenW: 200,
+      screenH: 228,
+      vbarNarrow: largeFonts ? 43 : 34,
+      vbarWide: largeFonts ? 43 : 46,
+      barHeight: largeFonts ? 43 : 34,
+      barClockEncroach: largeFonts ? 18 : 10,
+      vPadding: 9,
+      barWidgetGap: 6,
+      fontSize,
+      sidebarSlots: 6,
+      barSlots: 3,
     };
+  }
+  // basalt / diorite / flint
+  return {
+    screenW: 144,
+    screenH: 168,
+    vbarNarrow: largeFonts ? 33 : 30,
+    vbarWide: 33,
+    barHeight: 30,
+    barClockEncroach: 6,
+    vPadding: 8,
+    barWidgetGap: 4,
+    fontSize,
+    sidebarSlots: 4,
+    barSlots: 2,
+  };
 };
 
 /* ── Round arcs ───────────────────────────────────────────────────────
@@ -472,24 +472,24 @@ export const platformMetrics = (
  */
 
 interface ArcMetrics {
-    /** square screen edge, in watch pixels */
-    screen: number;
-    /** ROUND_ARC_WIDTH */
-    width: number;
-    /** ROUND_ARC_CONTENT_WIDTH */
-    contentWidth: number;
-    /** ROUND_ARC_WIDGET_GAP */
-    widgetGap: number;
-    /** the least gap the arc budget allows between widgets */
-    minGap: number;
+  /** square screen edge, in watch pixels */
+  screen: number;
+  /** ROUND_ARC_WIDTH */
+  width: number;
+  /** ROUND_ARC_CONTENT_WIDTH */
+  contentWidth: number;
+  /** ROUND_ARC_WIDGET_GAP */
+  widgetGap: number;
+  /** the least gap the arc budget allows between widgets */
+  minGap: number;
 }
 
 export const ARC_WIDGET_GAP_COMPACT = 1;      // ROUND_ARC_WIDGET_GAP_COMPACT
 
 export const arcMetrics = (capabilities: Capabilities): ArcMetrics =>
-    capabilities.DISPLAY_260x260_ROUND
-        ? { screen: 260, width: 56, contentWidth: 42, widgetGap: 12, minGap: 8 }
-        : { screen: 180, width: 40, contentWidth: 30, widgetGap: 8, minGap: ARC_WIDGET_GAP_COMPACT };
+  capabilities.DISPLAY_260x260_ROUND
+    ? { screen: 260, width: 56, contentWidth: 42, widgetGap: 8, minGap: 2 }
+    : { screen: 180, width: 40, contentWidth: 30, widgetGap: 8, minGap: ARC_WIDGET_GAP_COMPACT };
 
 /** ROUND_ARC_INWARD_NUDGE: the column sits this far towards the screen
  * center from the arc's middle */
@@ -508,10 +508,10 @@ export const ARC_INWARD_NUDGE = 1;
  * on gabbro.
  */
 export const arcContentBand = (capabilities: Capabilities): number => {
-    const m = arcMetrics(capabilities);
-    const r = m.screen / 2;
-    const slack = (m.width - WATCH_ICON_SIZE) / 2 + ARC_INWARD_NUDGE;
-    return 2 * Math.sqrt(r * r - (r - slack) ** 2);
+  const m = arcMetrics(capabilities);
+  const r = m.screen / 2;
+  const slack = (m.width - WATCH_ICON_SIZE) / 2 + ARC_INWARD_NUDGE;
+  return 2 * Math.sqrt(r * r - (r - slack) ** 2);
 };
 
 /* ── Round bottom bar ─────────────────────────────────────────────────
@@ -522,33 +522,33 @@ export const arcContentBand = (capabilities: Capabilities): number => {
  */
 
 interface RoundBarMetrics {
-    /** ROUND_BAR_HEIGHT */
-    height: number;
-    /** ROUND_BAR_WIDTH */
-    width: number;
-    /** ROUND_BAR_BOTTOM_PADDING: between the bar and the screen's bottom */
-    bottomPadding: number;
-    /** ROUND_BAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
-    clockEncroach: number;
-    /** ROUND_BAR_PADDING_X: the bar is already inset to the chord, so its
-     * widget only keeps the compact end padding */
-    paddingX: number;
+  /** ROUND_BAR_HEIGHT */
+  height: number;
+  /** ROUND_BAR_WIDTH */
+  width: number;
+  /** ROUND_BAR_BOTTOM_PADDING: between the bar and the screen's bottom */
+  bottomPadding: number;
+  /** ROUND_BAR_CLOCK_ENCROACH: how far the clock may reach into the bar */
+  clockEncroach: number;
+  /** ROUND_BAR_PADDING_X: the bar is already inset to the chord, so its
+   * widget only keeps the compact end padding */
+  paddingX: number;
 }
 
 export const roundBarMetrics = (capabilities: Capabilities): RoundBarMetrics =>
-    capabilities.DISPLAY_260x260_ROUND
-        ? { height: 40, width: 140, bottomPadding: 8, clockEncroach: 10, paddingX: WATCH_BAR_PADDING_X_COMPACT }
-        : { height: 30, width: 100, bottomPadding: 6, clockEncroach: 6, paddingX: WATCH_BAR_PADDING_X_COMPACT };
+  capabilities.DISPLAY_260x260_ROUND
+    ? { height: 40, width: 140, bottomPadding: 8, clockEncroach: 10, paddingX: WATCH_BAR_PADDING_X_COMPACT }
+    : { height: 30, width: 100, bottomPadding: 6, clockEncroach: 6, paddingX: WATCH_BAR_PADDING_X_COMPACT };
 
 const textWidth = (str: string, fontSize: number): number => {
-    const widths = GOTHIC_GLYPH_WIDTHS[fontSize] ?? GOTHIC_GLYPH_WIDTHS[24];
-    const fallback = GOTHIC_AVG_ADVANCE[fontSize] ?? GOTHIC_AVG_ADVANCE[24];
-    let w = 0;
-    for (const ch of str) {
-        const i = GOTHIC_GLYPHS.indexOf(ch);
-        w += i >= 0 ? widths[i] : fallback;
-    }
-    return w;
+  const widths = GOTHIC_GLYPH_WIDTHS[fontSize] ?? GOTHIC_GLYPH_WIDTHS[24];
+  const fallback = GOTHIC_AVG_ADVANCE[fontSize] ?? GOTHIC_AVG_ADVANCE[24];
+  let w = 0;
+  for (const ch of str) {
+    const i = GOTHIC_GLYPHS.indexOf(ch);
+    w += i >= 0 ? widths[i] : fallback;
+  }
+  return w;
 };
 
 /*
@@ -561,56 +561,56 @@ const textWidth = (str: string, fontSize: number): number => {
  */
 const TIME_WIDEST = ['12:42p'];
 const INLINE_TEXT_CANDIDATES: Record<number, { lead?: string[]; text?: string[] }> = {
-    2: { text: ['100%'] },          // Battery at full charge
-    3: { text: TIME_WIDEST },       // World Time 1
-    4: {                            // Today's Date
-        lead: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
-        text: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-    },
-    12: { text: ['188'] },          // Heart Rate, mid-workout
-    14: { text: TIME_WIDEST },      // World Time 2
-    15: { text: TIME_WIDEST },      // Sunrise & Sunset
-    20: { text: TIME_WIDEST },      // Next Alarm
+  2: { text: ['100%'] },          // Battery at full charge
+  3: { text: TIME_WIDEST },       // World Time 1
+  4: {                            // Today's Date
+    lead: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+    text: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+  },
+  12: { text: ['188'] },          // Heart Rate, mid-workout
+  14: { text: TIME_WIDEST },      // World Time 2
+  15: { text: TIME_WIDEST },      // Sunrise & Sunset
+  20: { text: TIME_WIDEST },      // Next Alarm
 };
 
 const widestText = (candidates: string[], fontSize: number): string =>
-    candidates.reduce((widest, str) =>
-        textWidth(str, fontSize) > textWidth(widest, fontSize) ? str : widest);
+  candidates.reduce((widest, str) =>
+    textWidth(str, fontSize) > textWidth(widest, fontSize) ? str : widest);
 
 /** A widget's inline parts at their widest, for the budget */
 const widestInlineParts = (
-    widgetId: number,
-    settings: Settings,
-    fontSize: number
+  widgetId: number,
+  settings: Settings,
+  fontSize: number
 ): InlineParts | null => {
-    const parts = getInlineParts(widgetId, settings);
-    const candidates = INLINE_TEXT_CANDIDATES[widgetId];
-    if (!parts || !candidates) return parts;
+  const parts = getInlineParts(widgetId, settings);
+  const candidates = INLINE_TEXT_CANDIDATES[widgetId];
+  if (!parts || !candidates) return parts;
 
-    return {
-        ...parts,
-        lead: parts.lead && candidates.lead ? widestText(candidates.lead, fontSize) : parts.lead,
-        text: parts.text && candidates.text ? widestText(candidates.text, fontSize) : parts.text,
-    };
+  return {
+    ...parts,
+    lead: parts.lead && candidates.lead ? widestText(candidates.lead, fontSize) : parts.lead,
+    text: parts.text && candidates.text ? widestText(candidates.text, fontSize) : parts.text,
+  };
 };
 
 /** A widget's full-form width in the inline bottom bar, in watch pixels. */
 export const inlineWidgetWidth = (
-    widgetId: number,
-    settings: Settings,
-    fontSize: number
+  widgetId: number,
+  settings: Settings,
+  fontSize: number
 ): number => {
-    const parts = widestInlineParts(widgetId, settings, fontSize);
-    if (!parts) return 0;
+  const parts = widestInlineParts(widgetId, settings, fontSize);
+  if (!parts) return 0;
 
-    let w = 0;
-    if (parts.lead) w += textWidth(parts.lead, fontSize) + WATCH_TEXT_ALLOWANCE + WATCH_ITEM_GAP;
-    if (parts.icon) {
-        w += WATCH_ICON_SIZE;
-        if (parts.text) w += WATCH_ITEM_GAP;
-    }
-    if (parts.text) w += textWidth(parts.text, fontSize) + WATCH_TEXT_ALLOWANCE;
-    return w;
+  let w = 0;
+  if (parts.lead) w += textWidth(parts.lead, fontSize) + WATCH_TEXT_ALLOWANCE + WATCH_ITEM_GAP;
+  if (parts.icon) {
+    w += WATCH_ICON_SIZE;
+    if (parts.text) w += WATCH_ITEM_GAP;
+  }
+  if (parts.text) w += textWidth(parts.text, fontSize) + WATCH_TEXT_ALLOWANCE;
+  return w;
 };
 
 /**
@@ -619,23 +619,23 @@ export const inlineWidgetWidth = (
  * directly costs the bar room -- the effect the old unit budget missed.
  */
 export const inlineBarContentWidth = (
-    settings: Settings,
-    capabilities: Capabilities
+  settings: Settings,
+  capabilities: Capabilities
 ): number => {
-    const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const sidebarW =
-        (settings.wideSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP;
-    return m.screenW - sidebarW - WATCH_BAR_PADDING_X * 2;
+  const m = platformMetrics(capabilities, settings.largeSidebarFont);
+  const sidebarW =
+    (settings.wideSidebar ? m.vbarWide : m.vbarNarrow) + WATCH_BAR_VBAR_GAP;
+  return m.screenW - sidebarW - WATCH_BAR_PADDING_X * 2;
 };
 
 export type FitState = 'good' | 'tight' | 'over';
 
 export interface FitResult {
-    state: FitState;
-    usedPx: number;
-    capacityPx: number;
-    /** 0..1+ — how full the region is, for the progress track */
-    ratio: number;
+  state: FitState;
+  usedPx: number;
+  capacityPx: number;
+  /** 0..1+ — how full the region is, for the progress track */
+  ratio: number;
 }
 
 // Slack below which the widgets still render at full size and full gap,
@@ -652,18 +652,18 @@ const TIGHT_SLACK = 0.1;
  * it still renders, just not in the form the user picked.
  */
 export const assessInlineBar = (
-    widgetIds: number[],
-    settings: Settings,
-    capabilities: Capabilities
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
 ): FitResult => {
-    const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const capacityPx = inlineBarContentWidth(settings, capabilities);
+  const m = platformMetrics(capabilities, settings.largeSidebarFont);
+  const capacityPx = inlineBarContentWidth(settings, capabilities);
 
-    const widths = widgetIds.map((id) => inlineWidgetWidth(id, settings, m.fontSize));
-    const gaps = Math.max(0, widgetIds.length - 1) * m.barWidgetGap;
-    const usedPx = widths.reduce((a, b) => a + b, 0) + gaps;
+  const widths = widgetIds.map((id) => inlineWidgetWidth(id, settings, m.fontSize));
+  const gaps = Math.max(0, widgetIds.length - 1) * m.barWidgetGap;
+  const usedPx = widths.reduce((a, b) => a + b, 0) + gaps;
 
-    return assessPx(widgetIds.length, usedPx, capacityPx);
+  return assessPx(widgetIds.length, usedPx, capacityPx);
 };
 
 /**
@@ -671,16 +671,16 @@ export const assessInlineBar = (
  * this only asks whether the widget's full form is wider than the bar.
  */
 export const assessRoundBar = (
-    widgetIds: number[],
-    settings: Settings,
-    capabilities: Capabilities
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
 ): FitResult => {
-    const fontSize = sidebarFontSize(capabilities, settings.largeSidebarFont);
-    const usedPx = widgetIds.reduce(
-        (sum, id) => sum + inlineWidgetWidth(id, settings, fontSize), 0);
+  const fontSize = sidebarFontSize(capabilities, settings.largeSidebarFont);
+  const usedPx = widgetIds.reduce(
+    (sum, id) => sum + inlineWidgetWidth(id, settings, fontSize), 0);
 
-    const bar = roundBarMetrics(capabilities);
-    return assessPx(widgetIds.length, usedPx, bar.width - bar.paddingX * 2);
+  const bar = roundBarMetrics(capabilities);
+  return assessPx(widgetIds.length, usedPx, bar.width - bar.paddingX * 2);
 };
 
 /* ── Stacked heights (real watch pixels) ─────────────────────────────
@@ -708,8 +708,8 @@ const BATTERY_ICON_H = 14;         // BatteryMeter_measure's icon height
 // (sidebar_widgets.c's iconTopRow/iconDrawnRows; steps rows 6..20,
 // sleep rows 4..21)
 const ICON_DRAWN_ROWS: Record<number, number> = {
-    9: 18,   // Sleep: hours/minutes subtext
-    10: 15,  // Steps
+  9: 18,   // Sleep: hours/minutes subtext
+  10: 15,  // Steps
 };
 const DATE_DAY_TOP_PADDING = 10;        // DATE_CALENDAR_DAY_TOP_PADDING
 const DATE_DAY_BOTTOM_PADDING = 4;      // DATE_CALENDAR_DAY_BOTTOM_PADDING(_LARGE)
@@ -718,68 +718,68 @@ const DATE_PLAIN_VERTICAL_PADDING = 4;  // DATE_PLAIN_VERTICAL_PADDING
 /** A widget's stacked height on the watch, in watch pixels. `hidden`
  *  narrows the form, as the sidebar's layout cascade does. */
 export const stackedWidgetHeight = (
-    widgetId: number,
-    settings: Settings,
-    capabilities: Capabilities,
-    hidden: HiddenParts = { marker: false, detail: false }
+  widgetId: number,
+  settings: Settings,
+  capabilities: Capabilities,
+  hidden: HiddenParts = { marker: false, detail: false }
 ): number => {
-    const large = settings.largeSidebarFont;
-    const f = sidebarFontSet(capabilities);
-    const sm = GOTHIC_HEIGHT[f.sm];
-    const md = GOTHIC_HEIGHT[f.md];
-    const lg = GOTHIC_HEIGHT[f.lg];
-    const current = large ? lg : md;
-    // a hidden marker takes its icon and the gap below it along; short
-    // icons reserve their drawn rows instead of the full 25-pixel slot
-    const icon = hidden.marker
-        ? 0
-        : (ICON_DRAWN_ROWS[widgetId] ?? WATCH_ICON_SIZE) + STACK_ICON_TEXT_GAP;
-    const iconValue = icon + current;
+  const large = settings.largeSidebarFont;
+  const f = sidebarFontSet(capabilities);
+  const sm = GOTHIC_HEIGHT[f.sm];
+  const md = GOTHIC_HEIGHT[f.md];
+  const lg = GOTHIC_HEIGHT[f.lg];
+  const current = large ? lg : md;
+  // a hidden marker takes its icon and the gap below it along; short
+  // icons reserve their drawn rows instead of the full 25-pixel slot
+  const icon = hidden.marker
+    ? 0
+    : (ICON_DRAWN_ROWS[widgetId] ?? WATCH_ICON_SIZE) + STACK_ICON_TEXT_GAP;
+  const iconValue = icon + current;
 
-    switch (widgetId) {
-        case 2:  // Battery: meter, percentage -- either may stand alone
-            if (hidden.marker) return current;
-            if (hidden.detail) return BATTERY_ICON_H;
-            return BATTERY_ICON_H + STACK_ICON_TEXT_GAP + current;
-        case 4: {  // Today's Date: weekday, calendar, month
-            const calendarH = large
-                ? current + DATE_PLAIN_VERTICAL_PADDING * 2
-                : DATE_DAY_TOP_PADDING + current + DATE_DAY_BOTTOM_PADDING;
-            return (hidden.marker ? 0 : current + STACK_ICON_TEXT_GAP) + calendarH +
-                (hidden.detail ? 0 : STACK_ICON_TEXT_GAP + current);
-        }
-        case 5:  // Seconds: plain text draws in the large font
-            return lg;
-        case 3: case 14: case 6: case 11: case 13: {
-            // label/value: a blank label drops its line entirely
-            const hasLabel = getWidgetItems(widgetId, settings).length > 1;
-            return current + (hasLabel ? sm + STACK_LABEL_GAP : 0);
-        }
-        case 8:  // Today's Forecast: icon, high, divider, low
-            return iconValue + STACK_VALUE_GAP + STACK_DIVIDER_H + STACK_VALUE_GAP + current;
-        case 9:  // Sleep: icon, hours, minutes subtext
-            return icon + md + STACK_VALUE_GAP + sm;
-        // ICON_VALUE widgets one icon tall, current text font.
-        case 7: case 10: case 12: case 15: case 17: case 18: case 19: case 20:
-            return iconValue;
-        default:
-            return 0;
+  switch (widgetId) {
+    case 2:  // Battery: meter, percentage -- either may stand alone
+      if (hidden.marker) return current;
+      if (hidden.detail) return BATTERY_ICON_H;
+      return BATTERY_ICON_H + STACK_ICON_TEXT_GAP + current;
+    case 4: {  // Today's Date: weekday, calendar, month
+      const calendarH = large
+        ? current + DATE_PLAIN_VERTICAL_PADDING * 2
+        : DATE_DAY_TOP_PADDING + current + DATE_DAY_BOTTOM_PADDING;
+      return (hidden.marker ? 0 : current + STACK_ICON_TEXT_GAP) + calendarH +
+        (hidden.detail ? 0 : STACK_ICON_TEXT_GAP + current);
     }
+    case 5:  // Seconds: plain text draws in the large font
+      return lg;
+    case 3: case 14: case 6: case 11: case 13: {
+      // label/value: a blank label drops its line entirely
+      const hasLabel = getWidgetItems(widgetId, settings).length > 1;
+      return current + (hasLabel ? sm + STACK_LABEL_GAP : 0);
+    }
+    case 8:  // Today's Forecast: icon, high, divider, low
+      return iconValue + STACK_VALUE_GAP + STACK_DIVIDER_H + STACK_VALUE_GAP + current;
+    case 9:  // Sleep: icon, hours, minutes subtext
+      return icon + md + STACK_VALUE_GAP + sm;
+    // ICON_VALUE widgets one icon tall, current text font.
+    case 7: case 10: case 12: case 15: case 17: case 18: case 19: case 20:
+      return iconValue;
+    default:
+      return 0;
+  }
 };
 
 const assessPx = (count: number, usedPx: number, capacityPx: number): FitResult => {
-    const ratio = capacityPx > 0 ? usedPx / capacityPx : 0;
-    const state: FitState =
-        count === 0 ? 'good'
-        : ratio > 1 ? 'over'
+  const ratio = capacityPx > 0 ? usedPx / capacityPx : 0;
+  const state: FitState =
+    count === 0 ? 'good'
+      : ratio > 1 ? 'over'
         : ratio > 1 - TIGHT_SLACK ? 'tight'
-        : 'good';
+          : 'good';
 
-    return { state, usedPx, capacityPx, ratio };
+  return { state, usedPx, capacityPx, ratio };
 };
 
 const stackedTotal = (widgetIds: number[], settings: Settings, capabilities: Capabilities) =>
-    widgetIds.reduce((sum, id) => sum + stackedWidgetHeight(id, settings, capabilities), 0);
+  widgetIds.reduce((sum, id) => sum + stackedWidgetHeight(id, settings, capabilities), 0);
 
 /*
  * The least space between two sidebar widgets that still reads as two
@@ -794,8 +794,8 @@ const SIDEBAR_MIN_GAP = 2;
  * parts render_vertical_flow() will have hidden by the time it draws it.
  */
 export interface SidebarSlot {
-    id: number;
-    hidden: HiddenParts;
+  id: number;
+  hidden: HiddenParts;
 }
 
 /*
@@ -812,44 +812,44 @@ export interface SidebarSlot {
  * the full sidebar like the rest of the budget.)
  */
 export const cascadeSidebarStack = (
-    widgetIds: number[],
-    settings: Settings,
-    capabilities: Capabilities
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
 ): SidebarSlot[] => {
-    const slots: SidebarSlot[] = widgetIds.map((id) =>
-        ({ id, hidden: { marker: false, detail: false } }));
-    if (slots.length === 0) return slots;
+  const slots: SidebarSlot[] = widgetIds.map((id) =>
+    ({ id, hidden: { marker: false, detail: false } }));
+  if (slots.length === 0) return slots;
 
-    const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const available = m.screenH - m.vPadding * 2;
-    const stackHeight = () =>
-        slots.reduce((sum, s) =>
-            sum + stackedWidgetHeight(s.id, settings, capabilities, s.hidden), 0)
-        + SIDEBAR_MIN_GAP * (slots.length - 1);
+  const m = platformMetrics(capabilities, settings.largeSidebarFont);
+  const available = m.screenH - m.vPadding * 2;
+  const stackHeight = () =>
+    slots.reduce((sum, s) =>
+      sum + stackedWidgetHeight(s.id, settings, capabilities, s.hidden), 0)
+    + SIDEBAR_MIN_GAP * (slots.length - 1);
 
-    // each step is tried exactly once, and only while the stack is over
-    // budget; whether the step's widget is present, a no-op step just
-    // leaves the stack as it was
-    if (stackHeight() > available) {   // Step 1: battery graphic-only
-        const i = slots.findIndex((s) => s.id === 2);
-        if (i >= 0) slots[i].hidden.detail = true;
-    }
-    if (stackHeight() > available) {   // Step 2: date loses its month
-        const i = slots.findIndex((s) => s.id === 4);
-        if (i >= 0) slots[i].hidden.detail = true;
-    }
-    if (stackHeight() > available) {   // Step 3: date loses its weekday
-        const i = slots.findIndex((s) => s.id === 4);
-        if (i >= 0) slots[i].hidden.marker = true;
-    }
+  // each step is tried exactly once, and only while the stack is over
+  // budget; whether the step's widget is present, a no-op step just
+  // leaves the stack as it was
+  if (stackHeight() > available) {   // Step 1: battery graphic-only
+    const i = slots.findIndex((s) => s.id === 2);
+    if (i >= 0) slots[i].hidden.detail = true;
+  }
+  if (stackHeight() > available) {   // Step 2: date loses its month
+    const i = slots.findIndex((s) => s.id === 4);
+    if (i >= 0) slots[i].hidden.detail = true;
+  }
+  if (stackHeight() > available) {   // Step 3: date loses its weekday
+    const i = slots.findIndex((s) => s.id === 4);
+    if (i >= 0) slots[i].hidden.marker = true;
+  }
 
-    while (slots.length > 1 && stackHeight() > available) {
-        // the widget just above the bottom one, or the bottom one itself
-        // once only the two pinned ends remain
-        slots.splice(slots.length > 2 ? slots.length - 2 : slots.length - 1, 1);
-    }
+  while (slots.length > 1 && stackHeight() > available) {
+    // the widget just above the bottom one, or the bottom one itself
+    // once only the two pinned ends remain
+    slots.splice(slots.length > 2 ? slots.length - 2 : slots.length - 1, 1);
+  }
 
-    return slots;
+  return slots;
 };
 
 /**
@@ -865,25 +865,25 @@ export const cascadeSidebarStack = (
  * full-form budget so the numbers mean the same as before.
  */
 export const assessSidebar = (
-    widgetIds: number[],
-    settings: Settings,
-    capabilities: Capabilities
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
 ): FitResult => {
-    const m = platformMetrics(capabilities, settings.largeSidebarFont);
-    const gaps = Math.max(0, widgetIds.length - 1) * SIDEBAR_MIN_GAP;
-    const fit = assessPx(
-        widgetIds.length,
-        stackedTotal(widgetIds, settings, capabilities) + gaps,
-        m.screenH - m.vPadding * 2
-    );
+  const m = platformMetrics(capabilities, settings.largeSidebarFont);
+  const gaps = Math.max(0, widgetIds.length - 1) * SIDEBAR_MIN_GAP;
+  const fit = assessPx(
+    widgetIds.length,
+    stackedTotal(widgetIds, settings, capabilities) + gaps,
+    m.screenH - m.vPadding * 2
+  );
 
-    const slots = cascadeSidebarStack(widgetIds, settings, capabilities);
-    const state: FitState =
-        slots.length < widgetIds.length ? 'over'
-        : slots.some((s) => s.hidden.marker || s.hidden.detail) ? 'tight'
+  const slots = cascadeSidebarStack(widgetIds, settings, capabilities);
+  const state: FitState =
+    slots.length < widgetIds.length ? 'over'
+      : slots.some((s) => s.hidden.marker || s.hidden.detail) ? 'tight'
         : fit.state;
 
-    return { ...fit, state };
+  return { ...fit, state };
 };
 
 /**
@@ -896,14 +896,14 @@ export const assessSidebar = (
  * a real gap instead.
  */
 export const assessArc = (
-    widgetIds: number[],
-    settings: Settings,
-    capabilities: Capabilities
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
 ): FitResult => {
-    const gaps = Math.max(0, widgetIds.length - 1) * arcMetrics(capabilities).minGap;
-    return assessPx(
-        widgetIds.length,
-        stackedTotal(widgetIds, settings, capabilities) + gaps,
-        Math.floor(arcContentBand(capabilities))
-    );
+  const gaps = Math.max(0, widgetIds.length - 1) * arcMetrics(capabilities).minGap;
+  return assessPx(
+    widgetIds.length,
+    stackedTotal(widgetIds, settings, capabilities) + gaps,
+    Math.floor(arcContentBand(capabilities))
+  );
 };

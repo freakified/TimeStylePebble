@@ -27,8 +27,40 @@
     "name": "Neon Magenta",
     "settings": {
       "colorBackground": "000000",
-      "colorTime": "FF00AA",
-      "colorSidebar": "FF00AA"
+      "colorTime": "FF00FF",
+      "colorSidebar": "FF00FF"
+    }
+  },
+  {
+    "name": "Minimal Orange",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FF5500",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Minimal Cyan",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "00FFFF",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Minimal Green",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "00FF00",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Minimal Magenta",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FF00FF",
+      "colorSidebar": "000000"
     }
   },
   {

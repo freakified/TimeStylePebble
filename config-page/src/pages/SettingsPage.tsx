@@ -87,7 +87,7 @@ export const SettingsPage: React.FC = () => {
     savedWidgetThemes.savedThemes.find((t) => t.id === settings.SETTING_WIDGET_THEME);
 
   // Only the slots the current platform actually renders. Round uses all
-  // six: its two arcs split the list between them.
+  // six: its two sidebars split the list between them.
   const sidebarWidgetIds = capabilities.ROUND
     ? [settings.widget0Id, settings.widget1Id, settings.widget2Id,
     settings.widget3Id, settings.widget4Id, settings.widget5Id]
