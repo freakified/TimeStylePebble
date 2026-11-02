@@ -46,8 +46,8 @@ EMULATOR_HANGS = {
 SIDEBAR_SLOT_KEYS = [f"SettingWidget{i}ID" for i in range(6)]
 BAR_SLOT_KEYS = [f"SettingBottomBarWidget{i}ID" for i in range(3)]
 
-# pinned environment: Wednesday 2026-03-25, 10:08:30 local time
-PINNED_TIME = datetime.datetime(2026, 3, 25, 10, 8, 30)
+# pinned environment: Wednesday 2026-03-25, 10:32:30 local time
+PINNED_TIME = datetime.datetime(2026, 3, 25, 10, 32, 30)
 PINNED_BATTERY_PCT = 70
 PINNED_STEPS = 7241
 PINNED_SLEEP_MINUTES = 452
@@ -374,7 +374,7 @@ def main():
                 # the time jump fires a tick that redraws the face
                 run_pebble(["emu-set-time", str(int(config_time(env).timestamp()))], platform)
                 time.sleep(args.settle)
-                run_pebble(["screenshot", "--no-open", str(shot)], platform)
+                run_pebble(["screenshot", "--no-open", "--no-correction", str(shot)], platform)
                 results[(platform, name)] = f"{platform}/{name}.png"
                 print(f"  [ok] {platform}/{name}.png")
             except Exception as err:

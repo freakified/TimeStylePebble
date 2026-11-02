@@ -9,9 +9,9 @@
 
 // which screen edge a sidebar region occupies
 typedef enum {
-  REGION_EDGE_NONE   = 0,
-  REGION_EDGE_RIGHT  = 1,
-  REGION_EDGE_LEFT   = 2,
+  REGION_EDGE_NONE = 0,
+  REGION_EDGE_RIGHT = 1,
+  REGION_EDGE_LEFT = 2,
   REGION_EDGE_BOTTOM = 3
 } RegionEdge;
 
@@ -25,7 +25,7 @@ typedef enum {
  */
 typedef enum {
   LAYOUT_SIDEBAR_RIGHT = 0,
-  LAYOUT_SIDEBAR_LEFT  = 1
+  LAYOUT_SIDEBAR_LEFT = 1
 } SidebarLayoutId;
 
 static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
@@ -149,7 +149,7 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // towards the rim on both platforms. The offset is into the arc from its
 // screen-center side, which is the layer's right edge on the left arc.
 #define ROUND_ARC_INWARD_NUDGE 1
-#define ROUND_ARC_CONTENT_INSET \
+#define ROUND_ARC_CONTENT_INSET                                                \
   ((ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH) / 2 - ROUND_ARC_INWARD_NUDGE)
 
 // A dark arc has no fill to sit inside, so centering its widgets on the
@@ -199,11 +199,11 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // tightens that far for configs the page flagged as over. Better a
 // crowded arc than one that spills off the lens.
 #if defined(PBL_PLATFORM_GABBRO)
-#define ROUND_ARC_WIDGET_GAP 12
+#define ROUND_ARC_WIDGET_GAP 6
 #else
-#define ROUND_ARC_WIDGET_GAP 8
+#define ROUND_ARC_WIDGET_GAP 6
 #endif
-#define ROUND_ARC_WIDGET_GAP_COMPACT 1
+#define ROUND_ARC_WIDGET_GAP_COMPACT 4
 
 /*
  * Round bottom bar: a single widget centered between the arcs' tapered
