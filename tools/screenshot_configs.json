@@ -1,5 +1,5 @@
 {
-  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state. Configs are written for rect watches (a packed sidebar list plus bottom-bar slots) and translated for round ones: the bar's widgets go on the right arc and the sidebar's on the left, or with no bar widgets the sidebar list is split across both arcs. Configs named 'arc-*' are written for round directly (slots 0-2 left arc, 3-5 right) and sent as-is.",
+  "_comment": "Config matrix for tools/screenshot_matrix.py. Every config sends defaults merged with its overrides, so shots are order-independent. Symbolic names (layouts, widgets, weather conditions) are resolved by the script; colors are '#RRGGBB'. A config may also carry an 'env' object for emulator state that isn't a setting -- time ('HH:MM'), battery (percent), charging (bool) -- which is restored after the shot. Weather values of -2147483648 (INT32_MIN) put that reading back into its loading state. Configs are written for rect watches (a packed sidebar list plus bottom-bar slots) and translated for round ones: the first bar widget stays on the bar (round's bar holds one), and the sidebar list plus any further bar widgets are split across the left and right arcs. Configs named 'theme-*' mirror the presets in the config page's widgetThemes.ts (their rect lists). Configs named 'arc-*' are written for round directly (slots 0-2 left arc, 3-5 right) and sent as-is.",
   "defaults": {
     "SettingColorBG": "#000000",
     "SettingColorTime": "#FF5500",
@@ -46,163 +46,81 @@
   },
   "configs": [
     {
-      "name": "appstore-screenshot-1",
+      "name": "appstore-screenshot-1-defaults",
       "settings": {}
-    },
-    {
-      "name": "font 0",
-      "settings": {
-        "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0
-      }
-    },
-    {
-      "name": "font 0, wide",
-      "settings": {
-        "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1
-      }
-    },
-    {
-      "name": "font 0, bottombar,lg",
-      "settings": {
-        "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingUseLargeFonts": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 0, bottombar",
-      "settings": {
-        "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 0, bottombar, wide",
-      "settings": {
-        "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 2",
-      "settings": {
-        "SettingClockFontId": 5,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0
-      }
-    },
-    {
-      "name": "font 2, wide",
-      "settings": {
-        "SettingClockFontId": 5,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1
-      }
-    },
-    {
-      "name": "font 2, bottombar",
-      "settings": {
-        "SettingClockFontId": 5,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 2, bottombar, wide",
-      "settings": {
-        "SettingClockFontId": 5,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 2, bottombar,lg",
-      "settings": {
-        "SettingClockFontId": 5,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingUseLargeFonts": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 1",
-      "settings": {
-        "SettingClockFontId": 1,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0
-      }
-    },
-    {
-      "name": "font 1, wide",
-      "settings": {
-        "SettingClockFontId": 1,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1
-      }
-    },
-    {
-      "name": "font 1, bottombar",
-      "settings": {
-        "SettingClockFontId": 1,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 1, bottombar, wide",
-      "settings": {
-        "SettingClockFontId": 1,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
-    },
-    {
-      "name": "font 1, bottombar,lg",
-      "settings": {
-        "SettingClockFontId": 1,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 0,
-        "SettingUseWideSidebar": 1,
-        "SettingUseLargeFonts": 1,
-        "SettingBottomBarWidget0ID": "WEATHER_FORECAST_TODAY"
-      }
     },
     {
       "name": "appstore-screenshot-2",
       "settings": {
-        "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget2ID": "WEATHER_PRECIP_CHANCE",
-        "SettingWidget1ID": "BATTERY_METER",
-        "SettingWidget3ID": "DATE",
+        "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget1ID": "WEATHER_CURRENT",
+        "SettingWidget2ID": "DATE",
         "SettingClockFontId": 1,
         "SettingClockHoursBold": 1,
         "SettingClockMinutesBold": 0,
+        "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+        "SettingBottomBarWidget1ID": "STEP_COUNTER",
+        "SettingColorTime": "#00FF00",
+        "SettingColorBG": "#000000",
+        "SettingColorSidebar": "#000000"
+      },
+      "platform_settings": {
+        "chalk": {
+          "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+          "SettingWidget1ID": "EMPTY",
+          "SettingWidget2ID": "DATE",
+          "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+          "SettingBottomBarWidget1ID": "EMPTY"
+        }
+      }
+    },
+    {
+      "name": "appstore-screenshot-3",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
+        "SettingWidget2ID": "STEP_COUNTER",
+        "SettingWidget3ID": "DATE",
+        "SettingClockFontId": 5,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 0,
+        "SettingColorBG": "#FFFFFF",
+        "SettingColorTime": "#000000",
+        "SettingColorSidebar": "#00AAFF"
+      }
+    },
+    {
+      "name": "appstore-screenshot-4",
+      "settings": {
+        "SettingWidget0ID": "DISTANCE_WALKED",
+        "SettingWidget1ID": "ACTIVE_CALORIES",
+        "SettingWidget2ID": "DATE",
         "SettingBottomBarWidget0ID": "STEP_COUNTER",
-        "SettingBottomBarWidget1ID": "HEARTRATE"
+        "SettingBottomBarWidget1ID": "HEARTRATE",
+        "SettingClockFontId": 0,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1,
+        "SettingColorBG": "#0000AA",
+        "SettingColorTime": "#FFFFFF",
+        "SettingColorSidebar": "#0055FF"
+      }
+    },
+    {
+      "name": "appstore-screenshot-5",
+      "settings": {
+        "SettingWidget0ID": "WEEK_NUMBER",
+        "SettingWidget1ID": "WORLD_TIME_1",
+        "SettingWidget2ID": "WORLD_TIME_2",
+        "SettingWidget3ID": "BEATS",
+        "SettingWidget4ID": "DATE",
+        "SettingBottomBarWidget0ID": "SECONDS",
+        "SettingClockFontId": 0,
+        "SettingClockHoursBold": 0,
+        "SettingClockMinutesBold": 0,
+        "SettingColorBG": "#FFAA00",
+        "SettingColorTime": "#000000",
+        "SettingColorSidebar": "#000000",
+        "SettingUseWideSidebar": 1
       }
     }
   ]

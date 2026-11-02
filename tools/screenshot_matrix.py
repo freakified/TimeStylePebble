@@ -14,6 +14,17 @@ Usage:
   python3 tools/screenshot_matrix.py --only layout-right,sidebar-packed
   python3 tools/screenshot_matrix.py --list                 # list config names
 
+Per-platform overrides: a config may carry an optional "platform_settings"
+object keyed by platform name. Its settings are layered on top of the
+config's own (defaults < settings < platform_settings[platform]). They are
+applied AFTER the round-watch auto-fill (round_settings) and sent verbatim,
+so on chalk/gabbro they address the real arc/bar slots and can set a slot
+to "EMPTY" to clear something the auto-fill placed, e.g.
+
+  {"name": "sidebar-packed",
+   "settings": {"SettingWidget0ID": "DATE", ...},
+   "platform_settings": {"emery": {"SettingWidget5ID": "HEARTRATE"}}}
+
 Requires the project to be built first (`pebble build`) -- the .pbw and
 build/js/message_keys.json must exist.
 """
@@ -34,6 +45,7 @@ MESSAGE_KEYS_PATH = PROJECT_ROOT / "build" / "js" / "message_keys.json"
 DEFAULT_PLATFORMS = ["basalt", "chalk", "diorite", "emery", "flint", "gabbro"]
 ROUND_PLATFORMS = {"chalk", "gabbro"}
 ARC_SLOT_CAP = 3  # ROUND_ARC_SLOT_CAP
+ROUND_BAR_SLOT_CAP = 1  # round watches' bottom bar holds exactly one widget
 
 # widgets whose health query never returns on a platform's emulator,
 # wedging the face until the emulator is wiped: chalk's
@@ -47,11 +59,13 @@ SIDEBAR_SLOT_KEYS = [f"SettingWidget{i}ID" for i in range(6)]
 BAR_SLOT_KEYS = [f"SettingBottomBarWidget{i}ID" for i in range(3)]
 
 # pinned environment: Wednesday 2026-03-25, 10:32:30 local time
-PINNED_TIME = datetime.datetime(2026, 3, 25, 10, 32, 30)
+PINNED_TIME = datetime.datetime(2026, 3, 25, 10, 32, 1)
 PINNED_BATTERY_PCT = 70
 PINNED_STEPS = 7241
 PINNED_SLEEP_MINUTES = 452
 PINNED_HEART_RATE = 68  # emery only; ignored elsewhere
+PINNED_CALORIES = 864
+PINNED_DISTANCE = 6000
 
 # enums mirrored from src/c (sidebar_layout.h, sidebar_widgets.h, weather.h)
 # a layout only says where the sidebar goes; the bottom bar is on
@@ -79,6 +93,7 @@ WIDGETS = {
     "WEATHER_PRECIP_CHANCE": 17,
     "DISTANCE_WALKED": 18,
     "ACTIVE_CALORIES": 19,
+    "NEXT_ALARM": 20,
 }
 WEATHER_CONDITIONS = {
     "CLEAR_DAY": 0,
@@ -143,26 +158,27 @@ def resolve_value(raw):
 def round_settings(name, merged):
     """Translate a rect-shaped config for a round watch.
 
-    Round has no bar; its two arcs split the sidebar slots instead (0-2
-    left, 3-5 right). Sent as-is, a rect config lands entirely on the left
-    arc and loses its bar widgets. So, like the config page's regions:
-    the bar's widgets become the right arc and the sidebar's the left, and
-    a config with no bar widgets has its sidebar list split across both
-    arcs. Configs named arc-* are already written for round.
+    Round's two arcs split the sidebar slots (0-2 left, 3-5 right), and its
+    bottom bar holds one widget. A rect config sent as-is would land
+    entirely on the left arc. So, like the config page's regions: the
+    first bar widget stays on the bar, and the sidebar list (plus any
+    further bar widgets, which round has no room for in the bar) is
+    split across both arcs, left arc first. Configs named arc-* are
+    already written for round and sent as-is.
     """
     if name.startswith("arc-"):
         return merged
     sidebar = [merged[k] for k in SIDEBAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
     bar = [merged[k] for k in BAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
-    if bar:
-        left, right = sidebar[:ARC_SLOT_CAP], bar[:ARC_SLOT_CAP]
-    else:
-        half = (len(sidebar) + 1) // 2
-        left, right = sidebar[:half], sidebar[half:]
+    round_bar, overflow = bar[:ROUND_BAR_SLOT_CAP], bar[ROUND_BAR_SLOT_CAP:]
+    arcs = sidebar + overflow
+    half = min((len(arcs) + 1) // 2, ARC_SLOT_CAP)
+    left, right = arcs[:half], arcs[half:]
     pad = lambda ids: (ids + ["EMPTY"] * ARC_SLOT_CAP)[:ARC_SLOT_CAP]
     out = dict(merged)
     out.update(zip(SIDEBAR_SLOT_KEYS, pad(left) + pad(right)))
     out.update({k: "EMPTY" for k in BAR_SLOT_KEYS})
+    out.update(zip(BAR_SLOT_KEYS, round_bar))
     return out
 
 
@@ -189,6 +205,8 @@ def pin_environment(platform):
     # health injection isn't supported on every platform; best-effort
     run_pebble(["emu-steps", str(PINNED_STEPS)], platform, check=False)
     run_pebble(["emu-sleep", str(PINNED_SLEEP_MINUTES)], platform, check=False)
+    run_pebble(["emu-distance", str(PINNED_DISTANCE)], platform, check=False)
+    run_pebble(["emu-calories", str(PINNED_CALORIES)], platform, check=False)
     if platform == "emery":
         run_pebble(["emu-heart-rate", str(PINNED_HEART_RATE)], platform, check=False)
 
@@ -222,20 +240,55 @@ def restore_env(platform, env):
         run_pebble(["emu-battery", "--percent", str(PINNED_BATTERY_PCT)], platform)
 
 
+def merged_settings(matrix, config, platform=None):
+    """The settings actually sent for a config on a platform:
+
+      defaults < config["settings"]
+        -> round_settings() auto-fill, on round platforms only
+        -> config["platform_settings"][platform], applied last and verbatim
+
+    Overrides come after the round translation, so they are never
+    redistributed: on chalk/gabbro they name the real arc/bar slots
+    (SettingWidget0-2 = left arc, 3-5 = right arc), and setting a slot to
+    "EMPTY" clears whatever the auto-fill put there. With platform=None,
+    the platform-independent base (no translation, no overrides)."""
+    merged = dict(matrix["defaults"])
+    merged.update(config["settings"])
+    if platform is None:
+        return merged
+    if platform in ROUND_PLATFORMS:
+        merged = round_settings(config["name"], merged)
+    merged.update(config.get("platform_settings", {}).get(platform, {}))
+    return merged
+
+
+def find_unknown_override_platforms(matrix, known_platforms):
+    """platform_settings keys that name no platform we know of -- almost
+    certainly a typo, which would otherwise silently do nothing."""
+    problems = []
+    for config in matrix["configs"]:
+        unknown = sorted(set(config.get("platform_settings", {})) - set(known_platforms))
+        if unknown:
+            problems.append((config["name"], unknown))
+    return problems
+
+
 def find_duplicate_widgets(matrix):
     """The config page keeps every widget unique across the sidebar and
     the bar, so a config that repeats one shows a state no user can reach.
     Checked after merging defaults, since a bar-only config inherits the
-    default sidebar."""
+    default sidebar -- and again for each platform override, since an
+    override can introduce a repeat the base config doesn't have."""
     slots = SIDEBAR_SLOT_KEYS + BAR_SLOT_KEYS
     problems = []
     for config in matrix["configs"]:
-        merged = dict(matrix["defaults"])
-        merged.update(config["settings"])
-        ids = [merged[k] for k in slots if merged.get(k, "EMPTY") != "EMPTY"]
-        dupes = sorted({w for w in ids if ids.count(w) > 1})
-        if dupes:
-            problems.append((config["name"], dupes))
+        for platform in [None] + list(config.get("platform_settings", {})):
+            merged = merged_settings(matrix, config, platform)
+            ids = [merged[k] for k in slots if merged.get(k, "EMPTY") != "EMPTY"]
+            dupes = sorted({w for w in ids if ids.count(w) > 1})
+            if dupes:
+                label = config["name"] if platform is None else f"{config['name']} [{platform}]"
+                problems.append((label, dupes))
     return problems
 
 
@@ -309,6 +362,12 @@ def main():
 
     matrix = json.loads(CONFIGS_PATH.read_text())
     configs = matrix["configs"]
+    platforms = args.platforms.split(",")
+    unknown_platforms = find_unknown_override_platforms(
+        matrix, set(DEFAULT_PLATFORMS) | set(platforms))
+    if unknown_platforms:
+        sys.exit("platform_settings names an unknown platform:\n"
+                 + "\n".join(f"  {name}: {', '.join(ps)}" for name, ps in unknown_platforms))
     problems = find_duplicate_widgets(matrix)
     if problems:
         sys.exit("configs place a widget twice, which the config page can't do:\n"
@@ -330,7 +389,6 @@ def main():
             sys.exit(f"unknown config names: {', '.join(sorted(unknown))}")
         configs = [c for c in configs if c["name"] in wanted]
 
-    platforms = args.platforms.split(",")
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -354,16 +412,13 @@ def main():
 
         for config in configs:
             name = config["name"]
-            merged = dict(matrix["defaults"])
-            merged.update(config["settings"])
+            merged = merged_settings(matrix, config, platform)
             hangs = EMULATOR_HANGS.get(platform, set()) & {
                 merged.get(k) for k in SIDEBAR_SLOT_KEYS + BAR_SLOT_KEYS}
             if hangs:
                 print(f"  [skip] {platform}/{name}: {', '.join(sorted(hangs))} "
                       f"hangs the {platform} emulator")
                 continue
-            if platform in ROUND_PLATFORMS:
-                merged = round_settings(name, merged)
             env = config.get("env", {})
             shot = platform_dir / f"{name}.png"
             try:
