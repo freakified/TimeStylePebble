@@ -18,11 +18,11 @@
  */
 
 typedef struct {
-  RegionEdge edge;                       // NONE = disabled
-  SidebarLayoutMode widgetMode;          // how widgets present themselves
-  bool dark;                             // "dark" appearance (bg-colored)
-  int thickness;                         // width (vertical) / height (horizontal)
-  int slotCount;                         // rendered cap already applied
+  RegionEdge edge;              // NONE = disabled
+  SidebarLayoutMode widgetMode; // how widgets present themselves
+  bool dark;                    // "dark" appearance (bg-colored)
+  int thickness;                // width (vertical) / height (horizontal)
+  int slotCount;                // rendered cap already applied
   SidebarWidgetType slots[MAX_REGION_SLOTS];
 } SidebarRegion;
 
@@ -298,8 +298,7 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarWidgets_draw(ctx, &widgets[0], topFrame, &spec);
 
   if (count > 1) {
-    GRect lowerFrame =
-        GRect(0, lowerPos, r->thickness, sizes[count - 1].h);
+    GRect lowerFrame = GRect(0, lowerPos, r->thickness, sizes[count - 1].h);
     SidebarWidgets_draw(ctx, &widgets[count - 1], lowerFrame, &spec);
   }
 
@@ -401,9 +400,8 @@ static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {
     return;
   }
 
-  const SidebarPalette *palette = r->dark
-                                      ? &dynamicSettings.darkSidebarPalette
-                                      : &dynamicSettings.sidebarPalette;
+  const SidebarPalette *palette = r->dark ? &dynamicSettings.darkSidebarPalette
+                                          : &dynamicSettings.sidebarPalette;
   SidebarWidgets_setActivePalette(palette);
 
   // round's bar skips its fill: it sits over the arcs' tapered ends,
@@ -455,9 +453,8 @@ static void updateVRegionLayer(Layer *l, GContext *ctx) {
  */
 static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
                            bool onLeft) {
-  const SidebarPalette *palette = r->dark
-                                      ? &dynamicSettings.darkSidebarPalette
-                                      : &dynamicSettings.sidebarPalette;
+  const SidebarPalette *palette = r->dark ? &dynamicSettings.darkSidebarPalette
+                                          : &dynamicSettings.sidebarPalette;
   SidebarWidgets_setActivePalette(palette);
 
   if (!r->dark) {
@@ -512,8 +509,7 @@ static void draw_round_arc(GContext *ctx, SidebarRegion *r, GRect bgBounds,
   if (r->dark || gcolor_equal(palette->background, settings.timeBgColor)) {
     inset -= ROUND_ARC_DARK_INWARD_SHIFT;
   }
-  int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH - inset
-                 : inset;
+  int x = onLeft ? ROUND_ARC_WIDTH - ROUND_ARC_CONTENT_WIDTH - inset : inset;
 
   // bgBounds is a square twice the arc's height, so a quarter of it is
   // the arc's waist
@@ -537,8 +533,8 @@ static void updateRoundSidebarLeft(Layer *l, GContext *ctx) {
 
 static void updateRoundSidebarRight(Layer *l, GContext *ctx) {
   GRect bounds = layer_get_bounds(l);
-  GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2,
-                         bounds.size.h * 2, bounds.size.h * 2);
+  GRect bgBounds = GRect(bounds.origin.x, bounds.size.h / -2, bounds.size.h * 2,
+                         bounds.size.h * 2);
 
   draw_round_arc(ctx, &vRegion2, bgBounds, false);
 }
@@ -553,14 +549,12 @@ void Sidebar_init(Window *window) {
   SidebarWidgets_init();
 
 #ifdef PBL_ROUND
-  vRegionLayer =
-      layer_create(GRect(0, 0, ROUND_ARC_WIDTH, screen_rect.size.h));
+  vRegionLayer = layer_create(GRect(0, 0, ROUND_ARC_WIDTH, screen_rect.size.h));
   layer_set_update_proc(vRegionLayer, updateRoundSidebarLeft);
   layer_add_child(root, vRegionLayer);
 
-  vRegionLayer2 =
-      layer_create(GRect(screen_rect.size.w - ROUND_ARC_WIDTH, 0,
-                         ROUND_ARC_WIDTH, screen_rect.size.h));
+  vRegionLayer2 = layer_create(GRect(screen_rect.size.w - ROUND_ARC_WIDTH, 0,
+                                     ROUND_ARC_WIDTH, screen_rect.size.h));
   layer_set_update_proc(vRegionLayer2, updateRoundSidebarRight);
   layer_add_child(root, vRegionLayer2);
 #else

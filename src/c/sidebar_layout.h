@@ -90,9 +90,9 @@ static inline RegionEdge SidebarLayout_verticalEdge(uint8_t layoutId) {
 // its widgets set lower, so it lends the difference back: the clock comes
 // out the same size, and as far from the icons, as with normal fonts.
 #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-#define HBAR_CLOCK_ENCROACH(largeFonts) ((largeFonts) ? 18 : 10)
+#define HBAR_CLOCK_ENCROACH(largeFonts) ((largeFonts) ? 10 : 6)
 #else
-#define HBAR_CLOCK_ENCROACH(largeFonts) 6
+#define HBAR_CLOCK_ENCROACH(largeFonts) 4
 #endif
 
 // The horizontal bar centers its text within its own thickness, while

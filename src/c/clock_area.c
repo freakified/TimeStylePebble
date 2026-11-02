@@ -13,34 +13,51 @@
 static char time_hours[3];
 static char time_minutes[3];
 
-static Layer* clock_area_layer;
-static FFont* hours_font;
-static FFont* minutes_font;
+static Layer *clock_area_layer;
+static FFont *hours_font;
+static FFont *minutes_font;
 
 // every face, indexed [typeface][bold]; only the ones the current
 // settings use are kept in memory
 typedef enum { FACE_AVENIR, FACE_LECO, FACE_GARAMOND, FACE_COUNT } ClockFace;
 
 static const uint32_t face_resources[FACE_COUNT][2] = {
-  [FACE_AVENIR]   = { RESOURCE_ID_AVENIR_REGULAR_FFONT, RESOURCE_ID_AVENIR_BOLD_FFONT },
-  [FACE_LECO]     = { RESOURCE_ID_LECO_LIGHT_FFONT,     RESOURCE_ID_LECO_REGULAR_FFONT },
-  [FACE_GARAMOND] = { RESOURCE_ID_GARAMOND_REGULAR_FFONT, RESOURCE_ID_GARAMOND_BOLD_FFONT },
+    [FACE_AVENIR] = {RESOURCE_ID_AVENIR_REGULAR_FFONT,
+                     RESOURCE_ID_AVENIR_BOLD_FFONT},
+    [FACE_LECO] = {RESOURCE_ID_LECO_LIGHT_FFONT,
+                   RESOURCE_ID_LECO_REGULAR_FFONT},
+    [FACE_GARAMOND] = {RESOURCE_ID_GARAMOND_REGULAR_FFONT,
+                       RESOURCE_ID_GARAMOND_BOLD_FFONT},
 };
 
-static FFont* faces[FACE_COUNT][2];
+static FFont *faces[FACE_COUNT][2];
+
+// the gap between the hours and minutes rows, as a percentage of the gap
+// between two adjacent digits. LECO is blocky and reads oddly if spaced
+// farther; the others want a little more air. tune by eye
+static const int row_gap_percent[FACE_COUNT] = {
+    [FACE_AVENIR] = 150,
+    [FACE_LECO] = 100,
+    [FACE_GARAMOND] = 150,
+};
 
 static GRect screen_rect;
 
 typedef struct {
-  fixed_t left, right;  // from the pen origin
-  fixed_t bottom, top;  // from the baseline, y up
+  fixed_t left, right; // from the pen origin
+  fixed_t bottom, top; // from the baseline, y up
 } InkBox;
 
-static void ink_include(InkBox* box, fixed_t x, fixed_t y, bool has_x, bool has_y) {
-  if(has_x && x < box->left)   box->left = x;
-  if(has_x && x > box->right)  box->right = x;
-  if(has_y && y < box->bottom) box->bottom = y;
-  if(has_y && y > box->top)    box->top = y;
+static void ink_include(InkBox *box, fixed_t x, fixed_t y, bool has_x,
+                        bool has_y) {
+  if (has_x && x < box->left)
+    box->left = x;
+  if (has_x && x > box->right)
+    box->right = x;
+  if (has_y && y < box->bottom)
+    box->bottom = y;
+  if (has_y && y > box->top)
+    box->top = y;
 }
 
 // the ink extent of a string, in font units from the origin
@@ -49,42 +66,53 @@ static void ink_include(InkBox* box, fixed_t x, fixed_t y, bool has_x, bool has_
 // right edge, Avenir's "1" sits well right of its box), which pushes the
 // time visibly off center (most of all on round watches)
 // (the strings here are all ASCII digits and spaces, so no utf8 decoding)
-static void string_ink_extent(const char* text, FFont* font, InkBox* box) {
+static void string_ink_extent(const char *text, FFont *font, InkBox *box) {
   fixed_t pen = 0;
-  *box = (InkBox){ INT32_MAX, INT32_MIN, INT32_MAX, INT32_MIN };
+  *box = (InkBox){INT32_MAX, INT32_MIN, INT32_MAX, INT32_MIN};
 
-  for(const char* p = text; *p; p++) {
-    FGlyph* glyph = ffont_glyph_info(font, (uint8_t)*p);
-    if(!glyph) {
+  for (const char *p = text; *p; p++) {
+    FGlyph *glyph = ffont_glyph_info(font, (uint8_t)*p);
+    if (!glyph) {
       continue;
     }
 
-    void* data = ffont_glyph_outline(font, glyph);
-    void* end = data + glyph->path_data_length;
+    void *data = ffont_glyph_outline(font, glyph);
+    void *end = data + glyph->path_data_length;
 
-    while(data < end) {
-      FPathDrawCommand* cmd = data;
-      fixed16_t* param = cmd->params;
+    while (data < end) {
+      FPathDrawCommand *cmd = data;
+      fixed16_t *param = cmd->params;
       int pairs = 0;
 
-      switch(cmd->code) {
-        case 'M': case 'L': case 'T': pairs = 1; break;
-        case 'S': case 'Q':           pairs = 2; break;
-        case 'C':                     pairs = 3; break;
-        case 'H':
-          ink_include(box, pen + *param++, 0, true, false);
-          break;
-        case 'V':
-          ink_include(box, 0, *param++, false, true);
-          break;
-        case 'Z':                     break;
-        default:                      return;  // fctx would bail too
+      switch (cmd->code) {
+      case 'M':
+      case 'L':
+      case 'T':
+        pairs = 1;
+        break;
+      case 'S':
+      case 'Q':
+        pairs = 2;
+        break;
+      case 'C':
+        pairs = 3;
+        break;
+      case 'H':
+        ink_include(box, pen + *param++, 0, true, false);
+        break;
+      case 'V':
+        ink_include(box, 0, *param++, false, true);
+        break;
+      case 'Z':
+        break;
+      default:
+        return; // fctx would bail too
       }
 
       // every curve point stays inside its control polygon, so the
       // control points bound the outline (tightly, for well-formed
       // fonts, which put on-curve points at the extremes)
-      for(int i = 0; i < pairs; i++, param += 2) {
+      for (int i = 0; i < pairs; i++, param += 2) {
         ink_include(box, pen + param[0], param[1], true, true);
       }
 
@@ -94,25 +122,26 @@ static void string_ink_extent(const char* text, FFont* font, InkBox* box) {
     pen += glyph->horiz_adv_x;
   }
 
-  if(box->left > box->right) {
+  if (box->left > box->right) {
     box->left = box->right = 0;
   }
-  if(box->bottom > box->top) {
+  if (box->bottom > box->top) {
     box->bottom = box->top = 0;
   }
 }
 
 // font units -> screen pixels (fixed), the same scaling fctx_string_width
 // applies; the em height must already be set for this font
-static fixed_t font_units_to_screen(FContext* fctx, fixed_t units) {
+static fixed_t font_units_to_screen(FContext *fctx, fixed_t units) {
   return units * fctx->transform_scale_to.x / fctx->transform_scale_from.x;
 }
 
 // draws text with its ink, not its advance box, centered on center_x.
 // leading blanks (%k, %l) are measured as "0"s, so a single-digit hour
 // keeps the spot it would have in a two-digit one rather than centering
-static void draw_string_ink_centered(FContext* fctx, const char* text, FFont* font,
-                                     fixed_t center_x, fixed_t y, FTextAnchor anchor) {
+static void draw_string_ink_centered(FContext *fctx, const char *text,
+                                     FFont *font, fixed_t center_x, fixed_t y,
+                                     FTextAnchor anchor) {
   char measured[4];
   strncpy(measured, text, sizeof(measured) - 1);
   measured[sizeof(measured) - 1] = '\0';
@@ -120,8 +149,8 @@ static void draw_string_ink_centered(FContext* fctx, const char* text, FFont* fo
   // the blanks themselves aren't drawn; the digits after them start
   // where they would behind that many "0"s
   fixed_t lead = 0;
-  FGlyph* zero = ffont_glyph_info(font, '0');
-  for(char* p = measured; *p == ' ' && zero; p++, text++) {
+  FGlyph *zero = ffont_glyph_info(font, '0');
+  for (char *p = measured; *p == ' ' && zero; p++, text++) {
     *p = '0';
     lead += zero->horiz_adv_x;
   }
@@ -140,11 +169,12 @@ static void draw_string_ink_centered(FContext* fctx, const char* text, FFont* fo
 // the "0" glyph's ink in screen pixels (still y up from the baseline), and
 // the blank space between two adjacent "0"s. measured on "0" rather than the
 // time itself so the layout doesn't shift from minute to minute
-static void digit_metrics(FContext* fctx, FFont* font, InkBox* ink, fixed_t* gap) {
+static void digit_metrics(FContext *fctx, FFont *font, InkBox *ink,
+                          fixed_t *gap) {
   InkBox units;
   string_ink_extent("0", font, &units);
 
-  FGlyph* zero = ffont_glyph_info(font, '0');
+  FGlyph *zero = ffont_glyph_info(font, '0');
   fixed_t advance = zero ? zero->horiz_adv_x : units.right - units.left;
 
   ink->left = font_units_to_screen(fctx, units.left);
@@ -154,20 +184,63 @@ static void digit_metrics(FContext* fctx, FFont* font, InkBox* ink, fixed_t* gap
   *gap = font_units_to_screen(fctx, advance - (units.right - units.left));
 }
 
+// the two-row block, in screen pixels (fixed). everything in it scales
+// linearly with the em size
+typedef struct {
+  InkBox hours, minutes;
+  fixed_t row_gap, width, height;
+} Block;
+
+static void measure_block(FContext *fctx, ClockFace face, int em, Block *b) {
+  fixed_t hours_gap, minutes_gap;
+
+  fctx_set_text_em_height(fctx, hours_font, em);
+  digit_metrics(fctx, hours_font, &b->hours, &hours_gap);
+  fctx_set_text_em_height(fctx, minutes_font, em);
+  digit_metrics(fctx, minutes_font, &b->minutes, &minutes_gap);
+
+  b->row_gap = (hours_gap + minutes_gap) / 2 * row_gap_percent[face] / 100;
+  b->height = (b->hours.top - b->hours.bottom) + b->row_gap +
+              (b->minutes.top - b->minutes.bottom);
+
+  // "00" ink width = two digits' ink plus the gap between them
+  fixed_t hours_w = 2 * (b->hours.right - b->hours.left) + hours_gap;
+  fixed_t minutes_w = 2 * (b->minutes.right - b->minutes.left) + minutes_gap;
+  b->width = hours_w > minutes_w ? hours_w : minutes_w;
+}
+
+// the largest em at which the block fits in w x h pixels
+static int fit_em(FContext *fctx, ClockFace face, int w, int h) {
+  const int ref = 100; // any size works; bigger = less rounding error
+  Block b;
+  measure_block(fctx, face, ref, &b);
+
+  if (b.width <= 0 || b.height <= 0) {
+    return ref;
+  }
+
+  int em_w = ref * INT_TO_FIXED(w) / b.width;
+  int em_h = ref * INT_TO_FIXED(h) / b.height;
+  return em_w < em_h ? em_w : em_h;
+}
+
 static ClockFace current_face() {
-  switch(settings.clockFontId) {
-    case FONT_SETTING_LECO:     return FACE_LECO;
-    case FONT_SETTING_GARAMOND: return FACE_GARAMOND;
-    default:                    return FACE_AVENIR;
+  switch (settings.clockFontId) {
+  case FONT_SETTING_LECO:
+    return FACE_LECO;
+  case FONT_SETTING_GARAMOND:
+    return FACE_GARAMOND;
+  default:
+    return FACE_AVENIR;
   }
 }
 
 static void set_face_loaded(ClockFace face, bool bold, bool needed) {
-  FFont** font = &faces[face][bold];
+  FFont **font = &faces[face][bold];
 
-  if(needed && *font == NULL) {
+  if (needed && *font == NULL) {
     *font = ffont_create_from_resource(face_resources[face][bold]);
-  } else if(!needed && *font != NULL) {
+  } else if (!needed && *font != NULL) {
     ffont_destroy(*font);
     *font = NULL;
   }
@@ -178,11 +251,11 @@ static void update_fonts() {
 
   // free what's no longer used before loading anything new, so a switch
   // never holds both the old and new faces at once
-  for(int f = 0; f < FACE_COUNT; f++) {
-    for(int bold = 0; bold < 2; bold++) {
-      bool needed = f == (int)face &&
-                    (settings.hoursBold == bold || settings.minutesBold == bold);
-      if(!needed) {
+  for (int f = 0; f < FACE_COUNT; f++) {
+    for (int bold = 0; bold < 2; bold++) {
+      bool needed = f == (int)face && (settings.hoursBold == bold ||
+                                       settings.minutesBold == bold);
+      if (!needed) {
         set_face_loaded(f, bold, false);
       }
     }
@@ -195,47 +268,50 @@ static void update_fonts() {
   minutes_font = faces[face][settings.minutesBold];
 }
 
-static void update_clock_area_layer(Layer *l, GContext* ctx) {
+static void update_clock_area_layer(Layer *l, GContext *ctx) {
   // check layer bounds
   GRect bounds = layer_get_unobstructed_bounds(l);
 
-  #ifdef PBL_ROUND
-    // the sidebar stays put under timeline quick view; only the time
-    // shrinks to fit above it. the obstruction's top edge is a wide chord
-    // of the circle, so it needs much less padding than the screen's edge.
-    // a bottom bar widget takes the place of the bottom padding
-    int bottomPadding = Sidebar_reservedBottom();
-    if (bottomPadding < ROUND_VERTICAL_PADDING) {
-      bottomPadding = ROUND_VERTICAL_PADDING;
-    }
-    int bottom = screen_rect.size.h - bottomPadding;
-    int obstructedBottom = bounds.origin.y + bounds.size.h - ROUND_OBSTRUCTED_PADDING;
+#ifdef PBL_ROUND
+  // the sidebar stays put under timeline quick view; only the time
+  // shrinks to fit above it. the obstruction's top edge is a wide chord
+  // of the circle, so it needs much less padding than the screen's edge.
+  // a bottom bar widget takes the place of the bottom padding
+  int bottomPadding = Sidebar_reservedBottom();
+  if (bottomPadding < ROUND_VERTICAL_PADDING) {
+    bottomPadding = ROUND_VERTICAL_PADDING;
+  }
+  int bottom = screen_rect.size.h - bottomPadding;
+  int obstructedBottom =
+      bounds.origin.y + bounds.size.h - ROUND_OBSTRUCTED_PADDING;
 
-    if (bottom > obstructedBottom) {
-      bottom = obstructedBottom;
-    }
+  if (bottom > obstructedBottom) {
+    bottom = obstructedBottom;
+  }
 
-    bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w, bottom - ROUND_VERTICAL_PADDING);
-  #else
-    // reserve space for the bottom bar, combining with any system
-    // obstruction (timeline quick view) already in the bounds
-    int top = bounds.origin.y;
-    int bottom = bounds.origin.y + bounds.size.h;
-    int bottomLimit = screen_rect.size.h - Sidebar_reservedBottom();
+  bounds = GRect(0, ROUND_VERTICAL_PADDING, screen_rect.size.w,
+                 bottom - ROUND_VERTICAL_PADDING);
+#else
+  // reserve space for the bottom bar, combining with any system
+  // obstruction (timeline quick view) already in the bounds
+  int top = bounds.origin.y;
+  int bottom = bounds.origin.y + bounds.size.h;
+  int bottomLimit = screen_rect.size.h - Sidebar_reservedBottom();
 
-    if (bottom > bottomLimit) {
-      bottom = bottomLimit;
-    }
+  if (bottom > bottomLimit) {
+    bottom = bottomLimit;
+  }
 
-    bounds = GRect(bounds.origin.x, top, bounds.size.w, bottom - top);
-  #endif
+  bounds = GRect(bounds.origin.x, top, bounds.size.w, bottom - top);
+#endif
 
-  // initialize FCTX, the fancy 3rd party drawing library that all the cool kids use
-  #ifdef PBL_COLOR
-    // leco looks awful with antialiasing; this must be set BEFORE
-    // fctx_init_context, which is one of the functions the toggle swaps
-    fctx_enable_aa(settings.clockFontId != FONT_SETTING_LECO);
-  #endif
+// initialize FCTX, the fancy 3rd party drawing library that all the cool kids
+// use
+#ifdef PBL_COLOR
+  // leco looks awful with antialiasing; this must be set BEFORE
+  // fctx_init_context, which is one of the functions the toggle swaps
+  fctx_enable_aa(settings.clockFontId != FONT_SETTING_LECO);
+#endif
 
   FContext fctx;
   fctx_init_context(&fctx, ctx);
@@ -243,74 +319,58 @@ static void update_clock_area_layer(Layer *l, GContext* ctx) {
   fctx_set_color_bias(&fctx, 0);
   fctx_set_fill_color(&fctx, settings.timeColor);
 
+  ClockFace face = current_face();
 
-  // calculate font size
-  int font_size = 4 * bounds.size.h / 7;
-
-  // avenir + avenir bold metrics
-  int v_padding = bounds.size.h / 16;
   int h_adjust = 0;
 
-  // alternate metrics for LECO
-  if(settings.clockFontId == FONT_SETTING_LECO) {
-    font_size = 4 * bounds.size.h / 7 + 6;
+#ifndef PBL_ROUND
+  // for rectangular watches, adjust X position based on sidebar position
+  if (Sidebar_verticalEdge() == REGION_EDGE_LEFT) {
+    h_adjust += Sidebar_verticalThickness() / 2;
+  } else {
+    h_adjust -= Sidebar_verticalThickness() / 2;
   }
+#endif
 
-  #ifndef PBL_ROUND
-    // for rectangular watches, adjust X position based on sidebar position
-    if(Sidebar_verticalEdge() == REGION_EDGE_LEFT) {
-      h_adjust += Sidebar_verticalThickness() / 2;
-    } else {
-      h_adjust -= Sidebar_verticalThickness() / 2;
-    }
-  #endif
+  // the biggest text that fits inside the margins. height is the limit
+  // when the area is short (bottom widget on), width when it's tall
+  // rect: tight margins, there's plenty of room beside the sidebar.
+  // round: looser, the circle clips the corners
+  int v_margin = bounds.size.h / PBL_IF_ROUND_ELSE(16, 32);
+  int side_margin = bounds.size.w / PBL_IF_ROUND_ELSE(8, 24);
+  int avail_w = bounds.size.w - 2 * side_margin;
+#ifndef PBL_ROUND
+  avail_w -= Sidebar_verticalThickness();
+#endif
+
+  int em = fit_em(&fctx, face, avail_w, bounds.size.h - 2 * v_margin);
+
+  Block b;
+  measure_block(&fctx, face, em, &b);
+
+  // center the block vertically; the minutes row hangs below the hours
+  fixed_t block_top = INT_TO_FIXED(bounds.origin.y) +
+                      (INT_TO_FIXED(bounds.size.h) - b.height) / 2;
+  fixed_t hours_baseline = block_top + b.hours.top;
+  fixed_t minutes_baseline =
+      hours_baseline - b.hours.bottom + b.row_gap + b.minutes.top;
 
   // each string gets its own fill so the AA renderer's transient
   // coverage buffer only ever spans one line of digits
   fixed_t center_x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
 
-  if(settings.clockFontId == FONT_SETTING_LECO) {
-    // LECO reads as one solid block when the rows are spaced like the
-    // digits within them, so lay the two rows out as a single block,
-    // with a row gap equal to the gap between digits, centered vertically
-    InkBox hours_ink, minutes_ink;
-    fixed_t hours_gap, minutes_gap;
+  fctx_set_text_em_height(&fctx, hours_font, em);
+  draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
+                           hours_baseline, FTextAnchorBaseline);
 
-    fctx_set_text_em_height(&fctx, hours_font, font_size);
-    digit_metrics(&fctx, hours_font, &hours_ink, &hours_gap);
-    fctx_set_text_em_height(&fctx, minutes_font, font_size);
-    digit_metrics(&fctx, minutes_font, &minutes_ink, &minutes_gap);
-
-    fixed_t row_gap = (hours_gap + minutes_gap) / 2;
-    fixed_t block_h = (hours_ink.top - hours_ink.bottom) + row_gap +
-                      (minutes_ink.top - minutes_ink.bottom);
-    fixed_t block_top = INT_TO_FIXED(bounds.origin.y) + (INT_TO_FIXED(bounds.size.h) - block_h) / 2;
-
-    fixed_t hours_baseline = block_top + hours_ink.top;
-    fixed_t minutes_baseline = hours_baseline - hours_ink.bottom + row_gap + minutes_ink.top;
-
-    fctx_set_text_em_height(&fctx, hours_font, font_size);
-    draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
-                             hours_baseline, FTextAnchorBaseline);
-
-    fctx_set_text_em_height(&fctx, minutes_font, font_size);
-    draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
-                             minutes_baseline, FTextAnchorBaseline);
-  } else {
-    fctx_set_text_em_height(&fctx, hours_font, font_size);
-    draw_string_ink_centered(&fctx, time_hours, hours_font, center_x,
-                             INT_TO_FIXED(bounds.origin.y + v_padding), FTextAnchorTop);
-
-    fctx_set_text_em_height(&fctx, minutes_font, font_size);
-    draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
-                             INT_TO_FIXED(bounds.origin.y + bounds.size.h - v_padding), FTextAnchorBaseline);
-  }
+  fctx_set_text_em_height(&fctx, minutes_font, em);
+  draw_string_ink_centered(&fctx, time_minutes, minutes_font, center_x,
+                           minutes_baseline, FTextAnchorBaseline);
 
   fctx_deinit_context(&fctx);
 }
 
-
-void ClockArea_init(Window* window) {
+void ClockArea_init(Window *window) {
   // record the screen size, since we NEVER GET IT AGAIN
   screen_rect = layer_get_bounds(window_get_root_layer(window));
 
@@ -329,7 +389,7 @@ void ClockArea_init(Window* window) {
 void ClockArea_deinit() {
   layer_destroy(clock_area_layer);
 
-  for(int f = 0; f < FACE_COUNT; f++) {
+  for (int f = 0; f < FACE_COUNT; f++) {
     set_face_loaded(f, false, false);
     set_face_loaded(f, true, false);
   }
@@ -342,13 +402,15 @@ void ClockArea_redraw() {
   layer_mark_dirty(clock_area_layer);
 }
 
-void ClockArea_update_time(struct tm* time_info) {
+void ClockArea_update_time(struct tm *time_info) {
 
   // hours
   if (clock_is_24h_style()) {
-    strftime(time_hours, sizeof(time_hours), (settings.showLeadingZero) ? "%H" : "%k", time_info);
+    strftime(time_hours, sizeof(time_hours),
+             (settings.showLeadingZero) ? "%H" : "%k", time_info);
   } else {
-    strftime(time_hours, sizeof(time_hours), (settings.showLeadingZero) ? "%I" : "%l", time_info);
+    strftime(time_hours, sizeof(time_hours),
+             (settings.showLeadingZero) ? "%I" : "%l", time_info);
   }
 
   // minutes
