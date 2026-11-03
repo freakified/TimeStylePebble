@@ -88,6 +88,30 @@
     }
   },
   {
+    "name": "Inversion 1",
+    "settings": {
+      "colorBackground": "00AAFF",
+      "colorTime": "000000",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Inversion 2",
+    "settings": {
+      "colorBackground": "FFAA00",
+      "colorTime": "000000",
+      "colorSidebar": "000000"
+    }
+  },
+  {
+    "name": "Inversion 3",
+    "settings": {
+      "colorBackground": "00FF00",
+      "colorTime": "000000",
+      "colorSidebar": "000000"
+    }
+  },
+  {
     "name": "Deep Blue",
     "settings": {
       "colorBackground": "0000AA",
@@ -112,14 +136,6 @@
     }
   },
   {
-    "name": "Dashboard",
-    "settings": {
-      "colorBackground": "000000",
-      "colorTime": "FFAA55",
-      "colorSidebar": "5555FF"
-    }
-  },
-  {
     "name": "Windows 95",
     "settings": {
       "colorBackground": "00AAAA",
@@ -133,6 +149,14 @@
       "colorBackground": "0000FF",
       "colorTime": "FFFFFF",
       "colorSidebar": "AAAAAA"
+    }
+  },
+  {
+    "name": "Dashboard",
+    "settings": {
+      "colorBackground": "000000",
+      "colorTime": "FFAA55",
+      "colorSidebar": "5555FF"
     }
   },
   {
@@ -232,27 +256,11 @@
     }
   },
   {
-    "name": "Coral Reef",
+    "name": "Coral",
     "settings": {
       "colorBackground": "005555",
       "colorTime": "FFAAAA",
       "colorSidebar": "FF5555"
-    }
-  },
-  {
-    "name": "Campfire",
-    "settings": {
-      "colorBackground": "550000",
-      "colorTime": "FFFF00",
-      "colorSidebar": "AA0000"
-    }
-  },
-  {
-    "name": "Lavender Fields",
-    "settings": {
-      "colorBackground": "AAAAFF",
-      "colorTime": "000055",
-      "colorSidebar": "550055"
     }
   },
   {
@@ -677,14 +685,6 @@
       "colorBackground": "FF0000",
       "colorTime": "FFFFFF",
       "colorSidebar": "555555"
-    }
-  },
-  {
-    "name": "Amber",
-    "settings": {
-      "colorBackground": "FFAA00",
-      "colorTime": "000000",
-      "colorSidebar": "000000"
     }
   },
   {

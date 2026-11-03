@@ -94,23 +94,9 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
       bar: [SUNRISE_SUNSET, STEPS],
     },
     round: {
-      left: [CURRENT_WEATHER, STEPS],
+      left: [FORECAST, CURRENT_WEATHER],
       right: [STEPS, DATE],
       bar: [SUNRISE_SUNSET],
-    },
-    essential: [DATE],
-  },
-  {
-    name: 'Commute',
-    requires: ['ALARMS'],
-    rect: {
-      sidebar: [FORECAST, CHANCE_OF_RAIN, BATTERY, DATE],
-      bar: [NEXT_ALARM],
-    },
-    round: {
-      left: [FORECAST, CHANCE_OF_RAIN],
-      right: [DATE, BATTERY],
-      bar: [NEXT_ALARM],
     },
     essential: [DATE],
   },
@@ -131,6 +117,20 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
         right: [CURRENT_WEATHER, UV_INDEX],
         bar: [DATE],
       }
+    },
+    essential: [DATE],
+  },
+  {
+    name: 'Commuter',
+    requires: ['ALARMS'],
+    rect: {
+      sidebar: [FORECAST, CHANCE_OF_RAIN, BATTERY, DATE],
+      bar: [NEXT_ALARM],
+    },
+    round: {
+      left: [FORECAST, CHANCE_OF_RAIN],
+      right: [DATE, BATTERY],
+      bar: [NEXT_ALARM],
     },
     essential: [DATE],
   },
@@ -174,10 +174,15 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
   {
     name: 'Time Enthusiast',
     rect: {
-      sidebar: [WEEK_NUMBER, WORLD_TIME_1, SWATCH_TIME, DATE],
+      sidebar: [WEEK_NUMBER, WORLD_TIME_1, WORLD_TIME_2, SWATCH_TIME, DATE],
       bar: [SECONDS],
     },
-    round: { left: [WEEK_NUMBER, WORLD_TIME_1, SWATCH_TIME], right: [DATE], bar: [SECONDS] },
-    essential: [DATE],
+    round: { left: [WORLD_TIME_1, SWATCH_TIME, WORLD_TIME_2], right: [WEEK_NUMBER, DATE], bar: [SECONDS] },
+    essential: [SWATCH_TIME, DATE],
+    exact: {
+      'small-round': {
+        left: [WEEK_NUMBER, WORLD_TIME_1, SWATCH_TIME], right: [DATE], bar: [SECONDS]
+      }
+    },
   },
 ];

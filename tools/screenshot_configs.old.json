@@ -46,6 +46,87 @@
   },
   "configs": [
     {
+      "name": "theme-classic",
+      "settings": {}
+    },
+    {
+      "name": "theme-full-sidebar",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_CURRENT",
+        "SettingWidget1ID": "WEATHER_UV_INDEX",
+        "SettingWidget2ID": "STEP_COUNTER",
+        "SettingWidget3ID": "DATE"
+      }
+    },
+    {
+      "name": "theme-day-out",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget1ID": "WEATHER_CURRENT",
+        "SettingWidget2ID": "DATE",
+        "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+        "SettingBottomBarWidget1ID": "STEP_COUNTER"
+      }
+    },
+    {
+      "name": "theme-weather",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget1ID": "WEATHER_CURRENT",
+        "SettingWidget2ID": "WEATHER_PRECIP_CHANCE",
+        "SettingWidget3ID": "WEATHER_UV_INDEX",
+        "SettingBottomBarWidget0ID": "DATE"
+      }
+    },
+    {
+      "name": "theme-commuter",
+      "settings": {
+        "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+        "SettingWidget1ID": "WEATHER_PRECIP_CHANCE",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "DATE",
+        "SettingBottomBarWidget0ID": "NEXT_ALARM"
+      }
+    },
+    {
+      "name": "theme-fitness",
+      "settings": {
+        "SettingWidget0ID": "DISTANCE_WALKED",
+        "SettingWidget1ID": "ACTIVE_CALORIES",
+        "SettingWidget2ID": "DATE",
+        "SettingBottomBarWidget0ID": "STEP_COUNTER",
+        "SettingBottomBarWidget1ID": "HEARTRATE"
+      }
+    },
+    {
+      "name": "theme-sleep-person",
+      "settings": {
+        "SettingWidget0ID": "NEXT_ALARM",
+        "SettingWidget1ID": "HEARTRATE",
+        "SettingWidget2ID": "BATTERY_METER",
+        "SettingWidget3ID": "DATE",
+        "SettingBottomBarWidget0ID": "SLEEP_TIMER"
+      }
+    },
+    {
+      "name": "theme-traveler",
+      "settings": {
+        "SettingWidget1ID": "WORLD_TIME_2",
+        "SettingWidget2ID": "DATE",
+        "SettingBottomBarWidget0ID": "WORLD_TIME_1"
+      }
+    },
+    {
+      "name": "theme-time-enthusiast",
+      "settings": {
+        "SettingWidget0ID": "WEEK_NUMBER",
+        "SettingWidget1ID": "WORLD_TIME_1",
+        "SettingWidget2ID": "BEATS",
+        "SettingWidget3ID": "DATE",
+        "SettingBottomBarWidget0ID": "SECONDS"
+      }
+    }
+    {
       "name": "layout-right",
       "settings": {}
     },

@@ -47,7 +47,22 @@
   "configs": [
     {
       "name": "appstore-screenshot-1-defaults",
-      "settings": {}
+      "settings": {},
+      "platform_settings": {
+        "chalk": {
+          "SettingWidget0ID": "WEATHER_CURRENT",
+          "SettingWidget3ID": "DATE"
+        },
+        "gabbro": {
+          "SettingWidget0ID": "WEATHER_CURRENT",
+          "SettingWidget3ID": "DATE"
+        },
+        "flint": {
+          "SettingColorTime": "#FFFFFF",
+          "SettingColorBG": "#000000",
+          "SettingColorSidebar": "#FFFFFF"
+        }
+      }
     },
     {
       "name": "appstore-screenshot-2",
@@ -65,12 +80,29 @@
         "SettingColorSidebar": "#000000"
       },
       "platform_settings": {
+        "basalt": {
+          "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT"
+        },
         "chalk": {
           "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
           "SettingWidget1ID": "EMPTY",
-          "SettingWidget2ID": "DATE",
+          "SettingWidget3ID": "DATE",
           "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
           "SettingBottomBarWidget1ID": "EMPTY"
+        },
+        "gabbro": {
+          "SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+          "SettingWidget1ID": "WEATHER_CURRENT",
+          "SettingWidget4ID": "STEP_COUNTER",
+          "SettingWidget5ID": "DATE",
+          "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT",
+          "SettingBottomBarWidget1ID": "EMPTY"
+        },
+        "flint": {
+          "SettingColorTime": "#FFFFFF",
+          "SettingColorBG": "#000000",
+          "SettingColorSidebar": "#000000",
+          "SettingBottomBarWidget0ID": "NEXT_SUN_EVENT"
         }
       }
     },
@@ -78,31 +110,63 @@
       "name": "appstore-screenshot-3",
       "settings": {
         "SettingWidget0ID": "WEATHER_CURRENT",
-        "SettingWidget1ID": "WEATHER_UV_INDEX",
-        "SettingWidget2ID": "STEP_COUNTER",
-        "SettingWidget3ID": "DATE",
+        "SettingWidget1ID": "STEP_COUNTER",
+        "SettingWidget2ID": "DATE",
         "SettingClockFontId": 5,
         "SettingClockHoursBold": 1,
         "SettingClockMinutesBold": 0,
         "SettingColorBG": "#FFFFFF",
         "SettingColorTime": "#000000",
-        "SettingColorSidebar": "#00AAFF"
+        "SettingColorSidebar": "#00AAFF",
+        "SettingStatusShowConnection": 1
+      },
+      "platform_settings": {
+        "chalk": {
+          "SettingWidget0ID": "WEATHER_CURRENT",
+          "SettingWidget1ID": "STEP_COUNTER",
+          "SettingWidget3ID": "DATE"
+        },
+        "gabbro": {
+          "SettingWidget0ID": "WEATHER_CURRENT",
+          "SettingWidget1ID": "STEP_COUNTER",
+          "SettingWidget3ID": "DATE"
+        },
+        "emery": {
+          "SettingWidget0ID": "WEATHER_CURRENT",
+          "SettingWidget1ID": "WEATHER_UV_INDEX",
+          "SettingWidget2ID": "STEP_COUNTER",
+          "SettingWidget3ID": "DATE"
+        }
       }
     },
     {
       "name": "appstore-screenshot-4",
       "settings": {
-        "SettingWidget0ID": "DISTANCE_WALKED",
-        "SettingWidget1ID": "ACTIVE_CALORIES",
-        "SettingWidget2ID": "DATE",
-        "SettingBottomBarWidget0ID": "STEP_COUNTER",
-        "SettingBottomBarWidget1ID": "HEARTRATE",
+        "SettingWidget0ID": "STEP_COUNTER",
+        "SettingWidget1ID": "DISTANCE_WALKED",
+        "SettingWidget2ID": "ACTIVE_CALORIES",
+        "SettingWidget3ID": "HEART_RATE",
+        "SettingBottomBarWidget0ID": "DATE",
         "SettingClockFontId": 0,
-        "SettingClockHoursBold": 1,
-        "SettingClockMinutesBold": 1,
+        "SettingClockHoursBold": 0,
+        "SettingClockMinutesBold": 0,
         "SettingColorBG": "#0000AA",
         "SettingColorTime": "#FFFFFF",
-        "SettingColorSidebar": "#0055FF"
+        "SettingColorSidebar": "#0055FF",
+        "SettingUseLargeFonts": 1
+      },
+      "platform_settings": {
+        "chalk": {
+          "SettingWidget0ID": "DISTANCE_WALKED",
+          "SettingWidget1ID": "ACTIVE_CALORIES",
+          "SettingWidget4ID": "STEP_COUNTER",
+          "SettingWidget5ID": "UV_INDEX"
+        },
+        "flint": {
+          "SettingColorTime": "#000000",
+          "SettingColorBG": "#AAAAAA",
+          "SettingColorSidebar": "#FFFFFF"
+        }
       }
     },
     {
@@ -110,17 +174,38 @@
       "settings": {
         "SettingWidget0ID": "WEEK_NUMBER",
         "SettingWidget1ID": "WORLD_TIME_1",
-        "SettingWidget2ID": "WORLD_TIME_2",
         "SettingWidget3ID": "BEATS",
         "SettingWidget4ID": "DATE",
         "SettingBottomBarWidget0ID": "SECONDS",
         "SettingClockFontId": 0,
-        "SettingClockHoursBold": 0,
-        "SettingClockMinutesBold": 0,
+        "SettingClockHoursBold": 1,
+        "SettingClockMinutesBold": 1,
         "SettingColorBG": "#FFAA00",
         "SettingColorTime": "#000000",
         "SettingColorSidebar": "#000000",
         "SettingUseWideSidebar": 1
+      },
+      "platform_settings": {
+        "chalk": {
+          "SettingWidget0ID": "WEEK_NUMBER",
+          "SettingWidget1ID": "WORLD_TIME_1",
+          "SettingWidget2ID": "BEATS",
+          "SettingWidget3ID": "DATE"
+        },
+        "gabbro": {
+          "SettingWidget0ID": "WORLD_TIME_1",
+          "SettingWidget1ID": "BEATS",
+          "SettingWidget2ID": "WORLD_TIME_2",
+          "SettingWidget3ID": "WEEK_NUMBER",
+          "SettingWidget4ID": "DATE"
+        },
+        "emery": {
+          "SettingWidget0ID": "WEEK_NUMBER",
+          "SettingWidget1ID": "WORLD_TIME_1",
+          "SettingWidget2ID": "WORLD_TIME_2",
+          "SettingWidget3ID": "BEATS",
+          "SettingWidget4ID": "DATE"
+        }
       }
     }
   ]

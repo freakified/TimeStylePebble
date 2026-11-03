@@ -15,15 +15,26 @@ Usage:
   python3 tools/screenshot_matrix.py --list                 # list config names
 
 Per-platform overrides: a config may carry an optional "platform_settings"
-object keyed by platform name. Its settings are layered on top of the
-config's own (defaults < settings < platform_settings[platform]). They are
-applied AFTER the round-watch auto-fill (round_settings) and sent verbatim,
-so on chalk/gabbro they address the real arc/bar slots and can set a slot
-to "EMPTY" to clear something the auto-fill placed, e.g.
+object keyed by platform name, layered on top of the config's own
+(defaults < settings < platform_settings[platform]) and sent as written;
+nothing is redistributed or dropped for round watches.
+Most keys merge one by one, but the widget slots work as lists: naming ANY
+SettingWidget*ID replaces the whole sidebar list, and naming any
+SettingBottomBarWidget*ID replaces the whole bar list. Slots you don't name
+become "EMPTY", so a widget can be moved without being left behind in its
+old slot. On chalk/gabbro the slots are the real ones (0-2 left arc, 3-5
+right arc; the bar holds one widget), e.g.
 
-  {"name": "sidebar-packed",
-   "settings": {"SettingWidget0ID": "DATE", ...},
-   "platform_settings": {"emery": {"SettingWidget5ID": "HEARTRATE"}}}
+  {"name": "appstore-screenshot-2",
+   "settings": {"SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+                "SettingWidget1ID": "WEATHER_CURRENT",
+                "SettingWidget2ID": "DATE", ...},
+   "platform_settings": {
+     "chalk": {"SettingWidget0ID": "WEATHER_FORECAST_TODAY",
+               "SettingWidget3ID": "DATE"}}}   # slots 1, 2, 4, 5 -> EMPTY
+
+Config keys are checked: besides name/settings/env/platform_settings, only
+"_"-prefixed comment keys are allowed.
 
 Requires the project to be built first (`pebble build`) -- the .pbw and
 build/js/message_keys.json must exist.
@@ -31,6 +42,7 @@ build/js/message_keys.json must exist.
 
 import argparse
 import datetime
+import difflib
 import html
 import json
 import subprocess
@@ -42,17 +54,13 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONFIGS_PATH = Path(__file__).resolve().parent / "screenshot_configs.json"
 MESSAGE_KEYS_PATH = PROJECT_ROOT / "build" / "js" / "message_keys.json"
 
-DEFAULT_PLATFORMS = ["basalt", "chalk", "diorite", "emery", "flint", "gabbro"]
-ROUND_PLATFORMS = {"chalk", "gabbro"}
-ARC_SLOT_CAP = 3  # ROUND_ARC_SLOT_CAP
-ROUND_BAR_SLOT_CAP = 1  # round watches' bottom bar holds exactly one widget
+DEFAULT_PLATFORMS = ["basalt", "chalk", "emery", "flint", "gabbro"]
 
 # widgets whose health query never returns on a platform's emulator,
 # wedging the face until the emulator is wiped: chalk's
 # health_service_sum_today(HealthMetricWalkedDistanceMeters) hangs on its
 # very first call (steps sum fine). Configs placing one are skipped there.
 EMULATOR_HANGS = {
-    "chalk": {"DISTANCE_WALKED"},
 }
 
 SIDEBAR_SLOT_KEYS = [f"SettingWidget{i}ID" for i in range(6)]
@@ -64,7 +72,7 @@ PINNED_BATTERY_PCT = 70
 PINNED_STEPS = 7241
 PINNED_SLEEP_MINUTES = 452
 PINNED_HEART_RATE = 68  # emery only; ignored elsewhere
-PINNED_CALORIES = 864
+PINNED_CALORIES = 364
 PINNED_DISTANCE = 6000
 
 # enums mirrored from src/c (sidebar_layout.h, sidebar_widgets.h, weather.h)
@@ -155,33 +163,6 @@ def resolve_value(raw):
     raise ValueError(f"can't resolve config value: {raw!r}")
 
 
-def round_settings(name, merged):
-    """Translate a rect-shaped config for a round watch.
-
-    Round's two arcs split the sidebar slots (0-2 left, 3-5 right), and its
-    bottom bar holds one widget. A rect config sent as-is would land
-    entirely on the left arc. So, like the config page's regions: the
-    first bar widget stays on the bar, and the sidebar list (plus any
-    further bar widgets, which round has no room for in the bar) is
-    split across both arcs, left arc first. Configs named arc-* are
-    already written for round and sent as-is.
-    """
-    if name.startswith("arc-"):
-        return merged
-    sidebar = [merged[k] for k in SIDEBAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
-    bar = [merged[k] for k in BAR_SLOT_KEYS if merged.get(k, "EMPTY") != "EMPTY"]
-    round_bar, overflow = bar[:ROUND_BAR_SLOT_CAP], bar[ROUND_BAR_SLOT_CAP:]
-    arcs = sidebar + overflow
-    half = min((len(arcs) + 1) // 2, ARC_SLOT_CAP)
-    left, right = arcs[:half], arcs[half:]
-    pad = lambda ids: (ids + ["EMPTY"] * ARC_SLOT_CAP)[:ARC_SLOT_CAP]
-    out = dict(merged)
-    out.update(zip(SIDEBAR_SLOT_KEYS, pad(left) + pad(right)))
-    out.update({k: "EMPTY" for k in BAR_SLOT_KEYS})
-    out.update(zip(BAR_SLOT_KEYS, round_bar))
-    return out
-
-
 def send_config(platform, app_uuid, key_ids, merged_settings):
     groups = {"uint": [], "int": [], "string": []}
     for key_name, raw in merged_settings.items():
@@ -244,22 +225,48 @@ def merged_settings(matrix, config, platform=None):
     """The settings actually sent for a config on a platform:
 
       defaults < config["settings"]
-        -> round_settings() auto-fill, on round platforms only
-        -> config["platform_settings"][platform], applied last and verbatim
+        -> config["platform_settings"][platform], applied last
 
-    Overrides come after the round translation, so they are never
-    redistributed: on chalk/gabbro they name the real arc/bar slots
-    (SettingWidget0-2 = left arc, 3-5 = right arc), and setting a slot to
-    "EMPTY" clears whatever the auto-fill put there. With platform=None,
-    the platform-independent base (no translation, no overrides)."""
+    Settings are sent as written on every platform, round included (on
+    chalk/gabbro SettingWidget0-2 are the left arc, 3-5 the right arc);
+    nothing is redistributed or dropped. Naming any sidebar
+    slot replaces the whole sidebar list and naming any bar slot replaces
+    the whole bar list (unnamed slots become "EMPTY"); every other key
+    merges individually. With platform=None, the platform-independent
+    base (no translation, no overrides)."""
     merged = dict(matrix["defaults"])
     merged.update(config["settings"])
     if platform is None:
         return merged
-    if platform in ROUND_PLATFORMS:
-        merged = round_settings(config["name"], merged)
-    merged.update(config.get("platform_settings", {}).get(platform, {}))
+    override = config.get("platform_settings", {}).get(platform, {})
+    # The sidebar slots and the bar slots are each one widget list, not six
+    # independent settings: widgets must be unique across them, so moving a
+    # widget by merging slot-by-slot leaves it behind in its old slot. An
+    # override that names any slot of a list therefore replaces that whole
+    # list; slots it doesn't name become "EMPTY". Other keys merge one by one.
+    for group in (SIDEBAR_SLOT_KEYS, BAR_SLOT_KEYS):
+        if any(k in override for k in group):
+            merged.update({k: "EMPTY" for k in group})
+    merged.update(override)
     return merged
+
+
+CONFIG_KEYS = {"name", "settings", "env", "platform_settings"}
+
+
+def find_unknown_config_keys(matrix):
+    """Top-level config keys we don't read -- a misspelled switch such as
+    "platform-settings" would otherwise be silently ignored. Keys starting
+    with "_" are comments and always allowed."""
+    problems = []
+    for config in matrix["configs"]:
+        for key in config:
+            if key in CONFIG_KEYS or key.startswith("_"):
+                continue
+            close = difflib.get_close_matches(key, CONFIG_KEYS, n=1)
+            hint = f" (did you mean {close[0]!r}?)" if close else ""
+            problems.append(f"{config.get('name', '?')}: unknown key {key!r}{hint}")
+    return problems
 
 
 def find_unknown_override_platforms(matrix, known_platforms):
@@ -363,6 +370,10 @@ def main():
     matrix = json.loads(CONFIGS_PATH.read_text())
     configs = matrix["configs"]
     platforms = args.platforms.split(",")
+    bad_keys = find_unknown_config_keys(matrix)
+    if bad_keys:
+        sys.exit("configs have keys this script doesn't read:\n"
+                 + "\n".join(f"  {b}" for b in bad_keys))
     unknown_platforms = find_unknown_override_platforms(
         matrix, set(DEFAULT_PLATFORMS) | set(platforms))
     if unknown_platforms:
