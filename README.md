@@ -1,7 +1,8 @@
 # TimeStyle
-A stylish, modern watchface for the Pebble and Pebble Time watches.
 
-<img src="project_banner.png" width="400" height="300">
+A stylish, modern watchface for the Pebble watch.
+
+<img src="appstore/banner-01a.png" width="360" height="160">
 
 Inspired by the visual language of the Timeline found on the Pebble Time, TimeStyle is designed as the “present” to complement the Timeline’s “past” and “future”.
 
@@ -12,8 +13,10 @@ Inspired by the visual language of the Timeline found on the Pebble Time, TimeSt
 * Works in 30 different languages, more than any other Pebble face: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, Vietnamese, Catalan, Norwegian, Russian, Estonian, Basque, Finnish, Danish, Lithuanian, Slovenian, Hungarian, Croatian, Serbian, Irish, Latviann, and Ukrainian.
 
 ## Want to try it?
+
 Download on the Pebble store at the link below:
-https://apps.rebble.io/en_US/application/55a5c024f4510f794c000071?section=watchfaces
+<https://apps.repebble.com/55a5c024f4510f794c000071>
 
 ## Contributing
+
 Want to contribute to TimeStyle? Have a look at [the various feature requests that are still outstanding](https://github.com/freakified/TimeStylePebble/issues?q=is%3Aopen+is%3Aissue) -- just comment on one if you're interested in working on it!
