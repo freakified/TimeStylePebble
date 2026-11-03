@@ -2,7 +2,7 @@
 
 A stylish, modern watchface for the Pebble watch.
 
-<img src="appstore/banner-01a.png" width="360" height="160">
+<img src="appstore/banner-01.png" width="360" height="160">
 
 Inspired by the visual language of the Timeline found on the Pebble Time, TimeStyle is designed as the “present” to complement the Timeline’s “past” and “future”.
 
