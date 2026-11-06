@@ -29,6 +29,7 @@ import {
     PreviewFonts,
     stackedWidgetHeight,
     cascadeSidebarStack,
+    cascadeBarWidgets,
     ARC_WIDGET_GAP_COMPACT,
     ARC_INWARD_NUDGE,
     WATCH_BAR_PADDING_X,
@@ -444,9 +445,13 @@ const RectPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabil
         const barY = H - barH;
 
         // mirror the watch's rendered cap: two slots, three on emery
-        const parts = barSlotIds
-            .filter((id) => id !== 0)
-            .map((id) => getInlineParts(id, s))
+        const slots = cascadeBarWidgets(
+            barSlotIds.filter((id) => id !== 0),
+            s,
+            capabilities
+        );
+        const parts = slots
+            .map((slot) => getInlineParts(slot.id, s, slot.hidden))
             .filter((p): p is InlineParts => p !== null);
         const widths = parts.map((p) => measureInline(p, fonts));
         const totalW = widths.reduce((a, b) => a + b, 0);
@@ -626,9 +631,13 @@ const RoundPreview: React.FC<{ effectiveSettings: Settings; capabilities: Capabi
     /* Bottom bar: its one widget centers below the time, on the watchface
      * background, the same as render_horizontal_flow draws it. */
     const renderBottomBar = () => {
-        const parts = barIds
-            .filter((id) => id !== 0)
-            .map((id) => getInlineParts(id, s))
+        const slots = cascadeBarWidgets(
+            barIds.filter((id) => id !== 0),
+            s,
+            capabilities
+        );
+        const parts = slots
+            .map((slot) => getInlineParts(slot.id, s, slot.hidden))
             .find((p): p is InlineParts => p !== null);
         if (!parts) return null;
 

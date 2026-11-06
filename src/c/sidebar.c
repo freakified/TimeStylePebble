@@ -173,19 +173,98 @@ static GRect hregion_frame(void) {
 #endif
 }
 
+static int measure_main_axis(SidebarMeasure m, SidebarLayoutMode mode) {
+  return mode == SIDEBAR_LAYOUT_INLINE ? m.w : m.h;
+}
+
+/*
+ * Layout cascade: before dropping any widget (vertical) or squeezing gaps
+ * (horizontal), try progressively more compact forms of the widgets that
+ * have them. Each step re-measures only the widget whose form changed.
+ *
+ * Step 0 (bottom bar only): world time → time only (hide day-name suffix)
+ * Step 1: battery → graphic only (hide the percentage text)
+ * Step 2: date → calendar + day number only (hide month)
+ * Step 3: date → calendar + day number only, no weekday (hide that too)
+ *
+ * Each step is tried in order; if tightening a widget's form still leaves
+ * the region over budget, we move to the next step.
+ */
+static int apply_layout_cascade(SidebarWidgetDefinition *widgets,
+                                SidebarMeasure *sizes, int count,
+                                SidebarRenderSpec *spec, int totalMain,
+                                int minGap, int available) {
+  int gapTotal = (count > 1) ? minGap * (count - 1) : 0;
+
+  if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
+    // Step 0: world time without day suffix
+    for (int i = 0; i < count && totalMain + gapTotal > available; i++) {
+      if (widgets[i].type == WORLD_TIME_1 || widgets[i].type == WORLD_TIME_2) {
+        int oldSize = measure_main_axis(sizes[i], spec->mode);
+        SidebarWidgets_hideWidgetDetail(widgets[i].type);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], spec);
+        totalMain += measure_main_axis(sizes[i], spec->mode) - oldSize;
+      }
+    }
+  }
+
+  if (settings.batteryDisplay == BATTERY_DISPLAY_AUTO &&
+      totalMain + gapTotal > available) {
+    // Step 1: battery graphic-only
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == BATTERY_METER) {
+        int oldSize = measure_main_axis(sizes[i], spec->mode);
+        SidebarWidgets_hideWidgetDetail(BATTERY_METER);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], spec);
+        totalMain += measure_main_axis(sizes[i], spec->mode) - oldSize;
+        break;
+      }
+    }
+  }
+
+  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
+      totalMain + gapTotal > available) {
+    // Step 2: date → weekday + day number (no month)
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == DATE) {
+        int oldSize = measure_main_axis(sizes[i], spec->mode);
+        SidebarWidgets_hideWidgetDetail(DATE);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], spec);
+        totalMain += measure_main_axis(sizes[i], spec->mode) - oldSize;
+        break;
+      }
+    }
+  }
+
+  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
+      totalMain + gapTotal > available) {
+    // Step 3: date → day number only (no weekday either)
+    for (int i = 0; i < count; i++) {
+      if (widgets[i].type == DATE) {
+        int oldSize = measure_main_axis(sizes[i], spec->mode);
+        SidebarWidgets_hideWidgetMarker(DATE);
+        sizes[i] = SidebarWidgets_measure(&widgets[i], spec);
+        totalMain += measure_main_axis(sizes[i], spec->mode) - oldSize;
+        break;
+      }
+    }
+  }
+
+  return totalMain;
+}
+
 #ifndef PBL_ROUND
 
 /*
  * Vertical flow: the slots form a packed widget list (EMPTY entries are
  * dropped): the first widget pins to the top, the last pins to the
- * bottom, and the rest spread with equal gaps between them. Widgets
- * always render their full form -- the config page's fit budget is what
- * keeps configs fitting at full height.
+ * bottom, and the rest spread with equal gaps between them.
  *
- * When the sidebar is shorter than the stack needs (timeline quick view
- * covering the bottom of the screen), widgets are dropped rather than
- * crowded: interior widgets go first, last slot upwards, then the bottom
- * widget, so the top widget is the last to go.
+ * When the sidebar is shorter than the stack needs (or timeline quick view
+ * covers the bottom of the screen), the layout cascade compacts auto-mode
+ * widgets first; past that, widgets are dropped rather than crowded:
+ * interior widgets go first, last slot upwards, then the bottom widget,
+ * so the top widget is the last to go.
  */
 static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -221,60 +300,8 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   }
   available -= REGION_V_PADDING * 2;
 
-  /*
-   * Layout cascade: before dropping any widget, try progressively more
-   * compact forms of the widgets that have them. Each step re-measures
-   * only the widget whose form changed.
-   *
-   * Step 1: battery → graphic only (hide the percentage text)
-   * Step 2: date → calendar + day number only (hide month)
-   * Step 3: date → calendar + day number only, no weekday (hide that too)
-   *
-   * Each step is tried exactly once; if tightening a widget's form still
-   * leaves the stack over budget, we move to the next step. The drop loop
-   * that follows handles whatever remains after all cascade steps.
-   */
-  if (settings.batteryDisplay == BATTERY_DISPLAY_AUTO &&
-      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
-    // Step 1: battery graphic-only
-    for (int i = 0; i < count; i++) {
-      if (widgets[i].type == BATTERY_METER) {
-        int oldH = sizes[i].h;
-        SidebarWidgets_hideWidgetDetail(BATTERY_METER);
-        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-        totalHeight += sizes[i].h - oldH;
-        break;
-      }
-    }
-  }
-
-  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
-      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
-    // Step 2: date → weekday + day number (no month)
-    for (int i = 0; i < count; i++) {
-      if (widgets[i].type == DATE) {
-        int oldH = sizes[i].h;
-        SidebarWidgets_hideWidgetDetail(DATE);
-        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-        totalHeight += sizes[i].h - oldH;
-        break;
-      }
-    }
-  }
-
-  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
-      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
-    // Step 3: date → day number only (no weekday either)
-    for (int i = 0; i < count; i++) {
-      if (widgets[i].type == DATE) {
-        int oldH = sizes[i].h;
-        SidebarWidgets_hideWidgetMarker(DATE);
-        sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
-        totalHeight += sizes[i].h - oldH;
-        break;
-      }
-    }
-  }
+  totalHeight = apply_layout_cascade(widgets, sizes, count, &spec, totalHeight,
+                                     REGION_MIN_WIDGET_GAP, available);
 
   while (count > 1 &&
          totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
@@ -334,10 +361,9 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 /*
  * Horizontal flow: the slots form a packed widget list (EMPTY entries are
  * dropped) and the widgets cluster as one group in the middle of the bar,
- * separated by a fixed gap. Widgets always render their full form -- the
- * config page's fit budget is what keeps configs fitting. The only
- * over-budget concession is tightening the gap; past that, the group
- * eats into the end padding.
+ * separated by a fixed gap. When the bar is narrower than the group needs,
+ * the layout cascade compacts auto-mode widgets first; past that, the gap
+ * tightens before the group eats into the end padding.
  */
 static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   GRect bounds = layer_get_unobstructed_bounds(l);
@@ -367,6 +393,8 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
   SidebarRenderSpec spec =
       SidebarWidgets_makeRenderSpec(r->widgetMode, contentWidth);
 
+  SidebarWidgets_resetEffectiveHideBits();
+
   int totalWidth = 0;
   for (int i = 0; i < count; i++) {
     sizes[i] = SidebarWidgets_measure(&widgets[i], &spec);
@@ -375,6 +403,16 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
 
   int gapCount = count - 1;
   int gap = HBAR_WIDGET_GAP(settings.useLargeFonts);
+
+  totalWidth = apply_layout_cascade(widgets, sizes, count, &spec, totalWidth,
+                                    gap, contentWidth);
+
+  for (int i = 0; i < count; i++) {
+    if (sizes[i].w > contentWidth) {
+      totalWidth -= sizes[i].w - contentWidth;
+      sizes[i].w = contentWidth;
+    }
+  }
 
   // tighten the gap before letting the group spill past the end padding
   if (gapCount > 0 && totalWidth + gap * gapCount > contentWidth) {
@@ -396,6 +434,8 @@ static void render_horizontal_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     SidebarWidgets_draw(ctx, &widgets[i], frame, &spec);
     x += sizes[i].w + gap;
   }
+
+  SidebarWidgets_resetEffectiveHideBits();
 }
 
 static void region_render(SidebarRegion *r, Layer *l, GContext *ctx) {

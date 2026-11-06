@@ -680,14 +680,6 @@ static SidebarTextMetrics fallback_current_metrics() {
   return settings.useLargeFonts ? fontMetrics.md : fontMetrics.sm;
 }
 
-static int clamp_horizontal_width(int width, SidebarRenderSpec *spec) {
-  if (width < 0) {
-    return 0;
-  }
-
-  return width > spec->contentWidth ? spec->contentWidth : width;
-}
-
 // inline widgets always claim their full-form width; like the vertical
 // flow, over-budget configs crowd rather than compact, so the compact and
 // tiny candidates only matter when a lone widget outgrows the whole bar
@@ -704,27 +696,22 @@ static int horizontal_content_width(SidebarContent *content,
   case SIDEBAR_CONTENT_EMPTY:
     return 0;
   case SIDEBAR_CONTENT_TEXT:
-    return clamp_horizontal_width(candidates_full_width(&content->primary,
-                                                        currentSidebarFont,
-                                                        fontMetrics.current),
-                                  spec);
+    return candidates_full_width(&content->primary, currentSidebarFont,
+                                 fontMetrics.current);
   case SIDEBAR_CONTENT_ICON:
     return SIDEBAR_ICON_SIZE;
   case SIDEBAR_CONTENT_ICON_VALUE:
-    return clamp_horizontal_width(
-        inline_icon_advance(has_icon(content)) +
-            (content->isLoading
-                 ? text_content_width("...", fallbackSidebarFont,
-                                      fallback_current_metrics())
-                 : candidates_full_width(&content->primary, currentSidebarFont,
-                                         fontMetrics.current)),
-        spec);
+    return inline_icon_advance(has_icon(content)) +
+           (content->isLoading
+                ? text_content_width("...", fallbackSidebarFont,
+                                     fallback_current_metrics())
+                : candidates_full_width(&content->primary, currentSidebarFont,
+                                        fontMetrics.current));
   case SIDEBAR_CONTENT_LABEL_VALUE: {
     SidebarTextCandidates joined =
         label_value_candidates(content->label, &content->primary);
-    return clamp_horizontal_width(
-        candidates_full_width(&joined, currentSidebarFont, fontMetrics.current),
-        spec);
+    return candidates_full_width(&joined, currentSidebarFont,
+                                 fontMetrics.current);
   }
   case SIDEBAR_CONTENT_ICON_VALUE_PAIR_DIVIDED:
   case SIDEBAR_CONTENT_ICON_VALUE_WITH_SUBTEXT: {
@@ -741,8 +728,7 @@ static int horizontal_content_width(SidebarContent *content,
             ? text_content_width("...", currentSidebarFont, fontMetrics.current)
             : candidates_full_width(&pairText, currentSidebarFont,
                                     fontMetrics.current);
-    return clamp_horizontal_width(
-        inline_icon_advance(has_icon(content)) + textWidth, spec);
+    return inline_icon_advance(has_icon(content)) + textWidth;
   }
   default:
     return spec->contentWidth;
@@ -1253,7 +1239,7 @@ static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
                                  textMetrics);
     }
 
-    return (SidebarMeasure){clamp_horizontal_width(width, spec),
+    return (SidebarMeasure){width,
                             iconHeight > textHeight ? iconHeight : textHeight};
   }
 
@@ -1422,7 +1408,7 @@ static SidebarMeasure date_content_measure(SidebarRenderSpec *spec) {
     if (metrics.showMonth) {
       width += SIDEBAR_INLINE_ITEM_GAP + date_inline_word_width(currentMonth);
     }
-    return (SidebarMeasure){clamp_horizontal_width(width, spec), height};
+    return (SidebarMeasure){width, height};
   }
 
   return (SidebarMeasure){spec->contentWidth, metrics.height};
@@ -1668,18 +1654,27 @@ static SidebarContent Seconds_getContent() {
   return content;
 }
 
-static SidebarContent WorldTime1_getContent() {
+static SidebarContent world_time_content(SidebarWidgetType type,
+                                         const char *label,
+                                         const SidebarTextCandidates *timeText) {
   SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
-  content.label = settings.altclockName;
-  content.primary = worldTime1Text;
+  content.label = label;
+  content.primary = *timeText;
+  if (hidden_parts(type).detail) {
+    snprintf(content.primary.full, sizeof(content.primary.full), "%s",
+             timeText->compact);
+  }
   return content;
 }
 
+static SidebarContent WorldTime1_getContent() {
+  return world_time_content(WORLD_TIME_1, settings.altclockName,
+                            &worldTime1Text);
+}
+
 static SidebarContent WorldTime2_getContent() {
-  SidebarContent content = empty_content(SIDEBAR_CONTENT_LABEL_VALUE);
-  content.label = settings.altclock2Name;
-  content.primary = worldTime2Text;
-  return content;
+  return world_time_content(WORLD_TIME_2, settings.altclock2Name,
+                            &worldTime2Text);
 }
 
 static SidebarContent NextSunEvent_getContent() {

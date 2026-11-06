@@ -323,8 +323,12 @@ export interface InlineParts {
  * bottom bar draws: the stack laid on its side, as an icon with a line of
  * text after it -- and before it, for text stacked above the icon (the
  * date's weekday, as date_content_draw() lays it out). */
-export const getInlineParts = (widgetId: number, settings: Settings): InlineParts | null => {
-  const items = getWidgetItems(widgetId, settings);
+export const getInlineParts = (
+  widgetId: number,
+  settings: Settings,
+  hidden?: HiddenParts
+): InlineParts | null => {
+  const items = getWidgetItems(widgetId, settings, hidden);
   if (items.length === 0) return null;
 
   let icon: InlineParts['icon'];
@@ -606,9 +610,10 @@ const widestText = (candidates: string[], fontSize: number): string =>
 const widestInlineParts = (
   widgetId: number,
   settings: Settings,
-  fontSize: number
+  fontSize: number,
+  hidden?: HiddenParts
 ): InlineParts | null => {
-  const parts = getInlineParts(widgetId, settings);
+  const parts = getInlineParts(widgetId, settings, hidden);
   if (!parts) return null;
 
   if (widgetId === 2) {
@@ -631,16 +636,18 @@ const widestInlineParts = (
 const stepDownFontSize = (fontSize: number): number =>
   fontSize === 28 ? 24 : fontSize === 24 ? 18 : 14;
 
-/** A widget's full-form width in the inline bottom bar, in watch pixels. */
+/** A widget's width in the inline bottom bar, in watch pixels. `hidden`
+ *  narrows the form, as the bar's layout cascade does. */
 export const inlineWidgetWidth = (
   widgetId: number,
   settings: Settings,
-  fontSize: number
+  fontSize: number,
+  hidden?: HiddenParts
 ): number => {
   const textFontSize = widgetId === 2 && settings.batterySmallText
     ? stepDownFontSize(fontSize)
     : fontSize;
-  const parts = widestInlineParts(widgetId, settings, textFontSize);
+  const parts = widestInlineParts(widgetId, settings, textFontSize, hidden);
   if (!parts) return 0;
 
   let w = 0;
@@ -684,12 +691,56 @@ export interface FitResult {
 // "we're not sure".
 const TIGHT_SLACK = 0.1;
 
+/*
+ * The bottom bar's layout cascade, mirroring render_horizontal_flow() in
+ * sidebar.c: when the bar's widgets don't fit at their full widths, try
+ * progressively more compact forms of the widgets in auto mode -- battery
+ * losing its percentage text, then date losing its month, then its weekday.
+ */
+export const cascadeBarWidgets = (
+  widgetIds: number[],
+  settings: Settings,
+  capabilities: Capabilities
+): SidebarSlot[] => {
+  const slots: SidebarSlot[] = widgetIds.map((id) =>
+    ({ id, hidden: { marker: false, detail: false } }));
+  if (slots.length === 0) return slots;
+
+  const fontSize = sidebarFontSize(capabilities, settings.largeSidebarFont);
+  const available = capabilities.ROUND
+    ? roundBarMetrics(capabilities).width - roundBarMetrics(capabilities).paddingX * 2
+    : inlineBarContentWidth(settings, capabilities);
+  const gap = capabilities.ROUND
+    ? 0
+    : platformMetrics(capabilities, settings.largeSidebarFont).barWidgetGap;
+
+  const barWidth = () =>
+    slots.reduce((sum, s) =>
+      sum + inlineWidgetWidth(s.id, settings, fontSize, s.hidden), 0)
+    + gap * Math.max(0, slots.length - 1);
+
+  if (settings.batteryDisplay === 'auto' && barWidth() > available) {
+    const i = slots.findIndex((s) => s.id === 2);
+    if (i >= 0) slots[i].hidden.detail = true;
+  }
+  if (settings.dateDisplay === 'auto' && barWidth() > available) {
+    const i = slots.findIndex((s) => s.id === 4);
+    if (i >= 0) slots[i].hidden.detail = true;
+  }
+  if (settings.dateDisplay === 'auto' && barWidth() > available) {
+    const i = slots.findIndex((s) => s.id === 4);
+    if (i >= 0) slots[i].hidden.marker = true;
+  }
+
+  return slots;
+};
+
 /**
  * How well a set of widgets fits the inline bottom bar.
  *
- * "over" means the widgets' full forms don't fit, which is exactly when
- * the watch starts compacting text and swapping in shorter candidates --
- * it still renders, just not in the form the user picked.
+ * Like assessSidebar, "tight" is when the layout cascade had to hide an
+ * auto-mode part to make the bar fit, and "over" is when the widgets still
+ * don't fit even after the cascade.
  */
 export const assessInlineBar = (
   widgetIds: number[],
@@ -702,13 +753,22 @@ export const assessInlineBar = (
   const widths = widgetIds.map((id) => inlineWidgetWidth(id, settings, m.fontSize));
   const gaps = Math.max(0, widgetIds.length - 1) * m.barWidgetGap;
   const usedPx = widths.reduce((a, b) => a + b, 0) + gaps;
+  const fit = assessPx(widgetIds.length, usedPx, capacityPx);
 
-  return assessPx(widgetIds.length, usedPx, capacityPx);
+  const slots = cascadeBarWidgets(widgetIds, settings, capabilities);
+  const cascadedPx =
+    slots.reduce((sum, s) => sum + inlineWidgetWidth(s.id, settings, m.fontSize, s.hidden), 0) + gaps;
+  const state: FitState =
+    cascadedPx > capacityPx ? 'over'
+      : slots.some((s) => s.hidden.marker || s.hidden.detail) ? 'tight'
+        : fit.state;
+
+  return { ...fit, state };
 };
 
 /**
  * How well a widget fits round's bottom bar. The bar is a single slot, so
- * this only asks whether the widget's full form is wider than the bar.
+ * this asks whether the widget fits (after any auto-mode cascade).
  */
 export const assessRoundBar = (
   widgetIds: number[],
@@ -720,7 +780,18 @@ export const assessRoundBar = (
     (sum, id) => sum + inlineWidgetWidth(id, settings, fontSize), 0);
 
   const bar = roundBarMetrics(capabilities);
-  return assessPx(widgetIds.length, usedPx, bar.width - bar.paddingX * 2);
+  const capacityPx = bar.width - bar.paddingX * 2;
+  const fit = assessPx(widgetIds.length, usedPx, capacityPx);
+
+  const slots = cascadeBarWidgets(widgetIds, settings, capabilities);
+  const cascadedPx = slots.reduce(
+    (sum, s) => sum + inlineWidgetWidth(s.id, settings, fontSize, s.hidden), 0);
+  const state: FitState =
+    cascadedPx > capacityPx ? 'over'
+      : slots.some((s) => s.hidden.marker || s.hidden.detail) ? 'tight'
+        : fit.state;
+
+  return { ...fit, state };
 };
 
 /* ── Stacked heights (real watch pixels) ─────────────────────────────
