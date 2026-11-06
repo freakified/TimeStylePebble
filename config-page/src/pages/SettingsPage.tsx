@@ -114,21 +114,21 @@ export const SettingsPage: React.FC = () => {
     layoutOptionSettings[option.value] = { layout: option.value };
   });
 
-  const showBatterySection = activeWidgetIds.some((id) => id === 2);
-  const showDateSection = activeWidgetIds.some((id) => id === 4);
+  const showBatteryOptions = activeWidgetIds.some((id) => id === 2);
+  const showDateOptions = activeWidgetIds.some((id) => id === 4);
 
   // Sunrise & Sunset (15) needs a location, but its times are computed on
   // the phone rather than fetched with the weather
   const showLocationSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 17].includes(id));
-  const showWeatherSection = activeWidgetIds.some((id) => [7, 8, 13, 17].includes(id));
+  const showWeatherOptions = activeWidgetIds.some((id) => [7, 8, 13, 17].includes(id));
 
-  const showWorldTime1Section = activeWidgetIds.some((id) => id === 3);
-  const showWorldTime2Section = activeWidgetIds.some((id) => id === 14);
+  const showWorldTime1Options = activeWidgetIds.some((id) => id === 3);
+  const showWorldTime2Options = activeWidgetIds.some((id) => id === 14);
   // picking a zone relabels the widget with its default label, which the
   // user can then edit; a blank label still falls back to it on the phone
   const worldTimeZoneOptions = React.useMemo(() => worldTimeOptions(), []);
 
-  const showHealthSection = activeWidgetIds.some((id) => id === 9);
+  const showHealthOptions = activeWidgetIds.some((id) => id === 9);
 
 
   return (
@@ -228,8 +228,125 @@ export const SettingsPage: React.FC = () => {
             each widget shows is part of the preset too, so it's edited
             alongside the widgets themselves */}
         {settings.SETTING_WIDGET_THEME === 'custom' && (
+          <WidgetSelector showPreview={false} />
+        )}
+
+        {showBatteryOptions && (
           <>
-            <WidgetSelector showPreview={false} />
+            <h3 className="halite-subsection-title">Battery</h3>
+            <Select
+              label="Display"
+              messageKey="batteryDisplay"
+              options={[
+                { label: 'Auto', value: 'auto' },
+                { label: 'Icon and label', value: 'text' },
+                { label: 'Icon only', value: 'icon-only' },
+              ]}
+            />
+            {settings.batteryDisplay !== 'icon-only' && (
+              <>
+                <Toggle
+                  label="Use smaller text"
+                  description="Use a smaller font size for the battery level"
+                  messageKey="batterySmallText"
+                />
+                <Toggle
+                  label="Show percent sign"
+                  description="Show a % after the battery level, if it fits"
+                  messageKey="batteryShowPercent"
+                />
+              </>
+            )}
+          </>
+        )}
+
+        {showDateOptions && (
+          <>
+            <h3 className="halite-subsection-title">Date</h3>
+            <Select
+              label="Display"
+              messageKey="dateDisplay"
+              options={[
+                { label: 'Auto', value: 'auto' },
+                { label: 'Full (day + date + month)', value: 'full' },
+                { label: 'Compact (Day + date)', value: 'day-date' },
+                { label: 'Compact (Date + month)', value: 'date-month' },
+                { label: 'Mini (Date only)', value: 'date-only' },
+              ]}
+            />
+          </>
+        )}
+
+        {showWorldTime1Options && (
+          <>
+            <h3 className="halite-subsection-title">World Time 1</h3>
+            <Select
+              label="Time zone"
+              messageKey="worldTime1Zone"
+              description="Daylight Saving Time is handled automatically"
+              options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime1Zone)}
+              onValueChange={(tz) => updateSetting('worldTime1Label', worldTimeDefaultLabel(String(tz)))}
+            />
+            <TextField
+              label="Custom label"
+              description="Up to 4 characters shown above the time"
+              messageKey="worldTime1Label"
+              maxLength={4}
+              placeholder={worldTimeDefaultLabel(settings.worldTime1Zone)}
+              transformValue={(value) => value.toUpperCase()}
+            />
+          </>
+        )}
+
+        {showWorldTime2Options && (
+          <>
+            <h3 className="halite-subsection-title">World Time 2</h3>
+            <Select
+              label="Time zone"
+              messageKey="worldTime2Zone"
+              description="Daylight Saving Time is handled automatically"
+              options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime2Zone)}
+              onValueChange={(tz) => updateSetting('worldTime2Label', worldTimeDefaultLabel(String(tz)))}
+            />
+            <TextField
+              label="Custom label"
+              description="Up to 4 characters shown above the time"
+              messageKey="worldTime2Label"
+              maxLength={4}
+              placeholder={worldTimeDefaultLabel(settings.worldTime2Zone)}
+              transformValue={(value) => value.toUpperCase()}
+            />
+          </>
+        )}
+
+        {capabilities.HEALTH && showHealthOptions && (
+          <>
+            <h3 className="halite-subsection-title">Health</h3>
+            <Select
+              label="Sleep widget uses"
+              messageKey="healthSleepType"
+              options={[
+                { label: 'Total sleep time', value: 'total' },
+                { label: 'Restful sleep only', value: 'restful' },
+              ]}
+            />
+          </>
+        )}
+
+        {showWeatherOptions && (
+          <>
+            <h3 className="halite-subsection-title">Weather</h3>
+            <Select
+              label="Temperature units"
+              messageKey="weatherUnits"
+              options={[
+                { label: 'Fahrenheit (°F)', value: 'f' },
+                { label: 'Celsius (°C)', value: 'c' },
+              ]}
+            />
+            <p className="halite-section-note">
+              Weather data provided by Open-Meteo (open-meteo.com)
+            </p>
           </>
         )}
       </Section>
@@ -269,128 +386,8 @@ export const SettingsPage: React.FC = () => {
         )}
       </Section>
 
-
-
-
-      {/* ── Battery ── */}
-      {showBatterySection && (
-        <Section title="Battery">
-          <Select
-            label="Display"
-            messageKey="batteryDisplay"
-            options={[
-              { label: 'Auto', value: 'auto' },
-              { label: 'Icon and label', value: 'text' },
-              { label: 'Icon only', value: 'icon-only' },
-            ]}
-          />
-          {settings.batteryDisplay !== 'icon-only' && (
-            <>
-              <Toggle
-                label="Use smaller text"
-                description="Use a smaller font size for the battery level"
-                messageKey="batterySmallText"
-              />
-              <Toggle
-                label="Show percent sign"
-                description="Show a % after the battery level, if it fits"
-                messageKey="batteryShowPercent"
-              />
-            </>
-          )}
-        </Section>
-      )}
-
-      {/* ── Date ── */}
-      {showDateSection && (
-        <Section title="Date">
-          <Select
-            label="Display"
-            messageKey="dateDisplay"
-            options={[
-              { label: 'Auto', value: 'auto' },
-              { label: 'Full (day + date + month)', value: 'full' },
-              { label: 'Compact (Day + date)', value: 'day-date' },
-              { label: 'Compact (Date + month)', value: 'date-month' },
-              { label: 'Mini (Date only)', value: 'date-only' },
-            ]}
-          />
-        </Section>
-      )}
-
       {/* ── Location ── */}
       {showLocationSection && <LocationSection />}
-
-      {/* ── Weather ── */}
-      {showWeatherSection && (
-        <Section title="Weather">
-          <Select
-            label="Temperature units"
-            messageKey="weatherUnits"
-            options={[
-              { label: 'Fahrenheit (°F)', value: 'f' },
-              { label: 'Celsius (°C)', value: 'c' },
-            ]}
-          />
-          <p className="halite-section-note">
-            Weather data provided by Open-Meteo (open-meteo.com)
-          </p>
-        </Section>
-      )}
-
-      {/* ── World Time ── */}
-      {showWorldTime1Section && (
-        <Section title="World Time 1">
-          <Select
-            label="Time zone"
-            messageKey="worldTime1Zone"
-            description="Daylight Saving Time is handled automatically"
-            options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime1Zone)}
-            onValueChange={(tz) => updateSetting('worldTime1Label', worldTimeDefaultLabel(String(tz)))}
-          />
-          <TextField
-            label="Custom label"
-            description="Up to 4 characters shown above the time"
-            messageKey="worldTime1Label"
-            maxLength={4}
-            placeholder={worldTimeDefaultLabel(settings.worldTime1Zone)}
-            transformValue={(value) => value.toUpperCase()}
-          />
-        </Section>
-      )}
-      {showWorldTime2Section && (
-        <Section title="World Time 2">
-          <Select
-            label="Time zone"
-            messageKey="worldTime2Zone"
-            description="Daylight Saving Time is handled automatically"
-            options={withWorldTimeValue(worldTimeZoneOptions, settings.worldTime2Zone)}
-            onValueChange={(tz) => updateSetting('worldTime2Label', worldTimeDefaultLabel(String(tz)))}
-          />
-          <TextField
-            label="Custom label"
-            description="Up to 4 characters shown above the time"
-            messageKey="worldTime2Label"
-            maxLength={4}
-            placeholder={worldTimeDefaultLabel(settings.worldTime2Zone)}
-            transformValue={(value) => value.toUpperCase()}
-          />
-        </Section>
-      )}
-
-      {/* ── Health ── */}
-      {capabilities.HEALTH && showHealthSection && (
-        <Section title="Health">
-          <Select
-            label="Sleep widget uses"
-            messageKey="healthSleepType"
-            options={[
-              { label: 'Total sleep time', value: 'total' },
-              { label: 'Restful sleep only', value: 'restful' },
-            ]}
-          />
-        </Section>
-      )}
 
       <Section title="Status Indicator">
         <Toggle
