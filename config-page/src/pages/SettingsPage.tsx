@@ -114,6 +114,9 @@ export const SettingsPage: React.FC = () => {
     layoutOptionSettings[option.value] = { layout: option.value };
   });
 
+  const showBatterySection = activeWidgetIds.some((id) => id === 2);
+  const showDateSection = activeWidgetIds.some((id) => id === 4);
+
   // Sunrise & Sunset (15) needs a location, but its times are computed on
   // the phone rather than fetched with the weather
   const showLocationSection = activeWidgetIds.some((id) => [7, 8, 13, 15, 17].includes(id));
@@ -268,6 +271,52 @@ export const SettingsPage: React.FC = () => {
 
 
 
+
+      {/* ── Battery ── */}
+      {showBatterySection && (
+        <Section title="Battery">
+          <Select
+            label="Display"
+            messageKey="batteryDisplay"
+            options={[
+              { label: 'Auto', value: 'auto' },
+              { label: 'Icon and label', value: 'text' },
+              { label: 'Icon only', value: 'icon-only' },
+            ]}
+          />
+          {settings.batteryDisplay !== 'icon-only' && (
+            <>
+              <Toggle
+                label="Use smaller text"
+                description="Use a smaller font size for the battery level"
+                messageKey="batterySmallText"
+              />
+              <Toggle
+                label="Show percent sign"
+                description="Show a % after the battery level, if it fits"
+                messageKey="batteryShowPercent"
+              />
+            </>
+          )}
+        </Section>
+      )}
+
+      {/* ── Date ── */}
+      {showDateSection && (
+        <Section title="Date">
+          <Select
+            label="Display"
+            messageKey="dateDisplay"
+            options={[
+              { label: 'Auto', value: 'auto' },
+              { label: 'Full (day + date + month)', value: 'full' },
+              { label: 'Compact (Day + date)', value: 'day-date' },
+              { label: 'Compact (Date + month)', value: 'date-month' },
+              { label: 'Mini (Date only)', value: 'date-only' },
+            ]}
+          />
+        </Section>
+      )}
 
       {/* ── Location ── */}
       {showLocationSection && <LocationSection />}

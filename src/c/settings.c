@@ -155,8 +155,19 @@ static void migrate_from_master() {
 
   // the status bar took over the disconnection icon
   settings.enableStatusBar = true;
+  settings.batteryDisplay =
+      old.showBatteryPct ? BATTERY_DISPLAY_AUTO : BATTERY_DISPLAY_ICON_ONLY;
 
   persist_delete(MASTER_EMERY_FONT_PERSIST_KEY);
+}
+
+static void sanitize_display_options() {
+  if (settings.batteryDisplay > BATTERY_DISPLAY_ICON_ONLY) {
+    settings.batteryDisplay = BATTERY_DISPLAY_AUTO;
+  }
+  if (settings.dateDisplay > DATE_DISPLAY_DATE_ONLY) {
+    settings.dateDisplay = DATE_DISPLAY_AUTO;
+  }
 }
 
 void Settings_loadFromStorage() {
@@ -211,6 +222,10 @@ void Settings_loadFromStorage() {
   settings.clockFontId = FONT_SETTING_AVENIR;
   settings.hoursBold = true;
   settings.minutesBold = false;
+  settings.batteryDisplay = BATTERY_DISPLAY_AUTO;
+  settings.batteryHidePercent = false;
+  settings.batterySmallText = false;
+  settings.dateDisplay = DATE_DISPLAY_AUTO;
 
   // settings are persisted as a raw struct, so a blob from any other
   // version would load scrambled: master's is migrated, and anything else
@@ -225,6 +240,7 @@ void Settings_loadFromStorage() {
     settings.altclockName[sizeof(settings.altclockName) - 1] = '\0';
     settings.altclock2Name[sizeof(settings.altclock2Name) - 1] = '\0';
     clear_unknown_widgets();
+    sanitize_display_options();
 
     if (storedVersion == SETTINGS_VERSION_MASTER) {
       Settings_saveToStorage();
@@ -237,6 +253,7 @@ void Settings_loadFromStorage() {
 void Settings_saveToStorage() {
   // newly received settings land here before anything renders them
   clear_unknown_widgets();
+  sanitize_display_options();
   Settings_updateDynamicSettings();
 
   // We're limited to 256 bytes, so make sure that settings fits

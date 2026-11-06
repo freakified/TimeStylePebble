@@ -305,7 +305,7 @@ const renderInlineWidget = (
     }
 
     if (parts.text) {
-        const fitted = fitText(parts.text, 'current', fonts);
+        const fitted = fitText(parts.text, parts.textFont ?? 'current', fonts);
         nodes.push(textNode('text', parts.text, cursor, centerY - fitted.capH / 2,
                             fitted.fontSize, colors.text, 'start'));
     }

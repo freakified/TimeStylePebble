@@ -1182,7 +1182,9 @@ static SidebarContent Empty_getContent() {
 
 static void battery_text_candidates(uint8_t batteryPercent,
                                     SidebarTextCandidates *candidates) {
-  if (Language_loadedId() == LANGUAGE_TR) {
+  if (settings.batteryHidePercent) {
+    snprintf(candidates->full, sizeof(candidates->full), "%d", batteryPercent);
+  } else if (Language_loadedId() == LANGUAGE_TR) {
     snprintf(candidates->full, sizeof(candidates->full), "%%%d",
              batteryPercent);
   } else {
@@ -1192,6 +1194,24 @@ static void battery_text_candidates(uint8_t batteryPercent,
   snprintf(candidates->compact, sizeof(candidates->compact), "%d",
            batteryPercent);
   snprintf(candidates->tiny, sizeof(candidates->tiny), "%d", batteryPercent);
+}
+
+static GFont battery_primary_font() {
+  return settings.batterySmallText ? fallbackSidebarFont : currentSidebarFont;
+}
+
+static GFont battery_fallback_font() {
+  return settings.batterySmallText ? smSidebarFont : fallbackSidebarFont;
+}
+
+static SidebarTextMetrics battery_primary_metrics() {
+  return settings.batterySmallText ? fallback_current_metrics()
+                                   : fontMetrics.current;
+}
+
+static SidebarTextMetrics battery_fallback_metrics() {
+  return settings.batterySmallText ? fontMetrics.sm
+                                   : fallback_current_metrics();
 }
 
 // the battery's icon draws its charge level, so either part can stand
@@ -1205,17 +1225,20 @@ typedef struct {
 static BatteryParts battery_parts(bool charging) {
   HiddenParts hidden = hidden_parts(BATTERY_METER);
   bool showIcon = !hidden.marker;
+  bool hideText =
+      hidden.detail || settings.batteryDisplay == BATTERY_DISPLAY_ICON_ONLY;
   return (BatteryParts){
       .showIcon = showIcon,
-      .showText = !hidden.detail && (!charging || !showIcon),
+      .showText = !hideText && (!charging || !showIcon),
   };
 }
 
 static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
   BatteryChargeState chargeState = battery_state_service_peek();
   BatteryParts parts = battery_parts(chargeState.is_charging);
+  SidebarTextMetrics textMetrics = battery_primary_metrics();
   int iconHeight = parts.showIcon ? 14 : 0;
-  int textHeight = parts.showText ? single_text_height() : 0;
+  int textHeight = parts.showText ? textMetrics.height : 0;
 
   if (spec->mode == SIDEBAR_LAYOUT_INLINE) {
     int width = parts.showIcon ? SIDEBAR_ICON_SIZE : 0;
@@ -1226,8 +1249,8 @@ static SidebarMeasure BatteryMeter_measure(SidebarRenderSpec *spec) {
           (chargeState.charge_percent > 0) ? chargeState.charge_percent : 5;
       battery_text_candidates(batteryPercent, &batteryText);
       width = inline_icon_advance(parts.showIcon) +
-              text_content_width(batteryText.full, currentSidebarFont,
-                                 fontMetrics.current);
+              text_content_width(batteryText.full, battery_primary_font(),
+                                 textMetrics);
     }
 
     return (SidebarMeasure){clamp_horizontal_width(width, spec),
@@ -1245,6 +1268,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
       (chargeState.charge_percent > 0) ? chargeState.charge_percent : 5;
   bool batteryCharging = chargeState.is_charging;
   BatteryParts parts = battery_parts(batteryCharging);
+  SidebarTextMetrics textMetrics = battery_primary_metrics();
   SidebarTextCandidates batteryText;
   GRect iconFrame;
   int textWidth = render_width(spec);
@@ -1257,7 +1281,7 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
                       SIDEBAR_ICON_SIZE, SIDEBAR_ICON_SIZE);
     textXPos = frame.origin.x + iconAdvance;
     textWidth = inline_text_width(frame, iconAdvance);
-    textTop = frame.origin.y + (frame.size.h - single_text_height()) / 2;
+    textTop = frame.origin.y + (frame.size.h - textMetrics.height) / 2;
   } else {
     iconFrame = GRect(icon_x(frame), frame.origin.y, SIDEBAR_ICON_SIZE,
                       SIDEBAR_ICON_SIZE);
@@ -1277,8 +1301,8 @@ static void BatteryMeter_draw(GContext *ctx, GRect frame,
   battery_text_candidates(batteryPercent, &batteryText);
   draw_text_at_visible_top_aligned(
       ctx, &batteryText, textXPos, textTop, textWidth,
-      text_fit_width(spec, textWidth), currentSidebarFont, fallbackSidebarFont,
-      fontMetrics.current, fallback_current_metrics(),
+      text_fit_width(spec, textWidth), battery_primary_font(),
+      battery_fallback_font(), textMetrics, battery_fallback_metrics(),
       spec->mode == SIDEBAR_LAYOUT_INLINE ? GTextAlignmentLeft
                                           : GTextAlignmentCenter);
 }
@@ -1349,8 +1373,14 @@ static int date_day_visible_top(int calendarHeight) {
 // hidden, and the calendar moves up into a hidden weekday's place
 static DateLayout date_layout() {
   HiddenParts hidden = hidden_parts(DATE);
-  bool showWeekday = !hidden.marker;
-  bool showMonth = !hidden.detail;
+  bool settingShowWeekday =
+      settings.dateDisplay != DATE_DISPLAY_DATE_MONTH &&
+      settings.dateDisplay != DATE_DISPLAY_DATE_ONLY;
+  bool settingShowMonth =
+      settings.dateDisplay != DATE_DISPLAY_DAY_DATE &&
+      settings.dateDisplay != DATE_DISPLAY_DATE_ONLY;
+  bool showWeekday = settingShowWeekday && !hidden.marker;
+  bool showMonth = settingShowMonth && !hidden.detail;
 
   int calendarTop =
       showWeekday ? fontMetrics.current.height + SIDEBAR_ICON_TEXT_GAP : 0;

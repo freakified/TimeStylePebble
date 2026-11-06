@@ -234,7 +234,8 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
    * leaves the stack over budget, we move to the next step. The drop loop
    * that follows handles whatever remains after all cascade steps.
    */
-  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+  if (settings.batteryDisplay == BATTERY_DISPLAY_AUTO &&
+      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
     // Step 1: battery graphic-only
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == BATTERY_METER) {
@@ -247,7 +248,8 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     }
   }
 
-  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
+      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
     // Step 2: date → weekday + day number (no month)
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == DATE) {
@@ -260,7 +262,8 @@ static void render_vertical_flow(SidebarRegion *r, Layer *l, GContext *ctx) {
     }
   }
 
-  if (totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
+  if (settings.dateDisplay == DATE_DISPLAY_AUTO &&
+      totalHeight + REGION_MIN_WIDGET_GAP * (count - 1) > available) {
     // Step 3: date → day number only (no weekday either)
     for (int i = 0; i < count; i++) {
       if (widgets[i].type == DATE) {

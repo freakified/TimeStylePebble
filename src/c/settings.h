@@ -31,6 +31,20 @@ typedef enum {
   VIBE_EVERY_HALF_HOUR = 2
 } VibeIntervalType;
 
+typedef enum {
+  BATTERY_DISPLAY_AUTO = 0,
+  BATTERY_DISPLAY_TEXT = 1,
+  BATTERY_DISPLAY_ICON_ONLY = 2
+} BatteryDisplayType;
+
+typedef enum {
+  DATE_DISPLAY_AUTO = 0,
+  DATE_DISPLAY_FULL = 1,
+  DATE_DISPLAY_DAY_DATE = 2,
+  DATE_DISPLAY_DATE_MONTH = 3,
+  DATE_DISPLAY_DATE_ONLY = 4
+} DateDisplayType;
+
 // Settings struct -- note, all new settings should ALWAYS be added to the bottom
 typedef struct {
   // color settings (v15: dropped the sidebar and bottom bar text colors;
@@ -100,6 +114,12 @@ typedef struct {
   // clock digit weights: bold or light, per line (v17)
   bool hoursBold;
   bool minutesBold;
+
+  // battery and date widget display options
+  BatteryDisplayType batteryDisplay;
+  bool batteryHidePercent;
+  bool batterySmallText;
+  DateDisplayType dateDisplay;
 } Settings;
 
 // Dynamic settings (calculated at runtime based on currently-selected widgets)

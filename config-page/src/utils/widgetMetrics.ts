@@ -115,24 +115,32 @@ export interface HiddenParts {
  */
 export const getWidgetItems = (widgetId: number, settings: Settings,
   hidden?: HiddenParts): WidgetItem[] => {
-  const items = allWidgetItems(widgetId, settings);
+  const items = allWidgetItems(widgetId, settings, hidden);
   if (!hidden || (!hidden.marker && !hidden.detail)) return items;
+  if (widgetId === 2 || widgetId === 4) return items;
 
-  if (widgetId === 4) {  // Today's Date: weekday, calendar[, month]
-    return items.filter((item, i) =>
-      !(hidden.marker && i === 0) && !(hidden.detail && i === 2));
-  }
   if (hidden.marker) return items.slice(1);
   if (hidden.detail) return items.slice(0, 1);
   return items;
 };
 
-const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
+const allWidgetItems = (widgetId: number, settings: Settings,
+  hidden?: HiddenParts): WidgetItem[] => {
   const now = new Date();
 
   switch (widgetId) {
-    case 2:  // Battery
-      return [{ type: 'icon', asset: ICONS.battery }, text('80%')];
+    case 2: {  // Battery
+      const showIcon = !hidden?.marker;
+      const showText = !hidden?.detail && settings.batteryDisplay !== 'icon-only';
+      const battFont: FontRole = settings.batterySmallText
+        ? (settings.largeSidebarFont ? 'md' : 'sm')
+        : 'current';
+      const battText = settings.batteryShowPercent ? '80%' : '80';
+      const items: WidgetItem[] = [];
+      if (showIcon) items.push({ type: 'icon', asset: ICONS.battery });
+      if (showText) items.push(text(battText, battFont));
+      return items;
+    }
     case 3: {  // World Time 1
       // a blank custom label uses the city's own, as worldtime.js does
       const label1 = settings.worldTime1Label
@@ -146,12 +154,19 @@ const allWidgetItems = (widgetId: number, settings: Settings): WidgetItem[] => {
         || settings.altClock2Name || 'UTC';
       return [labelText(label2), text('9:42a')];
     }
-    case 4:  // Today's Date
-      return [
-        text(DAY_NAMES[now.getDay()]),
-        { type: 'calendar', day: String(now.getDate()) },
-        text(MONTH_NAMES[now.getMonth()]),
-      ];
+    case 4: {  // Today's Date
+      const showWeekday = !hidden?.marker &&
+        settings.dateDisplay !== 'date-month' &&
+        settings.dateDisplay !== 'date-only';
+      const showMonth = !hidden?.detail &&
+        settings.dateDisplay !== 'day-date' &&
+        settings.dateDisplay !== 'date-only';
+      const items: WidgetItem[] = [];
+      if (showWeekday) items.push(text(DAY_NAMES[now.getDay()]));
+      items.push({ type: 'calendar', day: String(now.getDate()) });
+      if (showMonth) items.push(text(MONTH_NAMES[now.getMonth()]));
+      return items;
+    }
     case 5:  // Seconds: plain text draws in the large font
       return [text('30', 'lg')];
     case 6:  // Week Number
@@ -301,6 +316,7 @@ export interface InlineParts {
   lead: string;
   icon?: { asset: IconAsset } | { calendar: string };
   text: string;
+  textFont?: FontRole;
 }
 
 /* Collapse a widget's stacked item list into the inline form the narrow
@@ -314,6 +330,7 @@ export const getInlineParts = (widgetId: number, settings: Settings): InlinePart
   let icon: InlineParts['icon'];
   let lead = '';
   let textParts: string[] = [];
+  let textFont: FontRole | undefined;
   let pendingDivider = false;
 
   for (const item of items) {
@@ -321,16 +338,18 @@ export const getInlineParts = (widgetId: number, settings: Settings): InlinePart
       icon = item.type === 'icon' ? { asset: item.asset } : { calendar: item.day };
       lead = textParts.join('');
       textParts = [];
+      textFont = undefined;
     } else if (item.type === 'divider') {
       pendingDivider = true;
     } else if (item.type === 'text') {
       if (textParts.length > 0) textParts.push(pendingDivider ? '/' : ' ');
       pendingDivider = false;
       textParts.push(item.text);
+      if (!textFont) textFont = item.font;
     }
   }
 
-  return { lead, icon, text: textParts.join('') };
+  return { lead, icon, text: textParts.join(''), textFont };
 };
 
 export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number => {
@@ -341,7 +360,7 @@ export const measureInline = (parts: InlineParts, fonts: PreviewFonts): number =
     w += asset.w;
     if (parts.text) w += INLINE_GAP;
   }
-  if (parts.text) w += fitText(parts.text, 'current', fonts).w;
+  if (parts.text) w += fitText(parts.text, parts.textFont ?? 'current', fonts).w;
   return w;
 };
 
@@ -374,6 +393,11 @@ export const WATCH_BAR_WIDGET_GAP_COMPACT = 1; // HBAR_WIDGET_GAP_COMPACT
  */
 const GOTHIC_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:.-/@ ';
 const GOTHIC_GLYPH_WIDTHS: Record<number, number[]> = {
+  14: [
+    7, 7, 7, 7, 6, 6, 7, 7, 3, 5, 6, 6, 9, 7, 7, 7, 7, 7, 7, 6, 7, 7, 9, 7, 8, 6,
+    6, 6, 6, 6, 6, 5, 6, 6, 3, 3, 5, 3, 9, 6, 6, 6, 6, 5, 5, 5, 6, 6, 9, 6, 6, 5,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 11, 3, 3, 5, 6, 9, 3,
+  ],
   18: [
     9, 9, 9, 9, 8, 8, 9, 9, 4, 7, 8, 8, 12, 9, 9, 9, 9, 9, 9, 8, 9, 9, 12, 9, 10, 8,
     8, 8, 8, 8, 8, 6, 8, 8, 4, 3, 7, 4, 12, 8, 8, 8, 8, 6, 7, 6, 8, 8, 12, 8, 8, 7,
@@ -391,6 +415,7 @@ const GOTHIC_GLYPH_WIDTHS: Record<number, number[]> = {
   ],
 };
 const GOTHIC_AVG_ADVANCE: Record<number, number> = {
+  14: 5.8,
   18: 7.5,
   24: 8.8,
   28: 10.0,
@@ -584,8 +609,17 @@ const widestInlineParts = (
   fontSize: number
 ): InlineParts | null => {
   const parts = getInlineParts(widgetId, settings);
+  if (!parts) return null;
+
+  if (widgetId === 2) {
+    return {
+      ...parts,
+      text: parts.text ? (settings.batteryShowPercent ? '100%' : '100') : '',
+    };
+  }
+
   const candidates = INLINE_TEXT_CANDIDATES[widgetId];
-  if (!parts || !candidates) return parts;
+  if (!candidates) return parts;
 
   return {
     ...parts,
@@ -594,13 +628,19 @@ const widestInlineParts = (
   };
 };
 
+const stepDownFontSize = (fontSize: number): number =>
+  fontSize === 28 ? 24 : fontSize === 24 ? 18 : 14;
+
 /** A widget's full-form width in the inline bottom bar, in watch pixels. */
 export const inlineWidgetWidth = (
   widgetId: number,
   settings: Settings,
   fontSize: number
 ): number => {
-  const parts = widestInlineParts(widgetId, settings, fontSize);
+  const textFontSize = widgetId === 2 && settings.batterySmallText
+    ? stepDownFontSize(fontSize)
+    : fontSize;
+  const parts = widestInlineParts(widgetId, settings, textFontSize);
   if (!parts) return 0;
 
   let w = 0;
@@ -609,7 +649,7 @@ export const inlineWidgetWidth = (
     w += WATCH_ICON_SIZE;
     if (parts.text) w += WATCH_ITEM_GAP;
   }
-  if (parts.text) w += textWidth(parts.text, fontSize) + WATCH_TEXT_ALLOWANCE;
+  if (parts.text) w += textWidth(parts.text, textFontSize) + WATCH_TEXT_ALLOWANCE;
   return w;
 };
 
@@ -737,16 +777,24 @@ export const stackedWidgetHeight = (
   const iconValue = icon + current;
 
   switch (widgetId) {
-    case 2:  // Battery: meter, percentage -- either may stand alone
-      if (hidden.marker) return current;
-      if (hidden.detail) return BATTERY_ICON_H;
-      return BATTERY_ICON_H + STACK_ICON_TEXT_GAP + current;
+    case 2: {  // Battery: meter, percentage -- either may stand alone
+      const battTextH = settings.batterySmallText ? (large ? md : sm) : current;
+      if (hidden.marker) return battTextH;
+      if (hidden.detail || settings.batteryDisplay === 'icon-only') return BATTERY_ICON_H;
+      return BATTERY_ICON_H + STACK_ICON_TEXT_GAP + battTextH;
+    }
     case 4: {  // Today's Date: weekday, calendar, month
+      const showWeekday = !hidden.marker &&
+        settings.dateDisplay !== 'date-month' &&
+        settings.dateDisplay !== 'date-only';
+      const showMonth = !hidden.detail &&
+        settings.dateDisplay !== 'day-date' &&
+        settings.dateDisplay !== 'date-only';
       const calendarH = large
         ? current + DATE_PLAIN_VERTICAL_PADDING * 2
         : DATE_DAY_TOP_PADDING + current + DATE_DAY_BOTTOM_PADDING;
-      return (hidden.marker ? 0 : current + STACK_ICON_TEXT_GAP) + calendarH +
-        (hidden.detail ? 0 : STACK_ICON_TEXT_GAP + current);
+      return (showWeekday ? current + STACK_ICON_TEXT_GAP : 0) + calendarH +
+        (showMonth ? STACK_ICON_TEXT_GAP + current : 0);
     }
     case 5:  // Seconds: plain text draws in the large font
       return lg;
@@ -830,15 +878,15 @@ export const cascadeSidebarStack = (
   // each step is tried exactly once, and only while the stack is over
   // budget; whether the step's widget is present, a no-op step just
   // leaves the stack as it was
-  if (stackHeight() > available) {   // Step 1: battery graphic-only
+  if (settings.batteryDisplay === 'auto' && stackHeight() > available) {   // Step 1: battery graphic-only
     const i = slots.findIndex((s) => s.id === 2);
     if (i >= 0) slots[i].hidden.detail = true;
   }
-  if (stackHeight() > available) {   // Step 2: date loses its month
+  if (settings.dateDisplay === 'auto' && stackHeight() > available) {   // Step 2: date loses its month
     const i = slots.findIndex((s) => s.id === 4);
     if (i >= 0) slots[i].hidden.detail = true;
   }
-  if (stackHeight() > available) {   // Step 3: date loses its weekday
+  if (settings.dateDisplay === 'auto' && stackHeight() > available) {   // Step 3: date loses its weekday
     const i = slots.findIndex((s) => s.id === 4);
     if (i >= 0) slots[i].hidden.marker = true;
   }

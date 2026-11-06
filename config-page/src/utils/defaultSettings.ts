@@ -71,4 +71,10 @@ export const getDefaultSettings = (capabilities: Capabilities): Settings => ({
 
   // Health
   healthSleepType: 'total',
+
+  // Battery & Date widget display options
+  batteryDisplay: 'auto',
+  batteryShowPercent: true,
+  batterySmallText: false,
+  dateDisplay: 'auto',
 });

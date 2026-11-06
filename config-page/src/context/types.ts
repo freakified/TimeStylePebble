@@ -37,6 +37,10 @@ export type Layout =
   | 'right-sidebar'
   | 'left-sidebar';
 
+export type BatteryDisplay = 'auto' | 'text' | 'icon-only';
+
+export type DateDisplay = 'auto' | 'full' | 'day-date' | 'date-month' | 'date-only';
+
 export interface Settings {
   // Internal theme selectors (stripped before sending to watch)
   SETTING_THEME: string;
@@ -117,4 +121,10 @@ export interface Settings {
 
   // Health
   healthSleepType: 'total' | 'restful';
+
+  // Battery & Date widget display options
+  batteryDisplay: BatteryDisplay;
+  batteryShowPercent: boolean;
+  batterySmallText: boolean;
+  dateDisplay: DateDisplay;
 }

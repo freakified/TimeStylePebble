@@ -36,6 +36,34 @@ var HOURLY_VIBE_ID_BY_NAME = {
   'everyHalfHour': 2
 };
 
+var BATTERY_DISPLAY_BY_ID = {
+  0: 'auto',
+  1: 'text',
+  2: 'icon-only'
+};
+
+var BATTERY_DISPLAY_ID_BY_NAME = {
+  'auto': 0,
+  'text': 1,
+  'icon-only': 2
+};
+
+var DATE_DISPLAY_BY_ID = {
+  0: 'auto',
+  1: 'full',
+  2: 'day-date',
+  3: 'date-month',
+  4: 'date-only'
+};
+
+var DATE_DISPLAY_ID_BY_NAME = {
+  'auto': 0,
+  'full': 1,
+  'day-date': 2,
+  'date-month': 3,
+  'date-only': 4
+};
+
 function padHex(value) {
   var hex = Number(value || 0).toString(16).toUpperCase();
   while (hex.length < 6) {
@@ -115,7 +143,12 @@ function settingsFromWatchPayload(payload) {
     altClock2Name: payload.SettingAltClock2Name || 'UTC',
     altClock2Offset: getNumber(payload.SettingAltClock2Offset, 0),
 
-    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total'
+    healthSleepType: getBoolean(payload.SettingHealthUseRestfulSleep) ? 'restful' : 'total',
+
+    batteryDisplay: getMappedValue(BATTERY_DISPLAY_BY_ID, getNumber(payload.SettingBatteryDisplay, 0), 'auto'),
+    batteryShowPercent: !getBoolean(payload.SettingBatteryHidePercent),
+    batterySmallText: getBoolean(payload.SettingBatterySmallText),
+    dateDisplay: getMappedValue(DATE_DISPLAY_BY_ID, getNumber(payload.SettingDateDisplay, 0), 'auto')
   };
 }
 
@@ -227,6 +260,22 @@ function settingsToWatchPayload(configData) {
 
   if (configData.healthSleepType !== undefined) {
     dict.SettingHealthUseRestfulSleep = configData.healthSleepType == 'restful' ? 1 : 0;
+  }
+
+  if (configData.batteryDisplay !== undefined) {
+    dict.SettingBatteryDisplay = getMappedValue(BATTERY_DISPLAY_ID_BY_NAME, configData.batteryDisplay, 0);
+  }
+
+  if (configData.batteryShowPercent !== undefined) {
+    dict.SettingBatteryHidePercent = configData.batteryShowPercent ? 0 : 1;
+  }
+
+  if (configData.batterySmallText !== undefined) {
+    dict.SettingBatterySmallText = configData.batterySmallText ? 1 : 0;
+  }
+
+  if (configData.dateDisplay !== undefined) {
+    dict.SettingDateDisplay = getMappedValue(DATE_DISPLAY_ID_BY_NAME, configData.dateDisplay, 0);
   }
 
   return dict;

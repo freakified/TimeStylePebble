@@ -81,7 +81,11 @@
       "SettingHealthUseDistance",
       "SettingShowBatteryPct",
       "SettingSidebarOnLeft",
-      "SettingSidebarTextColor"
+      "SettingSidebarTextColor",
+      "SettingBatteryDisplay",
+      "SettingBatteryHidePercent",
+      "SettingBatterySmallText",
+      "SettingDateDisplay"
     ],
     "resources": {
       "media": [

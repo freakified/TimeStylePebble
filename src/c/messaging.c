@@ -33,6 +33,10 @@ _Static_assert(sizeof(((Settings *)0)->altclock2Name) == SETTINGS_NAME_LENGTH,
                "world time names must share a length");
 _Static_assert(sizeof(VibeIntervalType) == sizeof(uint8_t),
                "hourlyVibe is read and written as a uint8");
+_Static_assert(sizeof(BatteryDisplayType) == sizeof(uint8_t),
+               "batteryDisplay is read and written as a uint8");
+_Static_assert(sizeof(DateDisplayType) == sizeof(uint8_t),
+               "dateDisplay is read and written as a uint8");
 
 #define SETTING(keyName, member, fieldType) \
   { &MESSAGE_KEY_##keyName, offsetof(Settings, member), fieldType }
@@ -73,6 +77,10 @@ static const MessageField s_settingFields[] = {
   // the phone sends this one as a one-character string; its first byte
   // is the character either way
   SETTING(SettingDecimalSep, decimalSeparator, FIELD_UINT8),
+  SETTING(SettingBatteryDisplay, batteryDisplay, FIELD_UINT8),
+  SETTING(SettingBatteryHidePercent, batteryHidePercent, FIELD_BOOL),
+  SETTING(SettingBatterySmallText, batterySmallText, FIELD_BOOL),
+  SETTING(SettingDateDisplay, dateDisplay, FIELD_UINT8),
 };
 
 // the plain-number weather fields; the two conditions also swap icons, so
