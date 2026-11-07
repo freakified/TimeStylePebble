@@ -21,6 +21,7 @@ export const ALL_WIDGET_OPTIONS: WidgetOption[] = [
     { value: 14, label: 'World Time 2', category: 'Time & Date' },
     { value: 4,  label: "Today's Date", category: 'Time & Date' },
     { value: 5,  label: 'Seconds', category: 'Time & Date' },
+    { value: 21, label: 'AM/PM', category: 'Time & Date' },
     { value: 6,  label: 'Week Number', category: 'Time & Date' },
     { value: 7,  label: 'Current Weather', category: 'Weather' },
     { value: 8,  label: "Today's Forecast", category: 'Weather' },

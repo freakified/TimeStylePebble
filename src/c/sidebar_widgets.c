@@ -86,6 +86,7 @@ static char currentDayNum[5];
 static const char *currentMonth = "";
 static char currentWeekNum[5];
 static char currentSecondsNum[5];
+static const char *currentAmPm = "";
 static char currentBeats[5];
 
 // current world times, formatted for display
@@ -106,6 +107,7 @@ static SidebarContent CurrentWeather_getContent();
 static SidebarContent WeatherForecast_getContent();
 static SidebarContent WeekNumber_getContent();
 static SidebarContent Seconds_getContent();
+static SidebarContent AmPm_getContent();
 static SidebarContent WorldTime1_getContent();
 static SidebarContent WorldTime2_getContent();
 static SidebarContent NextSunEvent_getContent();
@@ -401,6 +403,7 @@ void SidebarWidgets_updateTime(struct tm *timeInfo) {
   currentMonth = Language_strings.monthNames[timeInfo->tm_mon];
 
   strftime(currentSecondsNum, 4, ":%S", timeInfo);
+  currentAmPm = (timeInfo->tm_hour < 12) ? "AM" : "PM";
 
   int minuteOfDay = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 
@@ -1654,6 +1657,12 @@ static SidebarContent Seconds_getContent() {
   return content;
 }
 
+static SidebarContent AmPm_getContent() {
+  SidebarContent content = empty_content(SIDEBAR_CONTENT_TEXT);
+  content.primary = same_text_candidates(currentAmPm);
+  return content;
+}
+
 static SidebarContent world_time_content(SidebarWidgetType type,
                                          const char *label,
                                          const SidebarTextCandidates *timeText) {
@@ -2041,6 +2050,8 @@ SidebarWidgetDefinition getSidebarWidgetByType(SidebarWidgetType type) {
                                      NULL, NULL};
   case SECONDS:
     return (SidebarWidgetDefinition){SECONDS, Seconds_getContent, NULL, NULL};
+  case AM_PM:
+    return (SidebarWidgetDefinition){AM_PM, AmPm_getContent, NULL, NULL};
   case WEATHER_CURRENT:
     return (SidebarWidgetDefinition){WEATHER_CURRENT, CurrentWeather_getContent,
                                      NULL, NULL};

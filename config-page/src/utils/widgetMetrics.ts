@@ -169,6 +169,8 @@ const allWidgetItems = (widgetId: number, settings: Settings,
     }
     case 5:  // Seconds: plain text draws in the large font
       return [text('30', 'lg')];
+    case 21: // AM/PM: plain text draws in the large font
+      return [text('AM', 'lg')];
     case 6:  // Week Number
       return [labelText('Wk'), text(String(getIsoWeek(now)))];
     case 7:  // Current Weather
@@ -867,7 +869,7 @@ export const stackedWidgetHeight = (
       return (showWeekday ? current + STACK_ICON_TEXT_GAP : 0) + calendarH +
         (showMonth ? STACK_ICON_TEXT_GAP + current : 0);
     }
-    case 5:  // Seconds: plain text draws in the large font
+    case 5: case 21:  // Seconds, AM/PM: plain text draws in the large font
       return lg;
     case 3: case 14: case 6: case 11: case 13: {
       // label/value: a blank label drops its line entirely
