@@ -128,7 +128,7 @@ export const SettingsPage: React.FC = () => {
   // user can then edit; a blank label still falls back to it on the phone
   const worldTimeZoneOptions = React.useMemo(() => worldTimeOptions(), []);
 
-  const showHealthOptions = activeWidgetIds.some((id) => id === 9);
+  const showSleepOptions = activeWidgetIds.some((id) => id === 9);
 
 
   return (
@@ -265,6 +265,7 @@ export const SettingsPage: React.FC = () => {
             <h3 className="halite-subsection-title">Date</h3>
             <Select
               label="Display"
+              description="Show or hide parts of the date widget"
               messageKey="dateDisplay"
               options={[
                 { label: 'Auto', value: 'auto' },
@@ -319,11 +320,11 @@ export const SettingsPage: React.FC = () => {
           </>
         )}
 
-        {capabilities.HEALTH && showHealthOptions && (
+        {capabilities.HEALTH && showSleepOptions && (
           <>
-            <h3 className="halite-subsection-title">Health</h3>
+            <h3 className="halite-subsection-title">Sleep</h3>
             <Select
-              label="Sleep widget uses"
+              label="Displayed sleep type"
               messageKey="healthSleepType"
               options={[
                 { label: 'Total sleep time', value: 'total' },
