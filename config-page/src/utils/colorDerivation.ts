@@ -1,5 +1,4 @@
 import { Settings } from '../context/types';
-import { PEBBLE_SUNLIGHT_COLORS } from '../data/colors';
 
 /*
  * Color derivation: themes store only three colors (background, time,
@@ -9,29 +8,39 @@ import { PEBBLE_SUNLIGHT_COLORS } from '../data/colors';
  * sync.
  */
 
-/** RLCD gamma exponent applied to Pebble's sunlight-mapped channels */
-const RLCD_GAMMA = 1.7;
+/** RLCD gamma exponent for Pebble's 2-bit color channels */
+const RLCD_GAMMA = 1.6;
 
 /** regions at or below this luminance are dark: their icons draw as
  *  outlines rather than white badges */
-const DARK_REGION_LUMINANCE = 0.205;
+const DARK_REGION_LUMINANCE = 0.18;
 
 /** white text wins when its contrast ratio, times this, is at least
- *  black's: the screen renders mid-tones darker than sRGB would suggest */
-const WHITE_TEXT_BIAS = 3.25;
+ *  black's: the screen renders mid-tones darker than sRGB would suggest,
+ *  especially saturated colors where at least one subpixel is closed */
+const WHITE_TEXT_BIAS = 3.0;
+const PASTEL_WHITE_TEXT_BIAS = 1.3;
 
 /** below this contrast with its region, an accent gives way to the text color */
 const MIN_ACCENT_CONTRAST = 2.9;
 
 const normalize = (hex: string) => hex.replace('#', '').toUpperCase();
 
-/** RLCD relative luminance of a 6-digit hex color, using Pebble's sunlight
- *  color mapping and a 1.7 gamma curve */
-export const luminance = (hex: string): number => {
+const channels = (hex: string): [number, number, number] => {
   const h = normalize(hex);
-  const sun = PEBBLE_SUNLIGHT_COLORS[h] ?? h;
-  const [r, g, b] = [0, 2, 4].map((i) => (parseInt(sun.slice(i, i + 2), 16) / 255) ** RLCD_GAMMA);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return [
+    parseInt(h.slice(0, 2), 16),
+    parseInt(h.slice(2, 4), 16),
+    parseInt(h.slice(4, 6), 16),
+  ];
+};
+
+/** RLCD relative luminance of a 6-digit hex color: Pebble's reflective
+ *  color filters have a 1.6 gamma curve and broader blue/red passbands
+ *  than sRGB (0.25 R + 0.61 G + 0.14 B) */
+export const luminance = (hex: string): number => {
+  const [r, g, b] = channels(hex).map((c) => (c / 255) ** RLCD_GAMMA);
+  return 0.25 * r + 0.61 * g + 0.14 * b;
 };
 
 export const contrastRatio = (a: string, b: string): number => {
@@ -44,10 +53,13 @@ const accentContrast = (accent: string, background: string): number =>
   (luminance(accent) + 0.05) / (luminance(background) + 0.05);
 
 /** black or white, whichever reads best on `background` (biased towards white) */
-const bestTextColor = (background: string): string =>
-  contrastRatio(background, 'FFFFFF') * WHITE_TEXT_BIAS >= contrastRatio(background, '000000')
+const bestTextColor = (background: string): string => {
+  const [r, g, b] = channels(background);
+  const bias = r > 0 && g > 0 && b > 0 ? PASTEL_WHITE_TEXT_BIAS : WHITE_TEXT_BIAS;
+  return contrastRatio(background, 'FFFFFF') * bias >= contrastRatio(background, '000000')
     ? 'FFFFFF'
     : '000000';
+};
 
 /** a region's colors, as 6-digit hex without '#' */
 export interface RegionPalette {

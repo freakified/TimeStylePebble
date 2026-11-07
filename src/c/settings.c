@@ -270,29 +270,21 @@ void Settings_saveToStorage() {
  * Mirrored by config-page/src/utils/colorDerivation.ts for the preview;
  * keep the two in sync.
  *
- * Luminances are RLCD relative luminance scaled by 10000, precomputed from
- * Pebble's 64-color sunlight mapping with a 1.7 gamma curve and indexed by
- * the 6-bit RGB value (color.argb & 0x3f).
+ * Luminances are RLCD relative luminance scaled by 10000: Pebble's four
+ * 2-bit channel levels follow a 1.6 gamma curve, and its reflective filters
+ * have broader blue/red passbands than sRGB (0.25 R + 0.61 G + 0.14 B).
  */
-static const uint16_t s_sunlightLuminance[64] = {
-    0,    259,  982,  2043, 1013, 1204, 1729, 2631, // 00..07
-    3495, 3628, 4088, 4785, 6931, 7107, 7419, 8032, // 08..0f
-    386,  626,  1290, 2248, 1341, 1514, 2095, 2935, // 10..17
-    3747, 3896, 4321, 5030, 7186, 7305, 7636, 8242, // 18..1f
-    1454, 1651, 2266, 3189, 2267, 2438, 2971, 3810, // 20..27
-    4543, 4682, 5070, 5806, 7826, 7950, 8324, 8900, // 28..2f
-    2970, 3093, 3664, 4546, 3662, 3816, 4283, 5130, // 30..37
-    5763, 5913, 6312, 7025, 8853, 9027, 9377, 10000 // 38..3f
-};
+static const uint32_t s_linearChannel[4] = {0, 1724, 5227, 10000};
 
-// regions at or below this luminance (0.205) are dark: their icons draw as
+// regions at or below this luminance (0.18) are dark: their icons draw as
 // outlines rather than white badges
-#define DARK_REGION_LUMINANCE 2050
+#define DARK_REGION_LUMINANCE 1800
 
-// white text wins when its contrast ratio, times this bias (3.25, in
-// hundredths), is at least black's: the screen renders mid-tones darker than
-// sRGB would suggest
-#define WHITE_TEXT_BIAS_HUNDREDTHS 325
+// white text wins when its contrast ratio, times this bias (in tenths), is at
+// least black's: the screen renders mid-tones darker than sRGB would suggest,
+// especially saturated colors where at least one subpixel is closed
+#define WHITE_TEXT_BIAS_TENTHS 30
+#define PASTEL_WHITE_TEXT_BIAS_TENTHS 13
 
 // a dark-region accent needs at least 2.9:1 (29/10) against its background,
 // or the icon strokes fall back to the text color
@@ -300,7 +292,9 @@ static const uint16_t s_sunlightLuminance[64] = {
 #define MIN_ACCENT_CONTRAST_DEN 10
 
 static uint32_t luminance(GColor color) {
-  return s_sunlightLuminance[color.argb & 0x3f];
+  return (2500 * s_linearChannel[color.r] + 6100 * s_linearChannel[color.g] +
+          1400 * s_linearChannel[color.b]) /
+         10000;
 }
 
 // a contrast ratio as a fraction: (lighter + 0.05) / (darker + 0.05)
@@ -329,8 +323,11 @@ static bool contrast_greater(Contrast a, Contrast b) {
 static GColor best_text_color(GColor background) {
   Contrast white = contrast(background, GColorWhite);
   Contrast black = contrast(background, GColorBlack);
-  return (uint64_t)white.num * black.den * WHITE_TEXT_BIAS_HUNDREDTHS >=
-                 (uint64_t)black.num * white.den * 100
+  uint32_t bias = (background.r && background.g && background.b)
+                      ? PASTEL_WHITE_TEXT_BIAS_TENTHS
+                      : WHITE_TEXT_BIAS_TENTHS;
+  return (uint64_t)white.num * black.den * bias >=
+                 (uint64_t)black.num * white.den * 10
              ? GColorWhite
              : GColorBlack;
 }
