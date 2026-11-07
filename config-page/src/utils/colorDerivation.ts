@@ -1,4 +1,5 @@
 import { Settings } from '../context/types';
+import { PEBBLE_SUNLIGHT_COLORS } from '../data/colors';
 
 /*
  * Color derivation: themes store only three colors (background, time,
@@ -8,26 +9,28 @@ import { Settings } from '../context/types';
  * sync.
  */
 
+/** RLCD gamma exponent applied to Pebble's sunlight-mapped channels */
+const RLCD_GAMMA = 1.7;
+
 /** regions at or below this luminance are dark: their icons draw as
  *  outlines rather than white badges */
-const DARK_REGION_LUMINANCE = 0.1;
+const DARK_REGION_LUMINANCE = 0.205;
 
 /** white text wins when its contrast ratio, times this, is at least
  *  black's: the screen renders mid-tones darker than sRGB would suggest */
-const WHITE_TEXT_BIAS = 1.4;
+const WHITE_TEXT_BIAS = 3.25;
 
 /** below this contrast with its region, an accent gives way to the text color */
-const MIN_ACCENT_CONTRAST = 6;
+const MIN_ACCENT_CONTRAST = 2.9;
 
 const normalize = (hex: string) => hex.replace('#', '').toUpperCase();
 
-/** WCAG relative luminance of a 6-digit hex color */
+/** RLCD relative luminance of a 6-digit hex color, using Pebble's sunlight
+ *  color mapping and a 1.7 gamma curve */
 export const luminance = (hex: string): number => {
   const h = normalize(hex);
-  const [r, g, b] = [0, 2, 4].map((i) => {
-    const c = parseInt(h.slice(i, i + 2), 16) / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
+  const sun = PEBBLE_SUNLIGHT_COLORS[h] ?? h;
+  const [r, g, b] = [0, 2, 4].map((i) => (parseInt(sun.slice(i, i + 2), 16) / 255) ** RLCD_GAMMA);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 
@@ -35,6 +38,10 @@ export const contrastRatio = (a: string, b: string): number => {
   const [lo, hi] = [luminance(a), luminance(b)].sort((x, y) => x - y);
   return (hi + 0.05) / (lo + 0.05);
 };
+
+/** how much lighter `accent` is than a dark `background` */
+const accentContrast = (accent: string, background: string): number =>
+  (luminance(accent) + 0.05) / (luminance(background) + 0.05);
 
 /** black or white, whichever reads best on `background` (biased towards white) */
 const bestTextColor = (background: string): string =>
@@ -60,14 +67,14 @@ const derivePalette = (background: string, accent1: string, accent2: string): Re
     return { background: bg, text, iconFill: 'FFFFFF', iconStroke: '000000' };
   }
 
-  // on a dark region, icons are outlines in the more striking accent
+  // on a dark region, icons are outlines in the brighter accent
   const accent = normalize(
-    contrastRatio(accent2, bg) > contrastRatio(accent1, bg) ? accent2 : accent1);
+    accentContrast(accent2, bg) > accentContrast(accent1, bg) ? accent2 : accent1);
   return {
     background: bg,
     text,
     iconFill: bg,
-    iconStroke: contrastRatio(accent, bg) >= MIN_ACCENT_CONTRAST ? accent : text,
+    iconStroke: accentContrast(accent, bg) >= MIN_ACCENT_CONTRAST ? accent : text,
   };
 };
 
